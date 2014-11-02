@@ -376,6 +376,16 @@ Full-Width Styles
   padding-top: 40px;
 }
 
+.hponeview_intro {
+  display: block;
+  float: right;
+  width: 500px;
+  height:365px;
+  text-indent: -5000px;
+  overflow: hidden;
+  background: url(../images/HPOneView_POSH_Library_intro.png) no-repeat;
+}
+
 #footer_wrap {
   background: #212121;
 }
