@@ -1,0 +1,185 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+	<ViewDefinitions>
+		<View>
+			<Name>connections</Name>
+			<ViewSelectedBy>
+				<TypeName>HPOneView.Profile.Connection</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Label>ID</Label>
+						<Width>2</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Type</Label>
+						<Width>12</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Network</Label>
+						<Width>30</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Requested BW</Label>
+						<Width>12</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Maximum BW</Label>
+						<Width>10</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Boot</Label>
+						<Width>20</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>	
+					<TableColumnHeader>
+						<Label>Port ID</Label>
+						<Width>10</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Address</Label>
+						<Width>32</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>id</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>functionType</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>$profileCache[$_.networkUri]</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>"{0} Gbps" -f ($_.requestedMbps / 1000)</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>"{0} Gbps" -f ($_.maximumMbps / 1000)</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>$bootSetting = @()
+                      $bootSetting += $_.boot.priority
+                      if ($_.boot.targets) {
+
+                           for ($i=0; $i -eq $boot.targets.count; $i++) { $bootSetting += "WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)" }
+
+                      }
+					  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets)) { $bootSetting += "(Use Adapter BIOS)" } 
+                      $bootSettingString = $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
+                      $bootSettingString</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>portId</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>$address = @()
+
+                   if ($_.macType -eq "Virtual" -and $_.mac) { $address += "MAC $($_.mac) (V)" }
+                   elseif ($_.macType -eq "Physical" -and $_.mac) { $address += "MAC $($_.mac) (p)" }
+
+                   if ($_.wwpnType -eq "Virtual" -and $_.wwnn) { $address += "WWNN $($_.wwnn) (v)"} 
+                   elseif ($_.wwpnType -eq "Physical" -and $_.wwnn) { $address += "WWNN $($_.wwnn) (p)" }
+
+                   if ($_.wwpnType -eq "Virtual" -and $_.wwpn) { $address += "WWPN $($_.wwpn) (v)"} 
+                   elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { $address += "WWPN $($_.wwpn) (p)" }
+
+                   $address | Out-String | % { $_ -replace '^\s+|\s+$' }</ScriptBlock>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
+		<View>
+			<Name>sanvolumes</Name>
+			<ViewSelectedBy>
+				<TypeName>HPOneView.Profile.SanVolume</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Label>Volume ID</Label>
+						<Width>9</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Status</Label>
+						<Width>6</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Volume Name</Label>
+						<Width>20</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>LUN</Label>
+						<Width>4</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Pool</Label>
+						<Width>20</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Size</Label>
+						<Width>8</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Provisioning</Label>
+						<Width>12</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+					<TableColumnHeader>
+						<Label>Sharing</Label>
+						<Width>7</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>id</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>status</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>"{0}" -f $profileCache[$_.volumeUri].name</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<PropertyName>lunType</PropertyName>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>"{0}" -f $profileCache[$_.volumeStoragePoolUri].name</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>"{0} GB" -f ($profileCache[$_.volumeUri].provisionedCapacity / 1gb)</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>"{0}" -f $profileCache[$_.volumeUri].provisionType</ScriptBlock>
+							</TableColumnItem>
+							<TableColumnItem>
+								<ScriptBlock>if ($profileCache[$_.volumeUri].shareable) { "{0}" -f "Shared" } else { "{0}" -f "Private" }</ScriptBlock>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>
+	</ViewDefinitions>
+</Configuration>
