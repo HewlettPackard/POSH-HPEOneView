@@ -125,12 +125,21 @@ Revision History
      |  - Added Set-HPOVUserPassword to allow the current user to update/change their password.
      |  - Added Set-HPOVLdapGroup to modify the roles assigned to the directory group.
      |  - Renamed the following CMDLETs, and provided CMDLET alias to the original name: New-HPOVEnclosure -> Add-HPOVEnclosure, New-HPOVServer -> Add-HPOVServer, New-HPOVPowerDevice -> Add-HPOVPowerDevice, New-HPOVStorageSystem -> Add-HPOVStorageSystem, New-HPOVStoragePool -> Add-HPOVStoragePool, and New-HPOVSanManager -> Add-HPOVSanManager.
-
+------------------------------------------
+1.10.1415
+     |  - Moved project repository to GitHub (https://github.com/HewlettPackard/POSH-HPOneView).
+     |  - Fixed internal Download-File function where ContentLength wasn't being detected correctly.
+     |  - Fixed Get-HPOVServer where wildcard search wasn't correct.
+     |  - Fixed New-HPOVProfile where -ServerHardwareType parameter wasn't being handled correctly.
+     |  - Fixed Get-HPOVNetwork where specifying a FC network name would return zero results, even though the network existed.
+     |  - Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish their init.
+     |  - Fixed Add-HPOVEnclosure where if the enclosure is already managed by another external manager, the method to resolve the IP Address to FQDN could fail if a valid DNS name is not returned.
+	 |  - Added Detailed switch to display detailed BIOS and Connection detail to Get-HPOVProfile.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.10.1378"
+$script:scriptVersion = "1.10.1415"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.110"}))) { 
@@ -1523,14 +1532,6 @@ function Wait-HPOVApplianceStart {
             $waitRequest= $Null
             $waitResponse = $Null
             [System.Net.httpWebRequest]$waitRequest = RestClient -uri "/rest/appliance/progress" -appliance $Appliance #$appliance 
-            #$waitRequest = [System.Net.WebRequest]::Create("https://" + $Appliance + "/rest/appliance/progress")
-            #$waitRequest.Method = "GET"
-            #$waitRequest.ContentType = "application/json"
-            #$waitRequest.Accept = "application/json"
-            #$waitRequest.Headers.Item("X-API-Version") = "101"
-            #$waitRequest.Headers.Item("accept-language") = "en_US"
-            #$waitRequest.Headers.Item("accept-encoding") = "gzip, deflate"
-            #$waitRequest.AutomaticDecompression = "GZip,Deflate,None"
 
             write-verbose "[WAIT-HPOVAPPLIANCESTART] REQUEST: GET https://$($Appliance)/rest/appliance/progress"
             $i = 0
@@ -1583,7 +1584,20 @@ function Wait-HPOVApplianceStart {
             #Catch if we haven't received HTTP 200, as we should display a nice message stating services are still beginning to start
             catch [Net.WebException] {
 
-                write-verbose "[WAIT-HPOVAPPLIANCESTART] EXCEPTION CAUGHT! HTTP Status Code: $([int]$waitResponse.StatusCode)"
+                if ($waitResponse) {
+
+                    $rs = $waitResponse.GetResponseStream()
+
+                    $reader = New-Object System.IO.StreamReader($rs)
+                    $responseJson = $reader.ReadToEnd()
+
+                    Write-Verbose "[WAIT-HPOVAPPLIANCESTART] ERROR RESPONSE: $($responseJson | ConvertFrom-Json | out-string)"
+                    Write-Verbose "[WAIT-HPOVAPPLIANCESTART] Response Status: HTTP_$([int]$waitResponse.StatusCode) $($waitResponse.StatusDescription)"
+                    foreach ($h in $waitResponse.Headers) { Write-Verbose "[WAIT-HPOVAPPLIANCESTART] Response Header: $($h) = $($waitResponse.Headers[$i])"; $i++ }
+
+                }
+
+                write-verbose "[WAIT-HPOVAPPLIANCESTART] EXCEPTION CAUGHT! HTTP Status Code: $($waitResponse)"
                 write-verbose "$($waitResponse| Out-string)"
 
                 #Only want to display this message once.
@@ -1608,6 +1622,9 @@ function Wait-HPOVApplianceStart {
     end {
 
         Write-Verbose "[WAIT-HPOVAPPLIANCESTART] Web Services have started successfully"
+        Write-Verbose "[WAIT-HPOVAPPLIANCESTART] Pausing 5 seconds to let web services finish their final startup"
+
+        start-sleep -s 5
 
         $script:lastWebResponse = $waitResponse
 
@@ -1644,7 +1661,6 @@ function Connect-HPOVMgmt {
         #Check to see if the user is already connected
         if ($global:cimgmtSessionId) {
         
-            #write-error -Category ResourceExists "You are already logged into $Appliance. Please use Disconnect-HPOVMgmt to end your existing session, and then call Connect-HPOVMgmt again." -ErrorAction Stop
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException ResourceExists AuthenticationError $script:HPOneViewAppliance -Message "You are already logged into $Appliance. Please use Disconnect-HPOVMgmt to end your existing session, and then call Connect-HPOVMgmt again." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
@@ -1678,11 +1694,14 @@ function Connect-HPOVMgmt {
             try {
             
                 $applianceVersion = (Send-HPOVRequest $script:applXApiVersion).currentVersion
+
+                write-verbose "[CONNECT-HPOVMGMT] Appliance returned: $($applianceVersion | out-string)"
+
                 if ($applianceVersion -and $applianceVersion -lt $script:applMinVersion ) {
 
-                #Display terminating error
-                $errorRecord = New-ErrorRecord System.NotImplementedException LibraryTooNew OperationStopped $script:HPOneViewAppliance -Message "The appliance you are connecting to supports an older version of this library.  Please visit https://hponeview.codeplex.com for a supported version of the library." #-verbose
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
+                    #Display terminating error
+                    $errorRecord = New-ErrorRecord System.NotImplementedException LibraryTooNew OperationStopped $script:HPOneViewAppliance -Message "The appliance you are connecting to supports an older version of this library.  Please visit https://hponeview.codeplex.com for a supported version of the library." #-verbose
+                    $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                 }
 
@@ -2835,26 +2854,19 @@ function Set-HPOVApplianceNetworkConfig {
             [int]$i=0
             $deviceIndex = $NULL
             $configured = $false
-
-            For($i -eq 0; $i -le ($currentConfig.applianceNetworks.Count - 1); $i++) {
-
-                if($currentConfig.applianceNetworks[$i].device -eq $device) {
-
-                    $deviceIndex = $i; $configured=$true; break
-
-                }
-
-            }
-
+            #If($currentConfig.applianceNetworks.Count -gt 1){
+                For($i -eq 0; $i -le ($currentConfig.applianceNetworks.Count - 1); $i++)
+                    {
+                     if($currentConfig.applianceNetworks[$i].device -eq $device){
+                        $deviceIndex = $i; $configured=$true; break
+                        }
+                    }
+                #}
             
             if(!$configured){
-
                 $freeMacs = Send-HPOVRequest $script:applMacAddresses
-
                 if($freeMacs.members | ? {$_.device -eq $device}){
-
                     $macAddr = ($freeMacs.members | ? {$_.device -eq $device}).macAddress
-
                     # Update any non-null values that were passed-in:
                     $secondaryNet = New-Object System.Object
                     $secondaryNet | Add-Member -NotePropertyName device -NotePropertyValue $device
@@ -2915,9 +2927,7 @@ function Set-HPOVApplianceNetworkConfig {
                     }
                 }
             "importFile" {
-
                 try {
-
                     $importConfig = [string]::Join("", (gc $importfile -ErrorAction Stop))
                     $importConfig = $importConfig -replace "\s","" | convertfrom-json -ErrorAction Stop
                     $freeMacs = Send-HPOVRequest $script:applMacAddresses
@@ -2972,7 +2982,6 @@ function Set-HPOVApplianceNetworkConfig {
         }
 
         if($configured){
-
                 # Update any non-null values that were passed-in:
                 
                 if ($hostname)        { $currentConfig.applianceNetworks[$deviceIndex].hostname =     $hostname }
@@ -3027,61 +3036,46 @@ function Set-HPOVApplianceNetworkConfig {
         catch [HPOneView.Appliance.NetworkConnectionException]{
         
             #The appliance is no longer reachable.
-            
-            Reset-LibraryVariables
+			$Script:PromptApplianceHostname = $Null
+            $script:HPOneViewAppliance = $Null
+            $global:cimgmtSessionId.appliance = $Null
+            $script:applianceConnectedTo.appliance = $Null
+			$errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConfigurationException ApplianceUnreachable ConnectionError 'Set-HPOVApplianceNetworkConfig' -Message "The appliance is unreachable." #-verbose
+            $PsCmdlet.ThrowTerminatingError($errorRecord)
 
-            $errorRecord = New-ErrorRecord POneView.Appliance.NetworkConnectionException ApplianceIsUnreachable ConnectionError 'Set-HPOVApplianceNetworkConfig' -Message "The appliance is unreachable.  Please use Connect-HPOVMgmt to restablish a session with the appliance." #-verbose
-            $PsCmdlet.ThrowTerminatingError($errorRecord)    
-        
         }
         
-        #validate status
-        if (([int]$script:lastWebResponse.StatusCode -eq 202 -or [int]$script:lastWebResponse.StatusCode -eq 200) -and $taskStatus.type -eq "TaskResourceV2" -and $taskStatus.taskState -eq "Running") {
+        #validate status code 200, even though it should be HTTP/202
+        if ([int]$script:lastWebResponse.StatusCode -eq 200 -and $taskStatus.type -eq "TaskResourceV2" -and $taskStatus.taskState -eq "Running") {
         
             #Start a new stopwatch object
             $sw = [diagnostics.stopwatch]::StartNew()
-
-            try {
-
-                #Get task to check its status
-                $taskStatus = Send-HPOVRequest $task.uri
-
-                #If taskState is not Running, generate terminating error
-                if (-not $taskStatus.taskState -eq "Running") { 
                 
-                    $errorRecord = New-ErrorRecord
-                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+            Do {
+
+                $percentComplete = [Math]::Round(($sw.Elapsed.Seconds / 40) * 100,$mathMode)
                 
+                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { 
+                    
+                    write-verbose "[SET-HPOVAPPLIANCENETWORKCONFIG] Skipping Write-Progress display."
+                    write-verbose "[SET-HPOVAPPLIANCENETWORKCONFIG] Percent Complete: $percentComplete"
+                    Start-Sleep -s 1
+
+                }
+                  
+                else {
+
+                    #Display progress-bar
+                    Write-Progress -activity "Update Appliance Network Configuration" -Status "Processing $percentComplete%" -percentComplete $percentComplete -SecondsRemaining (40 - $sw.Elapsed.Seconds)
+
                 }
 
-                Do {
+            } While ($sw.Elapsed.Seconds -le 40)
 
-                    $percentComplete = [Math]::Round(($sw.Elapsed.Seconds / 40) * 100,$mathMode)
-                    
-                    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { 
-                        
-                        write-verbose "[SET-HPOVAPPLIANCENETWORKCONFIG] Skipping Write-Progress display."
-                        write-verbose "[SET-HPOVAPPLIANCENETWORKCONFIG] Percent Complete: $percentComplete"
-                        Start-Sleep -s 1
-
-                    }
-                      
-                    else {
-
-                        #Display progress-bar
-                        Write-Progress -activity "Update Appliance Network Configuration" -Status "Processing $percentComplete%" -percentComplete $percentComplete -SecondsRemaining (40 - $sw.Elapsed.Seconds)
-
-                    }
-
-                } While ($sw.Elapsed.Seconds -le 40)
-
-                #Stop the stopwatch
-                $sw.stop()
-                
-                Write-Progress -activity "Update Appliance Network Configuration" -Completed
-
-            }
-            catch { }
+            #Stop the stopwatch
+            $sw.stop()
+            
+            Write-Progress -activity "Update Appliance Network Configuration" -Completed
         
         }
 
@@ -3131,7 +3125,12 @@ function Set-HPOVApplianceNetworkConfig {
             else {
 
                 #Unable to connect to new appliance address or connection failed.  Need to generate error here.
-
+				$Script:PromptApplianceHostname = $Null
+				$script:HPOneViewAppliance = $Null
+				$global:cimgmtSessionId.appliance = $Null
+				$script:applianceConnectedTo.appliance = $Null
+				$errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConfigurationException ApplianceUnreachable ConnectionError 'Set-HPOVApplianceNetworkConfig' -Message "The appliance is unreachable." #-verbose
+				$PsCmdlet.ThrowTerminatingError($errorRecord)
 
             }
         }
@@ -3741,25 +3740,11 @@ function Download-File {
         $fsCreate = [System.IO.FileAccess]::Create
         $fsWrite = [System.IO.FileAccess]::Write
 
-        #if ($uri.StartsWith("https://")) {
-        #    $downloadUri = $uri
-        #}
-        #else {
-		#    $downloadUri = "https://" + $script:HPOneViewAppliance + $uri
-        #}
-        #write-Verbose "[DOWNLOAD-FILE] Download URI: $($downloadUri)"
         write-Verbose "[DOWNLOAD-FILE] Download URI: $uri"
-
-        #[System.Net.httpWebRequest]$fileDownload = RestClient $downloadUri GET	    
+  
         [System.Net.httpWebRequest]$fileDownload = RestClient GET $uri
-        #[System.Net.httpWebRequest]$fileDownload = [net.webRequest]::create($downloadUri)
-	    #$fileDownload.Timeout = 10000
-	    #$fileDownload.method = "GET"
 	    $fileDownload.accept = "application/zip,application/octet-stream,*/*"
 		$fileDownload.Headers.Item("auth") = $global:cimgmtSessionId.sessionID
-	    #$fileDownload.Headers.Item("accept-charset") = "ISO-8859-1,utf-8"
-	    #$fileDownload.Headers.Item("accept-encoding") = "gzip,deflate,sdch"
-	    #$fileDownload.Headers.Item("accept-language") = "en_US"
 
         $i=0
         foreach ($h in $fileDownload.Headers) { Write-Verbose "[DOWNLOAD-FILE] Request Header $($i): $($h) = $($fileDownload.Headers[$i])"; $i++}
@@ -3795,18 +3780,14 @@ function Download-File {
             $fileName = $fileName[-1]
         }
 
+		if ($rs.headers['Content-Length']) { $fileSize = $rs.headers['Content-Length'] }
+		elseif ($rs.ContentLength -and $rs.ContentLength -gt 0) { $fileSize = $rs.ContentLength }
+
         Write-Verbose "[DOWNLOAD-FILE] Filename: $($fileName)"
-	    Write-Verbose "[DOWNLOAD-FILE] Filesize:  $($rs.ContentLength)"
+	    Write-Verbose "[DOWNLOAD-FILE] Filesize:  $($fileSize)"
 
-        #Decompress the response if encoded, Required for OneView 1.10 or greater.
 	    #Read from response and write to file
-        switch ($rs.Headers.Item("Content-Encoding")) {
-
-            "gzip"    { $stream = New-Object System.IO.Compression.GZipStream ($rs.GetResponseStream()),([IO.Compression.CompressionMode]::Decompress) }
-            "deflate" { $stream = New-Object System.IO.Compression.DeflateStream ($rs.GetResponseStream()),([IO.Compression.CompressionMode]::Decompress) }
-            default   { $stream = $rs.GetResponseStream() }
-
-        }
+		$stream = $rs.GetResponseStream() 
 	        
 	    #Define buffer and buffer size
 		[int] $bufferSize = (4096*1024)
@@ -3814,14 +3795,15 @@ function Download-File {
 	    [int] $bytesRead = 0
 
 		#This is used to keep track of the file upload progress.
-	    $totalBytesToRead = $rs.ContentLength
+	    $totalBytesToRead = $fileSize
 	    $numBytesRead = 0
 		$numBytesWrote = 0
 	 
         Write-Verbose "[DOWNLOAD-FILE] Saving to $($saveLocation)\$($fileName)"
         $fs = New-Object IO.FileStream ($saveLocation + "\" + $fileName),'Create','Write','Read'
-	    #$fs = New-Object IO.FileStream (($saveLocation + "\" + $fileName[-1]), $fsCreate, $fsWrite)
+
 	    while (($bytesRead = $stream.Read($buffer, 0, $bufferSize)) -ne 0) {
+
 	        #Write from buffer to file
 			$byteCount = $fs.Write($buffer, 0, $bytesRead);
 			
@@ -3842,6 +3824,7 @@ function Download-File {
             }
               
             else { Write-Progress -activity "Downloading file $fileName" -status $status -percentComplete $percent }
+
 	    } #end while
 
 	    Write-Verbose "[DOWNLOAD-FILE] File saved to $($saveLocation)"
@@ -4530,7 +4513,7 @@ function Stop-HPOVAppliance {
 
 function Get-HPOVServer {
     
-    # .ExternalHelp HPOneView.110.psm1-help.xml
+    # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding(DefaultParameterSetName = "Default")]
 	Param (
@@ -4559,31 +4542,40 @@ function Get-HPOVServer {
 
 	Process {
 
-        $uri = $script:serversUri
+        $uri = $script:serversUri + "?sort=name:asc"
 
-        if ($name -and $NoProfile) { 
-            
-            Write-Verbose "[GET-HPOVSERVER] Recieved name '$($name)' and filtering for no Profile Assigned."
-            $uri += "?filter=name matches '$name'&filter=serverProfileUri=null&sort=name:asc" -replace ("[*]","%25")
-        
-        }
-		
-        elseif ($name) { 
-            
-            Write-Verbose "[GET-HPOVSERVER] Recieved name: $($name)"
-            $uri += "?filter=name matches '$name'&sort=name:asc" -replace ("[*]","%25")
-        
-        }
-
-        elseif ($NoProfile) { 
+        #if ($name -and $NoProfile) { 
+        #    
+        #    Write-Verbose "[GET-HPOVSERVER] Recieved name '$($name)' and filtering for no Profile Assigned."
+        #    $uri += "?filter=name matches '$name'&filter=serverProfileUri=null&sort=name:asc" -replace ("[*]","%25")
+        #
+        #}
+		#
+        #elseif ($name) { 
+        #    
+        #    Write-Verbose "[GET-HPOVSERVER] Recieved name: $($name)"
+        #    $uri += "?filter=name matches '$name'&sort=name:asc" -replace ("[*]","%25")
+        #
+        #}
+        #
+        ##elseif ($NoProfile) { 
+        if ($NoProfile) { 
             
             Write-Verbose "[GET-HPOVSERVER] Filtering for server hardware with no assigned profiles."
-            $uri += "?filter=serverProfileUri=null&sort=name:asc"
+            $uri += "&filter=serverProfileUri=null"
         
         }
 
         Write-Verbose "[GET-HPOVSERVER] Sending request"
 	    $svrs = Send-HPOVRequest $uri
+
+        if($name) {
+
+            $svrs.members = $svrs.members | ? { $_.name -like $name }
+            if ($svrs.members -is [PSCustomObject]) { $svrs.total = 1}
+            else { $svrs.total = $svrs.members.count }
+
+        }
 
         if ($svrs.total -eq 0 -and $name) {
 				
@@ -5327,7 +5319,10 @@ function Add-HPOVEnclosure {
 
                         $externalManagerType = $errorMessage.data.managementProduct
                         $externalManagerIP = $errorMessage.data.managementUrl.Replace("https://","")
-                        $externalManagerFQDN = [System.Net.DNS]::GetHostByAddress($externalManagerIP)
+                        try { $externalManagerFQDN = [System.Net.DNS]::GetHostByAddress($externalManagerIP) }
+                        
+                        #Unable to resolve IP Address to FQDN
+                        catch { $externalManagerFQDN = $externalManagerIP }
 
                         write-verbose "[NEW-HPOVENCLOSURE] - Found enclosure '$hostname' is already being managed by $externalManagerType at $externalManagerIP."
                         write-verbose "[NEW-HPOVENCLOSURE] - $externalManagerIP resolves to $($externalManagerFQDN | out-string)"
@@ -10177,9 +10172,9 @@ function Get-HPOVNetwork {
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
         }
-        if (-not ($Type)) { $type = "Ethernet" }
-        Write-Verbose "[GET-HPOVNETWORK] Network Type: $($type)"
-        Write-Verbose "[GET-HPOVNETWORK] Network Name: $($name)" 
+        #if (-not ($Type)) { [Array]$type = "Ethernet","FC" }
+        if ($type) { Write-Verbose "[GET-HPOVNETWORK] Network Type: $($type)" }
+        if ($name) { Write-Verbose "[GET-HPOVNETWORK] Network Name: $($name)" }
     }
 	
     Process {
@@ -10188,7 +10183,7 @@ function Get-HPOVNetwork {
 
             "\bFC\b|\bfibre\b|\bfibrechannel\b" {
             
-                Write-Verbose "[GET-HPOVNETWORK] Looking for FibreChannel Network..."
+                Write-Verbose "[GET-HPOVNETWORK] Looking for FibreChannel Networks..."
 
                 if ($name) { 
                     
@@ -10205,12 +10200,12 @@ function Get-HPOVNetwork {
 
                 else { $fcnets = Send-HPOVRequest ($script:fcNetworksUri + "?sort=name:ascending") }
                 
-                $members = $fcnets.members
+                $members += $fcnets.members
             }
 
             "\bEthernet\b" {
 
-                Write-Verbose "[GET-HPOVNETWORK] Looking for Ethernet network... "
+                Write-Verbose "[GET-HPOVNETWORK] Looking for Ethernet networks... "
 
                 if ($name) { 
                     
@@ -10227,7 +10222,7 @@ function Get-HPOVNetwork {
 
                 else { $enets = Send-HPOVRequest ($script:ethNetworksUri + "?sort=name:ascending") }
 
-                $members = $enets.members
+                $members += $enets.members
             }
 
             Default {
@@ -13691,6 +13686,7 @@ function Get-HPOVProfile {
     Param (
         [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory=$false, position=0)]
         [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory=$false, position=0)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory=$false, position=0)]
         [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory=$false, position=0)]
         [Alias('profile')]
         [string]$name = $null,
@@ -13698,6 +13694,9 @@ function Get-HPOVProfile {
         [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory=$true)]
         [alias('report')]
         [switch]$List,
+
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory=$true)]
+        [switch]$detailed,
 
         [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory=$false)]
         [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory=$false)]
@@ -13784,7 +13783,7 @@ function Get-HPOVProfile {
 
     end {
 
-        if ($list) {
+        if ($list.IsPresent) {
 
             #Display Pertinant Server Profile data in Table format
             $a = @{Expression={$_.name};Label="Profile Name"}, 
@@ -13811,6 +13810,258 @@ function Get-HPOVProfile {
 
 		    #Display List
             $profiles.members | sort-object -property name | format-table $a -AutoSize
+
+        }
+
+        elseif ($detailed.IsPresent) {
+
+            #Display Pertinant Server Profile data in Table format
+            $a1 = @{Expression={$_.name};Label="Name"},
+                  @{Expression={$profileCache[$serverHardwareTypeUri].name};Label="Server Hardware Type"},
+                  @{Expression={$profileCache[$enclosureGroupUri]};Label="Enclosure Group"},
+                  @{Expression={	if ($_.serverHardwareUri){ (Send-HPOVRequest $_.serverHardwareUri).name }
+				 		        else { "Unassigned" }
+				                 };Label="Assigned"},
+                  @{Expression={
+                  
+                         switch ($_.affinity) {
+                  
+                             "Bay" { "Device bay" }
+                             "BayAndServer" { "Device bay + Server Hardware" }
+                  
+                  
+                         }
+                  
+                  };Label="Server Affinity"},
+                  @{Expression={$_.state};Label="State"},
+                  @{Expression={$_.status};Label="Status"}
+
+            $a2 = @{Expression={$_.bios.manageBios};Label="Manage BIOS";align="Left"},
+                  @{Expression={$_.boot.manageBoot};Label="Manage Boot Order";align="Left"},
+                  @{Expression={$_.firmware.manageFirmware};Label="Manage Firmware";align="Left"},
+                  @{Expression={if ($_.serialNumberType -eq "Virtual") { $_.serialNumber + " (v)" } else { $_.serialNumber + " (p)" }};Label="Serial Number"},
+                  @{Expression={if ($_.serialNumberType -eq "Virtual") { $_.uuid + " (v)" } else { $_.uuid + " (p)" }};Label="UUID"}
+
+
+            #Firmware Details
+            $f = @{Expression={
+                if ($_.firmware.manageFirmware) {
+
+                    $baseline = Send-HPOVRequest $_.firmware.firmwareBaselineUri
+                    "$($baseline.name) version $($baseline.version)"
+
+                }
+                else { "none" }
+            
+            };Label="Firmware Baseline"}
+
+            $c = @{Expression={$_.id};Label="ID";width=2},
+                 @{Expression={$_.functionType};Label="Type";width=12},
+                 @{Expression={
+                   
+                   $address = @()
+                 
+                   #Mac Address
+                   if ($_.macType -eq "Virtual" -and $_.mac) { $address += "MAC $($_.mac) (V)" }
+                   elseif ($_.macType -eq "Physical" -and $_.mac) { $address += "MAC $($_.mac) (p)" }
+                   
+                   #WWNN
+                   if ($_.wwpnType -eq "Virtual" -and $_.wwnn) { $address += "WWNN $($_.wwnn) (v)"} 
+                   elseif ($_.wwpnType -eq "Physical" -and $_.wwnn) { $address += "WWNN $($_.wwnn) (p)" }
+                   
+                   #WWPN
+                   if ($_.wwpnType -eq "Virtual" -and $_.wwpn) { $address += "WWPN $($_.wwpn) (v)"} 
+                   elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { $address += "WWPN $($_.wwpn) (p)" }
+
+                   $addressCol = $address | Out-String | % { $_ -replace '^\s+|\s+$' }
+                   $addressCol
+                   
+                 };Label="Address";width=32},
+                 @{Expression={$profileCache[$_.networkUri]};Label="Network"},
+                 @{Expression={$_.portId};Label="Port Id";width=10},
+                 @{Expression={[string]$_.requestedMbps};Label="Requested BW";width=12},
+                 @{Expression={[string]$_.maximumMbps};Label="Maximum BW";width=10},
+                 @{Expression={
+                 
+                      $bootSetting = @()
+                      $bootSetting += $_.boot.priority
+                      if ($_.boot.targets) {
+                 
+                           for ($i=0; $i -eq $boot.targets.count; $i++) { $bootSetting += "WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)" }
+                 
+                      }
+                      $bootSettingString = $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
+                      $bootSettingString
+                 
+                   
+                  };Label="Boot";width=20},
+                 @{Expression={
+                 
+                    if ($_.functionType -eq "FibreChannel" -and -not ($_.boot.targets)) { "Yes" } 
+                    elseif ($_.functionType -eq "FibreChannel" -and $_.boot.targets) { "No" }
+                    else { $Null }
+                 
+                  };Label="Use Boot BIOS";width=13}
+                               
+            #Display extended BIOS settings
+            $b = @{Expression={$_.category};Label="BIOS Category"},
+                 @{Expression={$_.settingName};Label="Setting Name"},
+                 @{Expression={$_.valueName};Label="Configured Value"}
+
+            $ls = @{Expression={$_.localStorage.manageLocalStorage};Label="Manage Local Storage";align="Left"},
+                  @{Expression={$_.localStorage.initialize};Label="Initialize Disk";align="Left"},
+                  @{Expression={
+                  
+                        $logicalDriveCol = @()
+                        $d=0
+
+                        while ($d -lt $sp.localStorage.logicalDrives.count) {
+
+                            if ($_.localStorage.logicalDrives[$d].bootable) { $logicalDriveCol += "Drive {$d} $($sp.localStorage.logicalDrives[$d].raidLevel) (Bootable)" }
+                            else { $logicalDriveCol += "Drive {$d} $($sp.localStorage.logicalDrives[$d].raidLevel)" }
+                            $d++
+                        }
+
+                        $logicalDriveString = $logicalDriveCol | Out-String | % { $_ -replace '^\s+|\s+$' }
+                        $logicalDriveString
+                    
+                   };Label="Logical Disk"}
+
+            $ss = @{Expression={$_.manageSanStorage};Label="Manage SAN Storage";align="Left"},
+                  @{Expression={$_.hostOSType};Label="Host OS Type";align="Left"}
+
+            $p = @{Expression={[int]$_.connectionId};Label="Connection ID";align="Left"},
+                 @{Expression={[string]$_.network};Label="Fabric";align="Left"},
+                 @{Expression={[string]$_.initiator};Label="Initiator";align="Left"},
+                 @{Expression={[string]$_.target};Label="Target";align="Left"},
+                 @{Expression={[bool]$_.isEnabled};Label="Enabled";align="Left"}
+
+            #Server Profile cache
+            $profileCache = @{}
+            
+            #loop through all Server Profile objects and display details
+            ForEach ($profile in ($profiles.members | sort-object -property name)) {
+
+                $serverHardwareTypeUri = $profile.serverHardwareTypeUri
+                $enclosureGroupUri = $profile.enclosureGroupUri
+
+                #Cache resources during runtime to reduce API calls to appliance.
+                if (-not ($profileCache[$serverHardwareTypeUri])) { $profileCache.Add($serverHardwareTypeUri,(Send-HPOVRequest $serverHardwareTypeUri)) }
+                if (-not ($profileCache[$enclosureGroupUri])) { $profileCache.Add($enclosureGroupUri,(Send-HPOVRequest $enclosureGroupUri).name) }
+                foreach ($connection in $profile.connections) {
+                
+                    $connection | % { $_.psobject.typenames.Insert(0,”HPOneView.Profile.Connection”) }
+
+                    if (-not ($profileCache[$connection.networkUri])) { $profileCache.Add($connection.networkUri,(Send-HPOVRequest $connection.networkUri).name) } 
+                
+                }
+
+                foreach ($volume in $profile.sanStorage.volumeAttachments) {
+
+                    #insert HPOneView.Profile.SanVolume TypeName
+                    $volume | % { $_.psobject.typenames.Insert(0,”HPOneView.Profile.SanVolume") }
+	
+                    #Cache Storage System, Storage Pool and Storage Volume Resources
+                    if (-not ($profileCache[$volume.volumeStorageSystemUri])) { $profileCache.Add($volume.volumeStorageSystemUri,(Send-HPOVRequest $volume.volumeStorageSystemUri)) }
+                    if (-not ($profileCache[$volume.volumeStoragePoolUri])) { $profileCache.Add($volume.volumeStoragePoolUri,(Send-HPOVRequest $volume.volumeStoragePoolUri)) }
+                    if (-not ($profileCache[$volume.volumeUri])) { $profileCache.Add($volume.volumeUri,(Send-HPOVRequest $volume.volumeUri)) }
+
+                }
+
+                #$profileCache
+
+                #Initial Server Profile information
+                $profile | format-table $a1 -AutoSize -wrap
+                $profile | format-table $a2 -AutoSize -wrap
+
+                #Firmware Baseline
+                $profile | format-table $f
+
+                #Server Profile Connection details
+                $profile.connections | format-table -wrap
+                
+                #Local Storage
+                $profile | format-table $ls -wrap -auto
+
+                #SAN Storage
+                $profile.sanStorage | Format-Table $ss -auto
+                #$profile.sanStorage.volumeAttachments | format-table -auto
+
+                $profile.sanStorage.volumeAttachments | % {
+
+                    $_ | format-table -auto
+
+                    $pathConnectionCol = @()
+
+                    foreach ($path in $_.storagePaths) {
+
+                        $pathObject = [PSCustomObject]@{
+							connectionId = $Null; 
+							network      = $Null; 
+							initiator    = $Null; 
+							target       = $Null; 
+							isEnabled    = $Null
+						}
+
+                        $pathConnection = $profile.connections | where { $path.connectionId -eq $_.id }
+
+                        $pathObject.connectionId = $pathConnection.id
+                        $pathObject.network      = $profileCache[$pathConnection.networkUri]
+                        $pathObject.initiator    = $pathConnection.wwpn
+                        $pathObject.target       = if ($path.storageTargets) { $path.storageTargets }
+												   else { "Pending" }
+                        $pathObject.isEnabled    = [bool]$path.isEnabled
+                        $pathConnectionCol += $pathObject
+
+                    }
+
+                    #
+                    #Display path details with a left padded view. Format-Table doesn't have the ability to pad the display
+                    $capture = ($pathConnectionCol | sort connectionId | format-table $p -AutoSize -wrap | out-string) -split "`n"
+                    $capture | % { ($_).PadLeft($_.length + 5) }
+
+                }
+
+                #Boot Order
+                $bootOrder = @()
+                if ($profile.boot.manageBoot) {
+
+                    $i = 0
+                    while ($i -lt $profile.boot.order.count) {
+                        $bootOrder += "$($i+1) $($profile.boot.order[$i])"
+                        $i++
+                    }
+                    write-host "Boot Order"
+                    write-host "----------"
+                    $bootOrder
+
+                }
+                else { "No Boot Management" }
+
+                #Display configured BIOS Settings from profile
+                $configedBiosSettings = @()
+
+                foreach ($setting in $profile.bios.overriddenSettings) {
+
+                    $shtBiosSettingDetails = $profileCache[$serverHardwareTypeUri].biosSettings | ? { $setting.id -eq $_.id }
+
+                    $biosSetting = [PSCustomObject]@{
+
+                        Category = $shtBiosSettingDetails.category;
+                        settingName = $shtBiosSettingDetails.name;
+                        valueName = ($shtBiosSettingDetails.options | ? { $_.id -eq $setting.value } ).name;
+
+                    }
+
+                    $configedBiosSettings += $biosSetting
+                
+                }            
+            
+                $configedBiosSettings | sort category,settingName | format-list $b
+
+                "----------------------------------------------------------------------"
+            
+            }
 
         }
 
@@ -14100,16 +14351,17 @@ function New-HPOVProfile {
 
 				    if ($serverHardwareType.StartsWith($script:serverHardwareTypesUri)){ 
                         
-                        Write-Verbose "[NEW-HPOVPROFILE] SHT URI Provided: $serverHardwareTypeUri" 
+                        Write-Verbose "[NEW-HPOVPROFILE] SHT URI Provided: $serverHardwareType" 
 
                         $serverProfile.serverHardwareTypeUri = $serverHardwareType
+                        $serverHardwareType = Send-HPOVRequest $serverHardwareType
                         
                     }
 				
 				    #Otherwise, perform a lookup ofthe SHT based on the name
 				    else {
 
-                        Write-Verbose "[NEW-HPOVPROFILE] SHT Name Provided: $serverHardwareTypeUri"
+                        Write-Verbose "[NEW-HPOVPROFILE] SHT Name Provided: $serverHardwareType"
 
 					    $serverHardwareType = Get-HPOVServerHardwareType -name $serverHardwareType
 
@@ -14221,6 +14473,7 @@ function New-HPOVProfile {
 				    $serverProfile.serverHardwareUri = $server.uri
 				    $serverProfile.serverHardwareTypeUri = $server.serverHardwareTypeUri
                     
+                    #Handle non Blade Server objects
                     if ($server.serverGroupUri) { $serverProfile.enclosureGroupUri = $server.serverGroupUri }
 
 			    }
@@ -14232,7 +14485,7 @@ function New-HPOVProfile {
 			    }
 
                 #Get the SHT of the SH that we are going to assign.
-                $serverHardwareType = Send-HPOVRequest $serverHardwareTypeUri
+                $serverHardwareType = Send-HPOVRequest $server.serverHardwareTypeUri
 
 		    }
 
@@ -14342,7 +14595,7 @@ function New-HPOVProfile {
             
                 write-verbose "[NEW-HPOVPROFILE] Getting list of available storage systems"
                 #Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
-                $availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$enclosureGroupUri&serverHardwareTypeUri=$serverHardwareTypeUri")).members
+                $availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$enclosureGroupUri&serverHardwareTypeUri=$($serverHardwareType.uri)")).members
                 
                 write-verbose "[NEW-HPOVPROFILE] Getting list of attachable volumes"
                 #Get list of attacable Volumes (i.e. they are not assigned private or are shareable volumes)
@@ -18802,8 +19055,8 @@ write-host ""
 write-host " If you need further help, please consult one of the following:" -ForegroundColor Green
 write-host ""
 write-host "  • Get-Help about_HPOneView.110"
-Write-host "  • Online documentation at https://hponeview.codeplex.com/documentation"
-Write-host "  • Online Issues Tracker at https://hponeview.codeplex.com/workitem/list/basic"
+Write-host "  • Online documentation at https://github.com/HewlettPackard/POSH-HPOneView/wiki"
+Write-host "  • Online Issues Tracker at https://github.com/HewlettPackard/POSH-HPOneView/issues"
 write-host ""
 write-host " Copyright (C) 2014 Hewlett-Packard"
 if ((Get-Host).UI.RawUI.MaxWindowSize.width -lt 150) {

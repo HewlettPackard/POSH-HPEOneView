@@ -30,6 +30,17 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 1.10.1415
+	 -- Moved project repository to GitHub (https://github.com/HewlettPackard/POSH-HPOneView).
+	 -- Fixed internal Download-File function where ContentLength wasn't being detected correctly.
+	 -- Fixed Get-HPOVServer where wildcard search wasn't correct.
+	 -- Fixed New-HPOVProfile where -ServerHardwareType parameter wasn't being handled correctly.
+	 -- Fixed Get-HPOVNetwork where specifying a FC network name would return zero results, even though the network existed.
+	 -- Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish their init.
+	 -- Fixed Add-HPOVEnclosure where if the enclosure is already managed by another external manager, the method to resolve
+	    the IP Address to FQDN could fail if a valid DNS name is not returned.
+	 -- Added Detailed switch to display detailed BIOS and Connection detail to Get-HPOVProfile.
+
     Release 1.10.1378
 	 -- Fixed Remove-HPOVStorageVolume where it should have supported Confirm and WhatIf parameter options when attempting 
 	    to delete a storage volume resource.
@@ -164,12 +175,12 @@ LONG DESCRIPTION
     HP OneView appliance from the ground up.
                                         
     For information regarding this project, to request features or report 
-    issues, please see: http://hponeview.codeplex.com.
+    issues, please see: https://github.com/HewlettPackard/POSH-HPOneView/issues
 
 
 SEE ALSO
 
-    http://hponeview.codeplex.com
+    https://github.com/HewlettPackard/POSH-HPOneView
     http://hp.com/go/oneviewcommunity
 	Update-Help HPOneview.110
     Connect-HPOVmgmt
