@@ -1464,6 +1464,255 @@ PS C:\&gt; Add-HPOVStorageSystem -hostname "3par-array.consoto.com" -username 3p
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
+    <!--ADD-HPOVSTORAGEVOLUME-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Add-HPOVStorageVolume</command:name>
+            <maml:description>
+                <maml:para>Import an existing Storage Volume resource.</maml:para>
+            </maml:description>
+            <command:verb>Add</command:verb>
+            <command:noun>HPOVStorageVolume</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>This cmdlet will help add an existing storage volume that was provisioned on the Storage System.  The volume should not be exported or assigned to a server or groups of servers.  The Storage Volume also must reside in the Managed Domain of the Stroage System that the appliance managed.  The Storage Volume's WWN will be needed.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Add-HPOVStorageVolume</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                    <maml:name>StorageSystem</maml:name>
+                    <maml:description>
+                        <maml:para>Required. The Storage System where the volume will be imported from.  Volume to be imported must be provisioned to the same Managed Domain as the Storage System.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>VolumeID</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-volid, -id, -wwn]
+Required.  The FC address of the volume to be imported.  Address must be in the following format: AA:BB:CC:DD:EE:AA:BB:CC</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                    <maml:name>volumeName</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-name]
+Required. Specify the Storage Volume Name.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="4">
+                    <maml:name>description</maml:name>
+                    <maml:description>
+                        <maml:para>Optional. Provide a description for the volume.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>shared</maml:name>
+                    <maml:description>
+                        <maml:para>Include this switch to mark the Storage Volume as a Shareable resource for shared volume access.
+Default: Private</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                <maml:name>StorageSystem</maml:name>
+                <maml:description>
+                    <maml:para>Required. The Storage System where the volume will be imported from.  Volume to be imported must be provisioned to the same Managed Domain as the Storage System.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                <maml:name>VolumeID</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-volid, -id, -wwn]
+Required.  The FC address of the volume to be imported.  Address must be in the following format: AA:BB:CC:DD:EE:AA:BB:CC</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                <maml:name>volumeName</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-name]
+Required. Specify the Storage Volume Name.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="4">
+                <maml:name>description</maml:name>
+                <maml:description>
+                    <maml:para>Optional. Provide a description for the volume.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>shared</maml:name>
+                <maml:description>
+                    <maml:para>Include this switch to mark the Storage Volume as a Shareable resource for shared volume access.
+Default: Private</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>False</dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>System.String</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Storage Pool Name or URI</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+             <command:inputType>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Storage Pool resource object</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Async create task</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Add-HPOVStorageVolume -StorageSystem 3ParSys1 -VolumeID 50:00:2A:C0:03:1E:15:2C -VolumeName 'MyStorageVol1'
+</dev:code>
+                <dev:remarks>
+                    <maml:para>Import the volume '50:00:2A:C0:03:1E:15:2C' from the '3ParSys1' Storage System.</maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVStorageSystem 3ParSys1 | Add-HPOVStorageVolume -VolumeID 50:00:2A:C0:03:1E:15:2C -VolumeName 'MyStorageVol1'
+</dev:code>
+                <dev:remarks>
+                    <maml:para>Import the volume '50:00:2A:C0:03:1E:15:2C' from the '3ParSys1' Storage System.</maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVStorageVolume</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVStorageVolume</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Remove-HPOVStorageVolume</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVStorageVolumeTemplate</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVStorageVolumeTemplate</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVStorageVolumeTemplatePolicy</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Set-HPOVStorageVolumeTemplate</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVStoragePool</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Add-HPOVStoragePool</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVStorageVolume</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
     <!--CLEAR-HPOVALERT-->
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
         <command:details>
@@ -9973,6 +10222,25 @@ Include the appliance version.</maml:para>
                     <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 </command:parameter>
  
+            </command:syntaxItem> 
+            <command:syntaxItem>
+                <maml:name>Get-HPOVVersion</maml:name> 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>CheckOnline</maml:name>
+                    <maml:description>
+                        <maml:para>Check for newer library version on Github.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>ReleaseNotes</maml:name>
+                    <maml:description>
+                        <maml:para>Display the Release Notes of the latest version if newer than what is currently installed.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
             </command:syntaxItem>
         </command:syntax>
         <command:parameters>
@@ -9981,6 +10249,30 @@ Include the appliance version.</maml:para>
                 <maml:description>
                     <maml:para>Aliases [-appliance]
 Include the appliance version.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>False</dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>CheckOnline</maml:name>
+                <maml:description>
+                    <maml:para>Check for newer library version on Github.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>False</dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>ReleaseNotes</maml:name>
+                <maml:description>
+                    <maml:para>Display the Release Notes of the latest version if newer than what is currently installed.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 <dev:type>
@@ -12493,7 +12785,7 @@ PS C:\&gt; New-HPOVlicense $license
 
             <command:syntaxItem>
                 <maml:name>New-HPOVLogicalInterconnectGroup</maml:name> 
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                     <maml:name>Name</maml:name>
                     <maml:description>
                         <maml:para>Required. The Logical Interconnect Group Name</maml:para>
@@ -12501,7 +12793,7 @@ PS C:\&gt; New-HPOVlicense $license
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="2">
                     <maml:name>Bays</maml:name>
                     <maml:description>
                         <maml:para>Required. A [System.Collections.Hashtable] value of each Interconnect Bay.  Accepted values are:
@@ -12517,151 +12809,6 @@ PS C:\&gt; New-HPOVlicense $license
 E.g. @{1 = "Flex10";2 = "Flex10";3 = "FlexFabric";4 = "Flexfabric";5 = "";6 = "";7 = "";8 = "";}</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Hashtable</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>enableIgmpSnooping</maml:name>
-                    <maml:description>
-                        <maml:para>Optional. The IGMP snooping feature allows interconnects to monitor the IGMP IP multicast membership activities and configure hardware Layer 2 switching behavior of multicast traffic to optimize network resource usage. Currently, only IGMP v1 and v2 (RFC 2236) are supported.
-		
-Default value: Disabled</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>igmpIdleTimeoutInterval</maml:name>
-                    <maml:description>
-                        <maml:para>Optional. The Group Membership Interval value, as specified by the IGMP v2 specification (RFC 2236).
-
-For optimum network resource usage, set the timeout interval to match your network's multicast router settings.
-		
-Data type:  Numeric; unit of measure is seconds
-
-Default value:  260
-
-Required: Yes, if IGMP snooping is enabled</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>enableFastMacCacheFailover</maml:name>
-                    <maml:description>
-                        <maml:para>Optional. When an uplink that was in standby mode becomes active, it can take several minutes for external Ethernet interconnects to recognize that the server blades can now be reached on this newly active connection.
-
-Enabling Fast MAC Cache Failover causes Ethernet packets to be transmitted on the newly active connection, which enables the external Ethernet interconnects to identify the new connection (and update their MAC caches).
-
-The transmission sequence is repeated a few times at the MAC refresh interval and completes in about 1 minute.
-
-Default value:  Enabled</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>macRefreshInterval</maml:name>
-                    <maml:description>
-                        <maml:para>Optional. The time interval at which MAC caches are refreshed
-		
-Data type:  Numeric; unit of measure is seconds
-
-Default value: 5</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>enableNetworkLoopProtection</maml:name>
-                    <maml:description>
-                        <maml:para>Optional. Enables or disables network loop and pause flood protection.
-
-Pause flood protection:
-
-Ethernet switch interfaces use pause frame based flow control mechanisms to control data flow. When a pause frame is received on a flow control enabled interface, the transmit operation is stopped for the pause duration specified in the pause frame. All other frames destined for this interface are queued up. If another pause frame is received before the previous pause timer expires, the pause timer is refreshed to the new pause duration value. If a steady stream of pause frames is received for extended periods of time, the transmit queue for that interface continues to grow until all queuing resources are exhausted. This condition severely impacts the switch operation on other interfaces. In addition, all protocol operations on the switch are impacted because of the inability to transmit protocol frames. Both port pause and priority-based pause frames can cause the same resource exhaustion condition.
-
-VC interconnects provide the ability to monitor server downlink ports for pause flood conditions and take protective action by disabling the port. The default polling interval is 10 seconds and is not customer configurable. The SNMP agent supports trap generation when a pause flood condition is detected or cleared.
-
-This feature operates at the physical port level. When a pause flood condition is detected on a Flex-10 physical port, all Flex-10 logical ports associated with physical ports are disabled. When the pause flood protection feature is enabled, this feature detects pause flood conditions on server downlink ports and disables the port. The port remains disabled until an administrative action is taken. The administrative action involves the following steps:
-
-1. Resolve the issue with the NIC on the server causing the continuous pause generation. This might include updating the NIC firmware and device drivers.
-
-Rebooting the server might not clear the pause flood condition if the cause of the pause flood condition is in the NIC firmware. In this case, the server must be completely disconnected from the power source to reset the NIC firmware.
-
-2. Re-enable the disabled ports on the VC interconnect modules.
-
-
-Network loop protection:
-
-The loop protection feature enables detection of loops on downlink ports, which can be Flex-10 logical ports or physical ports. The feature applies when Device Control Channel (DCC) protocol is running on the Flex-10 port. If DCC is not available, the feature applies to the physical downlink port.
-
-Network loop protection uses two methods to detect loops:
-
-1. It periodically injects a special probe frame into the VC domain and monitors downlink ports for the looped back probe frame. If this special probe frame is detected on downlink ports, the port is considered to cause the loop condition.
-
-2. It monitors and intercepts common loop detection frames used in other switches. In network environments where the upstream switches send loop detection frames, the VC interconnects must ensure that any downlink loops do not cause these frames to be sent back to the uplink ports. Even though the probe frames ensure loops are detected, there is a small time window depending on the probe frame transmission interval in which the loop detection frames from the external switch might loop through down link ports and reach uplink ports. By intercepting the external loop detection frames on downlinks, the possibility of triggering loop protection on the upstream switch is eliminated. When network loop protection is enabled, VC interconnects intercept loop detection frames from various switch vendors, such as Cisco and HP Networking.
-
-When the network loop protection feature is enabled, any probe frame or other supported loop detection frame received on a downlink port is considered to be causing the network loop, and the port is disabled immediately until an administrative action is taken. The administrative action involves resolving the loop condition and clearing the loop protection error condition. The loop detected status on a port can be cleared by un-assigning all networks from the profile connect corresponding to the port in the loop detected state.
-
-The SNMP agent supports trap generation when a loop condition is detected or cleared.
-
-Default value: Enabled</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>SNMP</maml:name>
-                    <maml:description>
-                        <maml:para>Optional. SNMP Settings in a nested hashtable format.
-		
-Accepted properties (Property names and values are CasEsEnsitVE)
-		
-readCommunity &lt;String&gt;
-Enabled &lt;Bool&gt;
-systemContact &lt;String&gt;
-snmpAccess &lt;Array&gt; (value: array of IP's with subnet mask bit or subnet address; e.g. for host: 192.168.1.1/32, Subnet 192.168.1.0/24)
-trapDestinations &lt;Array&gt;
-	|- trapDestination &lt;String&gt; (value: IP or FQDN of host)
-	|- communityString &lt;String&gt;
-	|- trapFormat &lt;String&gt; (value: "SNMPv1" or "SNMPv2")
-	|- trapSeverities &lt;Array&gt; (filter values: "Critical", "Major", "Minor", "Warning", "Normal", "Info", "Unknown")
-	|- enetTrapCategories &lt;Array&gt; (filter values: "PortStatus", "PortThresolds", "Other")
-	|- fcTrapCategories &lt;Array&gt; (filter values: "PortStatus", "Other")
-	|- vcmTrapCategories &lt;Array&gt; (filter values: "Legacy")
-		
-E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Network Admin"; snmpAccess = @("192.168.1.2/32","10.1.1.0/24");trapDestinations = @(@{trapDestination="myhost.local";communityString="MyTr@p2";trapFormat="snmpv1";trapSeverities=@("critical", "major", "minor", "warning", "normal", "info", "unknown");fcTrapCategories=@("PortStatus", "Other")},@{trapDestination="192.168.1.10";communityString="N3tw0rkTrap";trapFormat="snmpv1";trapSeverities=@("critical", "major", "minor", "warning", "normal", "info", "unknown");fcTrapCategories=@("Port status", "Other")})}</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
-                </command:parameter>
- 
-            </command:syntaxItem> 
-            <command:syntaxItem>
-                <maml:name>New-HPOVLogicalInterconnectGroup</maml:name> 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
-                    <maml:name>Name</maml:name>
-                    <maml:description>
-                        <maml:para>Required. The Logical Interconnect Group Name</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
-                    <maml:name>Bays</maml:name>
-                    <maml:description>
-                        <maml:para>Required. A [System.Collections.Hashtable] value of each Interconnect Bay.  Accepted values are:
-
-&#8226; FlexFabric - HP VC FlexFabric 10Gb/24-Port Module
-&#8226; Flex10     - HP VC Flex-10 Enet Module
-&#8226; Flex1010D  - HP VC Flex-10/10D Module
-&#8226; Flex2040f8 - HP VC FlexFabric-20/40 F8 Module
-&#8226; VCFC20     - HP VC 8Gb 20-Port FC Module
-&#8226; VCFC24     - HP VC 8Gb 24-Port FC Module
-&#8226; FEX        - Cisco Fabric Extender for HP BladeSystem
-		
-E.g. @{1 = "Flex10";2 = "Flex10";3 = "FlexFabric";4 = "Flexfabric";5 = "";6 = "";7 = "";8 = "";}</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3">
@@ -12719,22 +12866,8 @@ Default value: 5</maml:para>
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="7">
                     <maml:name>enableNetworkLoopProtection</maml:name>
                     <maml:description>
-                        <maml:para>Optional. Enables or disables network loop and pause flood protection.
-
-Pause flood protection:
-
-Ethernet switch interfaces use pause frame based flow control mechanisms to control data flow. When a pause frame is received on a flow control enabled interface, the transmit operation is stopped for the pause duration specified in the pause frame. All other frames destined for this interface are queued up. If another pause frame is received before the previous pause timer expires, the pause timer is refreshed to the new pause duration value. If a steady stream of pause frames is received for extended periods of time, the transmit queue for that interface continues to grow until all queuing resources are exhausted. This condition severely impacts the switch operation on other interfaces. In addition, all protocol operations on the switch are impacted because of the inability to transmit protocol frames. Both port pause and priority-based pause frames can cause the same resource exhaustion condition.
-
-VC interconnects provide the ability to monitor server downlink ports for pause flood conditions and take protective action by disabling the port. The default polling interval is 10 seconds and is not customer configurable. The SNMP agent supports trap generation when a pause flood condition is detected or cleared.
-
-This feature operates at the physical port level. When a pause flood condition is detected on a Flex-10 physical port, all Flex-10 logical ports associated with physical ports are disabled. When the pause flood protection feature is enabled, this feature detects pause flood conditions on server downlink ports and disables the port. The port remains disabled until an administrative action is taken. The administrative action involves the following steps:
-
-1. Resolve the issue with the NIC on the server causing the continuous pause generation. This might include updating the NIC firmware and device drivers.
-
-Rebooting the server might not clear the pause flood condition if the cause of the pause flood condition is in the NIC firmware. In this case, the server must be completely disconnected from the power source to reset the NIC firmware.
-
-2. Re-enable the disabled ports on the VC interconnect modules.
-
+                        <maml:para>Aliases [-LoopProtect]
+Optional. Enables or disables network loop protection.
 
 Network loop protection:
 
@@ -12756,6 +12889,31 @@ Default value: Enabled</maml:para>
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="8">
+                    <maml:name>enablePauseFloodProtection</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-PauseProtect]
+Optional. Enables or disables pause flood protection.
+
+Pause flood protection:
+
+Ethernet switch interfaces use pause frame based flow control mechanisms to control data flow. When a pause frame is received on a flow control enabled interface, the transmit operation is stopped for the pause duration specified in the pause frame. All other frames destined for this interface are queued up. If another pause frame is received before the previous pause timer expires, the pause timer is refreshed to the new pause duration value. If a steady stream of pause frames is received for extended periods of time, the transmit queue for that interface continues to grow until all queuing resources are exhausted. This condition severely impacts the switch operation on other interfaces. In addition, all protocol operations on the switch are impacted because of the inability to transmit protocol frames. Both port pause and priority-based pause frames can cause the same resource exhaustion condition.
+
+VC interconnects provide the ability to monitor server downlink ports for pause flood conditions and take protective action by disabling the port. The default polling interval is 10 seconds and is not customer configurable. The SNMP agent supports trap generation when a pause flood condition is detected or cleared.
+
+This feature operates at the physical port level. When a pause flood condition is detected on a Flex-10 physical port, all Flex-10 logical ports associated with physical ports are disabled. When the pause flood protection feature is enabled, this feature detects pause flood conditions on server downlink ports and disables the port. The port remains disabled until an administrative action is taken. The administrative action involves the following steps:
+
+1. Resolve the issue with the NIC on the server causing the continuous pause generation. This might include updating the NIC firmware and device drivers.
+
+Rebooting the server might not clear the pause flood condition if the cause of the pause flood condition is in the NIC firmware. In this case, the server must be completely disconnected from the power source to reset the NIC firmware.
+
+2. Re-enable the disabled ports on the VC interconnect modules.
+
+Default value: Enabled</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="9">
                     <maml:name>SNMP</maml:name>
                     <maml:description>
                         <maml:para>Optional. SNMP Settings in a nested hashtable format.
@@ -12780,6 +12938,9 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
                     <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
                 </command:parameter>
  
+            </command:syntaxItem> 
+            <command:syntaxItem>
+                <maml:name>New-HPOVLogicalInterconnectGroup</maml:name> 
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>Import</maml:name>
                     <maml:description>
@@ -12791,19 +12952,19 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
             </command:syntaxItem>
         </command:syntax>
         <command:parameters>
-            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                 <maml:name>Name</maml:name>
                 <maml:description>
                     <maml:para>Required. The Logical Interconnect Group Name</maml:para>
                 </maml:description>
-                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
                     <maml:name>String</maml:name>
                     <maml:uri/>
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
-            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="2">
                 <maml:name>Bays</maml:name>
                 <maml:description>
                     <maml:para>Required. A [System.Collections.Hashtable] value of each Interconnect Bay.  Accepted values are:
@@ -12818,7 +12979,7 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
 		
 E.g. @{1 = "Flex10";2 = "Flex10";3 = "FlexFabric";4 = "Flexfabric";5 = "";6 = "";7 = "";8 = "";}</maml:para>
                 </maml:description>
-                <command:parameterValue required="false" variableLength="false">Hashtable</command:parameterValue>
+                <command:parameterValue required="true" variableLength="false">Hashtable</command:parameterValue>
                 <dev:type>
                     <maml:name>Hashtable</maml:name>
                     <maml:uri/>
@@ -12896,22 +13057,8 @@ Default value: 5</maml:para>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="7">
                 <maml:name>enableNetworkLoopProtection</maml:name>
                 <maml:description>
-                    <maml:para>Optional. Enables or disables network loop and pause flood protection.
-
-Pause flood protection:
-
-Ethernet switch interfaces use pause frame based flow control mechanisms to control data flow. When a pause frame is received on a flow control enabled interface, the transmit operation is stopped for the pause duration specified in the pause frame. All other frames destined for this interface are queued up. If another pause frame is received before the previous pause timer expires, the pause timer is refreshed to the new pause duration value. If a steady stream of pause frames is received for extended periods of time, the transmit queue for that interface continues to grow until all queuing resources are exhausted. This condition severely impacts the switch operation on other interfaces. In addition, all protocol operations on the switch are impacted because of the inability to transmit protocol frames. Both port pause and priority-based pause frames can cause the same resource exhaustion condition.
-
-VC interconnects provide the ability to monitor server downlink ports for pause flood conditions and take protective action by disabling the port. The default polling interval is 10 seconds and is not customer configurable. The SNMP agent supports trap generation when a pause flood condition is detected or cleared.
-
-This feature operates at the physical port level. When a pause flood condition is detected on a Flex-10 physical port, all Flex-10 logical ports associated with physical ports are disabled. When the pause flood protection feature is enabled, this feature detects pause flood conditions on server downlink ports and disables the port. The port remains disabled until an administrative action is taken. The administrative action involves the following steps:
-
-1. Resolve the issue with the NIC on the server causing the continuous pause generation. This might include updating the NIC firmware and device drivers.
-
-Rebooting the server might not clear the pause flood condition if the cause of the pause flood condition is in the NIC firmware. In this case, the server must be completely disconnected from the power source to reset the NIC firmware.
-
-2. Re-enable the disabled ports on the VC interconnect modules.
-
+                    <maml:para>Aliases [-LoopProtect]
+Optional. Enables or disables network loop protection.
 
 Network loop protection:
 
@@ -12937,6 +13084,35 @@ Default value: Enabled</maml:para>
                 <dev:defaultValue>True</dev:defaultValue>
             </command:parameter>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="8">
+                <maml:name>enablePauseFloodProtection</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-PauseProtect]
+Optional. Enables or disables pause flood protection.
+
+Pause flood protection:
+
+Ethernet switch interfaces use pause frame based flow control mechanisms to control data flow. When a pause frame is received on a flow control enabled interface, the transmit operation is stopped for the pause duration specified in the pause frame. All other frames destined for this interface are queued up. If another pause frame is received before the previous pause timer expires, the pause timer is refreshed to the new pause duration value. If a steady stream of pause frames is received for extended periods of time, the transmit queue for that interface continues to grow until all queuing resources are exhausted. This condition severely impacts the switch operation on other interfaces. In addition, all protocol operations on the switch are impacted because of the inability to transmit protocol frames. Both port pause and priority-based pause frames can cause the same resource exhaustion condition.
+
+VC interconnects provide the ability to monitor server downlink ports for pause flood conditions and take protective action by disabling the port. The default polling interval is 10 seconds and is not customer configurable. The SNMP agent supports trap generation when a pause flood condition is detected or cleared.
+
+This feature operates at the physical port level. When a pause flood condition is detected on a Flex-10 physical port, all Flex-10 logical ports associated with physical ports are disabled. When the pause flood protection feature is enabled, this feature detects pause flood conditions on server downlink ports and disables the port. The port remains disabled until an administrative action is taken. The administrative action involves the following steps:
+
+1. Resolve the issue with the NIC on the server causing the continuous pause generation. This might include updating the NIC firmware and device drivers.
+
+Rebooting the server might not clear the pause flood condition if the cause of the pause flood condition is in the NIC firmware. In this case, the server must be completely disconnected from the power source to reset the NIC firmware.
+
+2. Re-enable the disabled ports on the VC interconnect modules.
+
+Default value: Enabled</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+                <dev:type>
+                    <maml:name>Boolean</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>True</dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="9">
                 <maml:name>SNMP</maml:name>
                 <maml:description>
                     <maml:para>Optional. SNMP Settings in a nested hashtable format.
@@ -15478,7 +15654,7 @@ Allowed parameter values:
                     <maml:description>
                         <maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
 
-Accepted values are either 'DeviceBay' or 'DeviceBay+SH'.  Default is 'DeviceBay'.</maml:para>
+Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -15803,7 +15979,7 @@ Enable to disable odd paths in the attached storage volume(s).</maml:para>
                     <maml:description>
                         <maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
 
-Accepted values are either 'DeviceBay' or 'DeviceBay+SH'.  Default is 'DeviceBay'.</maml:para>
+Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -16236,14 +16412,14 @@ Enable to disable odd paths in the attached storage volume(s).</maml:para>
                 <maml:description>
                     <maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
 
-Accepted values are either 'DeviceBay' or 'DeviceBay+SH'.  Default is 'DeviceBay'.</maml:para>
+Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
                     <maml:name>String</maml:name>
                     <maml:uri/>
                 </dev:type>
-                <dev:defaultValue>DeviceBay</dev:defaultValue>
+                <dev:defaultValue>Bay</dev:defaultValue>
             </command:parameter>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>macAssignment</maml:name>
@@ -17160,7 +17336,7 @@ PS C:\&gt; $storageVolTemplate = New-HPOVStorageVolumeTemplate -templateName vmw
             <dev:version/>
         </command:details>
         <maml:description>
-            <maml:para>This cmdlet will display all or a specific storage volumes created on the HP OneView appliance.  A specific storage volume can be searched for by using the Name.  Use the List switch to display a report of the requested volume(s).
+            <maml:para>This cmdlet will help create a Storage Volume resource on a managed Storage System.  The volume can be created by specifying the Storage Pool or an existing Storage Volume Template.  When the Storage Pool name is not unique, you can either use the -StorageSystem parameter, or pass via the pipeline the Storage Pool from Get-HPOVStoragePool.
 
 If the Storage Volume Template Global Policy is enabled, a valid Storage Volume Template must be provided.</maml:para>
         </maml:description>
@@ -17185,13 +17361,21 @@ Storage Volume Name. Device Volume created on the storage system will be this na
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
-                    <maml:name>poolName</maml:name>
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="3">
+                    <maml:name>StoragePool</maml:name>
                     <maml:description>
-                        <maml:para>Aliases [-pool]
-Required. Storage Pool name.</maml:para>
+                        <maml:para>Aliases [-pool, -PoolName]
+Required. Storage Pool URI, name or resource object.</maml:para>
                     </maml:description>
-                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>StorageSystem</maml:name>
+                    <maml:description>
+                        <maml:para>Optional. When the Storage Pool name is not unique, specify the Storage System name the pool is managed/associate with.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
@@ -17233,7 +17417,7 @@ Storage Volume Name. Device Volume created on the storage system will be this na
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>VolumeTemplate</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-template, -svt]
@@ -17288,11 +17472,11 @@ Storage Volume Name. Device Volume created on the storage system will be this na
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
-                <maml:name>VolumeTemplate</maml:name>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="3">
+                <maml:name>StoragePool</maml:name>
                 <maml:description>
-                    <maml:para>Aliases [-template, -svt]
-Optional. Specify the Storage Volume Template Name, URI or Resource.</maml:para>
+                    <maml:para>Aliases [-pool, -PoolName]
+Required. Storage Pool URI, name or resource object.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -17301,15 +17485,27 @@ Optional. Specify the Storage Volume Template Name, URI or Resource.</maml:para>
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
-                <maml:name>poolName</maml:name>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>StorageSystem</maml:name>
                 <maml:description>
-                    <maml:para>Aliases [-pool]
-Required. Storage Pool name.</maml:para>
+                    <maml:para>Optional. When the Storage Pool name is not unique, specify the Storage System name the pool is managed/associate with.</maml:para>
                 </maml:description>
-                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
                     <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>VolumeTemplate</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-template, -svt]
+Optional. Specify the Storage Volume Template Name, URI or Resource.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
                     <maml:uri/>
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
@@ -17361,7 +17557,7 @@ Default: Private</maml:para>
                     <maml:name>System.String</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>Storage Volume Template Name or URI</maml:para>
+                        <maml:para>Storage Pool Name or URI</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -17373,7 +17569,7 @@ Default: Private</maml:para>
                     <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>Storage Volume Template resource object</maml:para>
+                        <maml:para>Storage Pool resource object</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -17419,8 +17615,55 @@ Default: Private</maml:para>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVStoragePool PoolR1 | New-HPOVStorageVolume -name TestVol1 PoolR1 -Size 60
+</dev:code>
+                <dev:remarks>
+                    <maml:para>Get the 'PoolR1' Storage Pool resource and pipe it to create a 60GB private, thin provisioned volume named 'TestVol1'.</maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVStoragePool PoolR1 -StorageSystem 3ParSys1 | New-HPOVStorageVolume -name TestVol1 -Size 60
+</dev:code>
+                <dev:remarks>
+                    <maml:para>Get the 'PoolR1' Storage Pool resource and pipe it to create a 60GB private, thin provisioned volume named 'TestVol1'.</maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; New-HPOVStorageVolume -name TestVol1 -StoragePool PoolR1 -StorageSystem 3ParSys1 -Size 60
+</dev:code>
+                <dev:remarks>
+                    <maml:para>Create a 60GB private, thin provisioned volume named 'TestVol1' from the 'PoolR1' Storage Pool resource that is managed by '3ParSys1'.</maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
                 <dev:code>PS C:\&gt; $svt = Get-HPOVStorageVolumeTemplate SVT_120GB_R5
-PS C:\&gt; $svt | New-HPOVStorageVolume testvol3 -capacity 90 | Wait-HPOVTaskComplete
 </dev:code>
                 <dev:remarks>
                     <maml:para>Create a 90GB volume named 'TestVol1', using the 'SVT_120GB_R5' Storage Volume Template, then wait for volume to be provisioned.</maml:para>

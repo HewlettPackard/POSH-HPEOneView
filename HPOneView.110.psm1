@@ -135,11 +135,20 @@ Revision History
      |  - Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish their init.
      |  - Fixed Add-HPOVEnclosure where if the enclosure is already managed by another external manager, the method to resolve the IP Address to FQDN could fail if a valid DNS name is not returned.
 	 |  - Added Detailed switch to display detailed BIOS and Connection detail to Get-HPOVProfile.
+------------------------------------------
+1.10.1432
+     |  - Fixed New-HPOVProfile where attempting to attach SAN Storage would fail due to API lookup error.
+     |  - Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable to store the task object to become a System.Array type.
+     |  - Fixed New-HPOVLogicalInterconnectGroup to add -EnablePauseFloodProtection parameter.
+     |  - Fixed New-HPOVBackup where backup file would not download.
+     |  - Updated New-HPOVStorageVolume to allow the Storage Pool to be passed via pipeline instead of Storage Volume Template.
+     |  - Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
+     |  - Added Add-HPOVStorageVolume cmdlet to help import an existing volume from a managed storage system.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.10.1415"
+$script:scriptVersion = "1.10.1432"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.110"}))) { 
@@ -197,6 +206,58 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
 			    public HttpWebResponse Response;
 		    }
 	    }
+
+        namespace Library
+        {
+
+            public class UpdateConnectionError : Exception
+            {
+
+                public UpdateConnectionError() : base() { }
+                public UpdateConnectionError(string message) : base(message) { }
+                public UpdateConnectionError(string message, Exception e) : base(message, e) { }
+
+
+                private string strExtraInfo;
+                public string ExtraErrorInfo
+                {
+                    get
+                    {
+                        return strExtraInfo;
+                    }
+
+                    set
+                    {
+                        strExtraInfo = value;
+                    }
+                }
+            }
+
+            public class TooNew : Exception
+            {
+
+                public TooNew() : base() { }
+                public TooNew(string message) : base(message) { }
+                public TooNew(string message, Exception e) : base(message, e) { }
+
+
+                private string strExtraInfo;
+                public string ExtraErrorInfo
+                {
+                    get
+                    {
+                        return strExtraInfo;
+                    }
+
+                    set
+                    {
+                        strExtraInfo = value;
+                    }
+                }
+            }
+
+
+        }
 		
         namespace Appliance 
         {
@@ -407,6 +468,50 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
             }
         }
 
+        public class LogicalInterconnectGroupResourceException : Exception
+        {
+
+            public LogicalInterconnectGroupResourceException() : base() { }
+            public LogicalInterconnectGroupResourceException(string message) : base(message) { }
+            public LogicalInterconnectGroupResourceException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+                get
+                {
+                    return strExtraInfo;
+                }
+
+                set
+                {
+                    strExtraInfo = value;
+                }
+            }
+        }
+
+        public class UplinkSetResourceException : Exception
+        {
+
+            public UplinkSetResourceException() : base() { }
+            public UplinkSetResourceException(string message) : base(message) { }
+            public UplinkSetResourceException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+                get
+                {
+                    return strExtraInfo;
+                }
+
+                set
+                {
+                    strExtraInfo = value;
+                }
+            }
+        }
+
         public class ServerHardwareResourceException : Exception
         {
 
@@ -507,6 +612,7 @@ $script:defaultTimeout = New-TimeSpan -Minutes 20
 $script:MaxXAPIVersion = "101"
 $script:applMinVersion = "100"
 $script:applianceConnectedTo = @{User = "None"; Appliance = "Not connected"}
+$script:repository = "https://api.github.com/repos/HewlettPackard/POSH-HPOneView/releases"
 
 # Default handle self-signed certs
 $script:SSLCheckFlag = $False
@@ -1293,15 +1399,6 @@ function Send-HPOVRequest {
                                 $resp | select * -ExcludeProperty statusCode | Add-Member -NotePropertyName statusCode -NotePropertyValue 202
 
                             }
-                            
-                            #write-verbose "[SEND-HPOVREQUEST] Task Resource not provided. Building custom task object to return"
-                            ##Create the Task object to return, and now include the body response
-                            #$resp = [pscustomobject]@{
-                            #    uri = $taskUri;
-                            #    category = "tasks";
-                            #    type = "TaskResourceV2";
-                            #    taskState = "New";
-                            #    resource = $resp}
 
                         }
 
@@ -1322,8 +1419,7 @@ function Send-HPOVRequest {
 
                 }
 
-
-           } 
+            } 
        
             catch [System.Net.WebException] { 
 
@@ -1385,20 +1481,21 @@ function Send-HPOVRequest {
                     else { $resp = [PsCustomObject]@{statusCode = ([int]$script:lastWebResponse.StatusCode); statusMessage = $($script:lastWebResponse.StatusDescription); lastCall = $uri } }
 
                     switch ([int]$script:lastWebResponse.StatusCode) {
-                    #Handle HTTP 400 Errors
-                    #if ([int]$script:lastWebResponse.StatusCode -eq 400) {
+                    
+                        #Handle HTTP 400 Errors
                         400 {
                             
                             write-verbose "[SEND-HPOVREQUEST] HTTP 400 error caught."
+
                             if ($resp.errorSource) { $source = $resp.errorSource }
                             else { $source = 'Send-HPOVRequest' }
-                            $errorRecord = New-ErrorRecord InvalidOperationException $resp.errorCode InvalidResult $source -Message "$($resp.message) $($resp.details)"
+
+                            $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperation $source -Message "$($resp.message) $($resp.details)"
                             $pscmdlet.ThrowTerminatingError($errorRecord)
 
                         }
 
-                    #User is unauthorized
-                    #if ([int]$script:lastWebResponse.StatusCode -eq 401) 
+                        #User is unauthorized
                         401 { 
 
                             write-verbose "[SEND-HPOVREQUEST] HTTP 401 error caught.  User session is no longer valid."
@@ -1411,7 +1508,8 @@ function Send-HPOVRequest {
                             Throw $errorRecord
 
                         }
-                    #elseif ([int]$script:lastWebResponse.StatusCode -eq 405) { 
+                    
+                        #
                         405 {
                     
                             $errorRecord = New-ErrorRecord InvalidOperationException $resp.errorCode AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: The requested HTTP method is not valid/supported.  " + $resp.details + " URI: $uri")
@@ -1419,9 +1517,7 @@ function Send-HPOVRequest {
 
                         }
 
-                    #Wait for appliance startup here by calling Wait-HPOVApplianceStart
-                    #if (([int]$script:lastWebResponse.StatusCode -eq 503) -or ([int]$script:lastWebResponse.StatusCode -eq 0)) {
-                        #503 {
+                        #Wait for appliance startup here by calling Wait-HPOVApplianceStart
                         { @(503, 0) -contains $_ } {
                             
                             write-verbose "[SEND-HPOVREQUEST] HTTP $([int]$script:lastWebResponse.StatusCode) error caught."
@@ -1700,7 +1796,7 @@ function Connect-HPOVMgmt {
                 if ($applianceVersion -and $applianceVersion -lt $script:applMinVersion ) {
 
                     #Display terminating error
-                    $errorRecord = New-ErrorRecord System.NotImplementedException LibraryTooNew OperationStopped $script:HPOneViewAppliance -Message "The appliance you are connecting to supports an older version of this library.  Please visit https://hponeview.codeplex.com for a supported version of the library." #-verbose
+                    $errorRecord = New-ErrorRecord HPOneView.Library.TooNew LibraryTooNew OperationStopped $script:HPOneViewAppliance -Message "The appliance you are connecting to supports an older version of this library.  Please visit https://hponeview.codeplex.com for a supported version of the library." #-verbose
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                 }
@@ -2504,12 +2600,18 @@ function Get-HPOVVersion {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding()]
+	[CmdletBinding(DefaultParameterSetName = "Default")]
 	Param
 	(
-		[parameter(Mandatory=$false)]
+		[parameter(Mandatory=$false, ParameterSetName = "Default")]
         [Alias('Appliance')]
-        [switch]$ApplianceVer
+        [switch]$ApplianceVer,
+
+        [parameter(Mandatory=$false, ParameterSetName = "OnlineCheck")]
+        [switch]$CheckOnline,
+
+        [parameter(Mandatory=$false, ParameterSetName = "OnlineCheck")]
+        [switch]$ReleaseNotes
 	)
 	
 	Begin {
@@ -2536,13 +2638,100 @@ function Get-HPOVVersion {
 
             else {
 
-                $versionInfo += @{ "applVersionInfo" = "NOT CONNECTED." }
+                $versionInfo += @{ "applVersionInfo" = "NOT CONNECTED" }
 
             }
+
         }
 
-        Return [collections.sortedlist] $versionInfo
+        [collections.sortedlist] $versionInfo
+
+        if ($CheckOnline.isPresent) {
+
+            try { 
+                
+                $resp = Invoke-RestMethod -Method GET -Uri $repository
+
+                $versionMajorMinor = "$(([version]$versionInfo["OneViewPowerShellLibrary"]).major).$(([version]$versionInfo["OneViewPowerShellLibrary"]).minor)"
+
+                #filter for versions that match Major and Minor release, and exclude the HP VCM to OneView Migration Tool
+                $matchedVersions = $resp | ? { $_.tag_name -like "*$versionMajorMinor*" -and -not ($_.tag_name.startswith('HPVCtoOV'))} 
+
+                write-verbose "[GET-HPOVVERSION] Found versions online: $($matchedVersions.tag_name | % { "$_,"})"
+
+                $newerVersion = $Null
+
+                #Compare the releases
+                $matchedVersions | % { 
+    
+                    if ($newerVersion) { write-verbose "Found previous version to compare: $newerVersion" }
+
+                    [version]$version = $_.tag_name -replace "v","" 
+
+                    write-verbose "Comparing $version to $([version]$versionInfo["OneViewPowerShellLibrary"])" 
+        
+                    #Compare found version with library
+                    if (-not ($newerVersion) -and $version.build -gt ([version]$versionInfo["OneViewPowerShellLibrary"]).build) {
+            
+                        [version]$newerVersion = $version
+                        $newerVersionObj = $_
+
+                    }
+                    elseif ($newerVersion.Build -lt $version.Build -and $version.build -gt ([version]$versionInfo["OneViewPowerShellLibrary"]).build) {
+
+                        [version]$newerVersion = $version
+                        $newerVersionObj = $_
+
+                    }
+    
+                }
+
+                if ($newerVersion) { 
+
+                    write-verbose "[GET-HPOVVERSION] Found $([string]$version)"
+
+                    if ($ReleaseNotes) { $newerVersionObj.body -replace "## ","" -replace "\*","  • " }
+
+                    $caption = "Please Confirm";
+                    $message = "You currently have v$($versionInfo["OneViewPowerShellLibrary"]) installed.  The HP OneView PowerShell Library v$([string]$newerVersion) was found that is newer.  Do you want to download the current version of the HP OneView POSH Library (will open your web browser for you to download)?";
+                    $yes = new-Object System.Management.Automation.Host.ChoiceDescription "&Yes","Open your browser to download latest HP OneView POSH Library version.";
+                    $no = new-Object System.Management.Automation.Host.ChoiceDescription "&No","No, you will do this later.";
+                    $choices = [System.Management.Automation.Host.ChoiceDescription[]]($yes,$no);
+                    $answer = $host.ui.PromptForChoice($caption,$message,$choices,0) 
+
+                    switch ($answer){
+
+                        0 {
+
+                            write-verbose "[GET-HPOVVERSION] Launching users browser to 'https://github.com/HewlettPackard/POSH-HPOneView/releases/latest'"
+                            start "https://github.com/HewlettPackard/POSH-HPOneView/releases/latest"
+                            break
+        
+                        }
+
+                    }     
+    
+                }
+                else { 
+                
+                    Write-Host ""
+                    Write-Host "Library is already up-to-date." 
+                    
+                }
+
+            }
+            catch {
+
+                $errorMessage = "$($_[0].exception.message). $($_[0].exception.InnerException.message)"
+                $errorRecord = New-ErrorRecord HPOneView.Library.UpdateConnectionError $_[0].exception.status ConnectionError 'Get-HPOVVersion' -Message "$($_[0].exception.message). $($_[0].exception.InnerException.message)" #-verbose
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+            }
+
+        }
+
     }
+
 }
 
 function Get-HPOVHealthStatus {
@@ -3080,7 +3269,7 @@ function Set-HPOVApplianceNetworkConfig {
         }
 
         #task failed validation
-        elsef ($taskStatus.taskState -eq "Error") {
+        elseif ($taskStatus.taskState -eq "Error") {
 
             if ($taskStatus.taskErrors -is [Array] -and $taskStatus.taskErrors.count -gt 1 ) {
 
@@ -3709,15 +3898,11 @@ function Download-File {
 
     [CmdLetBinding()]
     Param (
-            [parameter(Mandatory=$true,
-            HelpMessage="Specify the URI of the object to download.",
-            Position=0)]
+            [parameter(Mandatory=$true, HelpMessage="Specify the URI of the object to download.", Position=0)]
             [ValidateNotNullOrEmpty()]
             [string]$uri,
 
-            [parameter(Mandatory=$true,
-            HelpMessage="Specify the location where to save the file to.",
-            Position=1)]
+            [parameter(Mandatory=$true, HelpMessage="Specify the location where to save the file to.", Position=1)]
             [Alias("save")]
             [ValidateNotNullOrEmpty()]
             [string]$saveLocation
@@ -3768,15 +3953,15 @@ function Download-File {
         }
                 		
         #Detect if the download is a Support Dump or Appliance Backup
-        elseif ($downloadUri.Contains("/rest/backups/archive")){
+        elseif ($uri.Contains("/rest/backups/archive")){
             #Need to get the Appliance file name
-	        $fileName = $downloadUri.split("/")
+	        $fileName = $uri.split("/")
             $fileName = $fileName[-1] + ".bkp"
         }
 
         else {
 		    #Need to get the Support Dump file name
-	        $fileName = $downloadUri.split("/")
+	        $fileName = $uri.split("/")
             $fileName = $fileName[-1]
         }
 
@@ -4513,7 +4698,7 @@ function Stop-HPOVAppliance {
 
 function Get-HPOVServer {
     
-    # .ExternalHelp HPOneView.120.psm1-help.xml
+    # .ExternalHelp HPOneView.110.psm1-help.xml
 
     [CmdletBinding(DefaultParameterSetName = "Default")]
 	Param (
@@ -8323,7 +8508,7 @@ function Get-HPOVStorageVolume {
                 
                 write-verbose "[GET-HPOVSTORAGEVOLUME] Woops! No '$VolumeName' Storage Volume found."
                     
-                $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeResourceNotFound ObjectNotFound 'Get-HPOVStorageVolume' -Message "No Storage Volume with '$VolumeName' name found.  Please check the name or use New-HPOVStorageVolume to create the volume." #-verbose
+                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException StorageVolumeResourceNotFound ObjectNotFound 'Get-HPOVStorageVolume' -Message "No Storage Volume with '$VolumeName' name found.  Please check the name or use New-HPOVStorageVolume to create the volume." #-verbose
                 #Generate Terminating Error
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
@@ -8428,15 +8613,18 @@ function New-HPOVStorageVolume {
         [parameter(Mandatory=$false, ParameterSetName="default", Position = 1)]
         [string]$description = "",
 
-        [parameter(Mandatory=$true, ValueFromPipeline = $True, ParameterSetName="template")]
+        [parameter(Mandatory=$true, ValueFromPipeline = $True, ParameterSetName="default", Position = 2)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("pool","poolName")]
+        [object]$StoragePool,
+
+        [parameter(Mandatory=$false, ParameterSetName="default")]
+        [string]$StorageSystem = "",
+
+        [parameter(Mandatory=$true, ParameterSetName="template")]
         [ValidateNotNullOrEmpty()]
         [Alias('template','svt')]
         [object]$VolumeTemplate,
-
-        [parameter(Mandatory=$true, ParameterSetName="default", Position = 2)]
-        [ValidateNotNullOrEmpty()]
-        [Alias("pool")]
-        [string]$poolName,
 
         [parameter(Mandatory=$true, ParameterSetName="default", Position = 3)]
         [parameter(Mandatory=$false, ParameterSetName="template", Position = 2)]
@@ -8466,43 +8654,104 @@ function New-HPOVStorageVolume {
 
     Process {
 
+        $newVolume = [PSCustomObject]@{
+            name        = $volumeName;
+            description = $description;
+            type        = "StorageVolume";
+            templateUri = $null;
+            provisioningParameters = @{
+                storagePoolUri    = $null;
+                requestedCapacity = $null;
+                provisionType     = "Thin";
+                shareable         = $false
+            }
+
+        }
+
         #Check to see if Storage Volume Template Global Setting is enabled
         $script:storageVolumeTemplateRequiredGlobalPolicy = (Send-HPOVRequest /rest/global-settings/StorageVolumeTemplateRequired).value
 
         if ($script:storageVolumeTemplateRequiredGlobalPolicy -ieq "True" -and -not $VolumeTemplate) { 
         
-            $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeTemplateRequired InvalidArgument 'New-HPOVStorageVolume' -Message "Storage Volumes cannot be created without providing a Storage Volume Template due to global policy setting.  Please provide a Storage Volume Template and try again." #-verbose
+            $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException StorageVolumeTemplateRequired InvalidArgument 'New-HPOVStorageVolume' -Message "Storage Volumes cannot be created without providing a Storage Volume Template due to global policy setting.  Please provide a Storage Volume Template and try again." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
         
         }
 
         else {
-            #Check for the presence of the $full and $shared parameters and set values
-
-            #Build the request body with default values for provisionType ($full switch not present), and shareable ($shared switch not present)
-            $newVolume = @{
-                name = $volumeName;
-                description = $description;
-                type = "StorageVolume";
-                templateUri = $null;
-                provisioningParameters = @{
-                    storagePoolUri = $null;
-                    requestedCapacity = $null;
-                    provisionType = "Thin";
-                    shareable = $false
-                }
-
-            }
 
             Switch ($PsCmdlet.ParameterSetName) {
                 
                 "default" {
-                    
-                    #Get the storage pool resource.  Terminating error will throw from the Get-* if no resource is found.
-                    $storagePool = Get-HPOVStoragePool -poolName $poolName
+
+                    switch ($StoragePool.Gettype().Name) {
+
+                        "String" { 
+                        
+                            #parameter is correct URI
+                            if ($StoragePool.StartsWith($script:storagePoolUri)){
+
+                                Write-Verbose "[NEW-HPOVSTORAGEVOLUME] StoragePool URI provided by caller."
+                                Write-Verbose "[NEW-HPOVSTORAGEVOLUME] Sending request." 
+                                                       
+                                $sp = Send-HPOVRequest $StoragePool
+                            
+                            }
+
+                            #Parameter is incorrect URI value
+                            elseif ($StoragePool.StartsWith("/rest")) {
+
+                                #Invalid parameter value, generate terminating error.
+                                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid StoragePool parameter value: $($StoragePool | out-string). Please correct and try again." #-verbose
+                                $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                            }
+
+                            #Parameter is Storage Pool name
+                            else {
+                                
+                                Write-Verbose "[NEW-HPOVSTORAGEVOLUME] StoragePool Name provided by caller."
+                                
+                                #Get specific storage pool from provi
+                                if ($StorageSystem) { 
+
+                                    Write-Verbose "[NEW-HPOVSTORAGEVOLUME] StorageSystem name provided: $StorageSystem"
+                                
+                                    Write-Verbose "[NEW-HPOVSTORAGEVOLUME] Sending request."
+
+                                    $sp = Get-HPOVStoragePool $StoragePool -storageSystem $StorageSystem 
+                                    
+                                }
+                                else { $sp = Get-HPOVStoragePool $StoragePool }                              
+
+                                if ($sp -and $sp.count -gt 1) {
+
+                                    $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException MultipleStoragePoolsFound InvalidResult 'New-HPOVStorageVolume' -Message "Multiple StoragePool resources found with the name '$StoragePool'.  Please use the -StorageSystem parameter to specify the Storage System the Storage Pool is to be used, or use Get-HPOVStoragePool to provide the specific Storage Pool resource." #-verbose
+                                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                                }
+
+                            }
+
+                        }
+
+                        "PSCustomObject" { 
+                        
+                            #Validate the object
+                            if ($StoragePool.category -eq 'storage-pools') { $sp = $StoragePool }
+                            else {
+
+                                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidStoragePoolCategory InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid StoragePool parameter value.  Expected Resource Category 'storage-pools', recieved '$($VolumeTemplate.category)'." #-verbose
+                                $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                            }                        
+                        
+                        }
+
+                    }
 
                     #Amend the request body
-                    $newVolume.provisioningParameters.storagePoolUri = $storagePool.uri
+                    $newVolume.provisioningParameters.storagePoolUri = $sp.uri
                     $newVolume.provisioningParameters.requestedCapacity = $capacity * 1GB
 
                     #Check for the presence of the $full and $shared parameters and set values if so
@@ -8526,7 +8775,7 @@ function New-HPOVStorageVolume {
                             elseif ($VolumeTemplate.StartsWith("/rest")) {
 
                                 #Invalid parameter value, generate terminating error.
-                                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid VolumeTemplate parameter value: $($VolumeTemplate | out-string)" #-verbose
+                                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid VolumeTemplate parameter value: $($VolumeTemplate | out-string)" #-verbose
                                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                             }
@@ -8535,7 +8784,6 @@ function New-HPOVStorageVolume {
                                 
                                 Write-Verbose "[NEW-HPOVSTORAGEVOLUME] VolumeTemplate Name provided by caller."
                                 Write-Verbose "[NEW-HPOVSTORAGEVOLUME] Sending request."
-
                                 #Get the storage volume template resource.  Terminating error will throw from the Get-* if no resource is found.
                                 $svt = Get-HPOVStorageVolumeTemplate -templateName $VolumeTemplate
                             }
@@ -8548,33 +8796,28 @@ function New-HPOVStorageVolume {
                             if ($volumeTemplate.category -eq 'storage-volume-templates') { $svt = $VolumeTemplate }
                             else {
 
-                                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid VolumeTemplate parameter value.  Expected Resource Category 'storage-volume-templates', recieved '$($VolumeTemplate.category)'." #-verbose
+                                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid VolumeTemplate parameter value.  Expected Resource Category 'storage-volume-templates', recieved '$($VolumeTemplate.category)'." #-verbose
                                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                             }
 
                         }
 
-                        default {
-                        
-                            $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid VolumeTemplate parameter value type.  Expected either [System.String] or [PSCustomObject], recieved [$($VolumeTemplate.gettype().name)]." #-verbose
-                            $PSCmdlet.ThrowTerminatingError($errorRecord)                        
-                        
-                        }
-
+                        default { }
                     }
 
                     #Amend the request body
-                    $newVolume.templateUri = $svt.uri;
-                    $newVolume.provisioningParameters.storagePoolUri = $null
-                    $newVolume.provisioningParameters.requestedCapacity = $svt.provisioning.capacity;
-                    $newVolume.provisioningParameters.provisionType = $null;
-                    $newVolume.provisioningParameters.shareable = $svt.provisioning.shareable
+                    $newVolume.templateUri = $svt.uri
+                    $newVolume.provisioningParameters.storagePoolUri    = $null
+                    $newVolume.provisioningParameters.requestedCapacity = $svt.provisioning.capacity
+                    $newVolume.provisioningParameters.provisionType     = $null
+                    $newVolume.provisioningParameters.shareable         = $svt.provisioning.shareable
 
                     #Check if capacity and shareable parameters were overridden in the request and update the object
                     if($capacity){
                         $newVolume.provisioningParameters.requestedCapacity = $capacity * 1GB
                     }
+
                     if($shared.isPresent -ne $svt.provisioning.shareable){
                         $newVolume.provisioningParameters.shareable = (!$svt.provisioning.shareable)
                     }
@@ -8587,6 +8830,134 @@ function New-HPOVStorageVolume {
             $resp = Send-HPOVRequest -method POST -body $newVolume -uri $script:storageVolumeUri
         }
 
+    }
+
+    end {
+
+        if ($resp.errorCode) {
+
+            $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException $resp.errorCode InvalidResult 'New-HPOVStorageVolume' -Message $resp.nestedErrors[0].details #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
+        else {
+
+            Return $resp
+
+        }
+
+    }
+
+}
+
+function Add-HPOVStorageVolume {
+
+    # .ExternalHelp HPOneView.110.psm1-help.xml
+    
+    [CmdletBinding(DefaultParameterSetName="default")]
+    Param (
+
+        [parameter(Mandatory=$true, ValueFromPipeline = $True, Position = 0, ParameterSetName="default")]
+        [ValidateNotNullOrEmpty()]
+        [object]$StorageSystem,
+
+        [parameter (Mandatory=$true, HelpMessage="Specify the name of the storage volume.", Position=1, ParameterSetName="default")]
+        [ValidateNotNullOrEmpty()]
+        [Alias("volid","id","wwn")]
+        [ValidateScript({if ($_ -match $script:wwnAddressPattern) {$true} else { Throw "The input value '$_' does not match the required format of 'AA:BB:CC:DD:EE:AA:BB:CC'. Please correct and try again." }})]
+        [string]$VolumeID,
+
+        [parameter (Mandatory=$true, ParameterSetName="default", HelpMessage="Specify the name of the storage volume.", Position=2)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("name")]
+        [string]$volumeName,
+
+        [parameter(Mandatory=$false, ParameterSetName="default", Position = 3)]
+        [string]$description = "",
+
+        [parameter(Mandatory=$false, ParameterSetName="default", HelpMessage="Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [switch]$shared
+
+    )
+
+     Begin {
+
+        if (! $global:cimgmtSessionId) {
+        
+            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError 'Get-HPOVStorageVolume' -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
+    }
+
+    Process {
+
+        #Create new addVolume object
+        $addVolume = [PSCustomObject]@{
+            type             = "AddStorageVolumeV2";
+            name             = $volumeName;
+            description      = $description;
+            storageSystemUri = $null;
+            wwn              = $VolumeID;
+            provisioningParameters = @{
+                shareable = $shared.IsPresent
+            }
+
+        }
+
+        Switch ($StorageSystem.GetType().Name) {
+
+            "String" {
+                            
+                if ($StorageSystem.StartsWith($script:storageSystemUri)){
+
+                    Write-Verbose "[NEW-HPOVSTORAGEVOLUME] StorageSystem URI provided by caller."
+                    Write-Verbose "[NEW-HPOVSTORAGEVOLUME] Sending request."                        
+                    $ss = Send-HPOVRequest $StorageSystem
+
+                }
+
+                elseif ($StorageSystem.StartsWith("/rest")) {
+
+                    #Invalid parameter value, generate terminating error.
+                    $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidArgumentValue InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid StorageSystem parameter value: $($StorageSystem | out-string)" #-verbose
+                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                }
+
+                else {
+                                
+                    Write-Verbose "[NEW-HPOVSTORAGEVOLUME] StorageSystem Name provided by caller."
+                    Write-Verbose "[NEW-HPOVSTORAGEVOLUME] Sending request."
+
+                    #Get the storage volume template resource.  Terminating error will throw from the Get-* if no resource is found.
+                    $ss = Get-HPOVStorageSystem $StorageSystem
+                }
+
+            }
+
+            "PSCustomObject" {
+
+                #Validate the object
+                if ($StorageSystem.category -eq 'storage-systems') { $ss = $StorageSystem }
+                else {
+
+                    $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidStorageSystemCategory InvalidArgument 'New-HPOVStorageVolume' -Message "Invalid StorageSystem parameter value.  Expected Resource Category 'storage-systems', recieved '$($VolumeTemplate.category)'." #-verbose
+                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                }
+
+            }
+
+            default { }
+        }
+
+        $addVolume.storageSystemUri = $ss.uri
+
+        #Send the request
+        [Array]$resp += (Send-HPOVRequest -method POST -body $addVolume -uri $script:storageVolumeUri)
     }
 
     end {
@@ -12891,48 +13262,41 @@ function New-HPOVLogicalInterconnectGroup {
 
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param (
-        [Parameter(Mandatory=$True,ParameterSetName="Default",HelpMessage="Please specify the Logical Interconnect Name")]
+        [Parameter(Mandatory=$True,ParameterSetName="Default",HelpMessage="Please specify the Logical Interconnect Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [parameter(Position=0)]
         [Alias('ligname')]
         [String]$Name,
         
-        [Parameter(Mandatory=$True,ValueFromPipeline = $true,ParameterSetName="Default",HelpMessage="Please specify the Interconnect Modules in Hashtable format for all Interconnect Bays")]
-        [parameter(Position=1)]
+        [Parameter(Mandatory=$True,ValueFromPipeline = $true,ParameterSetName="Default",HelpMessage="Please specify the Interconnect Modules in Hashtable format for all Interconnect Bays", Position = 1)]
         [Hashtable]$Bays,
 
-        [Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable IGMP Snooping")]
-        [ValidateSet($True, $False)]
-        [parameter(Position=2)]
+        [Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable IGMP Snooping", Position = 2)]
 		[Alias("IGMPSnoop")]
         [bool]$enableIgmpSnooping = $False,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="IGMP Idle Timeout Interval (1-3600 [sec])")]
+		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="IGMP Idle Timeout Interval (1-3600 [sec])", Position = 3)]
         [ValidateRange(1,3600)]
-        [parameter(Position=3)]
 		[Alias('IGMPIdle')]
 	    [int]$igmpIdleTimeoutInterval = 260,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Fast MAC Cache Failover")]
-        [ValidateSet($True, $False)]
-        [parameter(Position=4)]
+		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Fast MAC Cache Failover", Position = 4)]
 		[Alias('FastMAC')]
 	    [bool]$enableFastMacCacheFailover = $True,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Fast MAC Cache Failover Interval (1-30 [sec])")]
+		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Fast MAC Cache Failover Interval (1-30 [sec])", Position = 5)]
         [ValidateRange(1,30)]
-        [parameter(Position=5)]
 		[Alias('FastMACRefresh')]
     	[int]$macRefreshInterval = 5,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Network Loop Protection on the Downlink Ports)")]
-        [ValidateSet($True, $False)]
-        [parameter(Position=6)]
+		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Network Loop Protection on the Downlink Ports)", Position = 6)]
 		[Alias('LoopProtect')]
 	    [bool]$enableNetworkLoopProtection = $True,
+
+		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Network Pause Flood Protection on the Downlink Ports)", Position = 7)]
+		[Alias('PauseProtect')]
+	    [bool]$enablePauseFloodProtection = $True,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable SNMP Settings")]
-        [parameter(Position=7)]
+		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable SNMP Settings", Position = 8)]
 	    [hashtable]$SNMP = $null,
 
         [Parameter(Mandatory=$True,ParameterSetName="Import",HelpMessage="Specify JSON source file to great Logical Interconnect Group")]
@@ -12980,21 +13344,24 @@ function New-HPOVLogicalInterconnectGroup {
 
         Else {
 
-		    $lig = @{name=$Name;
-	            state = "Active";
-	            status = $null; 
-	            uplinkSets = @(); 
+		    $lig = @{
+                name                    =$Name;
+	            state                   = "Active";
+	            status                  = $null; 
+	            uplinkSets              = @(); 
 	            interconnectMapTemplate = @{interconnectMapEntryTemplates = @()};
-	            ethernetSettings = @{type = "EthernetInterconnectSettingsV2";
-	                                 enableIgmpSnooping = $enableIgmpSnooping;
-	                                 igmpIdleTimeoutInterval = $igmpIdleTimeoutInterval; 
-	                                 enableFastMacCacheFailover = $enableFastMacCacheFailover;
-	                                 macRefreshInterval = $macRefreshInterval;
-	                                 enableNetworkLoopProtection = $enableNetworkLoopProtection;
-	                                 };
-			    snmpConfiguration = $snmp;
-	            stackingMode = "Enclosure";
-	            type = "logical-interconnect-groupV2"
+	            ethernetSettings = @{
+                    type                        = "EthernetInterconnectSettingsV2";
+                    enableIgmpSnooping          = $enableIgmpSnooping;
+                    igmpIdleTimeoutInterval     = $igmpIdleTimeoutInterval; 
+                    enableFastMacCacheFailover  = $enableFastMacCacheFailover;
+                    macRefreshInterval          = $macRefreshInterval;
+                    enableNetworkLoopProtection = $enableNetworkLoopProtection;
+                    enablePauseFloodProtection  = $enablePauseFloodProtection;
+                };
+			    snmpConfiguration       = $snmp;
+	            stackingMode            = "Enclosure";
+	            type                    = "logical-interconnect-groupV2"
 	        }
         
             #Make sure the snmpConfiguration type property is set, as the caller might not know about this.
@@ -13466,8 +13833,9 @@ function New-HPOVUplinkSet {
 
     [CmdLetBinding()]
     Param (
-        [parameter(Mandatory=$true)]
-        [string]$ligName,
+        [parameter(Mandatory = $true, ValueFromPipeline = $True, Position = 0)]
+        [alias('ligName')]
+        [object]$lig,
 
         [parameter(Mandatory=$true)]
         [alias('usName')]
@@ -13520,158 +13888,252 @@ function New-HPOVUplinkSet {
 	
 	Process {
 
-        #Get LIG JSON so we can attach an Uplink Set to it
-        $lig = Get-HPOVLogicalInterconnectGroup $ligName
+        #Init Uplink Set Objects
+        $ethUplinkSetObject = [PSCustomObject]@{
 
-        #If LIG is not found, throw error
-        if (!$lig) { 
-            
-            #Write-Error "Logical Interconnect Group $ligName is missing or invalid." -Category ResourceUnavailable -CategoryTargetName "New-HPOVUplinkSet"
-            #Break
-            $errorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'New-HPOVUplinkSet' -Message "Logical Interconnect Group parameter ligName is missing or invalid.  Please check the value and try again." #-verbose
-            $pscmdlet.ThrowTerminatingError($errorRecord)
+            logicalPortConfigInfos = @();
+            networkUris            = @();
+            name                   = $Name; 
+            mode                   = $EthMode; 
+            networkType            = "Ethernet"; 
+            ethernetNetworkType    = $Null; 
+            lacpTimer              = $lacpTimer
+
         }
 
-        else{
+        $fcUplinkSetObject = [PSCustomObject]@{
+
+            logicalPortConfigInfos = @(); 
+            networkUris            = @();
+            name                   = $Name; 
+            mode                   = "Auto"; 
+            networkType            = $Type
+
+        }
+
+        #Check the LIG type, and handle accordingly
+        switch ($lig.gettype().Name) {
+
+            "String" {
             
-            Write-Verbose "[NEW-HPOVUPLINKSET] LIG Resource Object: $($lig)"
+                if ($lig.startswith("/rest/logical-interconnect-groups")) {
 
-            #Get list of interconnects in LIG definition
-            $ligInterconnects = $lig.interconnectmaptemplate.interconnectmapentrytemplates
+                    Write-Verbose "[NEW-HPOVUPLINKSET] LIG Resource URI provided: $($lig)"
+                    $ligObject = Send-HPOVRequest $lig
 
-            Write-Verbose "[NEW-HPOVUPLINKSET] Getting supported Interconnect Types from appliance."
-            #Get list of all supported interconnects
-            $supportedInterconnects = (Send-HPOVRequest "/rest/interconnect-types").members
-            
-            $UplinkPorts = $UplinkPorts.Split(',')
-            write-verbose "[NEW-HPOVUPLINKSET] Uplink Ports: $($UplinkPorts | out-string)"
+                }
 
-            $ligUri = $lig.uri
-            
-            #Set US Mode, Uplink Template Name, Network Type
-            $us = @{uplinkSets=@()}
+                else {
 
+                    Write-Verbose "[NEW-HPOVUPLINKSET] LIG Resource URI provided: $($lig)"
+                    $ligObject = Get-HPOVLogicalInterconnectGroup $ligName
 
-            #Validate Uplink Network Type. 
-            # If Ethernet, configure EthMode
-            
-            switch ($Type) {
-            
-                "Ethernet" { $us.uplinkSets = @{ logicalPortConfigInfos = @(); name = $Name; mode = $EthMode; networkType = "Ethernet"; ethernetNetworkType = "Tagged"; lacpTimer = $lacpTimer } }
-                "Tunnel" { $us.uplinkSets = @{ logicalPortConfigInfos = @(); name = $Name; mode = $EthMode; networkType = "Ethernet"; ethernetNetworkType = "Tunnel"; lacpTimer = $lacpTimer } }
-                "Untagged" { $us.uplinkSets = @{ logicalPortConfigInfos = @(); name = $Name; mode = $EthMode; networkType = "Ethernet"; ethernetNetworkType = "Untagged"; lacpTimer = $lacpTimer } }
-
-                #If FIBRE_CHANNEL (mode must be hard-coded to "Auto" for FC Uplinks)
-                "FibreChannel" { $us.uplinkSets = @{ logicalPortConfigInfos=@();name=$Name;mode="Auto";networkType=$Type } }
-                default { 
+                }
                 
-                    #Write-Error "Unknown Network Type $Type.  Supported values are Ethernet or FibreChannel" -Category InvalidType -CategoryTargetName "New-HPOVUplinkSet"
-                    #break
-                    $errorRecord = New-ErrorRecord ArgumentException InvalidParameterType InvalidArgument 'New-HPOVUplinkSet' -Message "Unknown Network Type $Type.  Supported values are Ethernet or FibreChannel.  Please check the value and try again." #-verbose
+                #If LIG is not found, throw error
+                if (-not $ligObject) { 
+                    
+                    $errorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'New-HPOVUplinkSet' -Message "The -lig parameter value provided ($lig) is invalid.  Please check the value and try again." #-verbose
                     $pscmdlet.ThrowTerminatingError($errorRecord)
                 }
 
+            
             }
+            "PSCustomObject" { 
 
-            #Loop through ports and further building the JSON data
-            $port = @()
+                Write-Verbose "[NEW-HPOVUPLINKSET] Provided LIG Resource Name: $($lig.name)"
+                Write-Verbose "[NEW-HPOVUPLINKSET] Provided LIG Resource Category: $($lig.category)"
+                Write-Verbose "[NEW-HPOVUPLINKSET] Provided LIG Resource URI: $($lig.uri)"
+            
+                if ($lig.category -ne "logical-interconnect-groups" ) {
 
-            foreach ($port in $UplinkPorts){
+                    $errorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'New-HPOVUplinkSet' -Message "The -lig parameter value provided is not the correct resource category type.  Category provided '$($lig.category)'.  Expected category 'logical-interconnect-groups'.  Please check the value and try again." #-verbose
+                    $pscmdlet.ThrowTerminatingError($errorRecord)
 
-                $rem="bayBAY"
-                $port = $port.Split(':')
-                $bay = $port[0].TrimStart($rem)
-                $uplinkPort = $port[1]
-                write-verbose "[NEW-HPOVUPLINKSET] Processing Port Bay$($bay):$($uplinkPort)"
-
-                #Retrieve the interconnect type based on the bay number that was passed in in the ports parameter
-
-                write-verbose "[NEW-HPOVUPLINKSET] Looking for Interconnect URI for Bay $($bay)"
-                ForEach ($l in $ligInterconnects) { 
-
-                    $found = $l.logicalLocation.locationEntries | ? {$_.type -eq "Bay" -and $_.relativeValue -eq $bay}
-                    
-                    if($found) {
-                        
-                        $permittedIcUri = $l.permittedInterconnectTypeUri
-
-                        write-verbose "[NEW-HPOVUPLINKSET] Found permitted Interconnect Type URI $($permittedIcUri) for Bay $($bay)"
-
-                    }
-
-                } 
-
-                $ic = $supportedInterconnects | ? {$_.uri -eq $permittedIcUri}
-
-                #Translate the port number
-                $portRelativeValue = $ic.portInfos | ? {$_.portName -eq $uplinkPort} | % {$_.portNumber}
-
-                #Add uplink ports
-                $logicalLocation = @{logicalLocation=@{locationEntries=@{type="Enclosure";relativeValue=1},@{type="Bay";relativeValue=[int]$bay},@{type="Port";relativeValue=[int]$portRelativeValue}};desiredSpeed=$null}
-                
-                #Set FC Uplink Port Speed
-                if ($Type -eq "FibreChannel") { $logicalLocation.desiredSpeed = $script:SetUplinkSetPortSpeeds[$fcUplinkSpeed] }
-                else { $logicalLocation.desiredSpeed = "Auto" }
-                
-                $us.uplinkSets.logicalPortConfigInfos += $logicalLocation
-                #$us.uplinkSets.logicalPortConfigInfos += @{logicalLocation=@{locationEntries=@{type="Enclosure";relativeValue=1},@{type="Bay";relativeValue=[int]$port[0]},@{type="Port";relativeValue=[int]$portRelativeValue}};desiredSpeed=$null}
-
-            }
-
-            #Loop through each specified Network object to get the URI and put into array
-            if($Networks) {$Networks = $Networks.Split(',')}
-            $usNetworkUris = @()
-
-            foreach ($network in $Networks){
-
-                Write-Verbose "[NEW-HPOVUPLINKSET] Getting `"$($network)`" URI"
-                
-                if ($Type -eq "Tunnel" -or $Type -eq "Untagged") { $netType = "Ethernet" }
-                else { $netType = $Type } 
-
-                $ret = Get-HPOVNetwork $network -type $NetType
-                
-                #Check to see if the Network Specified is the same as the Native Network, and set the URI
-                if ($network -eq $nativeEthNetwork) { 
-                
-                    Write-Verbose "[NEW-HPOVUPLINKSET] Found Native Ethernet network $($network)"
-                    $nativeEthNetworkUri = $ret.uri 
                 }
 
-                $usNetworkUris += $ret.uri
+                $ligObject = $lig
+            
             }
-            
-            #If total number of networks passed is one, check whether it is tunneled or untagged and set ethernetNetworkTypeProperty
-            #if($usNetworks.count -eq 1){$us.uplinkSets.ethernetNetworkType = $ret.ethernetNetworkType}
 
-            #Add the Network URI(s) to the JSON data
-            $us.uplinkSets += @{networkUris=$usNetworkUris}
+            default {
 
-            #IF the UplinkType is ETHERNET, we likely have to set the Native VLAN on the uplink port(s)
-            if ($Type -ieq "ETHERNET" -and ($nativeEthNetworkUri)){$us.uplinkSets += @{nativeNetworkUri=$nativeEthNetworkUri}}
-
-            #Now take the logicaluplinkTemplate we created and add it to the LIG
-            $lig.uplinkSets += $us.uplinkSets
-
-            Write-Verbose "[NEW-HPOVUPLINKSET] $($ligName) Uplink Set object: $($us.uplinksets | convertto-json -depth 99)"
-            Write-Verbose "[NEW-HPOVUPLINKSET] $($us.uplinkSets | convertto-json -depth 99)"
-            
-            write-host "Creating '$Name' and assigning to '$ligName'..."
- 
-            Write-Verbose "[NEW-HPOVUPLINKSET] Sending request..."
-            $resp = Send-HPOVRequest $ligUri PUT $lig
-
-            If ($resp.errorCode) {
-
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperationState InvalidResult 'New-HPOVUplinkSet' -Message "$resp.message $resp.errorCode" #-verbose
+                $errorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'New-HPOVUplinkSet' -Message "The -lig parameter value provided ($lig) is invalid.  Please check the value and try again." #-verbose
                 $pscmdlet.ThrowTerminatingError($errorRecord)
 
             }
 
-            else { return $resp }
+        }
+
+        #Get list of interconnects in LIG definition
+        $ligInterconnects = $ligObject.interconnectmaptemplate.interconnectmapentrytemplates
+
+        #Get list of all supported 
+        Write-Verbose "[NEW-HPOVUPLINKSET] Getting supported Interconnect Types from appliance."
+        $supportedInterconnects = (Send-HPOVRequest "/rest/interconnect-types").members
+        
+        write-verbose "[NEW-HPOVUPLINKSET] Uplink Ports: $($UplinkPorts | out-string)"
+        $UplinkPorts = $UplinkPorts.Split(',')
+
+        #Loop through requested Uplink Ports
+        $port = @()
+        $uslogicalLocation = @()
+
+        foreach ($port in $UplinkPorts){
+
+            $rem="bayBAY"
+            $port = $port.Split(':')
+            $bay = $port[0].TrimStart($rem)
+            $uplinkPort = $port[1]
+            write-verbose "[NEW-HPOVUPLINKSET] Processing Port Bay$($bay):$($uplinkPort)"
+
+            #Retrieve the interconnect type based on the bay number that was passed in in the ports parameter
+
+            write-verbose "[NEW-HPOVUPLINKSET] Looking for Interconnect URI for Bay $($bay)"
+            ForEach ($l in $ligInterconnects) { 
+
+                $found = $l.logicalLocation.locationEntries | ? {$_.type -eq "Bay" -and $_.relativeValue -eq $bay}
+                    
+                if($found) {
+                        
+                    $permittedIcUri = $l.permittedInterconnectTypeUri
+
+                    write-verbose "[NEW-HPOVUPLINKSET] Found permitted Interconnect Type URI $($permittedIcUri) for Bay $($bay)"
+
+                }
+
+            } 
+
+            $ic = $supportedInterconnects | ? {$_.uri -eq $permittedIcUri}
+
+            #Translate the port number
+            $portRelativeValue = $ic.portInfos | ? {$_.portName -eq $uplinkPort} | % {$_.portNumber}
+
+            #Didn't find relative port number, so generate terminating error
+            if (-not $portRelativeValue) {
+
+                $errorRecord = New-ErrorRecord HPOneView.UplinkSetResourceException InvalidUplinkPortID InvalidArgument 'New-HPOVUplinkSet' -Message "The provided uplink port 'BAY$($bay):$($uplinkPort)' is an invalid port ID.  Did you mean 'X$($uplinkPort)'?  Please check the value and try again." #-verbose
+                $pscmdlet.ThrowTerminatingError($errorRecord)
+
+            }
+
+            #Add uplink ports
+            $logicalLocation = @{
+                    
+                logicalLocation = @{
+                        
+                    locationEntries = @{
+                            
+                        type          = "Enclosure";
+                        relativeValue = 1
+                    },
+                    @{
+                        type          = "Bay";
+                        relativeValue = [int]$bay
+                    },
+                    @{
+                        type          = "Port";
+                        relativeValue = [int]$portRelativeValue
+                    }
+                };
+                desiredSpeed          = $null
+            }
+                
+            #Set FC Uplink Port Speed
+            if ($Type -eq "FibreChannel") { $logicalLocation.desiredSpeed = $script:SetUplinkSetPortSpeeds[$fcUplinkSpeed] }
+            else { $logicalLocation.desiredSpeed = "Auto" }
+                
+            $uslogicalLocation += $logicalLocation
 
         }
+
+        #Loop through each specified Network object to get the URI and put into array
+        if($Networks) {$Networks = $Networks.Split(',')}
+
+        $usNetworkUris = @()
+
+        foreach ($network in $Networks){
+
+            Write-Verbose "[NEW-HPOVUPLINKSET] Getting `"$($network)`" URI"
+                
+            if ($Type -eq "Tunnel" -or $Type -eq "Untagged") { $netType = "Ethernet" }
+            else { $netType = $Type } 
+
+            $ret = Get-HPOVNetwork $network -type $NetType
+                
+            #Check to see if the Network Specified is the same as the Native Network, and set the URI
+            if ($network -eq $nativeEthNetwork) { 
+                
+                Write-Verbose "[NEW-HPOVUPLINKSET] Found Native Ethernet network $($network)"
+                $nativeEthNetworkUri = $ret.uri 
+            }
+
+            $usNetworkUris += $ret.uri
+        }
+
+        #Validate Uplink Network Type.            
+        switch ($Type) {
+            
+            "Ethernet" { 
+            
+                $ethUplinkSetObject.ethernetNetworkType = "Tagged"
+                $ethUplinkSetObject.logicalPortConfigInfos = $uslogicalLocation
+                $ethUplinkSetObject.networkUris = @($usNetworkUris)
+                
+                #IF the UplinkType is ETHERNET, we likely have to set the Native VLAN on the uplink port(s)
+                if ($nativeEthNetworkUri) { $ethUplinkSetObject | Add-Member -NotePropertyName nativeNetworkUri -NotePropertyValue $nativeEthNetworkUri }
+                
+                Write-Verbose "[NEW-HPOVUPLINKSET] $($ligObject.name) Uplink Set object: $($ethUplinkSetObject | convertto-json -depth 99)"
+
+                $ligObject.uplinkSets += $ethUplinkSetObject
+                
+            }
+            "Tunnel" { 
+            
+                $ethUplinkSetObject.ethernetNetworkType = "Tunnel"
+                $ethUplinkSetObject.logicalPortConfigInfos = $uslogicalLocation
+                $ethUplinkSetObject.networkUris = @($usNetworkUris)
+                Write-Verbose "[NEW-HPOVUPLINKSET] $($ligObject.name) Uplink Set object: $($ethUplinkSetObject | convertto-json -depth 99)"
+
+                $ligObject.uplinkSets += $ethUplinkSetObject
+                
+            }
+            "Untagged" { 
+            
+                $ethUplinkSetObject.ethernetNetworkType = "Untagged"
+                $ethUplinkSetObject.logicalPortConfigInfos = $uslogicalLocation
+                $ethUplinkSetObject.networkUris = @($usNetworkUris)
+                Write-Verbose "[NEW-HPOVUPLINKSET] $($ligObject.name) Uplink Set object: $($ethUplinkSetObject | convertto-json -depth 99)"
+                
+                $ligObject.uplinkSets += $ethUplinkSetObject
+                
+            }
+
+            "FibreChannel" { 
+
+                $fcUplinkSetObject.networkUris = @($usNetworkUris)
+                Write-Verbose "[NEW-HPOVUPLINKSET] $($ligObject.name) Uplink Set object: $($ethUplinkSetObject | convertto-json -depth 99)"
+                
+                $ligObject.uplinkSets += $fcUplinkSetObject 
+
+            }
+
+        }
+
+        Write-Verbose "[NEW-HPOVUPLINKSET] Sending request..."
+        $resp = Send-HPOVRequest $ligObject.uri PUT $ligObject
+
+        If ($resp.errorCode) {
+
+            $errorRecord = New-ErrorRecord HPOneView.UplinkSetResourceException InvalidOperationState InvalidResult 'New-HPOVUplinkSet' -Message "$resp.message $resp.errorCode" #-verbose
+            $pscmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
+        else { return $resp }
+
     }
+
 }
 
 #######################################################
@@ -14215,8 +14677,8 @@ function New-HPOVProfile {
 
         [parameter(Mandatory = $false, ParameterSetName = "Default")]
         [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateSet("DeviceBay","DeviceBay+SH", IgnoreCase=$true)]
-        [string]$Affinity = "DeviceBay",
+        [ValidateSet("Bay","BayAndServer", IgnoreCase=$false)]
+        [string]$Affinity = "Bay",
 	
         [parameter(Mandatory = $false, ParameterSetName = "Default")]
         [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
@@ -14257,6 +14719,7 @@ function New-HPOVProfile {
             type                  = "ServerProfileV3"; 
             name                  = $name; 
             description           = $description; 
+            affinity              = $Affinity;
             bios                  = @{manageBios = [bool]$bios; overriddenSettings = $biosSettings}; 
             firmware              = @{manageFirmware = [bool]$firmware; firmwareBaselineUri = $baseline; forceInstallFirmware = [bool]$forceInstallFirmware};
             boot                  = @{manageBoot = [bool]$manageBoot; order=$bootOrder};
@@ -14473,7 +14936,7 @@ function New-HPOVProfile {
 				    $serverProfile.serverHardwareUri = $server.uri
 				    $serverProfile.serverHardwareTypeUri = $server.serverHardwareTypeUri
                     
-                    #Handle non Blade Server objects
+                    #Handle Blade Server objects
                     if ($server.serverGroupUri) { $serverProfile.enclosureGroupUri = $server.serverGroupUri }
 
 			    }
@@ -14531,8 +14994,6 @@ function New-HPOVProfile {
                     
                     }
 
-                    $serverProfile.firmware.firmwareBaselineUri
-
                 }
 
                 else {
@@ -14589,16 +15050,16 @@ function New-HPOVProfile {
             }
 		    
             #StRM Support
-            if ([bool]$SANStorage) { 
+            if ([bool]$SANStorage -and $serverHardwareType.model -match "BL") { 
 
                 write-verbose "[NEW-HPOVPROFILE] SAN Storage being requested"
             
-                write-verbose "[NEW-HPOVPROFILE] Getting list of available storage systems"
                 #Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
-                $availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$enclosureGroupUri&serverHardwareTypeUri=$($serverHardwareType.uri)")).members
+                write-verbose "[NEW-HPOVPROFILE] Getting list of available storage systems"
+                $availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$($serverProfile.enclosureGroupUri)&serverHardwareTypeUri=$($serverHardwareType.uri)")).members
                 
-                write-verbose "[NEW-HPOVPROFILE] Getting list of attachable volumes"
                 #Get list of attacable Volumes (i.e. they are not assigned private or are shareable volumes)
+                write-verbose "[NEW-HPOVPROFILE] Getting list of attachable volumes"
                 $attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri).members
                 
                 $serverProfile.sanStorage = [pscustomobject]@{
@@ -14756,574 +15217,6 @@ function New-HPOVProfile {
         
     }
 }
-
-<#
-function New-HPOVProfile {
-
-    # .ExternalHelp HPOneView.110.psm1-help.xml
-
-	[CmdLetBinding(DefaultParameterSetName = "Default")]
-    Param (
-        [parameter(Mandatory=$true,ParameterSetName="Default", Position = 0)]
-        [parameter(Mandatory=$true,ParameterSetName="SANStorageAttach", Position = 0)]
-		[ValidateNotNullOrEmpty()]
-        [string]$name,
-
-        [parameter(Mandatory = $false, valuefrompipeline = $True, ParameterSetName = "Default", Position = 1)]
-        [parameter(Mandatory = $false, valuefrompipeline = $True, ParameterSetName = "SANStorageAttach", Position = 1)]
-        [ValidateNotNullOrEmpty()]
-        [object]$server="unassigned",
-
-        [parameter(Mandatory=$false,ParameterSetName="Default", position = 2)] 
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 2)]
-		[string]$description=$null,
-
-        [parameter(Mandatory=$false,ParameterSetName="Default", position = 3)]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 3)]
-		[ValidateNotNullOrEmpty()]
-        [array]$connections=@(),
-
-        [parameter(Mandatory=$false,ParameterSetName="Default",position = 4)]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 4)]
-		[ValidateNotNullOrEmpty()]
-		[Alias('eg')]
-        [object]$enclosureGroup=$Null,
-
-        [parameter(Mandatory=$false,ParameterSetName="Default", position = 5)]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 5)]
-        [ValidateNotNullOrEmpty()]
-		[Alias('sht')]
-        [object]$serverHardwareType=$null,
-
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [switch]$firmware = $false,
-	
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [object]$baseline=$null,
-	
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [switch]$bios = $false,
-
-	    [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [array]$biosSettings=@(),
-
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [switch]$boot = $true,
-
-	    [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [array]$bootOrder=@(‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’),
-
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [switch]$localstorage,
-
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [switch]$Initialize,
-
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]        
-        [switch]$Bootable,
-
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateSet("RAID1","RAID0","NONE", IgnoreCase=$true)]
-        [string]$RaidLevel = $Null,
-
-        [parameter(Mandatory = $True,ParameterSetName="SANStorageAttach")]
-        [switch]$SANStorage,
-
-        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach")]
-        [ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
-        [Alias('OS')]
-        [string]$HostOStype = $Null,
-
-        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach")]
-        [object]$StorageVolume = $Null,
-
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-        [Alias('Even')]
-        [switch]$EvenPathDisabled,
-
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-        [Alias('Odd')]
-        [switch]$OddPathDisabled,
-
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateSet("DeviceBay","DeviceBay+SH", IgnoreCase=$true)]
-        [string]$Affinity = "DeviceBay",
-	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
-        [string]$macAssignment = "Virtual",
-
-        [parameter(Mandatory = $false,ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateSet("Virtual", "Physical", "'UserDefined", IgnoreCase=$true)]
-        [string]$wwnAssignment = "Virtual",
-
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
-        [ValidateSet("Virtual", "Physical", IgnoreCase=$true)]
-        [string]$snAssignment = "Virtual",
-
-        [parameter(Mandatory = $true, ParameterSetName = "Import")]
-        [switch]$Import,
-        
-        [parameter(Mandatory = $true, ParameterSetName = "Import", ValueFromPipeline = $true)]
-        [alias("location","file")]
-        [Object]$ProfileObj
-
-
-
-    )
-	
-
-    Begin {
-
-        if (! $global:cimgmtSessionId) {
-        
-            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError "New-HPOVProfile" -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-        }
-
-        $serverProfile = $null
-
-    }
-	
-	Process {
-
-        #Import Server Profile JSON to appliance
-        if ($import) {
-
-            if (($ProfileObj -is [System.String]) -and (Test-Path $ProfileObj)) {
-
-                #Recieved file location
-                Write-Verbose "[NEW-HPOVPROFILE] Received JSON file as input $($ProfileObj)"
-                $serverProfile = (get-content $ProfileObj) -join "`n" | convertfrom-json
-                Write-Verbose "[NEW-HPOVPROFILE] Sending request"
-                $resp = Send-HPOVRequest $script:profilesUri POST $serverProfile
-                #return $resp
-            }
-
-            #Input object could be the JSON object, which is type [System.String]
-            elseif ($ProfileObj -is [System.String]) {
-
-                Write-Verbose "[NEW-HPOVPROFILE] Received JSON resource object as input $($ProfileObj | out-string)"
-                $serverProfile = $ProfileObj -join "`n" | convertfrom-json
-                Write-Verbose "[NEW-HPOVPROFILE] Sending request"
-                $resp = Send-HPOVRequest $script:profilesUri POST $serverProfile
-                #return $resp
-
-            }
-
-            #Input object is PsCustomObject of a Server Profile
-            elseif ($ProfileObj -is [PsCustomObject]) {
-
-                Write-Verbose "[NEW-HPOVPROFILE] Received JSON PsCustomObject as input $($ProfileObj | out-string)"
-                Write-Verbose "[NEW-HPOVPROFILE] Sending request"
-                $resp = Send-HPOVRequest $script:profilesUri POST $ProfileObj
-                #return $resp
-
-            }
-
-            #Inavlid input type for $ProfileObj
-            else { 
-            
-                #Write-Error "Invalid input.  Please check the object you provided for ProfileObj parameter and try again" -Category InvalidArgument -CategoryTargetName "New-HPOVProfile" -CategoryActivity "Import Server Profile" 
-                
-                $errorRecord = New-ErrorRecord System.ArgumentException InvalidImportObject InvalidArgument 'New-HPOVPropfile' -Message "Invalid `$Import input object.  Please check the object you provided for ProfileObj parameter and try again" #-verbose
-                    
-                #Generate Terminating Error
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
-            
-            }
-        }
-
-        #We are not going to import a Server Profile
-        else {
-		
-		    # We are creating an unassigned server profile
-	        if ($server -eq 'unassigned') {
-			
-			    $serverHardwareUri = $null
-			
-			    #Check to see if the serverHardwareType or enclosureGroup is null, and generate error(s) then break.
-			    if ((!$serverHardwareType) -or (!$enclosureGroup)) {
-				    if (!$serverHardwareType){
-					    #Write-Error -Message "Server Hardware Type is missing.  Recommended Action: Please provide a Server Hardware Type." -CategoryTargetName "New-HPOVProfile" -Category SyntaxError -RecommendedAction "Specify a Server Hardware Type name"
-                        $errorRecord = New-ErrorRecord System.ArgumentException InvalidServerHardwareTypeObject InvalidArgument 'New-HPOVPropfile' -Message "Server Hardware Type is missing.  Please provide a Server Hardware Type using the -sht parameter and try again." #-verbose
-                
-				    }
-				    if (!$enclosureGroup){
-					    #Write-Error -Message "Enclosure Group is missing. Recommended Action: Please provide an Enclosure Group Name" -CategoryTargetName "New-HPOVProfile" -Category SyntaxError -RecommendedAction "Specify an Enclosure Group name"
-                        $errorRecord = New-ErrorRecord System.ArgumentException InvalidEnclosureGroupObject InvalidArgument 'New-HPOVPropfile' -Message "Enclosure Group is missing.  Please provide an Enclosure Group using the -eg parameter and try again." #-verbose
-				    }
-                    
-                    #Generate Terminating Error
-				    $PSCmdlet.ThrowTerminatingError($errorRecord)
-			    }
-			
-			    #If the URI is passed as the Server Hardware Type, then set the serverHardwareTypeUri variable
-			    If ($serverHardwareType -is [string]){
-				    if ($serverHardwareType.StartsWith($script:serverHardwareTypesUri)){ $serverHardwareTypeUri = $serverHardwareType ; Write-Verbose "[NEW-HPOVPROFILE] SHT URI Provided: $serverHardwareTypeUri" }
-				
-				    #Otherwise, perform a lookup
-				    else {
-
-                        Write-Verbose "[NEW-HPOVPROFILE] SHT Name Provided: $serverHardwareTypeUri"
-					    $serverHardwareType = Get-HPOVServerHardwareType -name $serverHardwareType
-                        if ($serverHardwareType) {
-					        $serverHardwareTypeUri = $serverHardwareType.uri
-					        Write-Verbose "[NEW-HPOVPROFILE] SHT URI: $serverHardwareTypeUri"
-                        }
-
-                        else {
-                            $errorRecord = New-ErrorRecord System.ArgumentException InvalidServerHardwareTypeParameter InvalidArgument 'New-HPOVPropfile' -Message "" #-verbose
-                            $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                        }
-				    }
-			    }
-			
-			    #Else the SHT object is passed
-			    else { $serverHardwareTypeUri = $serverHardwareType.uri }
-			
-			    if ($enclosureGroup -is [string]){
-
-				    #If the URI is passed as the Enclosure Group, then set the enclosureGroupUri variable
-				    if ($enclosureGroup.StartsWith('/rest')){ $enclosureGroupUri = $enclosureGroup}
-
-				    #Otherwise, perform a lookup
-				    else{
-					    $enclosureGroup = Get-HPOVEnclosureGroup -name $enclosureGroup
-					    $enclosureGroupUri = $enclosureGroup.uri
-					    Write-Verbose "[NEW-HPOVPROFILE] EG URI: $enclosureGroupUri"
-				    }
-			    }
-						
-			    #Else the EG object is passed
-			    elseif (($enclosureGroup -is [PSCustomObject]) -and ($enclosureGroup.category -eq "enclosure-groups")) { 
-
-                    $enclosureGroupUri = $enclosureGroup.uri 
-                }
-
-                else { 
-                
-                    #write-error "The Enclosure Group object was invalid." -Category SyntaxError -RecommendedAction "Specify a correct Enclosure Group name, URI or object." -CategorytargetName "New-HPOVProfile" 
-                    $errorRecord = New-ErrorRecord System.ArgumentException InvalidEnclosureGroupObject InvalidArgument 'New-HPOVPropfile' -Message "Enclosure Group is invalid.  Please specify a correct Enclosure Group name, URI or object and try again." #-verbose
-
-                    #Generate Terminating Error
-				    $PSCmdlet.ThrowTerminatingError($errorRecord)
-                    
-                }
-	        }
-	
-		    # Creating an assigned profile
-		    else {
-			
-			    #Looking for the $server DTO to be string
-			    if ($server -is [string]) {
-				
-				    #If the server URI is passed, look up the server object
-				    if ($server.StartsWith($script:serversUri)) {
-					    Write-Verbose "[NEW-HPOVPROFILE] Server URI passed: $server"
-					    [object]$server = Send-HPOVRequest $server
-				    }
-				
-				    #Else the name is passed and need to look it up.
-				    else{
-					    [object]$server = Get-HPOVServer -name $server
-                    
-                        #An error should have been displayed if the server object wasn't found.
-                        if (-not ($server)){ break }
-				    }
-			    }
-			
-			    Write-Verbose "[NEW-HPOVPROFILE] Server Object: $($server | out-string)"
-
-			    #Check to make sure the server NoProfileApplied is true
-			    if (!$server.serverProfileUri) {
-				    $serverHardwareUri = $server.uri
-				    $serverHardwareTypeUri = $server.serverHardwareTypeUri
-				    $enclosureGroupUri = $server.serverGroupUri
-			    }
-			    else {
-				    $serverProfile = Send-HPOVRequest $server.serverProfileUri
-                    $errorRecord = New-ErrorRecord InvalidOperationException ServerProfileAlreadyAssigned ResourceExists 'New-HPOVProfile' -Message "$($server.name) already has a profile assigned, '$($serverProfile.name)'.  Please specify a different Server Hardware object." #-verbose
-				    $pscmdlet.ThrowTerminatingError($errorRecord)
-                    #Write-Error -Message "$($server.name) already has a profile assigned, '$($serverProfile.name)'." -Category ResourceExists -CategoryTargetName "New-HPOVProfile" -RecommendedAction "Specify a different Server Hardware object" -erroraction Stop
-			    }
-
-                $serverHardwareType = Send-HPOVRequest $serverHardwareTypeUri
-
-		    }
-		
-		    Write-Verbose "[NEW-HPOVPROFILE] Firmware Baseline $($baseline)"
-        
-            #Check to make sure Server Hardware Type supports Firmware Management (OneView supported G7 blade would not support this feature)
-            if ($firmware) {
-                if ($serverHardwareType.capabilities -match "firmwareUpdate" ) {
-                    #Validating that the baseline value is a string type and that it is an SPP name.
-		            if (($baseline -is [string]) -and (! $baseline.StartsWith('/rest'))) {
-			            $baseline = Get-HPOVSppFile $baseline
-			            $baseline = $baseline.uri
-		            }
-            
-                    #Validating that the baseline value is a string type and that it is the Basline URI
-		            elseif (($baseline -is [string]) -and ($baseline.StartsWith('/rest'))) {
-			    
-			            $baseline = Send-HPOVRequest $baseline
-			            $baseline = $baseline.uri
-
-		            }
-
-                    #Else we are expecting the SPP object that contains the URI.
-                    elseif (($baseline) -and ($baseline -is [object])) {
-                        $baseline = $baseline.uri
-                    }
-
-                }
-
-                else { 
-                    $errorRecord = New-ErrorRecord InvalidOperationException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management." #-verbose
-				    $pscmdlet.ThrowTerminatingError($errorRecord)
-                    #Write-Error "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management." -Category NotImplemented -CategoryTargetName "New-HPOVProfile" -erroraction Stop 
-                    
-                }
-            }
-
-            #Check to make sure Server Hardware Type supports Bios Management (OneView supported G7 blade would not support this feature)
-            if ($bios) {
-                if ($serverHardwareType.capabilities -match "ManageBIOS" ) { 
-
-                	#check for any duplicate keys
-                    $biosFlag = $false
-                    $hash = @{}
-                    $biosSettings.id | % { $hash[$_] = $hash[$_] + 1 }
-                    foreach ($biosItem in ($hash.GetEnumerator() | ? {$_.value -gt 1} | % {$_.key} )) {
-                         
-                        $errorRecord = New-ErrorRecord ArgumentException BiosSettingsNotUnique InvalidOperation 'New-HPOVProfile' -Message "'$(($serverHardwareType.biosSettings | where { $_.id -eq $biosItem }).name)' is being set more than once. Please check your BIOS Settings are unique.  This setting might be a dependancy of another BIOS setting/option.  Please check your BIOS Settings are unique.  This setting might be a dependancy of another BIOS setting/option." #-verbose
-				        $pscmdlet.ThrowTerminatingError($errorRecord)                         
-                        #Write-Error "'$(($serverHardwareType.biosSettings | where { $_.id -eq $biosItem }).name)' is being set more than once. Please check your BIOS Settings are unique.  This setting might be a dependancy of another BIOS setting/option." -Category InvalidOperation -CategoryTargetName "New-HPOVProfile" -RecommendedAction "Please check your BIOS Settings are unique.  This setting might be a dependancy of another BIOS setting/option." -ErrorAction Stop
-
-                    }
-                }
-
-                else { 
-                    $errorRecord = New-ErrorRecord InvalidOperationException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support BIOS Management." #-verbose
-				    $pscmdlet.ThrowTerminatingError($errorRecord)                
-                    #Write-Error "'$($serverHardwareType.name)' Server Hardware Type does not support BIOS Management." -Category NotImplemented -CategoryTargetName "New-HPOVProfile" -erroraction Stop 
-                
-                }
-
-           }
-
-           #Set Local Storage Management and Check to make sure Server Hardware Type supports it (OneView supported G7 blade would not support this feature)
-           if (($localstorage) -and ($serverHardwareType.capabilities -match "ManageLocalStorage" )) {
-
-               $saStorage = @{ initialize = [bool]$Initialize;
-                               manageLocalStorage = [bool] $localstorage;
-                               logicalDrives = @( @{ bootable = [bool]$Bootable; raidLevel = $RaidLevel.ToUpper() })}
-                
-           }
-		    
-           $serverProfile = [pscustomobject]@{
-                   type = "ServerProfileV3"; 
-                   name = $name; 
-                   description = $description; 
-                   bios = @{manageBios = [bool]$bios; overriddenSettings = $biosSettings}; 
-                   firmware = @{manageFirmware = [bool]$firmware; firmwareBaselineUri = $baseline};
-			       boot = @{manageBoot = [bool]$boot; order=$bootOrder};
-                   serialNumberType = $snAssignment; 
-                   macType = $macAssignment;
-                   wwnType = $wwnAssignment;
-                   connections = $connections; 
-                   serverHardwareUri = $serverHardwareUri;
-                   serverHardwareTypeUri = $serverHardwareTypeUri;
-                   enclosureGroupUri = $enclosureGroupUri;
-                   sanStorage = $Null <#@{manageSanStorage = [bool]$SANStorage; volumeAttachments = @()}#
-            }
-
-            #StRM Support
-            #if ($serverHardwareType.capabilities -inotmatch "firmwareUpdate" -and $SANStorage.IsPresent -and $San) { }
-            if ([bool]$SANStorage) { 
-
-                write-verbose "[NEW-HPOVPROFILE] SAN Storage being requested"
-            
-                write-verbose "[NEW-HPOVPROFILE] Getting list of available storage systems"
-                #Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
-                $availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$enclosureGroupUri&serverHardwareTypeUri=$serverHardwareTypeUri")).members
-                
-                write-verbose "[NEW-HPOVPROFILE] Getting list of attachable volumes"
-                #Get list of attacable Volumes (i.e. they are not assigned private or are shareable volumes)
-                $attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri).members
-                
-                $serverProfile.sanStorage = [pscustomobject]@{ hostOSType = $script:profileSanManageOSType.($HostOsType); manageSanStorage = [bool]$SANStorage; volumeAttachments = @() }
-                
-                [Array]$volumesToAttach = $StorageVolume | % { $_ }
-                
-                write-verbose "[NEW-HPOVPROFILE] Volumes to process $($volumesToAttach | out-string)"
-                
-                $i = 0
-                
-                #Process volumes being passed
-                foreach ($volume in $volumesToAttach) {  
-
-                    #If the storage paths array is null, process connections to add mapping
-                    if (!$volume.storagePaths) {
-                        write-verbose "[NEW-HPOVPROFILE] Storage Paths value is Null" -Verbose
-                        
-                        #Get storage volume name for reporting purposes
-                        $volumeName = (send-hpovrequest $volume.volumeUri).name
-                        write-verbose "[NEW-HPOVPROFILE] Processing Volume ID: $($volume.id)"
-                        write-verbose "[NEW-HPOVPROFILE] Looking to see if volume '$($volume.volumeUri) ($($volumeName))' is attachable"
-                
-                        #validate volume is attachable
-                        $attachableVolFound = $attachableVolumes | ? { $_.uri -eq $volume.volumeUri }
-                
-                        #If it is available, continue processing
-                        if ($attachableVolFound) {
-                
-                            write-verbose "[NEW-HPOVPROFILE] '$($attachableVolFound.uri) ($($attachableVolFound.name))' volume is attachable"
-                
-                            #validate the volume that is available, is also avialable to the server hardware type and enclosure group
-                            $volumeToStorageSystem = $availStorageSystems | ? { $_.storageSystemUri -eq $attachableVolFound.storageSystemUri }
-                
-                            #If available, process the volume networks
-                            if ($volumeToStorageSystem) { 
-                                
-                                #Check to make sure profile connections exist.
-                                if ($serverProfile.connections) {
-                                    write-verbose "[NEW-HPOVPROFILE] Profile has connections"
-                                    
-                                    #loop through profile connections
-                                    
-                                    #Loop through Volumes instead of connections?
-                                    $found = 0
-                                    foreach ($volConnection in $attachableVolFound.availableNetworks) {
-                                        #write-verbose "Looking for $volConnection"
-                                        $profileConnection = $serverProfile.connections | ? { $_.networkUri -eq $volConnection }
-
-                                        if ($profileConnection) {
-                                            #write-verbose "Profile Connection: $profileConnection"
-                                            #Keep track of the connections found for error reporting later
-                                            $found++
-                                            write-verbose "[NEW-HPOVPROFILE] Mapping connection ID '$($profileConnection.id)' -> volume ID '$($volumesToAttach[$i].id)'"
-                                            
-                                            $volumesToAttach[$i].storagePaths += @([pscustomobject]@{connectionId = $profileConnection.id; isEnabled = $True })
-
-                                        }
-
-                                    }
-
-                                    if (!$found) {
-                                    
-                                        $errorRecord = New-ErrorRecord InvalidOperationException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVProfile' -Message "Unable to find a Profile Connection that will map to '$($volumeName)'. Please check the volume and profile connections and try again."  #-verbose
-                                        $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                                    }
-                                    
-                                }
-
-                                #Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
-                                else {
-
-                                    $errorRecord = New-ErrorRecord InvalidOperationException NoProfileConnections ObjectNotFound 'New-HPOVProfile' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVProfileConnection helper cmdlet to create 1 or more connections and try again."  #-verbose
-                                    $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                                }
-                
-                            }
-                
-                            #If not, then error
-                            elseif (!$volumeToStorageSystem) { 
-                            
-                                $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeDoesNotExistOnStorageArray ObjectNotFound 'New-HPOVProfile' -Message "'$($volumeName)' Volume is not available on the '$($volumeToStorageSystem.storageSystemName)' storage system" #-verbose
-                                $PSCmdlet.ThrowTerminatingError($errorRecord)                      
-                            
-                            }
-                
-                        }
-                
-                        elseif (!$attachableVolFound) { 
-                        
-                            $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeUnavailableForAttach ResourceUnavailable 'New-HPOVProfile' -Message "'$($volumeName)' Volume is not available to be attached to the profile. Please check the volume and try again."  #-verbose
-                            $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                        }
-                        
-                        
-                    }
-                    
-                    $i++
-                }
-
-                $serverProfile.sanStorage.volumeAttachments = $volumesToAttach
-            
-            }
-
-            #else { }
-
-            #Check to see if user passed -EvenPathDisable and/or -OddPathDisable parameter switches
-            if ($EvenPathDisabled.IsPresent -or $OddPathDisabled.IsPresent) {
-                
-                if ($EvenPathDisabledd.IsPresent) { write-verbose "[NEW-HPOVPROFILE] Disable Even Path: $([bool]$EvenPathDisable)" }
-                if ($OddPathDisable.IsPresent) { write-verbose "[NEW-HPOVPROFILE] Disable Odd Path: $([bool]$OddPathDisable)" }
-
-                #Keep track of Volume Array index
-                $v = 0
-                foreach ($vol in $serverProfile.sanStorage.volumeAttachments) {
-                    
-                    #Keep track of Volume Path Array index
-                    $p = 0
-                    foreach ($path in $vol.storagePaths) {
-
-                        if ([bool]$OddPathDisabled -and [bool]($path.connectionID % 2)) { $isEnabled = $false }
-                        elseif ([bool]$EvenPathDisabled -and [bool]!($path.connectionID % 2)) { $isEnabled = $false }
-                        else { $isEnabled = $true }
-
-                        write-verbose "[NEW-HPOVPROFILE] Setting Connection ID '$($path.connectionID)' path enabled:  $($isEnabled)"
-
-                        $serverProfile.sanStorage.volumeAttachments[$v].storagePaths[$p].isEnabled = $isEnabled
-                        $p++
-                    }
-
-                    $v++
-
-                }
-                
-            }
-
-		    Write-Verbose "[NEW-HPOVPROFILE] Profile: $($serverProfile | out-string)"
-	        $resp = New-HPOVResource $profilesUri $serverProfile
-
-	    }
-
-    }
-
-    End {
-
-        return $resp
-        
-    }
-}
-#>
 
 function Copy-HPOVProfile {
 
@@ -16054,7 +15947,7 @@ function New-HPOVProfileAttachVolume {
         [parameter(Mandatory=$False,ParameterSetName="Default")]
         [parameter(Mandatory=$True,ParameterSetName="ManualLunIdType")]	
         [ValidateNotNullOrEmpty()]
-	    [ValidateSet("Auto","Manual", IgnoreCase=$true)]
+	    [ValidateSet("Auto","Manual", IgnoreCase=$False)]
         [parameter(Position=2)]   
 		[Alias('type')]
         [string]$LunIdType="Auto",
@@ -16104,8 +15997,8 @@ function New-HPOVProfileAttachVolume {
             id = $VolumeID;
             lunType = $LunIdType;
             volumeUri = $null;
-            volumeStoragePoolUri = $Null;
-            volumeStorageSystemUri = $Null;
+            #volumeStoragePoolUri = $Null;
+            #volumeStorageSystemUri = $Null;
             storagePaths = @()
 
         }
@@ -16154,8 +16047,8 @@ function New-HPOVProfileAttachVolume {
         }
 
         $volumeAttachment.volumeUri = $volume.uri
-        $volumeAttachment.volumeStoragePoolUri = $volume.storagePoolUri
-        $volumeAttachment.volumeStorageSystemUri = $volume.storageSystemUri
+        #$volumeAttachment.volumeStoragePoolUri = $volume.storagePoolUri
+        #$volumeAttachment.volumeStorageSystemUri = $volume.storageSystemUri
 
         if ($LunIdType -eq "Manual") { $volumeAttachment | Add-Member -type NoteProperty -Name "lun" -value $LunID }
 

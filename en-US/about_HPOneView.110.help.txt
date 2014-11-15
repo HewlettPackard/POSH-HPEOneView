@@ -30,6 +30,17 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 1.10.1432
+	 -- Fixed New-HPOVProfile where attempting to attach SAN Storage would fail due to API lookup error.
+	 -- Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable to store
+	    the task object to become a System.Array type.
+	 -- Fixed New-HPOVLogicalInterconnectGroup to add -EnablePauseFloodProtection parameter.
+	 -- Fixed New-HPOVBackup where backup file would not download.
+     -- Updated New-HPOVStorageVolume to allow the Storage Pool to be passed via pipeline instead of Storage Volume Template.
+	 -- Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer library
+	    version on GitHub, and ReleaseNotes will display the found update's Release Notes.
+	 -- Added Add-HPOVStorageVolume cmdlet to help import an existing volume from a managed storage system.
+	 
     Release 1.10.1415
 	 -- Moved project repository to GitHub (https://github.com/HewlettPackard/POSH-HPOneView).
 	 -- Fixed internal Download-File function where ContentLength wasn't being detected correctly.
