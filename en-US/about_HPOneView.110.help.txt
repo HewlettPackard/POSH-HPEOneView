@@ -30,6 +30,17 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 1.10.1447
+	 -- Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports 
+	    (logicalPortConfigInfos).
+	 -- Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully 
+	    connecting to appliance when user has insufficient privileges.
+	 -- Fixed Remove-HPOVNetwork pipeline input.
+	 -- Fixed New-HPOVNetwork where ManagedSAN object wasn't included in the createFC Fabric Attach network request.
+	 -- Updated New-HPOVBackup to increase the timeout waiting for the create backup file async task to complete.
+	 -- Updated Send-HPOVRequest to generate terminating error for HTTP 401 Insufficient Privileges and not just 
+	    for invalid session.
+
     Release 1.10.1432
 	 -- Fixed New-HPOVProfile where attempting to attach SAN Storage would fail due to API lookup error.
 	 -- Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable to store

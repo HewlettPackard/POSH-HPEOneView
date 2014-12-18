@@ -32,9 +32,9 @@ THE SOFTWARE.
  Windows PowerShell 3: http://www.microsoft.com/en-us/download/details.aspx?id=34595
 #>
 
+#Revision History
+#------------------------------------------
 <#
-Revision History
-------------------------------------------
 1.10.1193
      |  - Branch to HP OneView 1.10 Release.  NOTE:  This library version does not support older appliance versions.
      |  - Fixed New-HPOVProfile to check for Firmware and BIOS management for supported platforms.  Would erroneously error when neither -firmware or -bios were passed.
@@ -144,11 +144,19 @@ Revision History
      |  - Updated New-HPOVStorageVolume to allow the Storage Pool to be passed via pipeline instead of Storage Volume Template.
      |  - Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
      |  - Added Add-HPOVStorageVolume cmdlet to help import an existing volume from a managed storage system.
+------------------------------------------
+1.10.1447
+     |  - Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports (logicalPortConfigInfos).
+     |  - Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully connecting to appliance when user has insufficient privileges.
+     |  - Fixed Remove-HPOVNetwork pipeline input.
+     |  - Fixed New-HPOVNetwork where ManagedSAN object wasn't included in the createFC Fabric Attach network request.
+     |  - Updated New-HPOVBackup to increase the timeout waiting for the create backup file async task to complete.
+     |  - Updated Send-HPOVRequest to generate terminating error for HTTP 401 Insufficient Privileges and not just for invalid session.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.10.1432"
+$script:scriptVersion = "1.10.1447"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.110"}))) { 
@@ -376,6 +384,29 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
                 }
     
 	        }
+
+	        public class AuthPrivilegeException : Exception
+	        {
+
+                public AuthPrivilegeException() : base() { }
+                public AuthPrivilegeException(string message) : base(message) { }
+                public AuthPrivilegeException(string message, Exception e) : base(message, e) { }
+
+                private string strExtraInfo;
+                public string ExtraErrorInfo
+                {
+                    get
+                    {
+                        return strExtraInfo;
+                    }
+
+                    set
+                    {
+                        strExtraInfo = value;
+                    }
+                }
+    
+	        }
 		
 	        public class PasswordMismatch : Exception
 	        {
@@ -576,7 +607,29 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
                     strExtraInfo = value;
                 }
             }
-        }	
+        }
+        
+	    public class ServerProfileConnectionException : Exception
+        {
+
+            public ServerProfileConnectionException() : base() { }
+            public ServerProfileConnectionException(string message) : base(message) { }
+            public ServerProfileConnectionException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+                get
+                {
+                    return strExtraInfo;
+                }
+
+                set
+                {
+                    strExtraInfo = value;
+                }
+            }
+        }	        	
 
         //Define the [System.Net.ServicePointManager]::CertificatePolicy for the library
         public class HPOneViewIgnoreCertPolicy : ICertificatePolicy {
@@ -642,6 +695,7 @@ $script:applUpdateMonitor = "/cgi-bin/status/update-status.cgi"
 $script:applSnmpReadCommunity = "/rest/appliance/device-read-community-string"
 $script:applianceRebootUri = '/rest/appliance/shutdown?type=REBOOT'
 $script:applianceShutDownUri = '/rest/appliance/shutdown?type=HALT'
+$script:applianceDebugLogSetting = '/logs/rest/debug'
 #------------------------------------
 # Physical Resource Management
 #------------------------------------
@@ -915,17 +969,17 @@ function Set-HPOVPrompt {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdletBinding(SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
 
-        [parameter(Mandatory=$true,ParameterSetName='Enable')]
+        [parameter(Mandatory = $true, ParameterSetName = 'Enable')]
         [Switch]$Enable,
 
-        [parameter(Mandatory=$true,ParameterSetName='Disable')]
+        [parameter(Mandatory = $true, ParameterSetName = 'Disable')]
         [Switch]$Disable,
 
-        [parameter(Mandatory=$false,ParameterSetName='Enable')]
-        [parameter(Mandatory=$false,ParameterSetName='Disable')]
+        [parameter(Mandatory = $false, ParameterSetName = 'Enable')]
+        [parameter(Mandatory = $false, ParameterSetName = 'Disable')]
         [Switch]$Global
 
     )
@@ -1082,7 +1136,7 @@ function RestClient {
         [ValidateScript({if ("GET","POST","DELETE","PATCH","PUT" -match $_) {$true} else { Throw "'$_' is not a valid Method.  Only GET, POST, DELETE, PATCH, or PUT are allowed." }})]
         [string]$method = "GET",
 
-        [parameter(Mandatory = $true, Position = 1, HelpMessage="Enter the resource URI (ex. /rest/enclosures)")]
+        [parameter(Mandatory = $true, Position = 1, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
         [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
         [string]$uri,
 
@@ -1133,23 +1187,23 @@ function Send-HPOVRequest {
 
     [CmdletBinding()]
     Param (
-         [parameter(Mandatory=$true,HelpMessage="Enter the resource URI (ex. /rest/enclosures)")]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
          [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
          [string]$uri,
 
-         [parameter(Mandatory=$false)]
+         [parameter(Mandatory = $false)]
          [string]$method="GET",
          
-         [parameter(Mandatory=$false)]
+         [parameter(Mandatory = $false)]
          [object]$body=$null,
 
-         [parameter(Mandatory=$false)]
+         [parameter(Mandatory = $false)]
          [int]$start=0,
 
-         [parameter(Mandatory=$false)]
+         [parameter(Mandatory = $false)]
          [int]$count=0,
 
-         [parameter(Mandatory=$false)]
+         [parameter(Mandatory = $false)]
          [hashtable]$addHeader
     )
 
@@ -1487,25 +1541,46 @@ function Send-HPOVRequest {
                             
                             write-verbose "[SEND-HPOVREQUEST] HTTP 400 error caught."
 
-                            if ($resp.errorSource) { $source = $resp.errorSource }
-                            else { $source = 'Send-HPOVRequest' }
+                            #Hande initial authentication errors
+                            if ($resp.errorCode -eq "AUTHN_AUTH_DIR_FAIL") {
 
-                            $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperation $source -Message "$($resp.message) $($resp.details)"
-                            $pscmdlet.ThrowTerminatingError($errorRecord)
+                                $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$($resp.message)  $($resp.recommendedActions)"
+                                $pscmdlet.ThrowTerminatingError($errorRecord)
+
+                            }
+                            else {
+                                if ($resp.errorSource) { $source = $resp.errorSource }
+                                else { $source = 'Send-HPOVRequest' }
+
+                                $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperation InvalidOperation $source -Message "$($resp.message) $($resp.details)"
+                                $pscmdlet.ThrowTerminatingError($errorRecord)
+                            }
 
                         }
 
                         #User is unauthorized
                         401 { 
 
-                            write-verbose "[SEND-HPOVREQUEST] HTTP 401 error caught.  User session is no longer valid."
+                            write-verbose "[SEND-HPOVREQUEST] HTTP 401 error caught."
                             
-                            $script:HPOneViewAppliance = $null
-                            $Script:PromptApplianceHostname = "Not Connected"
-                            $Appliance = $null
-                            $global:cimgmtSessionId = $null
-                            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidOrTimedoutSession AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: Your session has timed out or is not valid. Please use Connect-HPOVMgmt to authenticate to your appliance." #-verbose
-                            Throw $errorRecord
+                            if ( $resp.details -cmatch "User not authorized for this operation" ) {
+
+                                write-verbose "[SEND-HPOVREQUEST] $($resp.message) Request was '$method' at '$uri'."
+
+                                $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: $($resp.message).  Request was '$method' at '$uri'. " #-verbose
+                                Throw $errorRecord
+
+                            }
+                            else {
+                            
+                                $script:HPOneViewAppliance = $null
+                                $Script:PromptApplianceHostname = "Not Connected"
+                                $Appliance = $null
+                                $global:cimgmtSessionId = $null
+                                $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidOrTimedoutSession AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: Your session has timed out or is not valid. Please use Connect-HPOVMgmt to authenticate to your appliance." #-verbose
+                                Throw $errorRecord
+
+                            }
 
                         }
                     
@@ -1587,7 +1662,7 @@ function Wait-HPOVApplianceStart {
     
     [CmdletBinding()]
     Param (
-         [parameter(Position = 0, Mandatory=$false, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
+         [parameter(Position = 0, Mandatory = $false, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
          [ValidateNotNullOrEmpty()]
          [string]$Appliance = $script:HPOneViewAppliance
     )
@@ -1733,20 +1808,20 @@ function Connect-HPOVMgmt {
 
     [CmdletBinding()]
     Param(
-         [parameter(Mandatory=$true, HelpMessage="Enter the appliance DNS name or IP",Position=0)]
+         [parameter(Mandatory = $true, HelpMessage = "Enter the appliance DNS name or IP",Position=0)]
          [ValidateNotNullOrEmpty()]
          [string] $appliance,
 
-         [parameter(Mandatory=$false, HelpMessage="Enter the authentication domain",Position=3)]
+         [parameter(Mandatory = $false, HelpMessage = "Enter the authentication domain",Position=3)]
          [ValidateNotNullOrEmpty()]
          [string] $authProvider="LOCAL",
 
-         [parameter(Mandatory=$true, HelpMessage="Enter the user name",Position=1)]
+         [parameter(Mandatory = $true, HelpMessage = "Enter the user name",Position=1)]
          [ValidateNotNullOrEmpty()]
          [alias("u")]
          [string]$User,
 
-         [parameter(Mandatory=$false, HelpMessage="Enter the password:",Position=2)]
+         [parameter(Mandatory = $false, HelpMessage = "Enter the password:",Position=2)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [String]$password
@@ -1829,17 +1904,26 @@ function Connect-HPOVMgmt {
             
             $resp = Send-HPOVRequest $script:loginSessionsUri POST $authinfo
 
-        } 
+        }
+
+        catch [HPOneView.Appliance.AuthSessionException] {
+
+            $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Connect-HPOVMgmt' -Message $_.Exception.Message 
+            Throw $errorRecord
+
+        }
     
         catch [Net.WebException] {
+
             Write-Verbose "[CONNECT-HPOVMGMT] Response: $($resp)"
-            #write-host "The appliance Response: $($resp)"
             
+            #Clear connected appliance variables
             $tmpAppliance = $script:HPOneViewAppliance
             $global:cimgmtSessionId = $Null
             $script:userName = $Null
             $script:HPOneViewAppliance = $Null
             $Script:PromptApplianceHostname = "[Not Connected]"
+
             $errorRecord = New-ErrorRecord System.Net.WebException ApplianceNotResponding OperationStopped $tmpAppliance -Message "The appliance at $Appliance is not responding on the network.  Check for firewalls or ACL's prohibiting access to the appliance." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
@@ -1996,11 +2080,11 @@ function New-HPOVResource {
     [CmdletBinding()]
     Param
         (
-         [parameter(Position = 0, Mandatory=$true, HelpMessage="Enter the URI string of the resource type to be created")]
+         [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the URI string of the resource type to be created")]
          [ValidateNotNullOrEmpty()]
          [string] $uri,
 
-         [parameter(Position = 1, Mandatory=$true, HelpMessage="Enter the resource object definition")]
+         [parameter(Position = 1, Mandatory = $true, HelpMessage = "Enter the resource object definition")]
          [ValidateNotNullOrEmpty()]
          [object] $resource
     )
@@ -2029,12 +2113,12 @@ function Set-HPOVResource {
 
     [CmdletBinding()]
     Param (
-         [parameter(Position = 0, Mandatory=$true, ValueFromPipeline = $true, HelpMessage="Enter the resource object that has been modifed")]
+         [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the resource object that has been modifed")]
          [ValidateNotNullOrEmpty()]
          [ValidateScript({$_.Uri})]
          [object]$resource,
 
-         [parameter(Mandatory=$false)]
+         [parameter(Mandatory = $false)]
          [string]$force = $false
     )
     
@@ -2252,30 +2336,30 @@ function Install-HPOVUpdate {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName='Update',SupportsShouldProcess=$True,ConfirmImpact='High')]
+	[CmdletBinding(DefaultParameterSetName = 'Update',SupportsShouldProcess = $True, ConfirmImpact = 'High')]
 	Param (
-		[parameter(Mandatory=$true,ParameterSetName='Update')]
-        [parameter(Mandatory=$true,ParameterSetName='Stage')]
+		[parameter(Mandatory = $true, ParameterSetName = 'Update')]
+        [parameter(Mandatory = $true, ParameterSetName = 'Stage')]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
         [string]$File,
         
-        [Parameter(Mandatory=$false,ParameterSetName='Update')]
-        [parameter(Mandatory=$false,ParameterSetName='StageInstall')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Update')]
+        [parameter(Mandatory = $false, ParameterSetName = 'StageInstall')]
         [string]$Eula,
 
-        [Parameter(Mandatory=$false,ParameterSetName='Update')]
-        [Parameter(Mandatory=$false,ParameterSetName='Stage')]
-        [Parameter(Mandatory=$false,ParameterSetName='List')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Update')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Stage')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'List')]
         [switch]$DisplayReleaseNotes,
 
-        [parameter(Mandatory=$true,ParameterSetName='Stage')]
+        [parameter(Mandatory = $true, ParameterSetName = 'Stage')]
         [switch]$Stage,
 
-        [parameter(Mandatory=$true,ParameterSetName='StageInstall')]
+        [parameter(Mandatory = $true, ParameterSetName = 'StageInstall')]
         [switch]$InstallNow,
         
-        [parameter(Mandatory=$true,ParameterSetName='List')]
+        [parameter(Mandatory = $true, ParameterSetName = 'List')]
         [Alias('list')]
         [switch]$ListPending
 
@@ -2541,7 +2625,7 @@ function Remove-HPOVPendingUpdate {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName='Update',SupportsShouldProcess=$True,ConfirmImpact='High')]
+	[CmdletBinding(DefaultParameterSetName = 'Update',SupportsShouldProcess = $True, ConfirmImpact = 'High')]
 	Param ()
 
     Begin {
@@ -2603,14 +2687,14 @@ function Get-HPOVVersion {
 	[CmdletBinding(DefaultParameterSetName = "Default")]
 	Param
 	(
-		[parameter(Mandatory=$false, ParameterSetName = "Default")]
+		[parameter(Mandatory = $false, ParameterSetName = "Default")]
         [Alias('Appliance')]
         [switch]$ApplianceVer,
 
-        [parameter(Mandatory=$false, ParameterSetName = "OnlineCheck")]
+        [parameter(Mandatory = $false, ParameterSetName = "OnlineCheck")]
         [switch]$CheckOnline,
 
-        [parameter(Mandatory=$false, ParameterSetName = "OnlineCheck")]
+        [parameter(Mandatory = $false, ParameterSetName = "OnlineCheck")]
         [switch]$ReleaseNotes
 	)
 	
@@ -2778,7 +2862,7 @@ function Get-HPOVXApiVersion {
 
 	[CmdletBinding()]
 	Param (
-		[parameter(Position = 0, Mandatory=$false)]
+		[parameter(Position = 0, Mandatory = $false)]
 		[string]$appliance
 	)
 
@@ -2821,7 +2905,7 @@ function Get-HPOVEulaStatus {
     [CmdletBinding()]
     Param
     (
-        [parameter(Position = 0, Mandatory=$false)]
+        [parameter(Position = 0, Mandatory = $false)]
         [string]$appliance=$null
     )
 
@@ -2865,12 +2949,12 @@ function Set-HPOVEulaStatus {
     [CmdletBinding()]
     Param
     (
-        [parameter(Mandatory=$true,
-        HelpMessage="Set to 'yes' to allow HP support access to the appliance, otherwise set to 'no'.")]
+        [parameter(Mandatory = $true,
+        HelpMessage = "Set to 'yes' to allow HP support access to the appliance, otherwise set to 'no'.")]
         [ValidateNotNullOrEmpty()]
         [string]$supportAccess,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [string]$appliance=$null
     )
 
@@ -2905,7 +2989,7 @@ function Get-HPOVApplianceNetworkConfig {
     
     [CmdLetBinding()]
     Param (
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [alias("x", "export")]
         [ValidateScript({split-path $_ | Test-Path})]
         [String] $exportFile
@@ -2945,84 +3029,84 @@ function Set-HPOVApplianceNetworkConfig {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
        
-    [CmdletBinding(DefaultParameterSetName="primary")]
+    [CmdletBinding(DefaultParameterSetName = "primary")]
 	Param (
         
-		[parameter(Position = 0, mandatory=$true, ParameterSetName="secondary")]
+		[parameter(Position = 0, Mandatory = $true, ParameterSetName="secondary")]
         [ValidateScript({$_ -ne "eth0"})]
 		[string]$device,
 
-        [parameter(Position = 1, mandatory=$true, ParameterSetName="secondary")]
+        [parameter(Position = 1, Mandatory = $true, ParameterSetName="secondary")]
         [ValidateSet("Management", "Deployment")]
 		[string]$interfaceName,
 
-		[parameter(Position = 0,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 2,mandatory=$true, ParameterSetName="secondary")]
+		[parameter(Position = 0,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 2,Mandatory = $true, ParameterSetName="secondary")]
 		[string]$hostname = $null,
 
-		[parameter(Position = 1,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 3,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 1,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 3,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv4Type = $null,
 
-		[parameter(Position = 2,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 4,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 2,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 4,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv4Addr = $null,
 
-		[parameter(Position = 3,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 5,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 3,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 5,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv4Subnet = $null,
 
-		[parameter(Position = 4,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 6,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 4,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 6,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv4Gateway = $null,
 
-		[parameter(Position = 5,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 7,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 5,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 7,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv6Type = $null,
 
-		[parameter(Position = 6,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 8,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 6,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 8,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv6Addr = $null,
 
-		[parameter(Position = 7,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 9,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 7,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 9,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv6Subnet = $null,
 
-		[parameter(Position = 8,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 10,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 8,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 10,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv6Gateway = $null,
 
-		[parameter(mandatory=$false, ParameterSetName="primary")]
-        [parameter(mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Mandatory = $false, ParameterSetName="secondary")]
         [alias('overrideDhcpDns')]
 		[switch]$overrideIpv4DhcpDns,
 
-		[parameter(mandatory=$false, ParameterSetName="primary")]
-        [parameter(mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Mandatory = $false, ParameterSetName="secondary")]
 		[switch]$overrideIpv6DhcpDns,
 
-		[parameter(Position = 9,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 11,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 9,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 11,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$domainName = $null,
 
-		[parameter(Position = 10,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 12,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 10,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 12,Mandatory = $false, ParameterSetName="secondary")]
 		[array]$searchDomains = @(),
 
-		[parameter(Position = 11,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 13,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 11,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 13,Mandatory = $false, ParameterSetName="secondary")]
         [alias('nameServers')]
 		[array]$ipV4nameServers = @(),
 
-		[parameter(Position = 12,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 14,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 12,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 14,Mandatory = $false, ParameterSetName="secondary")]
 		[array]$ipV6nameServers = @(),
 
-		[parameter(Position = 13,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 15,mandatory=$false, ParameterSetName="secondary")]
+		[parameter(Position = 13,Mandatory = $false, ParameterSetName="primary")]
+        [parameter(Position = 15,Mandatory = $false, ParameterSetName="secondary")]
         [array]$ntpServers = @(),
 
-        [parameter(mandatory=$true, ParameterSetName="importFile", HelpMessage="Enter the full path and file name for the input file.")]
+        [parameter(Mandatory = $true, ParameterSetName="importFile", HelpMessage = "Enter the full path and file name for the input file.")]
         [alias("i", "import")]
         [ValidateScript({Test-Path $_})]
         $importFile
@@ -3399,7 +3483,7 @@ function Get-HPOVApplianceGlobalSetting {
 
 	[CmdletBinding()]
 	Param (
-		[parameter(Position = 0, Mandatory=$false)]
+		[parameter(Position = 0, Mandatory = $false)]
 		[string]$name=$null
 	)
 
@@ -3433,10 +3517,10 @@ function Set-HPOVApplianceGlobalSetting {
     [CmdletBinding()]
 	Param
 	(
-		[parameter(Position = 0, Mandatory=$true, HelpMessage="Enter the name of the global parameter")]
+		[parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the name of the global parameter")]
 		[string]$name,
 
-        [parameter(Position = 1, Mandatory=$true, HelpMessage="Enter the new value for the global parameter")]
+        [parameter(Position = 1, Mandatory = $true, HelpMessage = "Enter the new value for the global parameter")]
         [string]$value
 	)
 
@@ -3590,7 +3674,7 @@ function Add-HPOVSppFile {
 
 	[CmdletBinding()]
 	Param (
-		[parameter(Position = 0, Mandatory=$true, HelpMessage="Enter the path and file name to the SPP iso file.")]
+		[parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the path and file name to the SPP iso file.")]
         [ValidateScript({Test-Path $_})]
 		[string]$sppFile
 	)
@@ -3618,23 +3702,23 @@ function New-HPOVSupportDump {
 
 	# .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="values")]
+    [CmdLetBinding(DefaultParameterSetName = "values")]
     Param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="values", HelpMessage="Specify the folder location to save the Support Dump.",Position=0)]
-		[parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="Object", HelpMessage="Specify the folder location to save the Support Dump.",Position=0)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "values", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
+		[parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "Object", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
         [Alias("save")]
         [string]$Location = $null,
 
-        [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="values", HelpMessage="Specify the Type of Support Dump (appliance | li) you wish to generate.", Position=1)]
-        [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="Object", HelpMessage="Specify the Type of Support Dump (appliance | li) you wish to generate.", Position=1)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "values", HelpMessage = "Specify the Type of Support Dump (appliance | li) you wish to generate.", Position=1)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "Object", HelpMessage = "Specify the Type of Support Dump (appliance | li) you wish to generate.", Position=1)]
         [ValidateSet("Appliance","LI")]
         [string]$Type = $null,
 
-        #[parameter(Mandatory=$false,ValueFromPipeline=$false,ParameterSetName="values", HelpMessage="Specify the Logical Interconnect Name the Support Dump will be generated for.", Position=2)]
+        #[parameter(Mandatory = $false,ValueFromPipeline=$false, ParameterSetName = "values", HelpMessage = "Specify the Logical Interconnect Name the Support Dump will be generated for.", Position=2)]
         #[ValidateNotNullOrEmpty()]
         #[object]$Name = $null,
 			
-		[parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="Object", HelpMessage="Specify the Logical Interconnect URI the Support Dump will be generated for.", Position = 3)]
+		[parameter(Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "Object", HelpMessage = "Specify the Logical Interconnect URI the Support Dump will be generated for.", Position = 3)]
         [Alias('liobject','li','name')]
         [object]$LogicalInterconnect
 
@@ -3758,9 +3842,9 @@ Function New-HPOVBackup {
 	
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default")]
+    [CmdLetBinding(DefaultParameterSetName = "default")]
     Param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="default",HelpMessage="Specify the folder location to save the appliance backup file.",Position=0)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "default",HelpMessage = "Specify the folder location to save the appliance backup file.",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("save")]
         [string]$Location = (get-location).Path
@@ -3793,8 +3877,8 @@ Function New-HPOVBackup {
         
         write-verbose "[NEW-HPOVBACKUP] Response: $($resp | out-string)"
 
-        #Wait for task to complete
-        $taskStatus = Wait-HPOVTaskComplete $resp.uri
+        #Wait for task to complete, and set timeout to 45 minutes.
+        $taskStatus = Wait-HPOVTaskComplete $resp.uri -timeout (New-Timespan -minutes 45)
 
         if ($taskStatus.taskState -eq "Completed") {
             
@@ -3829,10 +3913,10 @@ Function New-HPOVRestore {
 	
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-            [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="default",
-            HelpMessage="Specify the file to restore.",
+            [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "default",
+            HelpMessage = "Specify the file to restore.",
             Position=0)]
             [ValidateNotNullOrEmpty()]
             [Alias("File")]
@@ -3898,11 +3982,11 @@ function Download-File {
 
     [CmdLetBinding()]
     Param (
-            [parameter(Mandatory=$true, HelpMessage="Specify the URI of the object to download.", Position=0)]
+            [parameter(Mandatory = $true, HelpMessage = "Specify the URI of the object to download.", Position=0)]
             [ValidateNotNullOrEmpty()]
             [string]$uri,
 
-            [parameter(Mandatory=$true, HelpMessage="Specify the location where to save the file to.", Position=1)]
+            [parameter(Mandatory = $true, HelpMessage = "Specify the location where to save the file to.", Position=1)]
             [Alias("save")]
             [ValidateNotNullOrEmpty()]
             [string]$saveLocation
@@ -4063,12 +4147,12 @@ function Download-File {
 	[CmdletBinding()]
 
 	Param (
-        [parameter(Mandatory=$true, HelpMessage="Specify the upload URI.", Position=0)]
+        [parameter(Mandatory = $true, HelpMessage = "Specify the upload URI.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('u')]
         [string]$uri,
 
-		[parameter(Mandatory=$true, HelpMessage="Enter the path and file name to upload.", Position=1)]
+		[parameter(Mandatory = $true, HelpMessage = "Enter the path and file name to upload.", Position=1)]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
 		[string]$File
@@ -4254,18 +4338,18 @@ function Get-HPOVScmbCertificates {
 
 	[CmdletBinding()]
 	Param(
-        [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="default", HelpMessage="Specify the folder location to save the SSL certificates.", Position=0)]
-	    [parameter(Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="convert", HelpMessage="Specify the folder location to save the SSL certificates.", Position=0)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the SSL certificates.", Position=0)]
+	    [parameter(Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "convert", HelpMessage = "Specify the folder location to save the SSL certificates.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("save")]
         [string]$Location = $null,
 
-        [parameter(Mandatory=$false,ParameterSetName="convert", HelpMessage="Convert rabbitmq_readonly client certificate to PFX format.")]
+        [parameter(Mandatory = $false, ParameterSetName = "convert", HelpMessage = "Convert rabbitmq_readonly client certificate to PFX format.")]
         [ValidateNotNullOrEmpty()]
         [Alias("pfx")]
         [switch]$ConvertToPFx,
 	    
-		[parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="convert", HelpMessage="Password for PFX file")]
+		[parameter(Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "convert", HelpMessage = "Password for PFX file")]
         [ValidateNotNullOrEmpty()]
 		[SecureString]$Password
     )
@@ -4372,7 +4456,7 @@ function Show-HPOVSSLCertificate {
     [CmdletBinding()]
     param( 
     
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [String]$Appliance = $script:HPOneViewAppliance
     
     )
@@ -4524,7 +4608,7 @@ function Import-HPOVSslCertificate {
 
 	[CmdletBinding()]
     param(
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [String]$Appliance = $script:HPOneViewAppliance
     )
 
@@ -4703,14 +4787,14 @@ function Get-HPOVServer {
     [CmdletBinding(DefaultParameterSetName = "Default")]
 	Param (
 		
-        [parameter(Position = 0, Mandatory=$false, ParameterSetName = "Default")]
+        [parameter(Position = 0, Mandatory = $false, ParameterSetName = "Default")]
 		[string]$name=$null,
 
-        [parameter(Mandatory=$false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
         [alias('report')]		
         [switch]$list,
 
-        [parameter(Mandatory=$false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
         [switch]$NoProfile
 	)
 
@@ -4818,25 +4902,25 @@ function Add-HPOVServer {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdletBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdletBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter(Mandatory=$true, HelpMessage="Enter the host name (FQDN) or IP of the server's iLO.", Position=0)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [string]$hostname = $Null,
          
-        [parameter(Mandatory=$true, HelpMessage="Enter the iLO administrative user name.", Position=1)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the iLO administrative user name.", Position=1)]
         [ValidateNotNullOrEmpty()]
         [string]$username = $Null,
 
-        [parameter(Mandatory=$true, HelpMessage="Enter the iLO administrative account password.", Position=2)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the iLO administrative account password.", Position=2)]
         [ValidateNotNullOrEmpty()]
         [string]$password = $Null,
 
-        [parameter(Mandatory=$true, HelpMessage="Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position=3)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position=3)]
         [ValidateSet("OneView", "OneViewNoiLO")]
         [string]$licensingIntent = $NULL,
 
-	    [parameter(Mandatory=$false)]
+	    [parameter(Mandatory = $false)]
 	    [switch]$force
     )
 
@@ -4946,14 +5030,14 @@ function Remove-HPOVServer {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, HelpMessage="Enter the rackmount server to be removed.", Position=0)]
+        [parameter (Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the rackmount server to be removed.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$server,
 
-	    [parameter(Mandatory=$false)] 
+	    [parameter(Mandatory = $false)] 
         [switch]$force
     )
 
@@ -5020,16 +5104,16 @@ function Set-HPOVServerPower {
 
     [CmdletBinding()]
     Param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$true,HelpMessage="Enter the uri or name for the server resource.", position = 0)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$true,HelpMessage = "Enter the uri or name for the server resource.", position = 0)]
         [ValidateNotNullOrEmpty()]
         [alias("name","uri","serverUri")]
         [object]$server,
 
-        [parameter(Mandatory=$false, position = 1)]
+        [parameter(Mandatory = $false, position = 1)]
         [ValidateSet("On", "Off")]
         [string]$powerState="On",
 
-        [parameter(Mandatory=$false, position = 2)]
+        [parameter(Mandatory = $false, position = 2)]
         [ValidateSet("PressAndHold", "MomentaryPress", "ColdBoot", "Reset")]
         [string]$powerControl="MomentaryPress"
     )
@@ -5212,22 +5296,22 @@ function New-HPOVEnclosureGroup {
 
     [CmdletBinding()]
     Param (
-        [parameter(Position = 0, Mandatory=$true, HelpMessage="Enter a name for the new enclosure group.")]
+        [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter a name for the new enclosure group.")]
         [ValidateNotNullOrEmpty()]
         [string]$name = $Null,
          
-        [parameter(Position = 1, Mandatory=$true, ValueFromPipeline = $true, HelpMessage="Enter the URI of the Logical Interconect Group to apply.")]
+        [parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the URI of the Logical Interconect Group to apply.")]
         [ValidateNotNullOrEmpty()]
         [alias('logicalInterconnectGroupUri')]
         [object]$logicalInterconnectGroup = $Null,
 
-        [parameter(Position = 2, Mandatory=$false)]
+        [parameter(Position = 2, Mandatory = $false)]
         [string]$interconnectBayMappingCount = 8,
 
-        [parameter(Position = 3, Mandatory=$false)]
+        [parameter(Position = 3, Mandatory = $false)]
         [string]$configurationScript = $null,
 
-        [parameter(Position = 4, Mandatory=$false)]
+        [parameter(Position = 4, Mandatory = $false)]
         [validateset('Enclosure')]
         [string]$stackingMode = "Enclosure"
     )
@@ -5346,16 +5430,16 @@ function Remove-HPOVEnclosureGroup {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default",
-            HelpMessage="Enter the Enclosure Group to be removed.", Position=0)]
+        [parameter(Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default",
+            HelpMessage = "Enter the Enclosure Group to be removed.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
         $enclosureGroup,
 
-	    [parameter(Mandatory=$false)] 
+	    [parameter(Mandatory = $false)] 
         [switch]$force
     )
 
@@ -5409,38 +5493,38 @@ function Add-HPOVEnclosure {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdletBinding(SupportsShouldProcess=$true,ConfirmImpact="High")]
+    [CmdletBinding(SupportsShouldProcess = $true, ConfirmImpact = "High")]
     Param (
-        [parameter(Position = 0, Mandatory=$true, HelpMessage="Enter the host name (FQDN) or IP of the primary OA.")]
+        [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.")]
         [ValidateNotNullOrEmpty()]
         [Alias("oa")]
         [string]$hostname,
          
-        [parameter(position = 1, Mandatory=$true, HelpMessage="Enter the enclosure group name with which to associate the new enclosure.")]
+        [parameter(position = 1, Mandatory = $true, HelpMessage = "Enter the enclosure group name with which to associate the new enclosure.")]
         [ValidateNotNullOrEmpty()]
         [Alias("eg")]
         [string]$enclGroupName,
 
-        [parameter(position = 2,Mandatory=$true, HelpMessage="Enter the OA administrative user name.")]
+        [parameter(position = 2,Mandatory = $true, HelpMessage = "Enter the OA administrative user name.")]
         [ValidateNotNullOrEmpty()]
         [Alias("u", "user")]
         [string]$username,
 
-        [parameter(position = 3,Mandatory=$true, HelpMessage="Enter the OA administrative account password.")]
+        [parameter(position = 3,Mandatory = $true, HelpMessage = "Enter the OA administrative account password.")]
         [ValidateNotNullOrEmpty()]
         [Alias("p", "pw")]
         [string]$password,
 
-        [parameter(position = 4,Mandatory=$true, HelpMessage="Enter licensing intent for servers in this enclosure (OneView or OneViewNoiLO).")]
+        [parameter(position = 4,Mandatory = $true, HelpMessage = "Enter licensing intent for servers in this enclosure (OneView or OneViewNoiLO).")]
         [ValidateSet("OneView", "OneViewNoiLO")]
         [Alias("license", "l")]
         [string]$licensingIntent,
 
-        [parameter(position = 5, Mandatory=$false)]
+        [parameter(position = 5, Mandatory = $false)]
         [Alias("fwIso")]
         [string]$fwBaselineIsoFilename=$NULL,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [Switch]$Force
 
     )
@@ -5682,23 +5766,23 @@ function Get-HPOVEnclosure {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
   
-    [CmdletBinding(DefaultParameterSetName="default")]    
+    [CmdletBinding(DefaultParameterSetName = "default")]    
     Param (
-        [parameter(Mandatory=$false,ParameterSetName="default", Position=0)]
-		[parameter(Mandatory=$false,ParameterSetName="export", Position=0)]
-		[parameter(Mandatory=$false,ParameterSetName="report", Position=0)]
-        [parameter(Mandatory=$false,ParameterSetName="list", Position=0)]
+        [parameter(Mandatory = $false, ParameterSetName = "default", Position=0)]
+		[parameter(Mandatory = $false, ParameterSetName = "export", Position=0)]
+		[parameter(Mandatory = $false, ParameterSetName = "report", Position=0)]
+        [parameter(Mandatory = $false, ParameterSetName = "list", Position=0)]
         [string]$name=$null,
 
-        [parameter (Mandatory=$false,ParameterSetName="export", Position=1)]
+        [parameter (Mandatory = $false, ParameterSetName = "export", Position=1)]
         [Alias("x", "export")]
         [ValidateScript({split-path $_ | Test-Path})]
         [String]$exportFile,
 			
-		[parameter (Mandatory=$false,ParameterSetName="report")]
+		[parameter (Mandatory = $false, ParameterSetName = "report")]
 		[switch]$Report,
 
-		[parameter (Mandatory=$false,ParameterSetName="list")]
+		[parameter (Mandatory = $false, ParameterSetName = "list")]
 		[switch]$List
 
     )
@@ -5816,13 +5900,13 @@ function Enclosure-Report {
      [CmdletBinding()]    
     Param
         (
-            [parameter(Mandatory=$true,ValueFromPipeline=$true, Position=0)]
+            [parameter(Mandatory = $true,ValueFromPipeline=$true, Position=0)]
             [object]$Enclosure,
 	
-	        [parameter(Mandatory=$false,ValueFromPipeline=$false, Position=1)]
+	        [parameter(Mandatory = $false,ValueFromPipeline=$false, Position=1)]
             [object]$file = $null,
 	
-		    [parameter(Mandatory=$false)]
+		    [parameter(Mandatory = $false)]
             [switch]$fwreport
         )
 	Process{	
@@ -5937,17 +6021,17 @@ function Remove-HPOVEnclosure {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param
     (
-        [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default",
-            HelpMessage="Enter the enclosure to remove.", Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default",
+            HelpMessage = "Enter the enclosure to remove.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
         [object]$enclosure,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [switch]$force
     )
 
@@ -6007,7 +6091,7 @@ function Get-HPOVServerHardwareType {
 
     [CmdletBinding()]
 	Param(
-		[parameter(Position = 0, Mandatory=$false)]
+		[parameter(Position = 0, Mandatory = $false)]
 		[string]$name=$null
 	)
 
@@ -6984,18 +7068,18 @@ function Get-HPOVStorageSystem {
 
     [CmdletBinding(DefaultParameterSetName = "Name")]
     Param (
-        [parameter(Mandatory=$false, HelpMessage="Enter the Storage System name.", ParameterSetName = "Name", Position=0)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$SystemName,
 
-        [parameter(Mandatory=$false, HelpMessage="Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('SN')]
         [string]$SerialNumber,
 
-        [parameter(Mandatory=$false, HelpMessage="Display output in Table List format.", ParameterSetName = "Name")]
-        [parameter(Mandatory=$false, HelpMessage="Display output in Table List format.", ParameterSetName = "Serial")]
+        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
+        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Serial")]
         [Alias('Report')]
         [switch]$List
 
@@ -7208,12 +7292,12 @@ function Update-HPOVStorageSystem {
 
     [CmdletBinding(DefaultParameterSetName = "Name")]
     Param (
-        [parameter(Mandatory=$false, ValueFromPipeLine = $True, HelpMessage="Enter the Storage System name.", ParameterSetName = "Name", Position=0)]
+        [parameter(Mandatory = $false, ValueFromPipeLine = $True, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$StorageSystem,
 
-        [parameter(Mandatory=$false, HelpMessage="Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('SN')]
         [string]$SerialNumber
@@ -7313,23 +7397,23 @@ function Add-HPOVStorageSystem {
 
     [CmdletBinding()]
     Param (
-        [parameter(Mandatory=$true, position = 0, HelpMessage="Enter the host name (FQDN) or IP of the Storage System.")]
+        [parameter(Mandatory = $true, position = 0, HelpMessage = "Enter the host name (FQDN) or IP of the Storage System.")]
         [ValidateNotNullOrEmpty()]
         [string]$hostname,
          
-        [parameter(Mandatory=$true, position = 1, HelpMessage="Enter the administrative user name (i.e. 3paradm).")]
+        [parameter(Mandatory = $true, position = 1, HelpMessage = "Enter the administrative user name (i.e. 3paradm).")]
         [ValidateNotNullOrEmpty()]
         [string]$username="",
 
-        [parameter(Mandatory=$true, position = 2, HelpMessage="Enter the administrative account password (i.e. 3pardata).")]
+        [parameter(Mandatory = $true, position = 2, HelpMessage = "Enter the administrative account password (i.e. 3pardata).")]
         [ValidateNotNullOrEmpty()]
         [string]$password="",
 
-        [parameter(Mandatory=$false, position = 3, HelpMessage="Specify the HP 3PAR Virtual Domain Name to Import resources from.")]
+        [parameter(Mandatory = $false, position = 3, HelpMessage = "Specify the HP 3PAR Virtual Domain Name to Import resources from.")]
         [ValidateNotNullOrEmpty()]
         [String]$Domain = 'NO DOMAIN',
 
-        [parameter(Mandatory=$false, position = 4, HelpMessage="Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{`"1:1:1`"=`"Fabric A`";`"2:2:2`"=`"Fabric B`"}")]
+        [parameter(Mandatory = $false, position = 4, HelpMessage = "Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{`"1:1:1`"=`"Fabric A`";`"2:2:2`"=`"Fabric B`"}")]
         [ValidateNotNullOrEmpty()]
         [PsCustomObject]$Ports
     )
@@ -7563,14 +7647,14 @@ function Remove-HPOVStorageSystem {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default", HelpMessage="Enter the Storage System to remove.", Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default", HelpMessage = "Enter the Storage System to remove.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$storageSystem,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [switch]$force
     )
 
@@ -7642,17 +7726,17 @@ function Get-HPOVStoragePool {
 
     [CmdletBinding(DefaultParameterSetName = "Name")]
     Param (
-        [parameter(Mandatory=$false, HelpMessage="Enter the Storage Pool name.", ParameterSetName = "Name", Position = 0)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('pool', 'name')]
         [string]$poolName,
 
-        [parameter(Mandatory=$false, HelpMessage="Enter the Storage System Name or provide the Resource Object.", ParameterSetName = "Name", Position = 1)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name or provide the Resource Object.", ParameterSetName = "Name", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Alias('systemName', 'system')]
         [object]$storageSystem,
 
-        [parameter(Mandatory=$false, HelpMessage="Display output in Table List format.", ParameterSetName = "Name")]
+        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
         [Alias('Report')]
         [switch]$List
 
@@ -7789,12 +7873,12 @@ function Add-HPOVStoragePool {
 
     [CmdletBinding(DefaultParameterSetName = "Name")]
     Param (
-        [parameter(Mandatory=$true, ValueFromPipeline = $true, HelpMessage="Enter the Storage System name.", ParameterSetName = "Name", Position=0)]
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Hostname', 'name')]
         [object]$StorageSystem,
 
-        [parameter(Mandatory=$true, HelpMessage="Provide array of Storage Pool names.", ParameterSetName = "Name", Position=1)]
+        [parameter(Mandatory = $true, HelpMessage = "Provide array of Storage Pool names.", ParameterSetName = "Name", Position=1)]
         [ValidateNotNullOrEmpty()]
         [Alias('pool', 'spName', 'cpg')]
         [array]$poolName
@@ -7912,17 +7996,17 @@ function Remove-HPOVStoragePool {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param
     (
-        [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default",HelpMessage="Specify the storage pool to remove.",Position=0)]
-        [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="StorageSystem",HelpMessage="Specify the storage pool to remove.",Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default",HelpMessage = "Specify the storage pool to remove.",Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "StorageSystem",HelpMessage = "Specify the storage pool to remove.",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
         [object]$storagePool=$null,
 
-        [parameter (Mandatory=$true,ValueFromPipeline=$false,ParameterSetName="StorageSystem",HelpMessage="Specify the Storage System Name, URI or Resource Object where the Storage Pool is located to remove.",Position=1)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$false, ParameterSetName = "StorageSystem",HelpMessage = "Specify the Storage System Name, URI or Resource Object where the Storage Pool is located to remove.",Position=1)]
         [ValidateNotNullOrEmpty()]
         [Alias("storage")]
         [object]$storageSystem=$null
@@ -8058,12 +8142,12 @@ function Get-HPOVStorageVolumeTemplate {
     [CmdletBinding(DefaultParameterSetName = "Name")]
     Param (
 
-        [parameter(Position = 0, Mandatory=$false, HelpMessage="Enter the Volume template name.", ParameterSetName = "Name")]
+        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Volume template name.", ParameterSetName = "Name")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$templateName,
 
-        [parameter(Mandatory=$false, ParameterSetName = "Name")]
+        [parameter(Mandatory = $false, ParameterSetName = "Name")]
         [switch]$List
 
     )
@@ -8141,28 +8225,28 @@ function New-HPOVStorageVolumeTemplate {
 
     [CmdletBinding(DefaultParameterSetName = "default")]
     Param (
-        [parameter(Mandatory=$true, HelpMessage="Enter the Volume Template Name.", ParameterSetName = "default")]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the Volume Template Name.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$templateName,
 
-        [parameter(Mandatory=$false, ParameterSetName = "default")]
+        [parameter(Mandatory = $false, ParameterSetName = "default")]
         [string]$description=$null,
 
-        [parameter(Mandatory=$true, HelpMessage="Enter the Storage Pool Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the Storage Pool Name, URI or provide the resource object.", ParameterSetName = "default")]
         [object]$storagePool = $Null,
 
-        [parameter(Mandatory=$false, HelpMessage="Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
         [object]$StorageSystem = $Null,
 
-        [parameter(Mandatory=$true, HelpMessage="Enter the requested capacity in GB.", ParameterSetName = "default")]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the requested capacity in GB.", ParameterSetName = "default")]
         [Alias('size')]
         [int32]$capacity,
 
-        [parameter(Mandatory=$false, ParameterSetName = "default")]
+        [parameter(Mandatory = $false, ParameterSetName = "default")]
         [switch]$full=$false,
 
-        [parameter(Mandatory=$false, ParameterSetName = "default")]
+        [parameter(Mandatory = $false, ParameterSetName = "default")]
         [switch]$shared=$false
 
     )
@@ -8294,10 +8378,10 @@ function Remove-HPOVStorageVolumeTemplate {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-       [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default",
-            HelpMessage="Specify the storage pool to remove.",
+       [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default",
+            HelpMessage = "Specify the storage pool to remove.",
             Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
@@ -8361,7 +8445,7 @@ function Get-HPOVStorageVolumeTemplatePolicy {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
     
-    [CmdLetBinding(DefaultParameterSetName="default")]
+    [CmdLetBinding(DefaultParameterSetName = "default")]
     Param ()
 
     Begin {
@@ -8395,13 +8479,13 @@ function Set-HPOVStorageVolumeTemplatePolicy {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
     
-    [CmdLetBinding(DefaultParameterSetName="default")]
+    [CmdLetBinding(DefaultParameterSetName = "default")]
     Param (
     
-        [parameter(Mandatory=$True, HelpMessage="Enable Storage Volume Template global policy.", ParameterSetName = "Enable")]
+        [parameter(Mandatory = $True, HelpMessage = "Enable Storage Volume Template global policy.", ParameterSetName = "Enable")]
         [switch]$Enable,
               
-        [parameter(Mandatory=$True, HelpMessage="Disable Storage Volume Template global policy.", ParameterSetName = "Disable")]
+        [parameter(Mandatory = $True, HelpMessage = "Disable Storage Volume Template global policy.", ParameterSetName = "Disable")]
         [switch]$Disable    
     
     
@@ -8462,15 +8546,15 @@ function Get-HPOVStorageVolume {
 
     [CmdletBinding(DefaultParameterSetName = "Name")]
     Param (
-        [parameter(Mandatory=$false, HelpMessage="Enter the Volume name.", ParameterSetName = "Name", Position = 0)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Volume name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$VolumeName = $Null,
 
-        [parameter(Mandatory=$false, HelpMessage="Show only available storage volumes", ParameterSetName = "Name")]
+        [parameter(Mandatory = $false, HelpMessage = "Show only available storage volumes", ParameterSetName = "Name")]
         [switch]$Available,
 
-        [parameter(Mandatory=$false, HelpMessage="Display output in Table List format.", ParameterSetName = "Name")]
+        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
         [Alias('Report')]
         [switch]$List
 
@@ -8602,41 +8686,41 @@ function New-HPOVStorageVolume {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
     
-    [CmdletBinding(DefaultParameterSetName="default")]
+    [CmdletBinding(DefaultParameterSetName = "default")]
     Param (
 
-        [parameter (Mandatory=$true, HelpMessage="Specify the name of the storage volume.", Position=0)]
+        [parameter (Mandatory = $true, HelpMessage = "Specify the name of the storage volume.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("name")]
         [string]$volumeName,
 
-        [parameter(Mandatory=$false, ParameterSetName="default", Position = 1)]
+        [parameter(Mandatory = $false, ParameterSetName="default", Position = 1)]
         [string]$description = "",
 
-        [parameter(Mandatory=$true, ValueFromPipeline = $True, ParameterSetName="default", Position = 2)]
+        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName="default", Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Alias("pool","poolName")]
         [object]$StoragePool,
 
-        [parameter(Mandatory=$false, ParameterSetName="default")]
+        [parameter(Mandatory = $false, ParameterSetName="default")]
         [string]$StorageSystem = "",
 
-        [parameter(Mandatory=$true, ParameterSetName="template")]
+        [parameter(Mandatory = $true, ParameterSetName="template")]
         [ValidateNotNullOrEmpty()]
         [Alias('template','svt')]
         [object]$VolumeTemplate,
 
-        [parameter(Mandatory=$true, ParameterSetName="default", Position = 3)]
-        [parameter(Mandatory=$false, ParameterSetName="template", Position = 2)]
+        [parameter(Mandatory = $true, ParameterSetName="default", Position = 3)]
+        [parameter(Mandatory = $false, ParameterSetName="template", Position = 2)]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
         [int64]$capacity,
 
-        [parameter(Mandatory=$false, ParameterSetName="default", HelpMessage="Create Thick provisioned volume.")]
+        [parameter(Mandatory = $false, ParameterSetName="default", HelpMessage = "Create Thick provisioned volume.")]
         [switch]$full,
 
-        [parameter(Mandatory=$false, ParameterSetName="default", HelpMessage="Allow the volume to be shared between hosts (i.e. shared datastore).")]
-        [parameter(Mandatory=$false, ParameterSetName="template", HelpMessage="Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [parameter(Mandatory = $false, ParameterSetName="default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [parameter(Mandatory = $false, ParameterSetName="template", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
         [switch]$shared
 
     )
@@ -8855,28 +8939,28 @@ function Add-HPOVStorageVolume {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
     
-    [CmdletBinding(DefaultParameterSetName="default")]
+    [CmdletBinding(DefaultParameterSetName = "default")]
     Param (
 
-        [parameter(Mandatory=$true, ValueFromPipeline = $True, Position = 0, ParameterSetName="default")]
+        [parameter(Mandatory = $true, ValueFromPipeline = $True, Position = 0, ParameterSetName="default")]
         [ValidateNotNullOrEmpty()]
         [object]$StorageSystem,
 
-        [parameter (Mandatory=$true, HelpMessage="Specify the name of the storage volume.", Position=1, ParameterSetName="default")]
+        [parameter (Mandatory = $true, HelpMessage = "Specify the name of the storage volume.", Position=1, ParameterSetName="default")]
         [ValidateNotNullOrEmpty()]
         [Alias("volid","id","wwn")]
         [ValidateScript({if ($_ -match $script:wwnAddressPattern) {$true} else { Throw "The input value '$_' does not match the required format of 'AA:BB:CC:DD:EE:AA:BB:CC'. Please correct and try again." }})]
         [string]$VolumeID,
 
-        [parameter (Mandatory=$true, ParameterSetName="default", HelpMessage="Specify the name of the storage volume.", Position=2)]
+        [parameter (Mandatory = $true, ParameterSetName="default", HelpMessage = "Specify the name of the storage volume.", Position=2)]
         [ValidateNotNullOrEmpty()]
         [Alias("name")]
         [string]$volumeName,
 
-        [parameter(Mandatory=$false, ParameterSetName="default", Position = 3)]
+        [parameter(Mandatory = $false, ParameterSetName="default", Position = 3)]
         [string]$description = "",
 
-        [parameter(Mandatory=$false, ParameterSetName="default", HelpMessage="Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [parameter(Mandatory = $false, ParameterSetName="default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
         [switch]$shared
 
     )
@@ -8984,16 +9068,16 @@ function Remove-HPOVStorageVolume {
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
     #Need to have scope to be OneView or OneView+Storage System
-    [CmdletBinding(SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
 
-        [parameter (Mandatory=$true, ValueFromPipeline=$true, ParameterSetName="default", HelpMessage="Specify the storage volume to remove.", Position=0)]
+        [parameter (Mandatory = $true, ValueFromPipeline=$true, ParameterSetName="default", HelpMessage = "Specify the storage volume to remove.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
         [object]$storageVolume=$null,
 
-        [parameter(Mandatory=$false, HelpMessage="Specify whether to delete the export reference or export and provisioning volume.")]
+        [parameter(Mandatory = $false, HelpMessage = "Specify whether to delete the export reference or export and provisioning volume.")]
         [switch]$exportOnly
 
     )
@@ -9120,12 +9204,12 @@ function Get-HPOVSanManager {
     [CmdletBinding()]
     Param (
 
-        [parameter(Position = 0, Mandatory=$false, HelpMessage="Enter the SAN Manager Hostname or IP Address.")]
+        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$SanManager = $Null,
 
-        [parameter(Mandatory=$false, HelpMessage="Display output in Table List format.")]
+        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.")]
         [switch]$List
 
     )
@@ -9225,28 +9309,28 @@ function Add-HPOVSanManager {
 
     [CmdletBinding()]
     Param (
-        [parameter(Mandatory=$true, HelpMessage="Specify the SAN Manager Type.  Accepted values are: BNA.", position=0)]
+        [parameter(Mandatory = $true, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA.", position=0)]
         [ValidateSet("BNA","Brocade Network Advisor")]
         [string]$Type,
 
-        [parameter(Mandatory=$true, HelpMessage="Enter the SAN Manager Hostname or IP Address.", position=1)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", position=1)]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname="",
 
-        [parameter(Mandatory=$false, HelpMessage="Enter the SAN Manager TCP Port.", position=2)]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port.", position=2)]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(1,65535)]
         [int]$Port=5989,
          
-        [parameter(Mandatory=$true, HelpMessage="Enter the administrative user name (i.e. Administrator).", position=3)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the administrative user name (i.e. Administrator).", position=3)]
         [ValidateNotNullOrEmpty()]
         [string]$Username="",
 
-        [parameter(Mandatory=$true, HelpMessage="Enter the administrative account password (i.e. password).", position=4)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the administrative account password (i.e. password).", position=4)]
         [ValidateNotNullOrEmpty()]
         [string]$Password="",
 
-	    [parameter(Mandatory=$false)]
+	    [parameter(Mandatory = $false)]
 	    [switch]$UseSsl
     )
 
@@ -9317,29 +9401,29 @@ function Set-HPOVSanManager {
 
     [CmdletBinding()]
     Param (
-        [parameter(Mandatory=$true,
-        HelpMessage="Specify the SAN Manager Name.")]
+        [parameter(Mandatory = $true,
+        HelpMessage = "Specify the SAN Manager Name.")]
         [ValidateNotNullOrEmpty()]
         [string]$Name="",
 
-        [parameter(Mandatory=$false,
-        HelpMessage="Specify the new Hostname or IP Address of the SAN Manager.")]
+        [parameter(Mandatory = $false,
+        HelpMessage = "Specify the new Hostname or IP Address of the SAN Manager.")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname="",
 
-        [parameter(Mandatory=$false,
-        HelpMessage="Specify the new TCP Port number of the SAN Manager.")]
+        [parameter(Mandatory = $false,
+        HelpMessage = "Specify the new TCP Port number of the SAN Manager.")]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(1,65535)]
         [Int]$Port=0,
                  
-        [parameter(Mandatory=$false,
-        HelpMessage="Enter the administrative user name (i.e. 3paradm).")]
+        [parameter(Mandatory = $false,
+        HelpMessage = "Enter the administrative user name (i.e. 3paradm).")]
         [ValidateNotNullOrEmpty()]
         [string]$Username="",
 
-        [parameter(Mandatory=$false,
-        HelpMessage="Enter the administrative account password (i.e. 3pardata).")]
+        [parameter(Mandatory = $false,
+        HelpMessage = "Enter the administrative account password (i.e. 3pardata).")]
         [ValidateNotNullOrEmpty()]
         [string]$Password=""
 
@@ -9411,7 +9495,7 @@ function Update-HPOVSanManager {
     [CmdletBinding()]
     Param (
 
-        [parameter(Mandatory=$true, ValueFromPipeline = $true, HelpMessage="Enter the Managed SAN Name.")]
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the Managed SAN Name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$SANManager = $Null
@@ -9499,13 +9583,13 @@ function Remove-HPOVSanManager {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdletBinding(SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
 
-        [parameter(Mandatory=$true,ValueFromPipeline=$true, HelpMessage="Enter the SAN Manager Name, or provide SAN Manager Resource.")]
+        [parameter(Mandatory = $true,ValueFromPipeline=$true, HelpMessage = "Enter the SAN Manager Name, or provide SAN Manager Resource.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
-        [object]$SanManager = $Null
+        [System.Object]$SanManager = $Null
 
     )
 
@@ -9645,12 +9729,12 @@ function Get-HPOVManagedSan {
     [CmdletBinding()]
     Param (
 
-        [parameter(Mandatory=$false, HelpMessage="Enter the Managed SAN Name.")]
+        [parameter(Mandatory = $false, HelpMessage = "Enter the Managed SAN Name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Fabric')]
         [string]$Name="",
 
-        [parameter(Mandatory=$false, HelpMessage="Display output in Table List format.")]
+        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.")]
         [switch]$List
 
     )
@@ -9761,17 +9845,17 @@ function Set-HPOVManagedSan {
     [CmdletBinding()]
     Param (
 
-        [parameter(Mandatory=$true, HelpMessage="Enter the Managed SAN Name.",ValueFromPipeline=$true,ParameterSetName = "Enable",position=0)]
-        [parameter(Mandatory=$true, HelpMessage="Enter the Managed SAN Name.",ValueFromPipeline=$true,ParameterSetName = "Disable",position=0)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline=$true,ParameterSetName = "Enable",position=0)]
+        [parameter(Mandatory = $true, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline=$true,ParameterSetName = "Disable",position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Fabric','Name')]
         [object]$ManagedSan = $Null,
 
-        [parameter(Mandatory=$true, HelpMessage="Enable Automated Zoning for the specified Managed SAN.",ParameterSetName = "Enable")]
+        [parameter(Mandatory = $true, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.",ParameterSetName = "Enable")]
         [Alias('ZoningEnable','Enable')]
         [switch]$EnableAutomatedZoning,
 
-        [parameter(Mandatory=$true, HelpMessage="Disable Automated Zoning for the specified Managed SAN.",ParameterSetName = "Disable")]
+        [parameter(Mandatory = $true, HelpMessage = "Disable Automated Zoning for the specified Managed SAN.",ParameterSetName = "Disable")]
         [Alias('ZoningDisable','Disable')]
         [switch]$DisableAutomatedZoning
 
@@ -9931,7 +10015,7 @@ function Get-HPOVUnmanagedDevice {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdletBinding(DefaultParameterSetName='Default')]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
 
     Param (
 
@@ -9997,7 +10081,7 @@ function New-HPOVUnmanagedDevice {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdletBinding(DefaultParameterSetName='Default')]
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
 
     Param (
 
@@ -10050,7 +10134,7 @@ function Get-HPOVPowerDevice {
 
     [CmdletBinding()]
 	Param (
-		[parameter(Mandatory=$false)]
+		[parameter(Mandatory = $false)]
 		[string]$name=$null
 	)
 
@@ -10082,22 +10166,22 @@ function Add-HPOVPowerDevice {
 
     [CmdletBinding()]
     Param (
-        [parameter(Mandatory=$true,
-        HelpMessage="Enter the host name (FQDN) or IP of the iPDU's management processor.")]
+        [parameter(Mandatory = $true,
+        HelpMessage = "Enter the host name (FQDN) or IP of the iPDU's management processor.")]
         [ValidateNotNullOrEmpty()]
         [string]$hostname,
          
-        [parameter(Mandatory=$true,
-        HelpMessage="Enter the iPDU administrative user name.")]
+        [parameter(Mandatory = $true,
+        HelpMessage = "Enter the iPDU administrative user name.")]
         [ValidateNotNullOrEmpty()]
         [string]$username="",
 
-        [parameter(Mandatory=$true,
-        HelpMessage="Enter the iPDU administrative account password.")]
+        [parameter(Mandatory = $true,
+        HelpMessage = "Enter the iPDU administrative account password.")]
         [ValidateNotNullOrEmpty()]
         [string]$password="",
 
-	    [parameter(Mandatory=$false)]
+	    [parameter(Mandatory = $false)]
 	    [switch]$force
     )
 
@@ -10144,16 +10228,16 @@ function Remove-HPOVPowerDevice {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter(Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default",
-            HelpMessage="Enter the the power-device to be removed.")]
+        [parameter(Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default",
+            HelpMessage = "Enter the the power-device to be removed.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
         [object]$powerDevice=$null,
 
-	    [parameter(Mandatory=$false)]
+	    [parameter(Mandatory = $false)]
 	    [switch]$force
     )
 
@@ -10212,71 +10296,71 @@ function New-HPOVNetwork {
 
     [CmdLetBinding(DefaultParameterSetName = "Ethernet")]
     Param (
-        [parameter(Mandatory=$true, parameterSetName="FC",Position=0)]
-        [parameter(Mandatory=$true, parameterSetName="Ethernet",Position=0)]
-        [parameter(Mandatory=$true, parameterSetName="VLANIDRange",Position=0)]
+        [parameter(Mandatory = $true, parameterSetName="FC",Position=0)]
+        [parameter(Mandatory = $true, parameterSetName="Ethernet",Position=0)]
+        [parameter(Mandatory = $true, parameterSetName="VLANIDRange",Position=0)]
         [string]$Name, 
 
-        [parameter(Mandatory=$true, parameterSetName="FC",Position=1)]
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
-        [parameter(Mandatory=$false, parameterSetName="VLANIDRange")]
+        [parameter(Mandatory = $true, parameterSetName="FC",Position=1)]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="VLANIDRange")]
         [ValidateSet("Ethernet", "FC", "FibreChannel", "Fibre Channel")]
         [string]$type = "Ethernet",
         
-        [parameter(Mandatory=$true, parameterSetName="Ethernet",Position=1)] 
+        [parameter(Mandatory = $true, parameterSetName="Ethernet",Position=1)] 
         [int32]$vlanId,
 
-        [parameter(Mandatory=$true, parameterSetName="VLANIDRange",Position=1)]
+        [parameter(Mandatory = $true, parameterSetName="VLANIDRange",Position=1)]
         [string]$vlanRange,
 
-        [parameter(Mandatory=$false, parameterSetName="Ethernet",Position=2)] 
+        [parameter(Mandatory = $false, parameterSetName="Ethernet",Position=2)] 
         [ValidateSet('Untagged','Tagged','Tunnel')]
         [string]$VLANType = "Tagged", 
 
-        [parameter(Mandatory=$false, parameterSetName="VLANIDRange")]
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="VLANIDRange")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
         [ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
         [string]$purpose = "General", 
 
-        [parameter(Mandatory=$false, parameterSetName="VLANIDRange")]
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="VLANIDRange")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
         [boolean]$smartLink = $true, 
 
-        [parameter(Mandatory=$false, parameterSetName="VLANIDRange")]
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="VLANIDRange")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
         [boolean]$privateNetwork = $false, 
 
-        [parameter(Mandatory=$false, parameterSetName="FC")]
+        [parameter(Mandatory = $false, parameterSetName="FC")]
         [ValidateSet("Auto", "Two_Gbps", "Four_Gbps", "Eight_Gbps", IgnoreCase = $false)]
         [string]$fcUplinkBandwidth = $Null, 
 
-        [parameter(Mandatory=$false, parameterSetName="VLANIDRange")]
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
-        [parameter(Mandatory=$false, parameterSetName="FC")]
+        [parameter(Mandatory = $false, parameterSetName="VLANIDRange")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="FC")]
         [validaterange(2,20000)]
         [int32]$typicalBandwidth = 2500, 
         
-        [parameter(Mandatory=$false, parameterSetName="VLANIDRange")]
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
-        [parameter(Mandatory=$false, parameterSetName="FC")]
+        [parameter(Mandatory = $false, parameterSetName="VLANIDRange")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="FC")]
         [validaterange(100,20000)]
         [int32]$maximumBandwidth = 10000, 
 
-        [parameter(Mandatory=$false, parameterSetName="FC")]
+        [parameter(Mandatory = $false, parameterSetName="FC")]
         [int32]$linkStabilityTime = 30, 
 
-        [parameter(Mandatory=$false, parameterSetName="FC")]
+        [parameter(Mandatory = $false, parameterSetName="FC")]
         [boolean]$autoLoginRedistribution = $False,
 
-        [parameter(Mandatory=$false, parameterSetName="FC")]
+        [parameter(Mandatory = $false, parameterSetName="FC")]
         [ValidateSet("FabricAttach","FA", "DirectAttach","DA")]
         [string]$fabricType="FabricAttach",
 
-        [parameter(Mandatory=$false, parameterSetName="FC", ValueFromPipeline=$True)]
+        [parameter(Mandatory = $false, parameterSetName="FC", ValueFromPipeline=$True)]
         [ValidateNotNullOrEmpty()]
         [object]$managedSan=$Null,
 
-        [parameter(mandatory=$true, parameterSetName="importFile", HelpMessage="Enter the full path and file name for the input file.")]
+        [parameter(Mandatory = $true, parameterSetName="importFile", HelpMessage = "Enter the full path and file name for the input file.")]
         [Alias("i", "import")]
         [string]$importFile
     )
@@ -10298,26 +10382,52 @@ function New-HPOVNetwork {
     Process {
 
         write-verbose "[NEW-HPOVNETWORK] Resolved Parameter Set Name: $($PsCmdLet.ParameterSetName)"
-        write-verbose "[NEW-HPOVNETWORK] Network Type Requested: $($type)"
-        switch -Regex  ($type) {
 
-            "\bEthernet\b" {
+        write-verbose "[NEW-HPOVNETWORK] Network Type Requested: $($type)"
+
+        switch ($type) {
+
+            "Ethernet" {
 
                 if (-not $vlanRange) {
-                    write-verbose "[NEW-HPOVNETWORK] Creating $name Ethernet Network"
-                    $network = [pscustomobject]@{type = "ethernet-networkV2"; vlanId=$vlanId; ethernetNetworkType = $VLANType; purpose=$purpose; name=$Name; smartLink=$smartLink; privateNetwork=$privateNetwork}
+
+                    write-verbose "[NEW-HPOVNETWORK] Creating '$name' Ethernet Network"
+
+                    $network = [pscustomobject]@{
+                    
+                        type                = "ethernet-networkV2"; 
+                        vlanId              = $vlanId; 
+                        ethernetNetworkType = $VLANType; 
+                        purpose             = $purpose; 
+                        name                = $Name; 
+                        smartLink           = $smartLink;
+                        privateNetwork      = $privateNetwork
+                    }
+
                 }
+
                 else {
                     
                     write-verbose "[NEW-HPOVNETWORK] Creating bulk '$name' + '$vlanRange' Ethernet Networks"
-                    $network = [pscustomobject]@{type = "bulk-ethernet-network"; vlanIdRange=$vlanRange; purpose=$purpose; namePrefix=$Name; smartLink=$smartLink; privateNetwork=$privateNetwork}
+
+                    $network = [pscustomobject]@{
+
+                        type           = "bulk-ethernet-network"; 
+                        vlanIdRange    = $vlanRange; 
+                        purpose        = $purpose; 
+                        namePrefix     = $Name; 
+                        smartLink      = $smartLink; 
+                        privateNetwork = $privateNetwork
+
+                    }
 
                 }
 
             }
 
-            "\bFC\b|\bfibre\b|\bfibrechannel\b" {
-                write-host "Creating $name FC Network"
+            { @("FC","FibreChannel","Fibre Channel") -contains $_ } {
+
+                write-verbose "[NEW-HPOVNETWORK] Creating '$name' FC Network"
 
                 #If maxbandiwdth value isn't specified, 10Gb is the default value, must change to 8Gb
                 if ( $maximumBandwidth -eq 10000 ){$maximumBandwidth = 8000}
@@ -10325,29 +10435,67 @@ function New-HPOVNetwork {
                 #Get Managed SAN Fabric URI for Fabric Attach
                 if ($managedSan) { 
 
-                    if ($managedSan -is [PSCustomObject] -and $managedSan.category -eq 'fc-sans') { $managedSanObject = $managedSan }
-                    elseif ($managedSan -is [String] -and $managedSan.StartsWith('/rest/')) { $managedSanObject = [pscustomobject]@{uri=$managedSan}}
+                    if ($managedSan -is [PSCustomObject] -and $managedSan.category -eq 'fc-sans') { 
+                    
+                        $managedSanObject = $managedSan 
+                        
+                    }
+
+                    elseif ($managedSan -is [PSCustomObject] -and -not ($managedSan.category -eq 'fc-sans')) { 
+                    
+                        $errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidManagedSanUri InvalidArgument 'New-HPOVNetwork' -Message "The Managed SAN object category provided '$($managedSan.category)' is not the the expected value of 'fc-sans'. Please verify the parameter value and try again." #-verbose
+                        $PSCmdlet.ThrowTerminatingError($errorRecord)   
+                        
+                    }
+
+                    elseif ($managedSan -is [String] -and $managedSan.StartsWith($script:fcManagedSansUri)) { 
+                    
+                        $managedSanObject = [pscustomobject]@{uri = $managedSan}
+                        
+                    }
+                   
+                    elseif ($managedSan -is [String] -and $managedSan.StartsWith('/rest/')) { 
+                    
+                        $errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidManagedSanUri InvalidArgument 'New-HPOVNetwork' -Message "The Managed SAN Uri provided '$managedSan' is incorrect.  Managed SAN URI must begin with '/rest/fc-sans/managed-sans'." #-verbose
+                        $PSCmdlet.ThrowTerminatingError($errorRecord)                       
+                    
+                    }
+                    
                     elseif ($managedSan -is [String]) {
 
                         $managedSanObject = Get-HPOVManagedSan $managedSan
 
                     }
 
-                    #Need to come up with a way to report an invalid ManagedSan parameter value
-    
                 }
 
                 else { $managedSanObject = [PSCustomObject]@{ uri = $Null }}
 
-                $network = [pscustomobject]@{type="fc-networkV2"; name=$Name; linkStabilityTime=$linkStabilityTime; autoLoginRedistribution=$autoLoginRedistribution; fabricType=$FabricType; managedSanUri=$managedSanObject.uri}
+                $network = [pscustomobject]@{
+
+                    type                    = "fc-networkV2"; 
+                    name                    = $Name; 
+                    linkStabilityTime       = $linkStabilityTime; 
+                    autoLoginRedistribution = $autoLoginRedistribution; 
+                    fabricType              = $FabricType; 
+                    connectionTemplateUri   = $null;
+                    managedSanUri           = $managedSanObject.uri
+                
+                }
+                
             }
 
             default { write-verbose "[NEW-HPOVNETWORK] Invalid type: $($type)" }
         }
 
+        write-verbose "[NEW-HPOVNETWORK] Network Object:  $($network | fl | out-string)"
+
         If ($importFile) {
+
             try {
+
                 $network = [string]::Join("", (gc $importfile -ErrorAction Stop)) | convertfrom-json -ErrorAction Stop
+
             }
             catch [System.Management.Automation.ItemNotFoundException] {
 
@@ -10359,13 +10507,13 @@ function New-HPOVNetwork {
             }
             catch [System.ArgumentException] {
 
-
                 $errorRecord = New-ErrorRecord System.ArgumentException InvalidJSON ParseError 'New-HPOVNetwork' -Message "JSON incorrect or invalid within '$importFile' input file." #-verbose
                     
                 #Generate Terminating Error
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
             }
+
         }
 
     }
@@ -10385,23 +10533,29 @@ function New-HPOVNetwork {
             switch ($net.type) {
 
                 "ethernet-networkV2" {
+
                     write-host "Creating Ethernet Network" $net.name 
-                    $netUri=$script:ethNetworksUri
+
+                    $netUri = $script:ethNetworksUri
+
                     $net = $net | select name, type, vlanId, smartLink, privateNetwork, purpose, ethernetNetworkType
+
                 }
 
                 "fc-networkV2" {
+
                     write-host "Creating FC Network" $net.name
-                    $netUri=$script:fcNetworksUri
-                    $net = $net | select name, linkStabilityTime, autoLoginRedistribution, type, fabricType
+
+                    $netUri = $script:fcNetworksUri
+
+                    $net = $net | select name, linkStabilityTime, autoLoginRedistribution, type, fabricType, managedSanUri, connectionTemplateUri 
+
                 }
 
                 "bulk-ethernet-network" {
                     
                     write-host "Creating bulk '$name' + '$vlanRange' Ethernet Networks"
                     $netUri = $script:ethNetworksUri + "/bulk"
-                    #$net | Add-Member -NotePropertyName name -NotePropertyValue "Creating bulk '$name' + '$vlanRange' Ethernet Networks"
-                    #$net | Add-Member -NotePropertyName name -NotePropertyValue $name
 
                 }
                 
@@ -10414,12 +10568,14 @@ function New-HPOVNetwork {
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                 }
+
             }
 
             $objStatus = [pscustomobject]@{ Name = $net.Name; Status = $Null; Details = $Null }
 
             #Check if Network Type is Direct Attach and if ManagedFabric parameter is being called at the same time.
             if (($fabricType -eq "DirectAttach" -or $fabricType -eq "DA") -and $managedfabric) { 
+
                 $objStatus.Details = "You specified a DirectAttach Fabric Type and passed the ManagedSan parameter.  The ManagedSan parameter is to be used for FabricAttach networks only."
                
             }
@@ -10441,28 +10597,43 @@ function New-HPOVNetwork {
                 $task = Wait-HPOVTaskComplete $task.Uri
                 $objStatus.Status = $task.taskState
                 $objStatus.Details = $task
+
             }
 
             $colStatus += $objStatus
 
             if($objStatus.details.associatedResource.resourceUri) {
+
                 $net=Send-HPOVRequest $objStatus.details.associatedResource.resourceUri
+
                 if ($net -and $net.connectionTemplateUri) {
+
                     $ctUri = $net.connectionTemplateUri
+
                     $ct = Send-HPOVRequest $ctUri
+
                     if ($ct -and $ct.bandwidth) {
+
                         if ($typicalBandwidth) { $ct.bandwidth.typicalBandwidth = $typicalBandwidth }
+
                         if ($maximumBandwidth) { $ct.bandwidth.maximumBandwidth = $maximumBandwidth }
+
                         Set-HPOVResource -resource $ct | Out-Null
+
                     }
+
                 }
+
             }
+
         }
 
         if ($colStatus | ? { $_.Status -ne "Completed" }) { write-error "One or more networks failed the creation attempt!" }
+
         $colStatus
         
     }
+
 }
 
 function Get-HPOVNetworkCTInfo {
@@ -10471,7 +10642,7 @@ function Get-HPOVNetworkCTInfo {
 
 	[CmdLetBinding()]
     Param (
-       [parameter (Mandatory=$true)]
+       [parameter (Mandatory = $true)]
        [object]$nets
     )
 
@@ -10517,19 +10688,19 @@ function Get-HPOVNetwork {
 
     [CmdLetBinding()]
     Param (
-       [parameter (Mandatory=$false,position=0)]
+       [parameter (Mandatory = $false,position=0)]
        [String]$name = $null,
 
-       [parameter (Mandatory=$false,position=1)]
+       [parameter (Mandatory = $false,position=1)]
        [ValidateSet("Ethernet","FC","FibreChannel")]
        [String]$type = $null,
 
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [alias("x", "export")]
        [ValidateScript({split-path $_ | Test-Path})]
        [String]$exportFile,
 
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [alias('list')]
        [Switch]$Report
     )
@@ -10754,46 +10925,46 @@ function Set-HPOVNetwork {
 
     [CmdLetBinding()]
     Param (
-        [parameter(Position = 0, Mandatory=$true, ValueFromPipeline = $true, HelpMessage="Provide the Network Name, URI or Resource Object to be modified.",ParameterSetName = "Ethernet")]
+        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.",ParameterSetName = "Ethernet")]
         [ValidateNotNullOrEmpty()]
         #[ValidateScript({if (($_ -is [PSCustomObject] -and ($_.category -eq "ethernet-network" -or $_.category -eq "fc-network")) -or ($_ -is [String]) -or ($_ -is [string] -and $_.startswith('/rest'))) {$true} else {throw "Invalid parameter value." }})]
         [Alias('net')]
         [Object]$network,
 
-        [parameter(Position = 1, Mandatory=$false, ValueFromPipeline = $false, HelpMessage="Enter the new Name of the network object.", ParameterSetName = "Ethernet")]
-        [parameter(Position = 1, Mandatory=$false, ValueFromPipeline = $false, HelpMessage="Enter the new Name of the network object.", ParameterSetName = "FibreChannel")]
+        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "Ethernet")]
+        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [string]$Name = $Null,
 
-        [parameter(Position = 2, Mandatory=$false, ValueFromPipeline = $false, HelpMessage="Enter the new Purpose of the network object.", ParameterSetName = "Ethernet")]
+        [parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Enter the new Purpose of the network object.", ParameterSetName = "Ethernet")]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
         [string]$Purpose = $Null,
 
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
         [bool]$smartLink, 
 
-        [parameter(Mandatory=$false, parameterSetName="Ethernet")]
+        [parameter(Mandatory = $false, parameterSetName="Ethernet")]
         [bool]$privateNetwork, 
 
-        [parameter(Position = 5, Mandatory=$false, parameterSetName="Ethernet")]
-        [parameter(Position = 2, Mandatory=$false, parameterSetName="FibreChannel")]
+        [parameter(Position = 5, Mandatory = $false, parameterSetName="Ethernet")]
+        [parameter(Position = 2, Mandatory = $false, parameterSetName="FibreChannel")]
         [validaterange(2,20000)]
         [int32]$typicalBandwidth = $null, 
         
-        [parameter(Position = 6, Mandatory=$false, parameterSetName="Ethernet")]
-        [parameter(Position = 3, Mandatory=$false, parameterSetName="FibreChannel")]
+        [parameter(Position = 6, Mandatory = $false, parameterSetName="Ethernet")]
+        [parameter(Position = 3, Mandatory = $false, parameterSetName="FibreChannel")]
         [validaterange(100,20000)]
         [int32]$maximumBandwidth = $Null, 
 
-        [parameter(Position = 4, Mandatory=$false, parameterSetName="FibreChannel")]
+        [parameter(Position = 4, Mandatory = $false, parameterSetName="FibreChannel")]
         [ValidateRange(1,1800)]
         [int32]$linkStabilityTime = $NUll, 
 
-        [parameter(Position = 5, Mandatory=$false, parameterSetName="FibreChannel")]
+        [parameter(Position = 5, Mandatory = $false, parameterSetName="FibreChannel")]
         [bool]$autoLoginRedistribution,
 
-        [parameter(Position = 6, Mandatory=$false, parameterSetName="FibreChannel")]
+        [parameter(Position = 6, Mandatory = $false, parameterSetName="FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [object]$managedSan = $Null
 
@@ -11005,16 +11176,14 @@ function Remove-HPOVNetwork {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
     Param
     (
-       [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default",
-            HelpMessage="Specify the network to remove.",
-            Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the network to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
-        [object]$network=$null
+        [System.Object]$network = $null
     )
 
     Begin {
@@ -11094,21 +11263,21 @@ function New-HPOVNetworkSet {
 
     [CmdLetBinding()]
     Param (
-       [parameter (Position=0,Mandatory=$True)]
+       [parameter (Position=0,Mandatory = $True)]
        [String]$name=$null,
 
-       [parameter (Position=1,Mandatory=$True)]
+       [parameter (Position=1,Mandatory = $True)]
        [alias('networkUris')]
        [Array]$networks=$null,
 
-       [parameter (Position=2,Mandatory=$False)]
+       [parameter (Position=2,Mandatory = $False)]
        [Alias ('untagged','native','untaggedNetworkUri')]
        [String]$untaggedNetwork=$null,
 
-       [parameter (Position=3,Mandatory=$False)]
+       [parameter (Position=3,Mandatory = $False)]
        [int32]$typicalBandwidth=2500,
 
-       [parameter (Position=4,Mandatory=$False)]
+       [parameter (Position=4,Mandatory = $False)]
        [int32]$maximumBandwidth=10000
 
     )
@@ -11282,14 +11451,14 @@ function Get-HPOVNetworkSet {
 
     [CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
-       [parameter (Position = 0, ParameterSetName = "Default", Mandatory=$false)]
-       [parameter (Position = 0, ParameterSetName = "Export", Mandatory=$false)]
+       [parameter (Position = 0, ParameterSetName = "Default", Mandatory = $false)]
+       [parameter (Position = 0, ParameterSetName = "Export", Mandatory = $false)]
        [String]$name=$null,
 
-       [parameter (ParameterSetName = "Default", Mandatory=$false)]
+       [parameter (ParameterSetName = "Default", Mandatory = $false)]
        [Switch]$List,
 
-       [parameter (ParameterSetName = "Export", Mandatory=$false)]
+       [parameter (ParameterSetName = "Export", Mandatory = $false)]
        [alias("x", "export")]
        [ValidateScript({split-path $_ | Test-Path})]
        [String]$exportFile
@@ -11421,7 +11590,7 @@ function Get-HPOVNetworkSetCTInfo {
     [CmdLetBinding()]
     
     Param (
-       [parameter (Mandatory=$true, ValueFromPipeline = $True)]
+       [parameter (Mandatory = $true, ValueFromPipeline = $True)]
        [ValidateNotNullorEmpty()]
        [object]$netsets
     )
@@ -11468,28 +11637,28 @@ function Set-HPOVNetworkSet {
     [CmdLetBinding()]
     Param (
 
-        [parameter (Mandatory=$true, ValueFromPipeline = $true, Position = 0)]
+        [parameter (Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
         [ValidateNotNullorEmpty()]
         [object]$netSet,
 
-        [parameter (Mandatory=$false, Position = 1)]
+        [parameter (Mandatory = $false, Position = 1)]
         [ValidateNotNullorEmpty()]
         [string]$name,
 
-        [parameter (Mandatory=$false, Position = 2)]
+        [parameter (Mandatory = $false, Position = 2)]
         [ValidateNotNullorEmpty()]
         [object]$networks,
 
-        [parameter (Mandatory=$False, Position = 3)]
+        [parameter (Mandatory = $False, Position = 3)]
         [Alias ('untagged','native','untaggedNetworkUri')]
         [ValidateNotNullorEmpty()]
         [Object]$untaggedNetwork=$null,
 
-        [parameter(Position = 5, Mandatory=$false)]
+        [parameter(Position = 5, Mandatory = $false)]
         [validaterange(2,20000)]
         [int32]$typicalBandwidth = $null, 
         
-        [parameter(Position = 6, Mandatory=$false)]
+        [parameter(Position = 6, Mandatory = $false)]
         [validaterange(100,20000)]
         [int32]$maximumBandwidth = $Null
 
@@ -11695,10 +11864,10 @@ function Remove-HPOVNetworkSet {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
         
-        [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default", HelpMessage="Specify the Network Set(s) to remove.", Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default", HelpMessage = "Specify the Network Set(s) to remove.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
@@ -12110,7 +12279,7 @@ function Get-HPOVInterconnect {
 
     [CmdLetBinding()]
     Param (
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [String]$name = $null,
 
        [parameter (Mandatory = $false)]
@@ -12429,14 +12598,14 @@ function Update-HPOVLogicalInterconnect {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter(Mandatory = $false, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage="Specify the Logical Interconnect to Update.", Position = 0)]
-        [parameter(Mandatory = $false, ValueFromPipeline = $true, ParameterSetName = "Reapply", HelpMessage="Specify the Logical Interconnect to Update.", Position = 0)]
+        [parameter(Mandatory = $false, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.", Position = 0)]
+        [parameter(Mandatory = $false, ValueFromPipeline = $true, ParameterSetName = "Reapply", HelpMessage = "Specify the Logical Interconnect to Update.", Position = 0)]
         [Alias('uri', 'li')]
         [object]$name = $null,
 
-        [parameter(Mandatory = $true, ValueFromPipeline = $false, ParameterSetName = "Reapply", HelpMessage="Reapply the Logical Interconnect configuration. Does not update from parent Logical Interconnect Group.")]
+        [parameter(Mandatory = $true, ValueFromPipeline = $false, ParameterSetName = "Reapply", HelpMessage = "Reapply the Logical Interconnect configuration. Does not update from parent Logical Interconnect Group.")]
         [switch]$Reapply
     )
 
@@ -12749,7 +12918,7 @@ function Download-MacTable {
 
     [CmdLetBinding()]
     Param (
-        [parameter(Mandatory=$true, HelpMessage="Specify the URI of the object to download.", Position=0)]
+        [parameter(Mandatory = $true, HelpMessage = "Specify the URI of the object to download.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({if ($_.startswith('/rest/logical-interconnects/')) { $true } else {throw "-URI must being with a '/rest/logical-interconnects/' in its value. Please correct the value and try again."}})]
         [string]$uri
@@ -12875,27 +13044,27 @@ function Install-HPOVLogicalInterconnectFirmware {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
         
-        [parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage="Specify the Logical Interconnect to Update.", Position = 0)]
+        [parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.", Position = 0)]
         [Alias('name','uri', 'li')]
         [object]$LogicalInterconnect = $null,
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage="Specify the Logical Interconnect to Update.", Position = 1)]
+        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.", Position = 1)]
         [ValidateSet('Update','Activate','Stage')]
         [string]$Method = "Update",
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage="Specify the Logical Interconnect to Update.", Position = 1)]
+        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.", Position = 1)]
         [ValidateSet('Odd','Even','All')]
         [Alias('Order')]
         [string]$ActivateOrder = "Odd",
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage="Specify the Logical Interconnect to Update.", Position = 2)]
+        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.", Position = 2)]
         [Alias('spp')]
         [object]$Baseline = $null,
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage="Specify the Logical Interconnect to Update.")]
+        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [switch]$Force
 
     )
@@ -13184,10 +13353,10 @@ function Get-HPOVLogicalInterconnectGroup {
 
     [CmdLetBinding()]
     Param (
-       [parameter (Position = 0, Mandatory=$false)]
+       [parameter (Position = 0, Mandatory = $false)]
        [String]$name = $null,
 
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [alias("x", "export")]
        [ValidateScript({split-path $_ | Test-Path})]
        [String]$exportFile
@@ -13262,44 +13431,44 @@ function New-HPOVLogicalInterconnectGroup {
 
     [CmdletBinding(DefaultParameterSetName = "Default")]
     param (
-        [Parameter(Mandatory=$True,ParameterSetName="Default",HelpMessage="Please specify the Logical Interconnect Name", Position = 0)]
+        [Parameter(Mandatory = $True, ParameterSetName = "Default",HelpMessage = "Please specify the Logical Interconnect Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('ligname')]
         [String]$Name,
         
-        [Parameter(Mandatory=$True,ValueFromPipeline = $true,ParameterSetName="Default",HelpMessage="Please specify the Interconnect Modules in Hashtable format for all Interconnect Bays", Position = 1)]
+        [Parameter(Mandatory = $True,ValueFromPipeline = $true, ParameterSetName = "Default",HelpMessage = "Please specify the Interconnect Modules in Hashtable format for all Interconnect Bays", Position = 1)]
         [Hashtable]$Bays,
 
-        [Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable IGMP Snooping", Position = 2)]
+        [Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable IGMP Snooping", Position = 2)]
 		[Alias("IGMPSnoop")]
         [bool]$enableIgmpSnooping = $False,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="IGMP Idle Timeout Interval (1-3600 [sec])", Position = 3)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "IGMP Idle Timeout Interval (1-3600 [sec])", Position = 3)]
         [ValidateRange(1,3600)]
 		[Alias('IGMPIdle')]
 	    [int]$igmpIdleTimeoutInterval = 260,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Fast MAC Cache Failover", Position = 4)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Fast MAC Cache Failover", Position = 4)]
 		[Alias('FastMAC')]
 	    [bool]$enableFastMacCacheFailover = $True,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Fast MAC Cache Failover Interval (1-30 [sec])", Position = 5)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Fast MAC Cache Failover Interval (1-30 [sec])", Position = 5)]
         [ValidateRange(1,30)]
 		[Alias('FastMACRefresh')]
     	[int]$macRefreshInterval = 5,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Network Loop Protection on the Downlink Ports)", Position = 6)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Network Loop Protection on the Downlink Ports)", Position = 6)]
 		[Alias('LoopProtect')]
 	    [bool]$enableNetworkLoopProtection = $True,
 
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable Network Pause Flood Protection on the Downlink Ports)", Position = 7)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Network Pause Flood Protection on the Downlink Ports)", Position = 7)]
 		[Alias('PauseProtect')]
 	    [bool]$enablePauseFloodProtection = $True,
 		
-		[Parameter(Mandatory=$False,ParameterSetName="Default",HelpMessage="Enable SNMP Settings", Position = 8)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable SNMP Settings", Position = 8)]
 	    [hashtable]$SNMP = $null,
 
-        [Parameter(Mandatory=$True,ParameterSetName="Import",HelpMessage="Specify JSON source file to great Logical Interconnect Group")]
+        [Parameter(Mandatory = $True, ParameterSetName = "Import",HelpMessage = "Specify JSON source file to great Logical Interconnect Group")]
         [ValidateScript({split-path $_ | Test-Path})]
         [Alias('i')]
 	    [object]$Import
@@ -13454,7 +13623,7 @@ function Remove-HPOVLogicalInterconnectGroup {
     
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
         [parameter(Mandatory = $true, Position=0, ValueFromPipeline = $true,ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect Group(s) to remove.")]
         [ValidateNotNullOrEmpty()]
@@ -13462,7 +13631,7 @@ function Remove-HPOVLogicalInterconnectGroup {
         [Alias("name")]
         $lig=$null,
 
-	    [parameter(Mandatory=$false)] 
+	    [parameter(Mandatory = $false)] 
         [switch]$force=$false
     )
 
@@ -13528,18 +13697,18 @@ function Get-HPOVUplinkSet {
 
     Param (
 
-        [Parameter(Position = 0, Mandatory=$false, ParameterSetName = "Name")]
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Name")]
         [string]$name = $null,
 
-        [Parameter(Position = 1, Mandatory=$false, ParameterSetName = "Name")]
-        [Parameter(Position = 1, Mandatory=$false, ParameterSetName = "Type")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Name")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Type")]
         [string]$liName = $null,
 
-        [Parameter(Position = 0, Mandatory=$false, ParameterSetName = "Type")]
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Type")]
         [ValidateSet('Ethernet','FibreChannel', IgnoreCase=$False)]
         [string]$type = $null,
 	
-		[Parameter(Mandatory=$false)]
+		[Parameter(Mandatory = $false)]
 		[switch]$report
     )
 	
@@ -13837,38 +14006,38 @@ function New-HPOVUplinkSet {
         [alias('ligName')]
         [object]$lig,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [alias('usName')]
         [string]$Name,
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [alias('usType')]
         [ValidateSet("Ethernet", "FibreChannel","Untagged","Tunnel", IgnoreCase=$false)]
         [string]$Type=$Null,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [alias('usNetworks')]
         [array]$Networks=@(),
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [Alias ('usNativeEthNetwork','Native','PVID')]
         [string]$nativeEthNetwork=$Null,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [Alias ('usUplinkPorts')]
         [ValidateScript({($_.Split(","))[0].contains(":")})]
         [array]$UplinkPorts=@(),
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [alias('usEthMode')]
         [ValidateSet("Auto", "Failover", IgnoreCase=$false)]
         [string]$EthMode="Auto",
         
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [ValidateSet("Short", "Long", IgnoreCase=$false)]
         [string]$lacpTimer = "Long",
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [ValidateSet("Auto", "2", "4", "8", IgnoreCase=$false)]
         [string]$fcUplinkSpeed = "Auto"
 
@@ -14018,7 +14187,7 @@ function New-HPOVUplinkSet {
             }
 
             #Add uplink ports
-            $logicalLocation = @{
+            $logicalLocation = [PSCustomObject]@{
                     
                 logicalLocation = @{
                         
@@ -14042,8 +14211,10 @@ function New-HPOVUplinkSet {
             #Set FC Uplink Port Speed
             if ($Type -eq "FibreChannel") { $logicalLocation.desiredSpeed = $script:SetUplinkSetPortSpeeds[$fcUplinkSpeed] }
             else { $logicalLocation.desiredSpeed = "Auto" }
+
+            Write-Verbose "[NEW-HPOVUPLINKSET] Adding Uplink Set to LIG: $($logicalLocation | out-string)"
                 
-            $uslogicalLocation += $logicalLocation
+            $uslogicalLocation += @($logicalLocation)
 
         }
 
@@ -14112,8 +14283,9 @@ function New-HPOVUplinkSet {
             "FibreChannel" { 
 
                 $fcUplinkSetObject.networkUris = @($usNetworkUris)
-                Write-Verbose "[NEW-HPOVUPLINKSET] $($ligObject.name) Uplink Set object: $($ethUplinkSetObject | convertto-json -depth 99)"
+                Write-Verbose "[NEW-HPOVUPLINKSET] $($ligObject.name) Uplink Set object: $($fcUplinkSetObject | convertto-json -depth 99)"
                 
+                $fcUplinkSetObject.logicalPortConfigInfos = $uslogicalLocation
                 $ligObject.uplinkSets += $fcUplinkSetObject 
 
             }
@@ -14146,30 +14318,30 @@ function Get-HPOVProfile {
     
     [CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory=$false, position=0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory=$false, position=0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory=$false, position=0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory=$false, position=0)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory = $false, position=0)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory = $false, position=0)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory = $false, position=0)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $false, position=0)]
         [Alias('profile')]
         [string]$name = $null,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory=$true)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory = $true)]
         [alias('report')]
         [switch]$List,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory=$true)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory = $true)]
         [switch]$detailed,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory=$false)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory=$false)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory=$false)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory = $false)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "List", Mandatory = $false)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $false)]
         [switch]$Unassigned,
         
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory=$true)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $true)]
         [alias("x")]
         [switch]$export,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory=$true)]
+        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [alias("save")]
         [string]$location
@@ -14574,8 +14746,9 @@ function New-HPOVProfile {
 
 	[CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
-        [parameter(Mandatory=$true,ParameterSetName="Default", Position = 0)]
-        [parameter(Mandatory=$true,ParameterSetName="SANStorageAttach", Position = 0)]
+        [parameter(Mandatory = $true, ParameterSetName = "Default", Position = 0)]
+        [parameter(Mandatory = $true, ParameterSetName = "EmptyBayAssign", Position = 0)]
+        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach", Position = 0)]
 		[ValidateNotNullOrEmpty()]
         [string]$name,
 
@@ -14584,79 +14757,105 @@ function New-HPOVProfile {
         [ValidateNotNullOrEmpty()]
         [object]$server="unassigned",
 
-        [parameter(Mandatory=$false,ParameterSetName="Default", position = 2)] 
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 2)]
+        [parameter(Mandatory = $false, ParameterSetName = "Default", position = 2)] 
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign", position = 1)] 
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 2)]
 		[string]$description=$null,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default", position = 3)]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 3)]
+        [parameter(Mandatory = $false, ParameterSetName = "Default", position = 3)]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign", position = 2)]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 3)]
 		[ValidateNotNullOrEmpty()]
         [array]$connections=@(),
 
-        [parameter(Mandatory=$false,ParameterSetName="Default",position = 4)]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 4)]
+        [parameter(Mandatory = $false, ParameterSetName = "Default",position = 4)]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 4)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('eg')]
         [object]$enclosureGroup=$Null,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default", position = 5)]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach", position = 5)]
+        [parameter(Mandatory = $false, ParameterSetName = "Default", position = 5)]
+        [parameter(Mandatory = $true, ParameterSetName = "EmptyBayAssign", position = 3)]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 5)]
         [ValidateNotNullOrEmpty()]
 		[Alias('sht')]
         [object]$serverHardwareType=$null,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $true, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [ValidateNotNullOrEmpty()]
+		[Alias('encl')]
+        [object]$enclosure=$null,
+        
+        [parameter(Mandatory = $true, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [ValidateNotNullOrEmpty()]
+		[Alias('bay')]
+        [object]$enclosureBay=$null,
+
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$firmware,
 	
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [object]$baseline = $null,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$forceInstallFirmware,
 	
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$bios = $false,
 
-	    [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+	    [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [array]$biosSettings=@(),
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
         [ValidateNotNullOrEmpty()]
         [bool]$manageBoot = $true,
 
-	    [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+	    [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [array]$bootOrder = @(‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’),
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$localstorage,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$Initialize,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]        
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [switch]$Bootable,
 
         [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("RAID1","RAID0","NONE", IgnoreCase=$true)]
         [string]$RaidLevel = $Null,
 
-        [parameter(Mandatory = $True,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $True, ParameterSetName = "SANStorageAttach")]
         [switch]$SANStorage,
 
         [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach")]
@@ -14676,22 +14875,26 @@ function New-HPOVProfile {
         [switch]$OddPathDisabled,
 
         [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Bay","BayAndServer", IgnoreCase=$false)]
         [string]$Affinity = "Bay",
 	
         [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$macAssignment = "Virtual",
 
         [parameter(Mandatory = $false,ParameterSetName = "Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "'UserDefined", IgnoreCase=$true)]
         [string]$wwnAssignment = "Virtual",
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="SANStorageAttach")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "EmptyBayAssign")]
+        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", IgnoreCase=$true)]
         [string]$snAssignment = "Virtual",
 
@@ -14731,7 +14934,24 @@ function New-HPOVProfile {
             serverHardwareUri     = $null;
             serverHardwareTypeUri = $null;
             enclosureGroupUri     = $null;
+            enclosureUri          = $null;
+            enclosureBay          = $null;
             sanStorage            = $null
+        }
+
+        #If either enclosure or enclosureBay are provided, but not the other, generate terminating error
+        if ($enclosure -and -not ($enclosureBay)) { 
+
+            $errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException ParameterNotSpecified InvalidArgument "New-HPOVProfile" -Message "The '-Enclosure' parameter was provided, but not '-EnclosureBay'. Please provide an Enclosure Bay value and try again." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)        
+            
+        }
+
+        if (-not ($enclosure) -and $enclosureBay) {             
+            
+            $errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException ParameterNotSpecified InvalidArgument "New-HPOVProfile" -Message "The '-EnclosureBay' parameter was provided, but not '-Enclosure'. Please provide an Enclosure Bay value and try again." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)        
+        
         }
 
     }
@@ -14905,50 +15125,196 @@ function New-HPOVProfile {
 		    # Creating an assigned profile
 		    else {
 			
-			    #Looking for the $server DTO to be string
-			    if ($server -is [string]) {
+                #Assign profile to specific Server resource
+                if ($server) {
+
+			        #Looking for the $server DTO to be string
+			        if ($server -is [string]) {
 				
-				    #If the server URI is passed, look up the server object
-				    if ($server.StartsWith($script:serversUri)) {
+				        #If the server URI is passed, look up the server object
+				        if ($server.StartsWith($script:serversUri)) {
 
-					    Write-Verbose "[NEW-HPOVPROFILE] Server URI passed: $server"
-					    [object]$server = Send-HPOVRequest $server
+					        Write-Verbose "[NEW-HPOVPROFILE] Server URI passed: $server"
+					        [object]$server = Send-HPOVRequest $server
 
-				    }
+				        }
 				
-				    #Else the name is passed and need to look it up.
-				    else{
+				        #Else the name is passed and need to look it up.
+				        else{
 
-					    [object]$server = Get-HPOVServer -name $server
+					        [object]$server = Get-HPOVServer -name $server
                     
-                        #An error should have been displayed if the server object wasn't found.
-                        if (-not ($server)){ break }
+                            #An error should have been displayed if the server object wasn't found.
+                            if (-not ($server)){ break }
 
-				    }
+				        }
 
-			    }
+			        }
 			
-			    Write-Verbose "[NEW-HPOVPROFILE] Server Object: $($server | out-string)"
+			        Write-Verbose "[NEW-HPOVPROFILE] Server Object: $($server | out-string)"
 
-			    #Check to make sure the server NoProfileApplied is true
-			    if (!$server.serverProfileUri) {
+			        #Check to make sure the server NoProfileApplied is true
+			        if (-not ($server.serverProfileUri)) {
 
-				    $serverProfile.serverHardwareUri = $server.uri
-				    $serverProfile.serverHardwareTypeUri = $server.serverHardwareTypeUri
+				        $serverProfile.serverHardwareUri = $server.uri
+				        $serverProfile.serverHardwareTypeUri = $server.serverHardwareTypeUri
                     
-                    #Handle Blade Server objects
-                    if ($server.serverGroupUri) { $serverProfile.enclosureGroupUri = $server.serverGroupUri }
+                        #Handle Blade Server objects
+                        if ($server.serverGroupUri) { $serverProfile.enclosureGroupUri = $server.serverGroupUri }
 
-			    }
-			    else {
+			        }
+			        else {
 
-                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerProfileAlreadyAssigned ResourceExists 'New-HPOVProfile' -Message "$((Send-HPOVRequest $server.serverProfileUri).name) already has a profile assigned, '$($serverProfile.name)'.  Please specify a different Server Hardware object." #-verbose
-				    $pscmdlet.ThrowTerminatingError($errorRecord)
+                        $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerProfileAlreadyAssigned ResourceExists 'New-HPOVProfile' -Message "$((Send-HPOVRequest $server.serverProfileUri).name) already has a profile assigned, '$($serverProfile.name)'.  Please specify a different Server Hardware object." #-verbose
+				        $pscmdlet.ThrowTerminatingError($errorRecord)
 
-			    }
+			        }
 
-                #Get the SHT of the SH that we are going to assign.
-                $serverHardwareType = Send-HPOVRequest $server.serverHardwareTypeUri
+                    #Get the SHT of the SH that we are going to assign.
+                    $serverHardwareType = Send-HPOVRequest $server.serverHardwareTypeUri
+                
+                }
+
+                #Assign Profile to specific empty device bay
+                elseif ($enclosure -and $enclosureBay) {
+
+                    Write-verbose "[NEW-HPOVPROFILE] creating server profile for empty device bay assignment."
+
+                    #Check to see what $enclosure is
+                    switch ($enclosure.gettype().name) {
+
+                        "String" { 
+                        
+                            #Correct URI
+                            if ($enclosure.StartsWith('/rest/enclosures')) {
+                                
+                                Write-verbose "[NEW-HPOVPROFILE] Recieved Enclosure URI: $enclosure"
+
+                                $enclosure = Send-HPOVRequest $enclosure
+
+                            }
+
+                            #Wrong URI and generate error
+                            elseif ($enclosure.StartsWith('/rest/')) {
+
+                                Write-verbose "[NEW-HPOVPROFILE] Recieved incorrect Enclosure URI: '$enclosure'.  Generating terminating error."
+
+                                $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureResourceUri InvalidArgument 'New-HPOVProfile' -Message "The -enclosure parameter value '$enclosure' is not the correct URI.  Enclosure URI must begin with '/rest/enclosures'. Please correct this value and try again." #-verbose
+				                $pscmdlet.ThrowTerminatingError($errorRecord)
+
+                            }
+
+                            #Value is Enclosure Name
+                            else {
+
+                                Write-verbose "[NEW-HPOVPROFILE] Recieved Enclosure Name: $enclosure"
+
+                                $enclousre = Get-HPOVEnclosure $enclosure
+
+                            }
+                        
+                        }
+                        "PSCustomObject" { 
+
+                            if ($enclosure.category -eq 'enclosures') {
+                        
+                                Write-Verbose "[NEW-HPOVPROFILE] Enclosure object provided"
+                                Write-verbose "[NEW-HPOVPROFILE] Enclosure Object Name: $($enclosure.name)"
+                                Write-verbose "[NEW-HPOVPROFILE] Enclosure Object URI: $($enclosure.uri)"
+
+                            }
+                            else {
+
+                                Write-verbose "[NEW-HPOVPROFILE] Recieved incorrect Enclosure Object. Recieved category: $($enclosure.category)"
+
+                                $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureResourceObject InvalidArgument 'New-HPOVProfile' -Message "The -enclosure parameter object category '$($enclosure.category)' provided is not the correct value.  The resource category value should be 'enclosures'.  Please correct this value and try again." #-verbose
+				                $pscmdlet.ThrowTerminatingError($errorRecord)
+
+                            }
+                        
+                        }
+
+                    }
+
+                    #Validate no server hardware is present within the requested device bay
+                    write-verbose "[NEW-HPOVPROFILE] Checking $enclosureBay if it is empty."
+
+                    #generate terminating error if bay devicePresent is not "absent"
+                    if (($enclosure | ? { $_.bayNumber -eq $enclosureBay }).devicePresence -ne 'absent') {
+
+                        
+
+                    }
+
+                    $serverProfile.enclosureUri      = $enclosure.uri
+                    $serverProfile.enclosureGroupUri = $enclosure.enclosureGroupUri
+
+                    #Check ServerHardwareType value
+			        switch ($serverHardwareType.GetType().name) {
+
+                        "String" {
+
+				            if ($serverHardwareType.StartsWith($script:serverHardwareTypesUri)){ 
+                        
+                                Write-Verbose "[NEW-HPOVPROFILE] SHT URI Provided: $serverHardwareType" 
+
+                                $serverProfile.serverHardwareTypeUri = $serverHardwareType
+                                $serverHardwareType = Send-HPOVRequest $serverHardwareType
+                        
+                            }
+				
+				            #Otherwise, perform a lookup ofthe SHT based on the name
+				            else {
+
+                                Write-Verbose "[NEW-HPOVPROFILE] SHT Name Provided: $serverHardwareType"
+
+					            $serverHardwareType = Get-HPOVServerHardwareType -name $serverHardwareType
+
+                                if ($serverHardwareType) {
+
+					                $serverProfile.serverHardwareTypeUri = $serverHardwareType.uri
+					                Write-Verbose "[NEW-HPOVPROFILE] SHT URI: $serverHardwareTypeUri"
+                                }
+
+                                else {
+
+                                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeParameter InvalidArgument 'New-HPOVPropfile' -Message "" #-verbose
+                                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                                }
+
+				            }
+
+			            }
+                        
+                        #SHT object is passed
+                        "PSCustomObject" {
+
+                            if($serverHardwareType.category -eq 'server-hardware-types') {
+                                
+                                Write-Verbose "[NEW-HPOVPROFILE] ServerHardwareType object provided"
+                                Write-Verbose "[NEW-HPOVPROFILE] ServerHardwareType Name: $($serverHardwareType.name)"
+                                Write-Verbose "[NEW-HPOVPROFILE] ServerHardwareType Uri: $($serverHardwareType.uri)"
+
+                                $serverProfile.serverHardwareTypeUri = $serverHardwareType.uri
+
+                            }
+                            else {
+
+                                Write-verbose "[NEW-HPOVPROFILE] Recieved incorrect Server Hardware Type Object. Recieved category: $($serverHardwareType.category)"
+
+                                $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureResourceObject InvalidArgument 'New-HPOVProfile' -Message "The -enclosure parameter object category '$($enclosure.category)' provided is not the correct value.  The resource category value should be 'enclosures'.  Please correct this value and try again." #-verbose
+				                $pscmdlet.ThrowTerminatingError($errorRecord)
+
+                            }
+                    
+                        }
+
+                    }
+
+                    Write-Verbose "[NEW-HPOVPROFILE] Creating Server Profile for empty device bay: '$enclosureBay' in '$($enclosure.name)' with Server Hardware Type: $($serverHardwareType.name)"
+
+                }
 
 		    }
 
@@ -15068,6 +15434,7 @@ function New-HPOVProfile {
                     volumeAttachments = @()
                 }
                 
+                #Copy the parameter array into a new object
                 [Array]$volumesToAttach = $StorageVolume | % { $_ }
                 
                 write-verbose "[NEW-HPOVPROFILE] Volumes to process $($volumesToAttach | out-string)"
@@ -15443,15 +15810,15 @@ function Remove-HPOVProfile {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+    [CmdLetBinding(DefaultParameterSetName = "default", SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param (
-        [parameter (Mandatory=$true,ValueFromPipeline=$true,ParameterSetName="default", HelpMessage="Specify the profile(s) to remove.", Position=0)]
+        [parameter (Mandatory = $true,ValueFromPipeline=$true, ParameterSetName = "default", HelpMessage = "Specify the profile(s) to remove.", Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
-        [object]$profile=$null,
+        [System.Object]$profile = $null,
 
-        [parameter (Mandatory=$false,ValueFromPipeline=$false,ParameterSetName="default", HelpMessage="Specify to force-remove the profile.")]
+        [parameter (Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify to force-remove the profile.")]
         [Switch]$force
     )
 
@@ -15515,7 +15882,7 @@ function Get-HPOVProfileConnectionList {
 	
 	[CmdLetBinding()]
     Param (
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string]$name=$null
     )
@@ -15612,117 +15979,117 @@ function New-HPOVProfileConnection {
 	[CmdLetBinding(DefaultParameterSetName = "Ethernet")]
     Param (
 
-        [parameter(Mandatory=$true,ParameterSetName="Ethernet")]
-		[parameter(Mandatory=$true,ParameterSetName="FC")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+        [parameter(Mandatory = $true, ParameterSetName = "Ethernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "FC")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [parameter(Position=0)]
 		[Alias('id')]
-        [int]$connectionID=1,
+        [int]$connectionID = 1,
 
-        [parameter(Mandatory=$true,ParameterSetName="Ethernet")]
-		[parameter(Mandatory=$true,ParameterSetName="FC")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+        [parameter(Mandatory = $true, ParameterSetName = "Ethernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "FC")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [ValidateSet("Ethernet", "FibreChannel","Eth","FC", IgnoreCase=$true)]
         [parameter(Position=1)]   
 		[Alias('type')]
-		[string]$connectionType="Ethernet",
+		[string]$connectionType = "Ethernet",
 
-        [parameter(Mandatory=$true,ParameterSetName="Ethernet")]
-	    [parameter(Mandatory=$true,ParameterSetName="FC")]
-        [parameter(Mandatory=$true,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-	    [parameter(Mandatory=$true,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "Ethernet")]
+	    [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "FC")]
+        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "UserDefinedFC")]
+	    [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [parameter(Position=2)]
         [object]$network,
 
-        [parameter(Mandatory=$false,ParameterSetName="Ethernet")]
-		[parameter(Mandatory=$false,ParameterSetName="FC")]
-        [parameter(Mandatory=$false,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$false,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$false,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$false,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$false,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$false,ParameterSetName="bootUserDefinedFC")]
+        [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+        [parameter(Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [parameter(Position=3)]
-        [string]$portId="Auto",
+        [string]$portId = "Auto",
 
-	    [parameter(Mandatory=$false,ParameterSetName="Ethernet")]
-		[parameter(Mandatory=$false,ParameterSetName="FC")]
-        [parameter(Mandatory=$false,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$false,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$false,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$false,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$false,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$false,ParameterSetName="bootUserDefinedFC")]
+	    [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+        [parameter(Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateRange(100,10000)]
-        [int]$requestedBW=2500,
+        [int]$requestedBW = 2500,
 	
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
         [ValidateNotNullOrEmpty()]
-        [switch]$userDefined=$false,
+        [switch]$userDefined = $false,
 
-        [parameter(Mandatory=$true,ParameterSetName="UserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+        [parameter(Mandatory = $true, ParameterSetName = "UserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:macAddressPattern})]
         [string]$mac = $Null,
 	
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:wwnAddressPattern})]
-        [string]$wwnn=$Null,
+        [string]$wwnn = $Null,
 		
-		[parameter(Mandatory=$true,ParameterSetName="UserDefinedFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "UserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:wwnAddressPattern})]
-        [string]$wwpn=$Null,
+        [string]$wwpn = $Null,
 	
-	    [parameter(Mandatory=$true,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+	    [parameter(Mandatory = $true, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
         [ValidateNotNullOrEmpty()]
-        [switch]$bootable=$false,
+        [switch]$bootable,
 	
-		[parameter(Mandatory=$true,ParameterSetName="bootEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedEthernet")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedEthernet")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [ValidateSet("UseBIOS", "Primary","Secondary", IgnoreCase=$true)]
-		[string]$priority="NotBootable",
+		[string]$priority = "NotBootable",
 	
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateScript({$_ -match $script:wwnAddressPattern})]
-		[string]$arrayWwpn=$null,
+		[string]$arrayWwpn = $null,
 	
-		[parameter(Mandatory=$true,ParameterSetName="bootFC")]
-		[parameter(Mandatory=$true,ParameterSetName="bootUserDefinedFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootFC")]
+		[parameter(Mandatory = $true, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateRange(0,254)]
-		[int]$lun=0
+		[int]$lun = 0
 	
 	)
 	
@@ -15743,170 +16110,227 @@ function New-HPOVProfileConnection {
 
 		
 		Write-Verbose -message ("ParameterSet: " + $PsCmdLet.ParameterSetName)
-		
-		#If the Network object was passed, we have the specifics.
-		if ($network -is [PSCustomObject]){
-
-            write-verbose "[NEW-HPOVPROFILECONNECTION] Network resource provided via parameter"
-            write-verbose "[NEW-HPOVPROFILECONNECTION] Network Name:  $($network.name)"
-            write-verbose "[NEW-HPOVPROFILECONNECTION] Network Category:  $($network.category)"
-            write-verbose "[NEW-HPOVPROFILECONNECTION] User specified '$($connectionType)' ConnectionType"
-			$networkUri = $network.uri
-			
-			#If the object type is "network-set", we need to set the networkType to Ethernet as Network-Set is not a valid Connection Type.
-			if (($network.type -eq "network-set") -or ($network.type -eq "ethernet-networkV2")){
-				$networkType = "Ethernet"
-			}
-			elseif($network.type -eq "fc-networkV2"){
-				$networkType = "FibreChannel"
-			}
-
-			switch -Regex ($connectionType) {
-				#"Ethernet" {
-                "\beth\b|\bethernet\b" {
-                    write-verbose "Setting Connection Type to 'Ethernet'"
-                    $connectionType = "Ethernet"
-				}
-				#"FibreChannel" {
-                "\bFC\b|\bfibrechannel\b" {
-                    write-verbose "Setting Connection Type to 'FibreChannel'"
-                    $connectionType = "FibreChannel"
-				}
-			}
-
-		}
-		
-		#Othwerwise search for the network object
-		else {
-			
-            if ($network -is [String] -and $network.startswith($script:ethNetworksUri)) { 
-            
-                write-verbose "[NEW-HPOVPROFILECONNECTION] Locating Ethernet Resource via its URI"
-		    	$resp = Send-HPOVRequest $network
-                $connectionType = "Ethernet"
-            
-            }
-            elseif ($network -is [String] -and $network.startswith($script:networkSetsUri)) {
-            
-                write-verbose "[NEW-HPOVPROFILECONNECTION] Locating Network Set Resource via its URI"
-		    	$resp = Send-HPOVRequest $network
-                $connectionType = "Ethernet"
-            
-            }
-            elseif ($network -is [String] -and $network.startswith($script:ethNetworksUri)) {
-            
-                write-verbose "[NEW-HPOVPROFILECONNECTION] Locating FibreChannel Resource via its URI"
-		    	$resp = Send-HPOVRequest $network
-                $connectionType = "FibreChannel"
-                            
-            }
-
-            else {
-                write-verbose "[NEW-HPOVPROFILECONNECTION] User provided Network Name: $($network)"
-                write-verbose "[NEW-HPOVPROFILECONNECTION] User provided ConnectionType: $($connectionType)"
-		    	#need to search by the connection type specified by the parameter
-		    	switch -Regex ($connectionType) {
-		    		#"Ethernet" {
-                    "\beth\b|\bethernet\b" {
-
-                        write-verbose "[NEW-HPOVPROFILECONNECTION] Locating Ethernet Resource"
-		    			#$resp = Send-HPOVRequest ($script:indexUri + "?query=name:`"$network`"&category:ethernet-networks")
-                        $resp = Send-HPOVRequest ($script:indexUri + "?category=ethernet-networks&query=name='$network'")
-		    			
-		    			#If no results were found, let's check for the Network Set
-		    			If ($resp.count -eq 0) {
-		    				write-verbose "[NEW-HPOVPROFILECONNECTION] Ethernet Network resource not found.  Looking for Network Set resource."
-                            #$resp = Send-HPOVRequest ($script:indexUri + "?query=name:`"$network`"&category:network-sets")
-                            $resp = Send-HPOVRequest ($script:indexUri + "?category=network-sets&query=name='$network'")
-		    			}
-                        $connectionType = "Ethernet"
-		    		}
-		    		#"FibreChannel" {
-                    "\bFC\b|\bfibre\b|\bfibrechannel\b" {
-		    			write-verbose "[NEW-HPOVPROFILECONNECTION] Locating FibreChannel Resource"
-                        #Send-HPOVRequest "/rest/index/resources?category=fc-networks&query=name='fabric a'"
-                        $resp = Send-HPOVRequest ($script:indexUri + "?category=fc-networks&query=name='$network'")
-                        $connectionType = "FibreChannel"
-		    		}
-		    	}
-            }
-		    	
-		    If ($resp.count -eq 0) {
-		    	ConvertTo-Json -InputObject $resp -Depth 99 | Write-Verbose
-                $errorRecord = New-ErrorRecord InvalidOperationException NetworkResourceNotFound ObjectNotFound 'New-HPOVProfileConnection' -Message "$Network was not found.  Please check the name and try again." #-verbose
-		    	$PSCmdlet.ThrowTerminatingError($errorRecord)
-                #Write-Error -Message "$Network was not found.  Please check the name and try again." -Category 'ObjectNotFound' -CategoryTargetName "New-HPOVProfileConnection"
-		    	#break
-		    }
-		    elseif ($resp.count -gt 1) {
-		    	ConvertTo-Json -InputObject $resp -Depth 99 | Write-Verbose
-                $errorRecord = New-ErrorRecord InvalidOperationException NonUniqueResultFound InvalidResult 'New-HPOVProfileConnection' -Message "$Network is not unique.  Found $($resp.count) objects with the same name.  Use either Get-HPOVNetwork or Get-HPOVNetworkSet to return the specific Ethernet object." #-verbose
-		    	$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		    	#Write-Error -Message "$Network is not unique.  Found $($resp.count) objects with the same name.  Use either Get-HPOVNetwork or Get-HPOVNetworkSet to return the specific Ethernet object." -Category 'InvalidResult' -CategoryTargetName "New-HPOVProfileConnection"
-		    	#break
-		    }
-		    
-		    
-		    Write-Verbose "NETWORK URI: $($resp.members.uri)"
-		    Write-Verbose "NETWORK TYPE: $($resp.members.category)"
-		    If ($resp.members.category -eq "ethernet-networks"){
-		    	Write-Verbose "[NEW-HPOVPROFILECONNECTION] ETHERNET VLAN ID: $resp.members.attributes.vlan_id"
-		    }
-		    
-		    $networkUri = $resp.members.uri
-		    
-		    #If the returned object category is "network-set" the type needs to be set to Ethernet.
-		    if (($resp.members.category -eq "network-sets") -or ($resp.members.category -eq "ethernet-networks")){
-		    	$networkType = "Ethernet"
-		    }
-		    elseif($resp.members.category -eq "fc-networks"){
-		    	$networkType = "FibreChannel"
-		    }
-
-        }
-		
-		#write an error and break if the network category does not match the connection type requedsted
-        write-verbose -message ("Network Type: " + $networkType)
-		If ($networkType -ne $connectionType){
-            $errorRecord = New-ErrorRecord InvalidOperationException NetworkTypeMismatch InvalidOperation 'New-HPOVProfileConnection' -Message "$Network type '$networkType' is a mismatch to the requested connection type $connectionType. Please provide a valid connection type that matches the network." #-verbose
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-            #Write-Error -Message "$Network is not the requested connection type $connectionType. Please provide a valid connection type that matches the network." -Category 'InvalidOperation' -CategoryTargetName "New-HPOVProfileConnection" -RecommendedAction 'Provide a network name of the same type requested.'
-            #Break
-		}
-		
-		#validate the provided network type
-		If (($connectionType -eq 'fibrechannel') -and ($bootable)){
-			If(!$arrayWwpn){
 				
-                $errorRecord = New-ErrorRecord ArgumentNullException InvalidFcBootParameters InvalidArgument 'New-HPOVProfileConnection' -Message "FC Boot specified, and no array target WWPN is provided." #-verbose
-			    $PSCmdlet.ThrowTerminatingError($errorRecord)
-                #Write-Error -Message "FC Boot specified, and no array WWPN is provided"
-				#break
-			}
-			$boot = @{priority=$priority;targets=@(@{arrayWwpn=$arrayWwpn;lun=($lun.ToString())})}
+        $connection = [pscustomobject]@{
+            
+            id            = $connectionId;
+			functionType  = $connectionType;
+		    portId        = $portId; 
+		    networkUri    = $null; 
+		    requestedMbps = $requestedBW; 
+		    boot          = @{
+
+                priority = $priority
+
+            }
+
 		}
-		If (($connectionType -eq 'Ethernet') -and ($bootable)){
-			$boot = @{priority=$priority}
-		}
+
 	}
 
-	Process{
+	Process {
+
+        switch ($network.Gettype().Name) {
+
+
+            "String" {
+
+                #Ethernet Network URI
+                if ($network.startswith($script:ethNetworksUri)) { 
+            
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] Locating Ethernet Resource via its URI"
+
+		    	    $net = Send-HPOVRequest $network
+
+                    $connection.functionType = "Ethernet"
+            
+                }
+
+                #Network Set URI
+                elseif ($network.startswith($script:networkSetsUri)) {
+            
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] Locating Network Set Resource via its URI"
+
+		    	    $net = Send-HPOVRequest $network
+                
+                    $connection.functionType = "Ethernet"
+            
+                }
+
+                #FC Network URI
+                elseif ($network.startswith($script:ethNetworksUri)) {
+            
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] Locating FibreChannel Resource via its URI"
+
+		    	    $net = Send-HPOVRequest $network
+
+                    $connection.functionType = "FibreChannel"
+                            
+                }
+                
+                #Generate Error due to incorrect URI value
+                elseif ($network.startswith('/rest/')) {
+                    
+                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileConnectionException InvalidNetworkUri InvalidArgument 'New-HPOVProfileConnection' -Message "The -Network value URI '$($Network)' does not begin with either '/rest/ethernet-networks', '/rest/fc-networks' or '/rest/network-sets'.  Please check the value and try again." #-verbose
+		    	    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                }
+
+                #Network Name
+                else {
+
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] User provided Network Name: $($network)"
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] User provided ConnectionType: $($connectionType)"
+
+		    	    #need to search by the connection type specified by the parameter
+		    	    switch ($connectionType) {
+
+                        { @("eth", "ethernet") -contains $_ } {
+
+                            write-verbose "[NEW-HPOVPROFILECONNECTION] Locating Ethernet Resource"
+		    			
+                            $net = Send-HPOVRequest ($script:indexUri + "?category=ethernet-networks&query=name='$network'")
+		    			
+		    			    #If no results were found, let's check for the Network Set
+		    			    If ($net.count -eq 0) {
+
+		    				    write-verbose "[NEW-HPOVPROFILECONNECTION] Ethernet Network resource not found.  Looking for Network Set resource."
+                            
+                                $net = Send-HPOVRequest ($script:indexUri + "?category=network-sets&query=name='$network'")
+		    			    }
+
+                            $connection.functionType = "Ethernet"
+
+		    		    }
+		    		    
+                        { @("FC", "fibre","fibrechannel") -contains $_ } {
+
+		    			    write-verbose "[NEW-HPOVPROFILECONNECTION] Locating FibreChannel Resource"
+
+                            $net = Send-HPOVRequest ($script:indexUri + "?category=fc-networks&query=name='$network'")
+
+                            $connection.functionType = "FibreChannel"
+
+		    		    }
+
+		    	    }
+
+                }
+		    	
+		        If ($net.count -eq 0) {
+
+		    	    ConvertTo-Json -InputObject $net -Depth 99 | Write-Verbose
+
+                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileConnectionException NetworkResourceNotFound ObjectNotFound 'New-HPOVProfileConnection' -Message "$Network was not found.  Please check the name and try again." #-verbose
+		    	    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		        }
+		        elseif ($resp.count -gt 1) {
+
+		    	    ConvertTo-Json -InputObject $net -Depth 99 | Write-Verbose
+
+                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileConnectionException NonUniqueResultFound InvalidResult 'New-HPOVProfileConnection' -Message "$Network is not unique.  Found $($net.count) objects with the same name.  Use either Get-HPOVNetwork or Get-HPOVNetworkSet to return the specific Ethernet object." #-verbose
+		    	    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		        }
+		    
+		        Write-Verbose "[NEW-HPOVPROFILECONNECTION] NETWORK URI: $($net.members.uri)"
+
+		        If ($resp.members.category -eq "ethernet-networks"){
+
+		    	    Write-Verbose "[NEW-HPOVPROFILECONNECTION] ETHERNET VLAN ID: $($net.members.attributes.vlan_id)"
+
+		        }
+		    
+		        $connection.networkUri = $net.members.uri
+
+            }
+
+            "PSCustomObject" {
+
+                if ($network.category -eq "fc-networks" -or $network.category -eq "ethernet-networks" -or $network.category -eq "network-sets") {
+                
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] Network resource provided via parameter"
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] Network Name:  $($network.name)"
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] Network Category:  $($network.category)"
+                    write-verbose "[NEW-HPOVPROFILECONNECTION] User specified '$($connectionType)' ConnectionType"
+
+			        $connection.networkUri = $network.uri
+			
+			        #If the object type is "network-set", we need to set the networkType to Ethernet as Network-Set is not a valid Connection Type.
+			        if (($network.type -eq "network-set") -or ($network.type -eq "ethernet-networkV2")){
+
+                        $connection.functionType = "Ethernet"
+                        
+			        }
+
+			        elseif($network.type -eq "fc-networkV2"){
+
+                        $connection.functionType = "FibreChannel"
+			        }
+                
+                }
+
+                #Generate Error due to incorrect cagtegory
+                else {
+
+                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileConnectionException InvalidNetworkCategory InvalidArgument 'New-HPOVProfileConnection' -Message "The -Network value category '$($Network.category)' is not 'ethernet-networks', 'fc-networks' or 'network-sets'.  Please check the value and try again." #-verbose
+		    	    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                }
+
+            }
+
+        }
+	
+		#write an error and break if the network category does not match the connection type requested
+        write-verbose "[NEW-HPOVPROFILECONNECTION] Network Type: $($connection.functionType)"
+
+		If ($connection.functionType -ne $connectionType){
+
+            $errorRecord = New-ErrorRecord InvalidOperationException NetworkTypeMismatch InvalidOperation 'New-HPOVProfileConnection' -Message "$Network type '$($connection.functionType)' is a mismatch to the requested connection type $connectionType. Please provide a valid connection type that matches the network." #-verbose
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
 		
-		$connection = [pscustomobject]@{id=$connectionId;
-				functionType=$connectionType;
-		        portId=$portId; 
-		        networkUri=$networkUri; 
-		        requestedMbps=$requestedBW; 
-		        boot=$boot
-			}
+		#Set conneciton boot settings
+        if ($bootable) {
+
+            $connection.boot.priority = $priority
+
+            if ($connectionType -eq 'fibrechannel') {
+
+                
+			    If(!$arrayWwpn){
+				
+                    $errorRecord = New-ErrorRecord ArgumentNullException InvalidFcBootParameters InvalidArgument 'New-HPOVProfileConnection' -Message "FC Boot specified, and no array target WWPN is provided." #-verbose
+			        $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			    }
+
+                $bootTagets = @(
+                    
+                    @{
+                        arrayWwpn = $arrayWwpn;
+                        lun       = ($lun.ToString())
+
+                    }
+
+                )
+
+            }
+
+        }
 
 		if ($userDefined){
+
 			if ($connectionType -eq "Ethernet"){
 
     			$connection | Add-Member -type NoteProperty -Name macType -Value "UserDefined" -force
 				$connection | Add-Member -type NoteProperty -Name mac -Value $mac -force
+
 			}
+
 			if ($connectionType -eq "FibreChannel"){
 
 				$connection | Add-Member -type NoteProperty -Name macType -Value "UserDefined" -force
@@ -15914,14 +16338,21 @@ function New-HPOVProfileConnection {
                 $connection | Add-Member -type NoteProperty -Name wwpnType -Value "UserDefined" -force
 				$connection | Add-Member -type NoteProperty -Name wwnn -Value $wwnn -force
                 $connection | Add-Member -type NoteProperty -Name wwpn -Value $wwpn -force
+
 			}
 			
 			return $connection
+
 		}
+
 		else{
+
 			return $connection
+
 		}
+
 	}
+
 }
 
 function New-HPOVProfileAttachVolume {
@@ -15931,34 +16362,34 @@ function New-HPOVProfileAttachVolume {
 	[CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
 
-        [parameter(Mandatory=$true,ParameterSetName="Default")]
-        [parameter(Mandatory=$True,ParameterSetName="ManualLunIdType")]
+        [parameter(Mandatory = $true, ParameterSetName = "Default")]
+        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]
 		[ValidateNotNullOrEmpty()]
 	    [parameter(Position=0)]
 		[Alias('id')]
         [int]$VolumeID = 1,
 
-        [parameter(Mandatory=$true, ValueFromPipeline = $True, ParameterSetName="Default")]
-        [parameter(Mandatory=$True, ValueFromPipeline = $True, ParameterSetName="ManualLunIdType")]
+        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName="Default")]
+        [parameter(Mandatory = $True, ValueFromPipeline = $True, ParameterSetName="ManualLunIdType")]
 		[ValidateNotNullOrEmpty()]
 	    [parameter(Position=1)]
         [object]$Volume = $Null,
 
-        [parameter(Mandatory=$False,ParameterSetName="Default")]
-        [parameter(Mandatory=$True,ParameterSetName="ManualLunIdType")]	
+        [parameter(Mandatory = $False, ParameterSetName = "Default")]
+        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]	
         [ValidateNotNullOrEmpty()]
 	    [ValidateSet("Auto","Manual", IgnoreCase=$False)]
         [parameter(Position=2)]   
 		[Alias('type')]
         [string]$LunIdType="Auto",
 
-        [parameter(Mandatory=$True,ParameterSetName="ManualLunIdType")]
+        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]
 		[ValidateRange(0,254)]
 	    [parameter(Position=3)]
         [int]$LunID,
 
-        [parameter(Mandatory=$false,ParameterSetName="Default")]
-        [parameter(Mandatory=$false,ParameterSetName="ManualLunIdType")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "ManualLunIdType")]
 		[ValidateRange(1,32)]
 	    [parameter(Position=4)]
         [int]$ProfileConnectionID
@@ -16071,16 +16502,16 @@ function Search-HPOVIndex  {
 
     [CmdLetBinding()]
     Param (
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [string]$search=$null,
 
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [string]$category=$null,
 
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [int]$count=50,
 
-       [parameter (Mandatory=$false)]
+       [parameter (Mandatory = $false)]
        [int]$start=0
     )
 
@@ -16132,19 +16563,19 @@ function Search-HPOVAssociations {
 
     [CmdLetBinding()]
     Param (
-       [parameter (Mandatory=$false,Position=0)]
+       [parameter (Mandatory = $false,Position=0)]
        [string]$associationName=$null,
 
-       [parameter (Mandatory=$false,Position=1)]
+       [parameter (Mandatory = $false,Position=1)]
        [string]$startObjUri=$null,
 
-       [parameter (Mandatory=$false,Position=2)]
+       [parameter (Mandatory = $false,Position=2)]
        [string]$endObjUri=$null,
 
-       [parameter (Mandatory=$false,Position=3)]
+       [parameter (Mandatory = $false,Position=3)]
        [int]$count=50,
 
-       [parameter (Mandatory=$false,Position=4)]
+       [parameter (Mandatory = $false,Position=4)]
        [int]$start=0
     )    
 
@@ -16393,11 +16824,11 @@ function Wait-HPOVTaskAccepted  {
 
 	[CmdletBinding()]
 	Param(
-		[parameter(Mandatory=$true, ValueFromPipeline = $True, HelpMessage="Enter the task URI or task object")]
+		[parameter(Mandatory = $true, ValueFromPipeline = $True, HelpMessage = "Enter the task URI or task object")]
 		[Alias('taskuri')]
         [object]$task,
 
-        [parameter(Mandatory=$false,HelpMessage="Enter the new value for the global parameter")]
+        [parameter(Mandatory = $false,HelpMessage = "Enter the new value for the global parameter")]
         [timespan]$timeout=$script:defaultTimeout
 	)
 
@@ -16419,14 +16850,14 @@ function Wait-HPOVTaskStart  {
 
 	[CmdletBinding()]
 	Param (
-		[parameter(Mandatory=$true,ValueFromPipeline = $True, HelpMessage="Enter the task URI or task object")]
+		[parameter(Mandatory = $true,ValueFromPipeline = $True, HelpMessage = "Enter the task URI or task object")]
 		[Alias('taskuri')]
         [object]$task,
 
-        [parameter(Mandatory=$false,HelpMessage="Provide the resource name the task is for, which is displayed in the Write-Progress output.")]
+        [parameter(Mandatory = $false,HelpMessage = "Provide the resource name the task is for, which is displayed in the Write-Progress output.")]
         [string]$resourceName,
 
-        [parameter(Mandatory=$false,HelpMessage="Enter the new value for the global parameter")]
+        [parameter(Mandatory = $false,HelpMessage = "Enter the new value for the global parameter")]
         [timespan]$timeout=$script:defaultTimeout
 	) 
 
@@ -16663,10 +17094,10 @@ function Get-HPOVUser {
 
 	[CmdLetBinding()]
     Param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [string]$Name=$null,
 
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory = $false)]
         [Alias('list')]
         [switch]$Report
     )
@@ -16747,29 +17178,29 @@ function New-HPOVUser {
 
 	[CmdletBinding()]
 	Param (
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]$userName, 
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [string]$password, 
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [string]$fullName, 
 
-        [parameter(Mandatory=$true)]
+        [parameter(Mandatory = $true)]
         [array]$roles=@(),
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [validatescript({$_ -as [Net.Mail.MailAddress]})]
         [string]$emailAddress=$null,
 
-        [parameter(Mandatory=$false)] 
+        [parameter(Mandatory = $false)] 
         [string]$officePhone=$null,
      
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [string]$mobilePhone=$null,
      
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [switch]$enabled
     )
 
@@ -16848,30 +17279,30 @@ function Set-HPOVUser {
         [parameter(Position = 0, Mandatory = $true)]
         [string]$userName, 
 
-        [parameter(Position = 1, Mandatory=$false)]
+        [parameter(Position = 1, Mandatory = $false)]
         [string]$password, 
 
-        [parameter(Position = 2, Mandatory=$false)]
+        [parameter(Position = 2, Mandatory = $false)]
         [string]$fullName, 
 
-        [parameter(Position = 3, Mandatory=$false)]
+        [parameter(Position = 3, Mandatory = $false)]
         [array]$roles=@(),
 
-        [parameter(Position = 4, Mandatory=$false)]
+        [parameter(Position = 4, Mandatory = $false)]
         [validatescript({$_ -as [Net.Mail.MailAddress]})]
         [string]$emailAddress=$null,
 
-        [parameter(Position = 5, Mandatory=$false)] 
+        [parameter(Position = 5, Mandatory = $false)] 
         [string]$officePhone=$null,
      
-        [parameter(Position = 6, Mandatory=$false)]
+        [parameter(Position = 6, Mandatory = $false)]
         [string]$mobilePhone=$null,
      
-        [parameter(Position = 7, Mandatory=$false)]
+        [parameter(Position = 7, Mandatory = $false)]
         [alias('enable')]
         [switch]$enabled,
 
-        [parameter(Position = 8, Mandatory=$false)]
+        [parameter(Position = 8, Mandatory = $false)]
         [alias('disable')]
         [switch]$disabled
     )
@@ -17119,9 +17550,9 @@ function Remove-HPOVUser {
 	 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+	[CmdletBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
 	param(
-         [parameter(Mandatory=$true,ValueFromPipeline=$false,HelpMessage="Enter the User Account Name to delete from the appliance",Position=0,ParameterSetName="default")]
+         [parameter(Mandatory = $true,ValueFromPipeline=$false,HelpMessage = "Enter the User Account Name to delete from the appliance",Position=0, ParameterSetName = "default")]
          [ValidateNotNullOrEmpty()]
          [alias("u","user")]
          [string]$userName
@@ -17167,7 +17598,7 @@ function Show-HPOVUserSession {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default")]
+    [CmdLetBinding(DefaultParameterSetName = "default")]
     Param ()
 
     Begin {
@@ -17204,7 +17635,7 @@ function Get-HPOVRole {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default")]
+    [CmdLetBinding(DefaultParameterSetName = "default")]
     Param (
         [parameter (Position = 0, Mandatory = $true, ParameterSetName = "default", HelpMessage = "Specify the username.")]
         [ValidateNotNullOrEmpty()]
@@ -17245,12 +17676,12 @@ function Set-HPOVUserRole {
 
     [CmdLetBinding()]
     Param (
-        [parameter (Mandatory=$true)]
+        [parameter (Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [Alias("user")]
         [String]$userName=$null,
 
-        [parameter (Mandatory=$true)]
+        [parameter (Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [alias('roleName')]
         [array]$roles
@@ -17335,26 +17766,23 @@ function Set-HPOVInitialPassword  {
     [CmdLetBinding(DefaultParameterSetName = 'Default')]
     Param (
 
-        [parameter (Position = 0, Mandatory=$true, ParameterSetName = 'Appliance')]
-        [ValidateNotNullOrEmpty()]
-        [String]$appliance = $Null,
-
-        [parameter (Position = 1, Mandatory=$true, ParameterSetName = 'Appliance')]
-        [parameter (Position = 0, Mandatory=$true, ParameterSetName = 'password')]
+        [parameter (Position = 0, Mandatory = $true, ParameterSetName = 'Appliance')]
+        [parameter (Position = 0, Mandatory = $true, ParameterSetName = 'password')]
         [ValidateNotNullOrEmpty()]
         [Alias("user")]
-        [String]$userName="Administrator",
+        [String]$userName = "Administrator",
 
-        [parameter (Position = 2, Mandatory=$true, ParameterSetName = 'Appliance')]
-        [parameter (Position = 1, Mandatory=$true, ParameterSetName = 'password')]
+        [parameter (Position = 1, Mandatory = $true, ParameterSetName = 'Appliance')]
+        [parameter (Position = 1, Mandatory = $true, ParameterSetName = 'password')]
         [ValidateNotNullOrEmpty()]
         [string]$oldPassword,
 
-        [parameter (Position = 3, Mandatory=$true, ParameterSetName = 'Appliance')]
-        [parameter (Position = 2, Mandatory=$true, ParameterSetName = 'password')]
+        [parameter (Position = 2, Mandatory = $true, ParameterSetName = 'Appliance')]
+        [parameter (Position = 2, Mandatory = $true, ParameterSetName = 'password')]
         [ValidateNotNullOrEmpty()]
         [string]$newPassword
 	)
+
 
     Begin { }
 
@@ -17378,20 +17806,20 @@ function Get-HPOVLdap {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName='Default')]
+	[CmdletBinding(DefaultParameterSetName = 'Default')]
 	param (
-		[Parameter(Position=0, Mandatory=$false, ParameterSetName='Default')]
+		[Parameter(Position=0, Mandatory = $false, ParameterSetName='Default')]
         [Alias('directory','domain')]
 		[String]$Name,
 
-        [Parameter(Mandatory=$false,ParameterSetName='Default')]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default')]
         [switch]$Report,
 
-        [Parameter(Mandatory=$true,ParameterSetName='Export')]
+        [Parameter(Mandatory = $true, ParameterSetName = 'Export')]
         [Alias('x')]
         [switch]$Export,
 
-        [Parameter(Position=1,Mandatory=$true,ParameterSetName='Export')]
+        [Parameter(Position=1,Mandatory = $true, ParameterSetName = 'Export')]
         [Alias('location')]
         [ValidateScript({split-path $_ | Test-Path})]
         [string]$Save
@@ -17475,42 +17903,42 @@ function New-HPOVLdap {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName='AD')]
+	[CmdletBinding(DefaultParameterSetName = 'AD')]
 	param(
-		[Parameter(Position=0, Mandatory=$true,ParameterSetName="AD")]
-        [Parameter(Position=0, Mandatory=$true,ParameterSetName="LDAP")]
+		[Parameter(Position=0, Mandatory = $true, ParameterSetName = "AD")]
+        [Parameter(Position=0, Mandatory = $true, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[String]$Name,
 
-		[Parameter(Mandatory=$true,ParameterSetName="AD")]
+		[Parameter(Mandatory = $true, ParameterSetName = "AD")]
 		[Switch]$AD,
 
-		[Parameter(Mandatory=$true,ParameterSetName="LDAP")]
+		[Parameter(Mandatory = $true, ParameterSetName = "LDAP")]
 		[Switch]$LDAP,
 
-		[Parameter(Position=2,Mandatory=$true,ParameterSetName="AD")]
-        [Parameter(Position=2,Mandatory=$true,ParameterSetName="LDAP")]
+		[Parameter(Position=2,Mandatory = $true, ParameterSetName = "AD")]
+        [Parameter(Position=2,Mandatory = $true, ParameterSetName = "LDAP")]
 		[Alias('root')]
         [String]$RootDN,
 
-        [Parameter(Position=3,Mandatory=$true,ParameterSetName="AD")]
-        [Parameter(Position=3,Mandatory=$true,ParameterSetName="LDAP")]
+        [Parameter(Position=3,Mandatory = $true, ParameterSetName = "AD")]
+        [Parameter(Position=3,Mandatory = $true, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[String]$SearchContext,
 
-        [Parameter(Position=4,Mandatory=$true,ParameterSetName="AD")]
-        [Parameter(Position=4,Mandatory=$true,ParameterSetName="LDAP")]
+        [Parameter(Position=4,Mandatory = $true, ParameterSetName = "AD")]
+        [Parameter(Position=4,Mandatory = $true, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Array]$Servers,
 
-        [Parameter(Position=5,Mandatory=$true,ParameterSetName="AD")]
-        [Parameter(Position=5,Mandatory=$true,ParameterSetName="LDAP")]
+        [Parameter(Position=5,Mandatory = $true, ParameterSetName = "AD")]
+        [Parameter(Position=5,Mandatory = $true, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Alias('u','user')]
         [String]$Username,
 
-        [Parameter(Position=6,ValueFromPipeline=$true,Mandatory=$true,ParameterSetName="AD")]
-        [Parameter(Position=6,ValueFromPipeline=$true,Mandatory=$true,ParameterSetName="LDAP")]
+        [Parameter(Position=6,ValueFromPipeline=$true,Mandatory = $true, ParameterSetName = "AD")]
+        [Parameter(Position=6,ValueFromPipeline=$true,Mandatory = $true, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Alias('p','pass')]
         [SecureString]$Password
@@ -17569,9 +17997,9 @@ function Remove-HPOVLdap {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+	[CmdletBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
 	param(
-         [parameter(Mandatory=$true,ValueFromPipeline=$true,HelpMessage="Enter the Directory name",Position=0,ParameterSetName="default")]
+         [parameter(Mandatory = $true,ValueFromPipeline=$true,HelpMessage = "Enter the Directory name",Position=0, ParameterSetName = "default")]
          [ValidateNotNullOrEmpty()]
          [alias("d")]
          [Object]$Directory
@@ -17635,15 +18063,15 @@ function New-HPOVLdapServer {
 
 	[CmdletBinding()]
 	param(
-		[Parameter(Position=0, Mandatory=$true)]
+		[Parameter(Position=0, Mandatory = $true)]
 		[String]$Name = $Null,
 
-		[Parameter(Position=1, Mandatory=$false)]
+		[Parameter(Position=1, Mandatory = $false)]
 		[Alias('port')]
         [ValidateRange(1,65535)]
         [Int32]$SSLPort = 636,
 
-        [Parameter(Position=2, Mandatory=$true)]
+        [Parameter(Position=2, Mandatory = $true)]
         [Alias('cert')]
         [Object]$Certificate = $Null
 	)
@@ -17695,17 +18123,17 @@ function Show-HPOVLdapGroups {
 
 	[CmdletBinding()]
 	param(
-         [parameter(Mandatory=$true,HelpMessage="Enter the user name",Position=0)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the user name",Position=0)]
          [ValidateNotNullOrEmpty()]
          [alias("u")]
          [string]$UserName,
 
-         [parameter(Mandatory=$true,ValueFromPipeline=$true,HelpMessage="Enter the password",Position=1)]
+         [parameter(Mandatory = $true,ValueFromPipeline=$true,HelpMessage = "Enter the password",Position=1)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [SecureString]$password,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directory name",Position=2)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directory name",Position=2)]
          [ValidateNotNullOrEmpty()]
          [alias("d","domain","directory")]
          [string]$authProvider
@@ -17754,16 +18182,16 @@ function Get-HPOVLdapGroup {
 
 	[CmdletBinding()]
 	param(
-        [parameter(Mandatory=$false,HelpMessage="Enter the Directroy Group Name",Position=0)]
+        [parameter(Mandatory = $false,HelpMessage = "Enter the Directroy Group Name",Position=0)]
         [alias("group","name")]
         [string]$GroupName,
 
-        [parameter(Mandatory=$false,HelpMessage="Provide the filename to export to",Position=1)]
+        [parameter(Mandatory = $false,HelpMessage = "Provide the filename to export to",Position=1)]
         [alias("e","x")]
         [ValidateScript({split-path $_ | Test-Path})]
         [string]$Export,
 
-        [parameter(Mandatory=$false)]
+        [parameter(Mandatory = $false)]
         [Alias('Report')]
         [switch]$List
     )
@@ -17807,27 +18235,27 @@ function New-HPOVLdapGroup {
 
 	[CmdletBinding()]
 	param(
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directory name",Position=0)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directory name",Position=0)]
          [ValidateNotNullOrEmpty()]
          [alias("d","domain","directory")]
          [string]$authProvider,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directroy Group name",Position=1)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directroy Group name",Position=1)]
          [ValidateNotNullOrEmpty()]
          [alias("g","group","name")]
          [string]$GroupName,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directroy Group roles in System.Array format",Position=2)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directroy Group roles in System.Array format",Position=2)]
          [ValidateNotNullOrEmpty()]
          [alias("r","role")]
          [Array]$Roles,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the user name",Position=3)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the user name",Position=3)]
          [ValidateNotNullOrEmpty()]
          [alias("u")]
          [string]$UserName,
 
-         [parameter(Mandatory=$true,ValueFromPipeline=$true,HelpMessage="Enter the password",Position=4)]
+         [parameter(Mandatory = $true,ValueFromPipeline=$true,HelpMessage = "Enter the password",Position=4)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [SecureString]$Password
@@ -17901,27 +18329,27 @@ function Set-HPOVLdapGroupRole {
 
 	[CmdletBinding()]
 	param(
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directory name",Position=0)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directory name",Position=0)]
          [ValidateNotNullOrEmpty()]
          [alias("d","domain","directory")]
          [string]$authProvider,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directroy Group name",Position=1)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directroy Group name",Position=1)]
          [ValidateNotNullOrEmpty()]
          [alias("g","group","name")]
          [string]$GroupName,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the Directroy Group roles in System.Array format",Position=2)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the Directroy Group roles in System.Array format",Position=2)]
          [ValidateNotNullOrEmpty()]
          [alias("r","role")]
          [Array]$Roles,
 
-         [parameter(Mandatory=$true,HelpMessage="Enter the user name",Position=3)]
+         [parameter(Mandatory = $true,HelpMessage = "Enter the user name",Position=3)]
          [ValidateNotNullOrEmpty()]
          [alias("u")]
          [string]$UserName,
 
-         [parameter(Mandatory=$true,ValueFromPipeline=$true,HelpMessage="Enter the password",Position=4)]
+         [parameter(Mandatory = $true,ValueFromPipeline=$true,HelpMessage = "Enter the password",Position=4)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [SecureString]$Password
@@ -17993,9 +18421,9 @@ function Remove-HPOVLdapGroup {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName="default",SupportsShouldProcess=$True,ConfirmImpact='High')]
+	[CmdletBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
 	param (
-         [parameter(Mandatory=$true,ValueFromPipeline=$true,HelpMessage="Enter the Directory Group name",Position=0,ParameterSetName="default")]
+         [parameter(Mandatory = $true,ValueFromPipeline=$true,HelpMessage = "Enter the Directory Group name",Position=0, ParameterSetName = "default")]
          [ValidateNotNullOrEmpty()]
          [alias("g")]
          [Object]$Group
@@ -18052,9 +18480,9 @@ Function Get-HPOVAuditLog {
 
     # .ExternalHelp HPOneView.110.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName="default")]
+    [CmdLetBinding(DefaultParameterSetName = "default")]
     Param (
-        [parameter(Mandatory=$false,ValueFromPipeline=$false,ParameterSetName="default",HelpMessage="Specify the folder location to save the audit log file.")]
+        [parameter(Mandatory = $false,ValueFromPipeline=$false, ParameterSetName = "default",HelpMessage = "Specify the folder location to save the audit log file.")]
         [Alias("save")]
         [string]$Location = (get-location).Path
     )
@@ -18117,11 +18545,11 @@ function Get-HPOVAlert {
          [ValidateSet('Appliance', 'DeviceBay', 'Enclosure', 'Fan', 'Firmware', 'Host', 'Instance', 'InterconnectBay', 'LogicalSwitch', 'Logs', 'ManagementProcessor', 'Memory', 'Network', 'Operational', 'Power', 'Processor', 'RemoteSupport', 'Storage', 'Thermal', 'Unknown')]
          [string]$healthCategory=$null,
 
-         [parameter(Mandatory=$false, HelpMessage="Filter by User",Position=3, ParameterSetName = "Default")]
+         [parameter(Mandatory = $false, HelpMessage = "Filter by User",Position=3, ParameterSetName = "Default")]
          [ValidateNotNullOrEmpty()]
          [String]$assignedToUser=$null,
 
-         [parameter(Mandatory=$false,  HelpMessage="Alert state",Position=4, ParameterSetName = "Default")]
+         [parameter(Mandatory = $false,  HelpMessage = "Alert state",Position=4, ParameterSetName = "Default")]
          [ValidateNotNullOrEmpty()]
          [String]$alertState=$null
     )
@@ -18227,11 +18655,11 @@ function Set-HPOVAlertAssignToUser {
 
     [CmdLetBinding()]
     Param(
-        [parameter (Mandatory=$true)]
+        [parameter (Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$alertUri,
 
-        [parameter (Mandatory=$false)]
+        [parameter (Mandatory = $false)]
         [string]$assignedToUser=$NULL
 	)
 
@@ -18260,11 +18688,11 @@ function Clear-HPOVAlert  {
 
     [CmdLetBinding()]
     Param(
-        [parameter (Mandatory=$true)]
+        [parameter (Mandatory = $true)]
         [ValidateNotNullOrEmpty()]
         [String]$alertUri,
 
-        [parameter (Mandatory=$false)]
+        [parameter (Mandatory = $false)]
         [Bool]$cleared = $true
 	)
 
@@ -18292,54 +18720,9 @@ function Clear-HPOVAlert  {
 }
 
 function Set-HPOVAlert  {
-    <#
-        .SYNOPSIS
-        Change status of an alert.
 
-        .DESCRIPTION
-        Alerts can be in one of two administratively controlled states: Active or Cleared.  This CMDLET allows the administrator to change the status of an alert to either Active or Cleared.
+    # .ExternalHelp HPOneView.110.psm1-help.xml
 
-        In order for an Administrator to change the status of an Alert, the Administrator must be assigned to the respective resource role (Network, Server, Storage, or Infrastructure.)
-
-        .PARAMETER alert
-        The alert to be cleared.  Can be Name, URI or resource object.
-
-        .PARAMETER cleared
-        Change the alert to 'Cleared' status.
-
-        .PARAMETER active
-        Change the alert to 'Active' status.
-
-        .INPUTS
-        System.String
-        Alert Name or URI.
-
-        .INPUTS
-        System.ObjectSystem.Management.Automation.PSCustomObject
-        Alert resource object (i.e. Get-HPOVAlert).
-
-        .OUTPUTS
-        System.ObjectSystem.Management.Automation.PSCustomObject
-        The updated alert.
-
-        .LINK
-        Get-HPOVAlert
-
-        .LINK
-        Set-HPOVAlertAssignToUser
-
-        .LINK
-        https://hponeview.codeplex.com/wikipage?title=Clear-HPOVAlert
-
-        .EXAMPLE
-        PS C:\> Clear-HPOVAlert /rest/alerts/11 -cleared
-
-		Clears the alert.
-
-        .EXAMPLE
-        PS C:\> Get-HPOVAlert 
-	
-    #>
     [CmdLetBinding()]
 
     Param(
@@ -18356,11 +18739,11 @@ function Set-HPOVAlert  {
         [String]$notes,
 
         [parameter (Mandatory = $true, ParameterSetName = 'Cleared')]
-        [parameter (Mandatory=$false)]
+        [parameter (Mandatory = $false)]
         [switch]$cleared,
 
         [parameter (Mandatory = $true, ParameterSetName = 'Active')]
-        [parameter (Mandatory=$false)]
+        [parameter (Mandatory = $false)]
         [switch]$active
 
 	)
@@ -18380,7 +18763,12 @@ function Set-HPOVAlert  {
 
     Process {
 
-        if (-not $alert) { write-error "Alert parameter is required." }
+        if (-not $alert) { 
+        
+            $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Get-HPOVAlert' -Message "The required parameter -alert was not provided." #-verbose
+            $PsCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
 
         if ($Pipelineinput) { write-verbose "[GET-HPOVALERT] Resource provided via pipeline." }
 
@@ -18391,6 +18779,7 @@ function Set-HPOVAlert  {
 
             write-verbose "[SET-HPOVALERT] Resource parameter does not contain a URI.  Resource Object: $($alert | out-string)"
             write-verbose "[SET-HPOVALERT] Generating terminating error."
+
             $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Get-HPOVAlert' -Message "The resource object provided does not contain a URI.  Please check the parameter value and try again." #-verbose
             $PsCmdlet.ThrowTerminatingError($errorRecord)
 
@@ -18430,17 +18819,17 @@ function Get-HPOVLicense {
     
     [CmdletBinding(DefaultParameterSetName = "Values")]
     param(
-        [Parameter(Mandatory=$False,ParameterSetName="Values",HelpMessage="Please specify the type of license you wish to generate a report for. Accepted values are `"OneView`", `"OneViewNoiLO`", or `"all`".")]
+        [Parameter(Mandatory = $False, ParameterSetName = "Values",HelpMessage = "Please specify the type of license you wish to generate a report for. Accepted values are `"OneView`", `"OneViewNoiLO`", or `"all`".")]
         [ValidateSet("OneView", "OneViewNoiLO","all")]
         [parameter(Position=0)]
         [String]$Type,
         
-        [Parameter(Mandatory=$False,ParameterSetName="Values",HelpMessage="Please specify the license state you wish to generate a report for. Accepted values are `"Unlicensed`" or `"Permanent`".")]
+        [Parameter(Mandatory = $False, ParameterSetName = "Values",HelpMessage = "Please specify the license state you wish to generate a report for. Accepted values are `"Unlicensed`" or `"Permanent`".")]
         [ValidateSet("Unlicensed", "Permanent",$null)]
         [parameter(Position=1)]
         [String]$State,
 
-        [Parameter(Mandatory=$False,ParameterSetName="Values")]
+        [Parameter(Mandatory = $False, ParameterSetName = "Values")]
         [Switch]$Summary
     
     )
@@ -18618,11 +19007,11 @@ function New-HPOVLicense {
     
     [CmdletBinding(DefaultParameterSetName = "licenseKey")]
     param(
-        [Parameter(Position=0, Mandatory=$true, ParameterSetName="licenseKey",HelpMessage="Please specify the license you wish to install")]
+        [Parameter(Position=0, Mandatory = $true, ParameterSetName="licenseKey",HelpMessage = "Please specify the license you wish to install")]
         [ValidateNotNullOrEmpty()]
         [String]$LicenseKey,
         
-        [Parameter(Position=0, Mandatory=$true,ParameterSetName="InputFile",HelpMessage="Please specify the license file")]
+        [Parameter(Position=0, Mandatory = $true, ParameterSetName = "InputFile",HelpMessage = "Please specify the license file")]
         [ValidateScript({Test-Path $_})]
         [String]$File
 
@@ -18657,7 +19046,135 @@ function New-HPOVLicense {
 			if ($ret.errorCode -contains "LICENSE_ALREADY_EXISTS"){ Write-Error "Key already exists: `n$key" -Category ResourceExists -CategoryTargetName "New-HPOVLicense" }
             $ret
 		}
+
 	}
+
+}
+
+########################################################
+# HP Support CMDLETs
+
+function Enable-HPOVDebug {
+
+    # .ExternalHelp HPOneView.110.psm1-help.xml
+    
+    [CmdletBinding(DefaultParameterSetName = "default")]
+    param(
+        [Parameter(Position=0, Mandatory = $true, ParameterSetName="default",HelpMessage = "Provide the debug Scope.")]
+        [ValidateNotNullOrEmpty()]
+        [String]$Scope,
+
+        [Parameter(Position = 1, Mandatory = $true, ParameterSetName="default",HelpMessage = "Provide the component Logger Name.")]
+        [ValidateNotNullOrEmpty()]
+        [String]$LoggerName,
+
+        [Parameter(Position = 2, Mandatory = $true, ParameterSetName="default",HelpMessage = "Specify the verbose log level (ERROR, WARN, DEBUG or TRACE are allowed).")]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet('ERROR','WARN','DEBUG','TRACE', IgnoreCase = $False)]
+        [String]$Level
+    )
+
+    Begin {
+
+        write-host
+        Write-Warning "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        Write-Warning "!!! FOR HP SUPPORT USE ONLY. DO NOT USE UNLESS OTHERWISE INSTRUCTED TO BY HP SUPPORT !!!"
+        Write-Warning "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        write-host
+
+        $body = [PSCustomObject]@{
+
+            scope      = $Scope;
+            loggerName = $LoggerName;
+            level      = $Level
+
+        }
+
+    }
+
+    Process {
+
+        Write-Verbose "[ENABLE-HPOVDEBUG] Setting '$Level' at '$Scope`:$LoggerName'"
+        $resp = Send-HPOVRequest $script:applianceDebugLogSetting POST $body
+
+    }
+
+    end {
+
+        if ([int]$script:lastWebResponse.StatusCode -eq 200) {
+
+            "'{0}:{1}' successfully set to '{2}'" -f $Scope,$LoggerName,$Level
+            Write-Warning "Remember to set '$Scope`:$LoggerName' back to 'INFO' with 'Disable-HPOVDebug $Scope $LoggerName'"
+
+        }
+        else {
+
+            "Unable to set '{0}:{1}' to '{2}' logging level. HTTP Error {3}" -f $Scope,$LoggerName,$Level,[int]$script:lastWebResponse.StatusCode
+
+        }
+
+    }
+
+}
+
+function Disable-HPOVDebug {
+
+    # .ExternalHelp HPOneView.110.psm1-help.xml
+
+    [CmdletBinding(DefaultParameterSetName = "default")]
+    param(
+        [Parameter(Position=0, Mandatory = $true, ParameterSetName="default",HelpMessage = "Provide the debug Scope.")]
+        [ValidateNotNullOrEmpty()]
+        [String]$Scope,
+
+        [Parameter(Position = 1, Mandatory = $true, ParameterSetName="default",HelpMessage = "Provide the component Logger Name.")]
+        [ValidateNotNullOrEmpty()]
+        [String]$LoggerName
+
+    )
+
+    Begin {
+
+        $Level= "INFO"
+
+        write-host
+        Write-Warning "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        Write-Warning "!!! FOR HP SUPPORT USE ONLY. DO NOT USE UNLESS OTHERWISE INSTRUCTED TO BY HP SUPPORT !!!"
+        Write-Warning "!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!"
+        write-host
+
+        $body = [PSCustomObject]@{
+
+            scope      = $scope;
+            loggerName = $loggerName;
+            level      = $Level
+
+        }
+
+    }
+
+    Process {
+
+        Write-Verbose "[ENABLE-HPOVDEBUG] Setting '$Level' at '$scope`:$loggerName'"
+        $resp = Send-HPOVRequest $script:applianceDebugLogSetting POST $body
+
+    }
+
+    end {
+
+        if ([int]$script:lastWebResponse.StatusCode -eq 200) {
+
+            "'{0}:{1}' successfully set to '{2}'" -f $Scope,$LoggerName,$Level
+
+        }
+        else {
+
+            "Unable to set '{0}:{1}' to '{2}' logging level. HTTP Error {3}" -f $Scope,$LoggerName,$Level,[int]$script:lastWebResponse.StatusCode
+
+        }
+
+    }
+
 }
 
 ########################################################
@@ -18727,6 +19244,8 @@ Export-ModuleMember -Function Show-HPOVSSLCertificate
 Export-ModuleMember -Function Import-HPOVSSLCertificate
 Export-ModuleMember -Function Restart-HPOVAppliance
 Export-ModuleMember -Function Stop-HPOVAppliance
+Export-ModuleMember -Function Enable-HPOVDebug
+Export-ModuleMember -Function Disable-HPOVDebug
 
 #Server hardware and enclosures:
 Export-ModuleMember -Function Get-HPOVServer

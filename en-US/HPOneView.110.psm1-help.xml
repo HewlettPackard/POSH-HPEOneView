@@ -2272,6 +2272,129 @@ The name of the destination server profile that will be created.  If omitted, th
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
+    <!--DISABLE-HPOVDEBUG-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Disable-HPOVDebug</command:name>
+            <maml:description>
+                <maml:para>Disable specific appliance-level component debug logging.</maml:para>
+            </maml:description>
+            <command:verb>Disable</command:verb>
+            <command:noun>HPOVDebug</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>FOR HP SUPPORT USE ONLY.  This cmdlet will disable appliance level component debug logging for during issue triage, by setting the Level to INFO.  Do not use this cmdlet unless otherwise instructed by HP Support.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Disable-HPOVDebug</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>Scope</maml:name>
+                    <maml:description>
+                        <maml:para>The Scope of the LoggerName.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>LoggerName</maml:name>
+                    <maml:description>
+                        <maml:para>The internal component name.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                <maml:name>Scope</maml:name>
+                <maml:description>
+                    <maml:para>The Scope of the LoggerName.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                <maml:name>LoggerName</maml:name>
+                <maml:description>
+                    <maml:para>The internal component name.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title></maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code> 
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Enable-HPOVDebug</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Disable-HPOVDebug</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
     <!--DISCONNECT-HPOVMGMT-->
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
         <command:details>
@@ -2350,6 +2473,159 @@ The name of the destination server profile that will be created.  If omitted, th
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
                 <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Disconnect-HPOVMgmt</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
+    <!--ENABLE-HPOVDEBUG-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Enable-HPOVDebug</command:name>
+            <maml:description>
+                <maml:para>Enable specific appliance-level component debug logging.</maml:para>
+            </maml:description>
+            <command:verb>Enable</command:verb>
+            <command:noun>HPOVDebug</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>FOR HP SUPPORT USE ONLY.  This cmdlet will enable appliance level component debug logging for during issue triage.  Do not use this cmdlet unless otherwise instructed by HP Support.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Enable-HPOVDebug</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>Scope</maml:name>
+                    <maml:description>
+                        <maml:para>The Scope of the LoggerName.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>LoggerName</maml:name>
+                    <maml:description>
+                        <maml:para>The internal component name.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                    <maml:name>Level</maml:name>
+                    <maml:description>
+                        <maml:para>The verbose level to enable.  Allowed values are:
+
+&#8226; ERROR
+&#8226; WARN
+&#8226; DEBUG
+&#8226; TRACE</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                <maml:name>Scope</maml:name>
+                <maml:description>
+                    <maml:para>The Scope of the LoggerName.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                <maml:name>LoggerName</maml:name>
+                <maml:description>
+                    <maml:para>The internal component name.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                <maml:name>Level</maml:name>
+                <maml:description>
+                    <maml:para>The verbose level to enable.  Allowed values are:
+
+&#8226; ERROR
+&#8226; WARN
+&#8226; DEBUG
+&#8226; TRACE</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title></maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code> 
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Disable-HPOVDebug</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Enable-HPOVDebug</maml:uri>
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
@@ -7744,7 +8020,7 @@ PS C:\&gt; Get-HPOVScmbCertificates $directory
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
                     <maml:name>name</maml:name>
                     <maml:description>
-                        <maml:para>The name or URI of the server hardware resource to be returned.  All server hardware resources will be returned if omitted.</maml:para>
+                        <maml:para>The name of the server hardware resource to be returned.  All server hardware resources will be returned if omitted.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -7771,7 +8047,7 @@ PS C:\&gt; Get-HPOVScmbCertificates $directory
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
                 <maml:name>name</maml:name>
                 <maml:description>
-                    <maml:para>The name or URI of the server hardware resource to be returned.  All server hardware resources will be returned if omitted.</maml:para>
+                    <maml:para>The name of the server hardware resource to be returned.  All server hardware resources will be returned if omitted.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -14500,7 +14776,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -14553,7 +14829,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -14674,7 +14950,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -14763,7 +15039,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -14852,7 +15128,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -14925,7 +15201,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -15010,7 +15286,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -15079,7 +15355,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
                         <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
@@ -15339,7 +15615,7 @@ PS C:\&gt; $con41 = New-HPOVProfileConnection 1 Ethernet $net41
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; $con41 = Get-HPOVNetwork "Net-41" | New-HPOVProfileConnection -connectionId 1 -connectionType Ethernet -network $_
+                <dev:code>PS C:\&gt; $con41 = Get-HPOVNetwork "Net-41" | New-HPOVProfileConnection -connectionId 1 -connectionType Ethernet
 </dev:code>
                 <dev:remarks>
                     <maml:para>Create a Network Connection ID 1, that is assigned to Net41 network, with Auto Port assignment.</maml:para>
@@ -15372,8 +15648,7 @@ PS C:\&gt; $con42 = New-HPOVProfileConnection -connectionId 2 -connectionType Et
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; $FabricA = Get-HPOVNetwork "Fabric A"
-PS C:\&gt; $conFabricA = New-HPOVProfileConnection -connectionId 3 -connectionType FibreChannel -network $FabricA -bootable -priority Primary -arrayWwpn '20:21:00:02:AC:00:15:2C' -lun 1
+                <dev:code>PS C:\&gt; $conFabricA = Get-HPOVNetwork "Fabric A" | New-HPOVProfileConnection -connectionId 3 -connectionType FibreChannel -bootable -priority Primary -arrayWwpn '20:21:00:02:AC:00:15:2C' -lun 1
 </dev:code>
                 <dev:remarks>
                     <maml:para>Create a Server Profile Connection ID 3, assigned to Fabric A that is FC BfS Primary bootable.</maml:para>
@@ -15389,8 +15664,7 @@ PS C:\&gt; $conFabricA = New-HPOVProfileConnection -connectionId 3 -connectionTy
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; $net41 = Get-HPOVNetwork "Net-41"
-PS C:\&gt; $con41 = New-HPOVProfileConnection -connectionId 1 -connectionType Ethernet -network $net41 -userdefined -mac 11:22:33:44:55:66
+                <dev:code>PS C:\&gt; $con41 =  Get-HPOVNetwork "Net-41" | New-HPOVProfileConnection -connectionId 1 -connectionType Ethernet -userdefined -mac 11:22:33:44:55:66
 </dev:code>
                 <dev:remarks>
                     <maml:para>Create a Network Connection ID 1, that is assigned to Net41 network, with Auto Port assignment and custom MAC Address.</maml:para>
@@ -15538,7 +15812,7 @@ The Enclosure Group resource the Server Profile will be bound to.  Only required
                     <maml:name>serverHardwareType</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile will be bound to.  Only required when Server value is "Unassigned".</maml:para>
+The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -15773,7 +16047,25 @@ The Enclosure Group resource the Server Profile will be bound to.  Only required
                     <maml:name>serverHardwareType</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile will be bound to.  Only required when Server value is "Unassigned".</maml:para>
+The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>enclosure</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-encl]
+Specify the Enclosure Name, URI or object.  The parameter enclosureBay must also be specified.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>enclosureBay</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-bay]
+The Enclosure device bay number/ID.  Must also provide enclosure parameter.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -16013,6 +16305,242 @@ Default: Virtual serial number and UUID assignment</maml:para>
             </command:syntaxItem> 
             <command:syntaxItem>
                 <maml:name>New-HPOVProfile</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>name</maml:name>
+                    <maml:description>
+                        <maml:para>The name of the server profile resource to be created.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>description</maml:name>
+                    <maml:description>
+                        <maml:para>Optional description for this server profile.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                    <maml:name>connections</maml:name>
+                    <maml:description>
+                        <maml:para>The network connections that are to be part of this new server profile.  This an array of profile conneciton objects which may be created with 'New-HPOVProfileConnection'.
+
+Expected Connection Format:
+            
+    [System.Array] @(
+        [PsCustomObject]@{
+            [System.Int]id - Connection ID. Valid 1-64.  A 0 value is allowed, but means Auto Connection ID assignment.
+            [System.String]function - Ethernet or FibreChannel.
+            [System.String]networkUri - URI to the Network resource.
+            [System.String]portId - Auto or the specific Port ID. For FlexLOMs, the valid portId prefix will be "Flb", and Mezzanine would be "Mezz".
+		            				Ex. FlexNIC 1a interface would be "Flb 1:1a"
+		            				Ex. Mezzanine 2, FlexNIC 2c interface would be "Mezz 2:2c"
+            [System.Int32]requestedMpbs - Requested bandwidth in Mbps.
+            [System.Collections.Hashtable]boot - Nested Hashtable
+                @{
+                    [System.String]priority - Boot priority for this connection. Can be used with Ethernet or FC connections.  Allowed values:
+		            							NotBootable
+		            							Primary
+		            							Secondary
+                    [System.Array]targets - Array of FC boot targets (only 1 entry is allowed)
+		            	@(
+		            		[System.String]arrayWwpn - Target WWPN of storage array.
+		            		[System.String]lun - Boot LUN ID
+		            			
+		            	)
+                }
+		    [System.String]macType - Allowed values:
+		            					Physical
+		            					UserDefined
+		            					Virtual
+		    [System.String]mac - UserDefined MAC Address.  Required for custom MAC and FCoE WWPN addresses.
+		    [System.String]wwpnType - Allowed values:
+		            					Physical
+		            					UserDefined
+		            					Virtual
+		    [System.String]wwpn - UserDefined WWPN Address
+		    [System.String]wwnn - UserDefined WWNN Address
+        }
+    )
+
+Default: No connections</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
+                    <maml:name>serverHardwareType</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-sht]
+The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>enclosure</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-encl]
+Specify the Enclosure Name, URI or object.  The parameter enclosureBay must also be specified.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>enclosureBay</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-bay]
+The Enclosure device bay number/ID.  Must also provide enclosure parameter.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>firmware</maml:name>
+                    <maml:description>
+                        <maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 servers.)</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>baseline</maml:name>
+                    <maml:description>
+                        <maml:para>Firmware baseline to assign.  Can be either Baseline Name or URI.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>forceInstallFirmware</maml:name>
+                    <maml:description>
+                        <maml:para>Using this parameter will force the bundled firmware components to install when the Server Profile is applied to a server.  This will downgrade firmware if the component firmware is newer than what the SPP Baseline contains.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>bios</maml:name>
+                    <maml:description>
+                        <maml:para>Enable BIOS Settings Management.  Cannot be enabled with Server Hardware Type does not support BIOS Management (i.e. BL G7 servers.)</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>biosSettings</maml:name>
+                    <maml:description>
+                        <maml:para>BIOS Settings that are to be managed.  You can get the BIOS settings available from Get-HPOVServerHarwareType and the returned biosSettings property.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>manageBoot</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-boot]
+
+Enable Boot Order Management.  Also required for Connection boot enablement.  If this is disabled ($False), then PXE or FC BfS settings are disabled within the entire Server Profile.
+
+Default: $True</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>bootOrder</maml:name>
+                    <maml:description>
+                        <maml:para>Boot Order settings to be managed.
+  
+Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'.
+
+Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>localstorage</maml:name>
+                    <maml:description>
+                        <maml:para>Enable local storage settings to be managed on the server.  Will only enable embedded Smart Array controller management.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>Initialize</maml:name>
+                    <maml:description>
+                        <maml:para>Indicates whether the local storage controller should be reset to factory defaults before applying the local storage settings from the server profile.
+
+*************                                                                                               *************
+***WARNING*** Setting this will overwrite an existing logical disk if present, and without further warning. ***WARNING***
+*************                                                                                               *************</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>Bootable</maml:name>
+                    <maml:description>
+                        <maml:para>Indicates if the logical drive is bootable or not.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>RaidLevel</maml:name>
+                    <maml:description>
+                        <maml:para>RAID level of the logical drive.  Local Smart Array controller must support the required RAID level with the appropriate amount of drives.
+
+Allowed parameter values:
+
+&#8226; None
+&#8226; Raid0
+&#8226; Raid1</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>Affinity</maml:name>
+                    <maml:description>
+                        <maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
+
+Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>macAssignment</maml:name>
+                    <maml:description>
+                        <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>wwnAssignment</maml:name>
+                    <maml:description>
+                        <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>snAssignment</maml:name>
+                    <maml:description>
+                        <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual or Physical.
+
+Default: Virtual serial number and UUID assignment</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem> 
+            <command:syntaxItem>
+                <maml:name>New-HPOVProfile</maml:name> 
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>Import</maml:name>
                     <maml:description>
@@ -16138,7 +16666,33 @@ The Enclosure Group resource the Server Profile will be bound to.  Only required
                 <maml:name>serverHardwareType</maml:name>
                 <maml:description>
                     <maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile will be bound to.  Only required when Server value is "Unassigned".</maml:para>
+The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>enclosure</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-encl]
+Specify the Enclosure Name, URI or object.  The parameter enclosureBay must also be specified.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>enclosureBay</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-bay]
+The Enclosure device bay number/ID.  Must also provide enclosure parameter.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -16616,9 +17170,10 @@ PS C:\&gt; $con3 = New-HPOVProfileConnection -id 3 -type FibreChannel -network $
 PS C:\&gt; $fcnetb = Get-HPOVNetwork "fabric b"
 PS C:\&gt; $con4 = New-HPOVProfileConnection -id 4 -type FibreChannel -network $fcnetb -bootable -priority Secondary -arrayWWPn "22:12:00:02:AC:00:72:03" -LUN 0
 PS C:\&gt; $conList = @($con41, $con42, $fcneta, $fcnetb)
+PS C:\&gt; $task = New-HPOVProfile -name $profileName -server 'unassigned' -connections $conList -sht $bl460SHT -eg $enclosuregroup
 </dev:code>
                 <dev:remarks>
-                    <maml:para>Create a profile which includes networks 'Net-41' and 'Net-42', adds FC Connections for BfS.</maml:para>
+                    <maml:para>Create an unassigned server profile which includes networks 'Net-41' and 'Net-42', adds FC Connections for BfS.</maml:para>
                 </dev:remarks>
                 <command:commandLines>
                     <command:commandLine>
@@ -16644,7 +17199,7 @@ PS C:\&gt; $attachVolumes = @($volume1,$volume2)
 PS C:\&gt; $task = New-HPOVProfile -name $profileName -server 'unassigned' -connections $conList -SANStorage -ostype VMware -StorageVolume $attachVolumes -sht $sht -eg $enclosuregroup
 </dev:code>
                 <dev:remarks>
-                    <maml:para>Create a profile which includes networks 'Net-41' and 'Net-42', and attaches two storage volumes.</maml:para>
+                    <maml:para>Create an unassigned server profile which includes networks 'Net-41' and 'Net-42', and attaches two storage volumes.</maml:para>
                 </dev:remarks>
                 <command:commandLines>
                     <command:commandLine>
@@ -16657,21 +17212,23 @@ PS C:\&gt; $task = New-HPOVProfile -name $profileName -server 'unassigned' -conn
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; $bl460SHT = Get-HPOVServerHardwareType -name "BL460c Gen8 1"
-PS C:\&gt; #display the BL460 Gen8 BIOS Settings
-PS C:\&gt; $bl460SHT.biosSettings
-PS C:\&gt; #Set HP Power Profile (ID 210) to Maximum Performance and HP Power Regulator (ID 140) to HP Static High Performance Mode.
-PS C:\&gt; $bl460bios = @(@{id=210;value=3},@{id=140;value=3})
+                <dev:code>PS C:\&gt; $bl460SHT = Get-HPOVServerHardwareTypes -name "BL460c Gen8 1"
+PS C:\&gt; $enclosure = Get-HPOVEnclosure "Encl1"
+PS C:\&gt; $bay = 12
 PS C:\&gt; $net41 = Get-HPOVNetwork "Net-41"
-PS C:\&gt; $con41 = New-HPOVProfileConnection 1 Ethernet $net41
+PS C:\&gt; $con41 = New-HPOVProfileConnection -id 1 -type Ethernet -network $net41
 PS C:\&gt; $net42 = Get-HPOVNetwork "Net-42"
-PS C:\&gt; $con42 = New-HPOVProfileConnection -connectionID 2 -connectionType Ethernet -network $net42
-PS C:\&gt; $conList = @($con41, $con42)
-PS C:\&gt; $task = New-HPOVProfile -name $profileName -server $server -connections $conList -boot -bootorder @("PXE","HardDisk","CD","Floppy","USB") -bios -biossettings $bl460bios
+PS C:\&gt; $con42 = New-HPOVProfileConnection -id 2 -type Ethernet -network $net42
+PS C:\&gt; $fcneta = Get-HPOVNetwork "fabric a"
+PS C:\&gt; $con3 = New-HPOVProfileConnection -id 3 -type FibreChannel -network $fcneta -bootable -priority Primary -arrayWWPn "21:11:00:02:AC:00:72:03" -LUN 0
+PS C:\&gt; $fcnetb = Get-HPOVNetwork "fabric b"
+PS C:\&gt; $con4 = New-HPOVProfileConnection -id 4 -type FibreChannel -network $fcnetb -bootable -priority Secondary -arrayWWPn "22:12:00:02:AC:00:72:03" -LUN 0
+PS C:\&gt; $conList = @($con41, $con42, $fcneta, $fcnetb)
+PS C:\&gt; $task = New-HPOVProfile -name $profileName -connections $conList -sht $bl460SHT -enclosure $enclosure -bay $bay
 PS C:\&gt; Wait-HPOVTaskComplete -taskUri $task.uri
 </dev:code>
                 <dev:remarks>
-                    <maml:para>Create a profile which includes networks 'Net-41' and 'Net-42', sets the boot order, and sets the BIOS.</maml:para>
+                    <maml:para>Create a profile which includes networks 'Net-41' and 'Net-42', adds FC Connections for BfS, and assign to Bay 13 of 'Encl1' which is currently empty.</maml:para>
                 </dev:remarks>
                 <command:commandLines>
                     <command:commandLine>
@@ -16681,6 +17238,32 @@ PS C:\&gt; Wait-HPOVTaskComplete -taskUri $task.uri
             </command:example>
              <command:example>
                 <maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $server = Get-HPOVServer "Encl1, Bay 1"
+PS C:\&gt; #display the BL460 Gen8 BIOS Settings
+PS C:\&gt; $bl460SHT.biosSettings
+PS C:\&gt; #Set HP Power Profile (ID 210) to Maximum Performance and HP Power Regulator (ID 140) to HP Static High Performance Mode.
+PS C:\&gt; $bl460bios = @(@{id=210;value=3},@{id=140;value=3})
+PS C:\&gt; $net41 = Get-HPOVNetwork "Net-41"
+PS C:\&gt; $con41 = New-HPOVProfileConnection 1 Ethernet $net41
+PS C:\&gt; $net42 = Get-HPOVNetwork "Net-42"
+PS C:\&gt; $con42 = New-HPOVProfileConnection -connectionID 2 -connectionType Ethernet -network $net42
+PS C:\&gt; $conList = @($con41, $con42)
+PS C:\&gt; $task = New-HPOVProfile -name $profileName -server $server -connections $conList -boot -bootorder @("PXE","HardDisk","CD","Floppy","USB") -bios -biossettings $bl460bios | Wait-HPOVTaskComplete
+</dev:code>
+                <dev:remarks>
+                    <maml:para>Create a profile which includes networks 'Net-41' and 'Net-42', sets the boot order, and sets the BIOS. Then pipes to Wait-HPOVTaskComplete.</maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 8 --------------------------</maml:title>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
@@ -16696,7 +17279,7 @@ PS C:\&gt; Wait-HPOVTaskComplete -taskUri $task.uri
                 </command:commandLines>
             </command:example>
              <command:example>
-                <maml:title>-------------------------- EXAMPLE 8 --------------------------</maml:title>
+                <maml:title>-------------------------- EXAMPLE 9 --------------------------</maml:title>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
@@ -16712,7 +17295,7 @@ PS C:\&gt; Wait-HPOVTaskComplete -taskUri $task.uri
                 </command:commandLines>
             </command:example>
              <command:example>
-                <maml:title>-------------------------- EXAMPLE 9 --------------------------</maml:title>
+                <maml:title>-------------------------- EXAMPLE 10 --------------------------</maml:title>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
@@ -18424,7 +19007,7 @@ Sets the LACP mode on the uplink ports. Valid for ETHERNET Uplinks only. Acceopt
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "US1" -Type "Ethernet" -Networks "RED,BLUE,GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6", -EthMode "Auto"
+                <dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "US1" -Type "Ethernet" -Networks "RED,BLUE,GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6" -EthMode "Auto"
 </dev:code>
                 <dev:remarks>
                     <maml:para>To Create an Ethernet Uplink Template</maml:para>
@@ -23491,10 +24074,10 @@ In order for an Administrator to change the status of an Alert, the Administrato
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; Get-HPOVAlert
+                <dev:code>PS C:\&gt; $Profile1Alerts = Get-HPOVProfile 'Profile 1' | Get-HPOVAlert -severity Critical
 </dev:code>
                 <dev:remarks>
-                    <maml:para></maml:para>
+                    <maml:para>PS C:\></maml:para>
                 </dev:remarks>
                 <command:commandLines>
                     <command:commandLine>
@@ -24402,6 +24985,36 @@ PS C:\&gt; Set-HPOVEulaStatus -supportAccess "yes"
         </maml:description>
         <command:syntax>
 
+            <command:syntaxItem>
+                <maml:name>Set-HPOVInitialPassword</maml:name> 
+            </command:syntaxItem> 
+            <command:syntaxItem>
+                <maml:name>Set-HPOVInitialPassword</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>userName</maml:name>
+                    <maml:description>
+                        <maml:para>The name of the user account to be updated.  Normally Administrator.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>oldPassword</maml:name>
+                    <maml:description>
+                        <maml:para>Current default password for this account.  Will prompt for password if not supplied.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                    <maml:name>newPassword</maml:name>
+                    <maml:description>
+                        <maml:para>New password for this account.  Will prompt for password if not supplied.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem> 
             <command:syntaxItem>
                 <maml:name>Set-HPOVInitialPassword</maml:name> 
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
@@ -26092,7 +26705,7 @@ Off           Off        Reset              Exception: cannot achieve desired po
                     <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>    Async task that tracks the power state change</maml:para>
+                        <maml:para>Async task that tracks the power state change</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -26164,7 +26777,7 @@ PS C:\&gt; Set-HPOVServerPower -serverUri $pro.configuration.assignedToServerUri
             </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
-                <maml:uri>https://hponeview.codeplex.com/</maml:uri>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVServer</maml:uri>
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
