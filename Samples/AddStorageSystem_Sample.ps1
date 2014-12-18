@@ -3,7 +3,7 @@
 # - Example script for adding a supported Storage System, creating Storage Pools
 #   and Storage Volumes
 #
-#   VERSION 1.1
+#   VERSION 1.0
 #
 # (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -27,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 # First connect to the HP OneView appliance.
 if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }

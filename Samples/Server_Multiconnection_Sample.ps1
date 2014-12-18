@@ -9,7 +9,7 @@
 # - Configure 2 FC connections to the Production Fabric A and B            
 # - Set requested bandwidth
 #
-#   VERSION 1.1
+#   VERSION 1.0
 #
 # (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -33,7 +33,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 # First connect to the HP OneView appliance.
 if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }

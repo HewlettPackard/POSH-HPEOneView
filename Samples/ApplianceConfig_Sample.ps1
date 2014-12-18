@@ -3,7 +3,7 @@
 # - Example scripts for configuring the HP OneView appliance (networking, NTP, 
 #   etc.).
 #
-#   VERSION 1.2
+#   VERSION 1.0
 #
 # (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -27,7 +27,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 # NOTE: replace the IP address, below, with the current IP address of the 
 # appliance to be configured.  If this is an initial setup of the appliance,

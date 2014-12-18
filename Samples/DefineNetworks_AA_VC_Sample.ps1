@@ -2,7 +2,7 @@
 # DefineNetworks_AA_VC_Sample.ps1
 # - Example scripts for defining A/A networks to be deployed with HP OneView.
 #
-#   VERSION 1.2
+#   VERSION 1.0
 #
 # (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 # First connect to the HP OneView appliance.
 if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }

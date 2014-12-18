@@ -1,0 +1,82 @@
+﻿TOPIC
+
+    about_HPOneView.120
+
+COPYRIGHT
+
+    (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+SHORT DESCRIPTION
+
+    PowerShell library for HP OneView 1.20
+	
+WHAT'S NEW 
+
+    Release 1.20.0.0007
+	 -- Branch to HP OneView 1.10 Release.  NOTE:  This library version does not support older appliance versions.
+	 -- Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports 
+	    (logicalPortConfigInfos).
+	 -- Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully 
+	    connecting to appliance when user has insufficient privileges.
+	 -- Fixed Remove-HPOVNetwork pipeline input.
+	 -- Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable 
+	    to store the task object to become a System.Array type.
+	 -- Fixed New-HPOVBackup where backup file would not download.
+	 -- Fixed Add-HPOVStoragePool where the API changed.
+	 -- Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish 
+	    their init.
+	 -- Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer 
+	    library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
+	 -- Added Invoke-HPOVVcmMigration cmdlet for Virtual Connect Manager migrations to HP OneView.
+	 -- Updated New-HPOVBackup to increase the timeout waiting for the create backup file async task to complete.
+	 -- Updated Send-HPOVRequest to generate terminating error for HTTP 401 Insufficient Privileges and not just 
+	    for invalid session.
+	 -- Updated Set-HPOVManagedSan to support new API calls, and depricated both -EnableAutomatedZoning and 
+	    -DisableAutomatedZoning parameters.	
+
+LONG DESCRIPTION
+
+    This library provides HP OneView management capabilities for Windows PowerShell.
+    The library can be used as either a CLI or using the core cmdlets to call from
+    wrapper scripts.  The core cmdlets are:
+
+        • Connect-HPOVmgmt
+        • Send-HPOVRequest
+        • New-HPOVResource
+        • Set-HPOVResource
+        • Remove-HPOVResource
+
+    A set of sample scripts are also provided, that show how to fully configure an
+    HP OneView appliance from the ground up.
+                                        
+    For information regarding this project, to request features or report 
+    issues, please see: https://github.com/HewlettPackard/POSH-HPOneView/issues
+
+
+SEE ALSO
+
+    https://github.com/HewlettPackard/POSH-HPOneView
+    http://hp.com/go/oneviewcommunity
+	Update-Help HPOneview.120
+    Connect-HPOVmgmt
+    Send-HPOVRequest
+    [install_dir]\Samples
+

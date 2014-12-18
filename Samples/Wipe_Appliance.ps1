@@ -14,7 +14,7 @@
 # contained herein.
 #
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 # First connect to the CI Management Appliance (if not already connected)
 if (!$global:cimgmtSessionId) {

@@ -26,7 +26,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 function AddGroupUri($lu, $luts) {
     # Add the corresponding Group object to the logical uplink object

@@ -3,7 +3,7 @@
 # - Example scripts for configuring the CI Manager appliance (networking, NTP, 
 #   etc.).
 #
-#   VERSION 1.1
+#   VERSION 1.0
 #
 # (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 #>
 ##############################################################################
-Import-Module HPOneView.110
+Import-Module HPOneView.120
 
 # First connect to the HP OneView appliance.
 if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
