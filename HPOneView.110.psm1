@@ -145,7 +145,7 @@ THE SOFTWARE.
      |  - Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
      |  - Added Add-HPOVStorageVolume cmdlet to help import an existing volume from a managed storage system.
 ------------------------------------------
-1.10.1447
+1.10.1447.1
      |  - Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports (logicalPortConfigInfos).
      |  - Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully connecting to appliance when user has insufficient privileges.
      |  - Fixed Remove-HPOVNetwork pipeline input.
@@ -156,7 +156,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.10.1447"
+$script:scriptVersion = "1.10.1447.1"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.110"}))) { 
@@ -1959,7 +1959,10 @@ function Connect-HPOVMgmt {
 
             #Get list of supported Roles from the appliance
             write-verbose "[CONNECT-HPOVMGMT] Getting list of supported roles from appliance."
-            $script:applSecurityRoles = (Send-HPOVRequest /rest/roles).members.roleName
+
+            try { $script:applSecurityRoles = (Send-HPOVRequest /rest/roles).members.roleName }
+
+            catch [HPOneview.Appliance.AuthPrivilegeException] { $script:applSecurityRoles = $Null }
 
         }
 

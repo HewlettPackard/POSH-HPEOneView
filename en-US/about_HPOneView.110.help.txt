@@ -30,7 +30,7 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
-    Release 1.10.1447
+    Release 1.10.1447.1
 	 -- Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports 
 	    (logicalPortConfigInfos).
 	 -- Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully 
