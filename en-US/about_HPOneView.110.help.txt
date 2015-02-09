@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
+    (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,15 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 1.10
 	
 WHAT'S NEW 
+
+    Release 1.10.1476
+	 -- Fixed Install-HPOVUpdate where it wasn't checking for a pending update when the -Update switch was used.
+	 -- Fixed Install-HPOVUpdate where Write-Progress was causing an error, even though the update would complete.
+	 -- Fixed Upload-File error handling from appliance generated 40x/50x status code.
+	 -- Updated Add-HPOVPowerDevice to provide a native CMDLET Should Process/Continue prompt and use the 
+	    -confirm/-whatif common parameters.
+	 -- Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent 
+	    results when -Name parameter is provided and no results were found which generates a terminating error.
 
     Release 1.10.1447.1
 	 -- Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports 
