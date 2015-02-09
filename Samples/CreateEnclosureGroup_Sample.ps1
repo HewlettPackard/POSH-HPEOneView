@@ -5,7 +5,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy

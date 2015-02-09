@@ -245,6 +245,10 @@
 								<PropertyName>progressUpdates</PropertyName>
 							</ListItem>
 							<ListItem>
+								<Label>TaskErrors</Label>
+								<PropertyName>taskErrors</PropertyName>
+							</ListItem>
+							<ListItem>
 								<Label>Created</Label>
 								<PropertyName>created</PropertyName>
 							</ListItem>
@@ -295,5 +299,29 @@
 				</ListEntries>
 			</ListControl>
 		</View>
+		<View>
+			<Name>UserRole</Name>
+			<ViewSelectedBy>
+				<TypeName>HPOneView.Appliance.UserRole</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Label>RoleName</Label>
+						<Width>22</Width>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>roleName</PropertyName>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>		
 	</ViewDefinitions>
 </Configuration>

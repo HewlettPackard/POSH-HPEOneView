@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2014 Hewlett-Packard Development Company, L.P.
+    (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,23 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 1.20
 	
 WHAT'S NEW 
+
+    Release 1.20.0050.0
+	 -- Fixed New-HPOVNetwork where creating bulk networks would not set the typical or maximum bandwidth value(s).
+	 -- Fixed Add-HPOVEnclosure where adding a monitored enclosure would fail.
+	 -- Fixed New-HPOVProfileConnection where the storage system WWN and LUN ID were not being set due to code 
+	    refactoring.
+	 -- Fixed Set-HPOVInitialPassword that was causing calls to fail due to parameterset validation.
+	 -- Fixed Get-HPOVLicense where the 'HP OneView Advanced' license name wasn't provided.
+	 -- Fixed Copy-HPOVProfile where if a single Network Connection was present, the object would have been 
+	    created incorrectly.
+	 -- Fixed New-HPOVUplinkSet where LIG name wasn't being passed to Get-HPOVLogicalInteconnectGroup correctly.
+	 -- Fixed Install-HPOVUpdate where it wasn't checking for a pending update when the -Update switch was used.
+     	 -- Fixed Install-HPOVUpdate where Write-Progress was causing an error, even though the update would complete.
+	 -- Updated Add-HPOVPowerDevice to provide a native CMDLET Should Process/Continue prompt and use the 
+	    -confirm/-whatif common parameters.
+	 -- Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent 
+	    results when -Name parameter is provided and no results were found which generates a terminating error.
 
     Release 1.20.0.0007
 	 -- Branch to HP OneView 1.10 Release.  NOTE:  This library version does not support older appliance versions.
