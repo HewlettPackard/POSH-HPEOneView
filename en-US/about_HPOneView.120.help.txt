@@ -30,44 +30,52 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 1.20.0077.0
+     -- Fixed New-HPOVNetwork where an invalid property was added to the ParameterValidation for -Type.
+     -- Fixed New-HPOVLdap where request would not complete successfully.
+     -- Fixed New-HPOVLdapServer where the wrong JSON property was used for type.
+     -- Fixed Set-HPOVApplianceGlobalSetting where the wrong method to update a setting was used.
+     -- Added $Global:ResponseErrorObject that will capture API error messages, to go along with existing 
+        $Global:LastWebResponse.
+
     Release 1.20.0050.0
-	 -- Fixed New-HPOVNetwork where creating bulk networks would not set the typical or maximum bandwidth value(s).
-	 -- Fixed Add-HPOVEnclosure where adding a monitored enclosure would fail.
-	 -- Fixed New-HPOVProfileConnection where the storage system WWN and LUN ID were not being set due to code 
-	    refactoring.
-	 -- Fixed Set-HPOVInitialPassword that was causing calls to fail due to parameterset validation.
-	 -- Fixed Get-HPOVLicense where the 'HP OneView Advanced' license name wasn't provided.
-	 -- Fixed Copy-HPOVProfile where if a single Network Connection was present, the object would have been 
-	    created incorrectly.
-	 -- Fixed New-HPOVUplinkSet where LIG name wasn't being passed to Get-HPOVLogicalInteconnectGroup correctly.
-	 -- Fixed Install-HPOVUpdate where it wasn't checking for a pending update when the -Update switch was used.
-     	 -- Fixed Install-HPOVUpdate where Write-Progress was causing an error, even though the update would complete.
-	 -- Updated Add-HPOVPowerDevice to provide a native CMDLET Should Process/Continue prompt and use the 
-	    -confirm/-whatif common parameters.
-	 -- Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent 
-	    results when -Name parameter is provided and no results were found which generates a terminating error.
+     -- Fixed New-HPOVNetwork where creating bulk networks would not set the typical or maximum bandwidth value(s).
+     -- Fixed Add-HPOVEnclosure where adding a monitored enclosure would fail.
+     -- Fixed New-HPOVProfileConnection where the storage system WWN and LUN ID were not being set due to code 
+        refactoring.
+     -- Fixed Set-HPOVInitialPassword that was causing calls to fail due to parameterset validation.
+     -- Fixed Get-HPOVLicense where the 'HP OneView Advanced' license name wasn't provided.
+     -- Fixed Copy-HPOVProfile where if a single Network Connection was present, the object would have been 
+        created incorrectly.
+     -- Fixed New-HPOVUplinkSet where LIG name wasn't being passed to Get-HPOVLogicalInteconnectGroup correctly.
+     -- Fixed Install-HPOVUpdate where it wasn't checking for a pending update when the -Update switch was used.
+     -- Fixed Install-HPOVUpdate where Write-Progress was causing an error, even though the update would complete.
+     -- Updated Add-HPOVPowerDevice to provide a native CMDLET Should Process/Continue prompt and use the 
+        -confirm/-whatif common parameters.
+     -- Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent 
+        results when -Name parameter is provided and no results were found which generates a terminating error.
 
     Release 1.20.0.0007
-	 -- Branch to HP OneView 1.10 Release.  NOTE:  This library version does not support older appliance versions.
-	 -- Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports 
-	    (logicalPortConfigInfos).
-	 -- Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully 
-	    connecting to appliance when user has insufficient privileges.
-	 -- Fixed Remove-HPOVNetwork pipeline input.
-	 -- Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable 
-	    to store the task object to become a System.Array type.
-	 -- Fixed New-HPOVBackup where backup file would not download.
-	 -- Fixed Add-HPOVStoragePool where the API changed.
-	 -- Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish 
-	    their init.
-	 -- Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer 
-	    library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
-	 -- Added Invoke-HPOVVcmMigration cmdlet for Virtual Connect Manager migrations to HP OneView.
-	 -- Updated New-HPOVBackup to increase the timeout waiting for the create backup file async task to complete.
-	 -- Updated Send-HPOVRequest to generate terminating error for HTTP 401 Insufficient Privileges and not just 
-	    for invalid session.
-	 -- Updated Set-HPOVManagedSan to support new API calls, and depricated both -EnableAutomatedZoning and 
-	    -DisableAutomatedZoning parameters.	
+     -- Branch to HP OneView 1.10 Release.  NOTE:  This library version does not support older appliance versions.
+     -- Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports 
+        (logicalPortConfigInfos).
+     -- Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully 
+        connecting to appliance when user has insufficient privileges.
+     -- Fixed Remove-HPOVNetwork pipeline input.
+     -- Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable 
+        to store the task object to become a System.Array type.
+     -- Fixed New-HPOVBackup where backup file would not download.
+     -- Fixed Add-HPOVStoragePool where the API changed.
+     -- Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish 
+        their init.
+     -- Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer 
+        library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
+     -- Added Invoke-HPOVVcmMigration cmdlet for Virtual Connect Manager migrations to HP OneView.
+     -- Updated New-HPOVBackup to increase the timeout waiting for the create backup file async task to complete.
+     -- Updated Send-HPOVRequest to generate terminating error for HTTP 401 Insufficient Privileges and not just 
+        for invalid session.
+     -- Updated Set-HPOVManagedSan to support new API calls, and depricated both -EnableAutomatedZoning and 
+        -DisableAutomatedZoning parameters.	
 
 LONG DESCRIPTION
 
@@ -92,7 +100,7 @@ SEE ALSO
 
     https://github.com/HewlettPackard/POSH-HPOneView
     http://hp.com/go/oneviewcommunity
-	Update-Help HPOneview.120
+    Update-Help HPOneview.120
     Connect-HPOVmgmt
     Send-HPOVRequest
     [install_dir]\Samples

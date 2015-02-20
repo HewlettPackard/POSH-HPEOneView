@@ -62,11 +62,18 @@ THE SOFTWARE.
      |  - Fixed Install-HPOVUpdate where Write-Progress was causing an error, even though the update would complete.
      |  - Updated Add-HPOVPowerDevice to provide a native CMDLET Should Process/Continue prompt and use the -confirm/-whatif common parameters.
      |  - Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent results when -Name parameter is provided and no results were found which generates a terminating error.
+------------------------------------------
+1.20.0077.0
+     |  -  Fixed New-HPOVNetwork where an invalid property was added to the ParameterValidation for -Type.
+     |  -  Fixed New-HPOVLdap where request would not complete successfully.
+     |  -  Fixed New-HPOVLdapServer where the wrong JSON property was used for type.
+     |  -  Fixed Set-HPOVApplianceGlobalSetting where the wrong method to update a setting was used.
+     |  -  Added $Global:ResponseErrorObject that will capture API error messages, to go along with existing $Global:LastWebResponse.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.0050.0"
+$script:scriptVersion = "1.20.0077.0"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.120"}))) { 
@@ -364,6 +371,51 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
     
 	        }
 
+            public class LdapDirectoryException : Exception
+	        {
+
+                public LdapDirectoryException() : base() { }
+                public LdapDirectoryException(string message) : base(message) { }
+                public LdapDirectoryException(string message, Exception e) : base(message, e) { }
+
+                private string strExtraInfo;
+                public string ExtraErrorInfo
+                {
+                    get
+                    {
+                        return strExtraInfo;
+                    }
+
+                    set
+                    {
+                        strExtraInfo = value;
+                    }
+                }
+    
+	        }
+
+            public class GlobalSettingException : Exception
+	        {
+
+                public GlobalSettingException() : base() { }
+                public GlobalSettingException(string message) : base(message) { }
+                public GlobalSettingException(string message, Exception e) : base(message, e) { }
+
+                private string strExtraInfo;
+                public string ExtraErrorInfo
+                {
+                    get
+                    {
+                        return strExtraInfo;
+                    }
+
+                    set
+                    {
+                        strExtraInfo = value;
+                    }
+                }
+    
+	        }
 
         }      
 
@@ -373,28 +425,6 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
             public EnclosureResourceException() : base() { }
             public EnclosureResourceException(string message) : base(message) { }
             public EnclosureResourceException(string message, Exception e) : base(message, e) { }
-
-            private string strExtraInfo;
-            public string ExtraErrorInfo
-            {
-                get
-                {
-                    return strExtraInfo;
-                }
-
-                set
-                {
-                    strExtraInfo = value;
-                }
-            }
-        }
-
-        public class EnclosureGroupResourceException : Exception
-        {
-
-            public EnclosureGroupResourceException() : base() { }
-            public EnclosureGroupResourceException(string message) : base(message) { }
-            public EnclosureGroupResourceException(string message, Exception e) : base(message, e) { }
 
             private string strExtraInfo;
             public string ExtraErrorInfo
@@ -607,8 +637,32 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
                     strExtraInfo = value;
                 }
             }
-        }        	
+        }  
+        
+        public class VcMigratorException : Exception
+        {
 
+            public VcMigratorException() : base() { }
+            public VcMigratorException(string message) : base(message) { }
+            public VcMigratorException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+                get
+                {
+                    return strExtraInfo;
+                }
+
+                set
+                {
+                    strExtraInfo = value;
+                }
+
+            }
+
+        }         
+        
         //Define the [System.Net.ServicePointManager]::CertificatePolicy for the library
         public class HPOneViewIgnoreCertPolicy : ICertificatePolicy {
             public HPOneViewIgnoreCertPolicy() {}
@@ -729,7 +783,7 @@ $script:applVwwnGenerateUri = "/rest/id-pools/vwwn/generate"
 $script:applVsnPoolGenerateUri = "/rest/id-pools/vsn/generate"
 $script:macAddressPattern = @('^([0-9a-f]{2}:){5}([0-9a-f]{2})$')
 $script:wwnAddressPattern = @('^([0-9a-f]{2}:){7}([0-9a-f]{2})$')
-[regex]$script:ip4regex="\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
+[regex]$script:ip4regex = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
 [Hashtable]$script:getUplinkSetPortSpeeds = @{
     Speed_0M   = "0";
     Speed_100M = "100Mb";
@@ -1520,16 +1574,18 @@ function Send-HPOVRequest {
 
                     $reader = New-Object System.IO.StreamReader($rs)
                     $responseJson = $reader.ReadToEnd()
+
+                    #Save response to global variable for others to use.
+                    $global:ResponseErrorObject = ($responseJson | ConvertFrom-Json)
                 
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ERROR RESPONSE: $($responseJson | ConvertFrom-Json | out-string)"
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ERROR RESPONSE: $($global:ResponseErrorObject | out-string)"
+                    
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Status: HTTP_$([int]$script:lastWebResponse.StatusCode) $($script:lastWebResponse.StatusDescription)"
                     foreach ($h in $script:lastWebResponse.Headers) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Header: $($h) = $($script:lastWebResponse.Headers[$i])"; $i++ }
-                
-                    $resp = $responseJson | ConvertFrom-Json
                     
                     #Handle HTTP 404 Errors with no response messege.
-                    if ($resp) { $resp | Add-Member -MemberType NoteProperty -Name statusCode -Value ([int]$script:lastWebResponse.StatusCode) -Force }
-                    else { $resp = [PsCustomObject]@{statusCode = ([int]$script:lastWebResponse.StatusCode); statusMessage = $($script:lastWebResponse.StatusDescription); lastCall = $uri } }
+                    if ($global:ResponseErrorObject) { $global:ResponseErrorObject | Add-Member -MemberType NoteProperty -Name statusCode -Value ([int]$script:lastWebResponse.StatusCode) -Force }
+                    else { $global:ResponseErrorObject = [PsCustomObject]@{statusCode = ([int]$script:lastWebResponse.StatusCode); statusMessage = $($script:lastWebResponse.StatusDescription); lastCall = $uri } }
 
                     switch ([int]$script:lastWebResponse.StatusCode) {
 
@@ -1539,17 +1595,17 @@ function Send-HPOVRequest {
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP 400 error caught."
 
                             #Hande initial authentication errors
-                            if ($resp.errorCode -eq "AUTHN_AUTH_DIR_FAIL") {
+                            if ($global:ResponseErrorObject.errorCode -eq "AUTHN_AUTH_DIR_FAIL") {
 
-                                $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$($resp.message)  $($resp.recommendedActions)"
+                                $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$($global:ResponseErrorObject.message)  $($global:ResponseErrorObject.recommendedActions)"
                                 $pscmdlet.ThrowTerminatingError($errorRecord)
 
                             }
                             else {
-                                if ($resp.errorSource) { $source = $resp.errorSource }
+                                if ($global:ResponseErrorObject.errorSource) { $source = $global:ResponseErrorObject.errorSource }
                                 else { $source = 'Send-HPOVRequest' }
 
-                                $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperation InvalidOperation $source -Message "$($resp.message) $($resp.details)"
+                                $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperation InvalidOperation $source -Message "$($global:ResponseErrorObject.message) $($global:ResponseErrorObject.details)"
                                 $pscmdlet.ThrowTerminatingError($errorRecord)
                             }
 
@@ -1560,11 +1616,11 @@ function Send-HPOVRequest {
 
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP 401 error caught."
                             
-                            if ( $resp.details -cmatch "User not authorized for this operation" ) {
+                            if ( $global:ResponseErrorObject.details -cmatch "User not authorized for this operation" ) {
 
-                                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($resp.message) Request was '$method' at '$uri'."
+                                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($global:ResponseErrorObject.message) Request was '$method' at '$uri'."
 
-                                $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: $($resp.message).  Request was '$method' at '$uri'. " #-verbose
+                                $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: $($global:ResponseErrorObject.message).  Request was '$method' at '$uri'. " #-verbose
                                 Throw $errorRecord
 
                             }
@@ -1583,14 +1639,14 @@ function Send-HPOVRequest {
                     
                         405 {
                     
-                            $errorRecord = New-ErrorRecord InvalidOperationException $resp.errorCode AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: The requested HTTP method is not valid/supported.  " + $resp.details + " URI: $uri")
+                            $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: The requested HTTP method is not valid/supported.  " + $global:ResponseErrorObject.details + " URI: $uri")
                             Throw $errorRecord
 
                         }
 
                         409 {
                     
-                            $errorRecord = New-ErrorRecord InvalidOperationException $resp.errorCode InvalidOperation 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: $($resp.message) $($resp.recommendedActions)")
+                            $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode InvalidOperation 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: $($global:ResponseErrorObject.message) $($global:ResponseErrorObject.recommendedActions)")
                             Throw $errorRecord
 
                         }
@@ -1612,7 +1668,7 @@ function Send-HPOVRequest {
 
                         501 {
 
-                            $errorRecord = New-ErrorRecord InvalidOperationException $resp.errorCode SyntaxError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: " + $resp.message + " " + $resp.recommendedActions) -InnerException $resp.details #-verbose
+                            $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode SyntaxError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: " + $global:ResponseErrorObject.message + " " + $global:ResponseErrorObject.recommendedActions) -InnerException $global:ResponseErrorObject.details #-verbose
                             Throw $errorRecord
 
                         }
@@ -3979,13 +4035,28 @@ function Set-HPOVApplianceGlobalSetting {
     Process {
 
         $setting = Get-HPOVApplianceGlobalSetting($name)
+
         if ($setting.uri) {
+
             $setting.value = $value
-            # This should really be a PUT to the setting's URI. Will be fixed in a future release
-            #Send-HPOVRequest $applGlobalSettingsUri POST $setting
-            Send-HPOVRequest $applGlobalSettingsUri PUT $setting
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updated Global Setting: $($setting | out-string)"
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Submitting request."
+
+            Send-HPOVRequest $setting.uri PUT $setting
+
         }
+        else {
+
+            #Throw error because we didn't get a valid objectback
+            $errorRecord = New-ErrorRecord HPOneview.Appliance.GlobalSettingException InvalidGlobalSetting ObjectNotFound  $name -Message "The Global Setting '$name' was not found." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
     }
+
 }
 
 function Get-HPOVSppFile {
@@ -6304,7 +6375,6 @@ function Update-HPOVEnclosure {
     }
 
 }
-
 
 function Invoke-HPOVVcmMigration {
 
@@ -11599,7 +11669,7 @@ function New-HPOVNetwork {
         [parameter(Mandatory = $true, ParameterSetName = "FC",Position=1)]
         [parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=1)]
         [parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=1)]
-        [ValidateSet("Ethernet", "FC", "FibreChannel", "Fibre Channel",Position=1)]
+        [ValidateSet("Ethernet", "FC", "FibreChannel", "Fibre Channel")]
         [string]$type = "Ethernet",
         
         [parameter(Mandatory = $true, ParameterSetName = "Ethernet",Position=2)] 
@@ -11608,7 +11678,8 @@ function New-HPOVNetwork {
         [parameter(Mandatory = $true, ParameterSetName = "VLANIDRange",Position=1)]
         [string]$vlanRange,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=2)] 
+        [parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=3)] 
+        [parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=2)]
         [ValidateSet('Untagged','Tagged','Tunnel')]
         [string]$VLANType = "Tagged", 
 
@@ -19525,7 +19596,6 @@ function New-HPOVLdap {
 
         }
 
-
 	}
 
 	process {
@@ -19534,7 +19604,7 @@ function New-HPOVLdap {
             $authProtocol = "AD"
             $userNameField = "CN"
         }
-        if ($LDAP) {
+        elseif ($LDAP) {
             $authProtocol = "LDAP" 
             $userNameField = "UID"
         }
@@ -19542,25 +19612,72 @@ function New-HPOVLdap {
         $decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
 
         $newDirectoryObj = @{
-                            type = "LoginDomainConfigVersion2Dto";
-                            name = $Name;
-                            userNameField = $userNameField;
-                            org = $SearchContext;
-                            top = $RootDN;
-                            useSsl = $true;
-                            authProtocol = $authProtocol;
-                            credential = @{ userName = $Username; password = $decryptPassword };
-                            directoryServers = @($Servers);}
 
-        #convertto-json -depth 99 $newDirectoryObj
-        $resp = Send-HPOVRequest $script:authnProviderValidator POST
-        $resp
-        [int]$script:lastWebResponse.StatusCode
+            type             = "LoginDomainConfigVersion2Dto";
+            name             = $Name;
+            userNameField    = $userNameField;
+            org              = $SearchContext;
+            top              = $RootDN;
+            useSsl           = $true;
+            authProtocol     = $authProtocol;
+            credential       = @{ userName = $Username; password = $decryptPassword };
+            directoryServers = @($Servers);
+            
+        }
 
-        #$resp = Send-HPOVRequest $script:authnProvidersUri 
-        #$resp
-        #[int]$script:lastWebResponse.StatusCode
+    }
+
+    End {
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] LDAP Directory Object: $($newDirectoryObj | ConvertTo-Json -Depth 99 | out-string)"
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
+
+        Try {
+        
+            $resp = Send-HPOVRequest $script:authnProviderValidator POST $newDirectoryObj
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp | Out-string)"
+        
+            if([int]$script:lastWebResponse.StatusCode -eq 200) {
+
+               Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory Configuration Validated" 
+
+                $resp = Send-HPOVRequest $script:authnProvidersUri POST $newDirectoryObj
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp | Out-string)"
+
+                Return $resp
+
+            } 
+            else {
+
+                $errorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException $global:ResponseErrorObject.errorCode InvalidOperation 'New-HPOVLdap' -Message "$($global:ResponseErrorObject.message) $($global:ResponseErrorObject.details)" #-verbose
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
+        
+            }
+
+        }
+
+        catch {
+
+            foreach ($NestedError in $global:ResponseErrorObject.nestedErrors) {
+
+                if ($NestedError.errorCode -eq "AUTHN_LOGINDOMAIN_SERVER_AUTHENTICATION_ERROR" ) { $ErrorCategory = 'AuthenticationError' }
+                elseif ($NestedError.errorCode -eq "AUTHN_LOGINDOMAIN_DUPLICATE_NAME" ) { $ErrorCategory = 'ResourceExists' }
+                else { $ErrorCategory = 'InvalidOperation' }
+
+                $errorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException $NestedError.errorCode $ErrorCategory $NestedError.errorSource -Message "$($NestedError.message) $($NestedError.details)" #-verbose
+                $PSCmdlet.WriteError($errorRecord)
+
+            }
+
+            $errorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException $global:ResponseErrorObject.errorCode InvalidOperation 'New-HPOVLdap' -Message "$($global:ResponseErrorObject.message) $($global:ResponseErrorObject.details)" #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+       
 	}
+
 }
 
 function Remove-HPOVLdap {
@@ -19660,10 +19777,10 @@ function New-HPOVLdapServer {
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate file found."
 
-            $cert = get-content $Certificate 
+            $readfile = [System.IO.File]::OpenText($Certificate)
+            $certificate = $readfile.ReadToEnd()
+            $readfile.Close()
 
-            #Convert from System.Array to multi-line String
-            $certificate = $cert | out-string
         }
 
         else {
@@ -19673,10 +19790,14 @@ function New-HPOVLdapServer {
 
         }
 
-        $ldapServer = @{Type = "LoginDomainDirectoryServerInfoDto";
-                        directoryServerIpAddress = $Name;
-                        directoryServerCertificateBase64Data = $Certificate;
-                        directoryServerSSLPortNumber = [string]$sslport }
+        $ldapServer = @{
+        
+            type                                 = "LoginDomainDirectoryServerInfoDto";
+            directoryServerIpAddress             = $Name;
+            directoryServerCertificateBase64Data = $Certificate;
+            directoryServerSSLPortNumber         = [string]$sslport 
+            
+        }
 
 	}
 
@@ -21171,6 +21292,8 @@ Export-ModuleMember -Function Remove-HPOVResource
 Export-ModuleMember -Function Set-HPOVPrompt
 Export-ModuleMember -Function Show-HPOVAppliance
 Export-ModuleMember -Function Wait-HPOVApplianceStart
+Export-ModuleMember -Function Enable-HPOVDebug
+Export-ModuleMember -Function Disable-HPOVDebug
 
 #Appliance Configuration:
 Export-ModuleMember -Function Get-HPOVVersion
