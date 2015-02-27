@@ -2,7 +2,7 @@
 # Wipe_Appliance.ps1
 # - Remove ALL resource from an appliance (useful to clean a system between demos).
 #
-#   VERSION 0.11
+#   VERSION 0.12
 #
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -65,7 +65,6 @@ if ($tasks) { if ($tasks -is [Array]) { $tasks = $tasks.Get($tasks.Count-1); }
 $tasks = Get-HPOVNetwork | Remove-HPOVNetwork
 if ($tasks) { if ($tasks -is [Array]) { $tasks = $tasks.Get($tasks.Count-1); }
     Wait-HPOVTaskComplete $tasks.uri -timeout (New-TimeSpan -Minutes 5) }
-
 
 # Delete ALL Storage Volumes
 $tasks = Get-HPOVStorageVolume | Remove-HPOVStorageVolume

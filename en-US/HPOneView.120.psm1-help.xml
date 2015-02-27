@@ -873,7 +873,7 @@ Add a new enclosure to the appliance for monitoring only.
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
-                <maml:linkText>ConvertTo-HPOVManagedEnclosure</maml:linkText>
+                <maml:linkText>Invoke-HPOVcmMigration</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
@@ -18722,7 +18722,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                     <maml:name>EnclosureGroup</maml:name>
                     <maml:description>
                         <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -18817,7 +18817,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                     <maml:name>EnclosureGroup</maml:name>
                     <maml:description>
                         <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -18832,30 +18832,6 @@ Accepted values are
             
 &#8226; OneView
 &#8226; OneViewNoiLO</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="8">
-                    <maml:name>VCEMCMS</maml:name>
-                    <maml:description>
-                        <maml:para>In order to migrate from a Virtual Connect Enterprise Manager Domain Group, you must provide the CMS IP Address or FQDN.</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="9">
-                    <maml:name>VCEMUser</maml:name>
-                    <maml:description>
-                        <maml:para>Virtual Connect Enterprise Manager Administrator account name.</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="10">
-                    <maml:name>VCEMPassword</maml:name>
-                    <maml:description>
-                        <maml:para>Virtual Connect Enterprise Manager Administrator account password.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18928,7 +18904,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                     <maml:name>EnclosureGroup</maml:name>
                     <maml:description>
                         <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -19053,7 +19029,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                 <maml:name>EnclosureGroup</maml:name>
                 <maml:description>
                     <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -19072,42 +19048,6 @@ Accepted values are
             
 &#8226; OneView
 &#8226; OneViewNoiLO</maml:para>
-                </maml:description>
-                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-                <dev:type>
-                    <maml:name>String</maml:name>
-                    <maml:uri/>
-                </dev:type>
-                <dev:defaultValue></dev:defaultValue>
-            </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="8">
-                <maml:name>VCEMCMS</maml:name>
-                <maml:description>
-                    <maml:para>In order to migrate from a Virtual Connect Enterprise Manager Domain Group, you must provide the CMS IP Address or FQDN.</maml:para>
-                </maml:description>
-                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-                <dev:type>
-                    <maml:name>String</maml:name>
-                    <maml:uri/>
-                </dev:type>
-                <dev:defaultValue></dev:defaultValue>
-            </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="9">
-                <maml:name>VCEMUser</maml:name>
-                <maml:description>
-                    <maml:para>Virtual Connect Enterprise Manager Administrator account name.</maml:para>
-                </maml:description>
-                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
-                <dev:type>
-                    <maml:name>String</maml:name>
-                    <maml:uri/>
-                </dev:type>
-                <dev:defaultValue></dev:defaultValue>
-            </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="10">
-                <maml:name>VCEMPassword</maml:name>
-                <maml:description>
-                    <maml:para>Virtual Connect Enterprise Manager Administrator account password.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -25515,7 +25455,7 @@ PS C:\&gt; $con41 = New-HPOVProfileConnection 1 Ethernet $net41
 PS C:\&gt; $net42 = Get-HPOVNetwork "Net-42"
 PS C:\&gt; $con42 = New-HPOVProfileConnection -connectionID 2 -connectionType Ethernet -network $net42
 PS C:\&gt; $conList = @($con41, $con42)
-PS C:\&gt; $task = New-HPOVProfile -name $profileName -server $server -connections $conList -boot -bootorder @("PXE","HardDisk","CD","Floppy","USB") -bios -biossettings $bl460bios | Wait-HPOVTaskComplete
+PS C:\&gt; $task = New-HPOVProfile -name $profileName -server $server -connections $conList -manageboot -bootorder @("PXE","HardDisk","CD","Floppy","USB") -bios -biossettings $bl460bios | Wait-HPOVTaskComplete
 
 Create a profile which includes networks 'Net-41' and 'Net-42', sets the boot order, and sets the BIOS. Then pipes to Wait-HPOVTaskComplete.
 
@@ -25551,6 +25491,7 @@ PS C:\&gt; $params = @{
 &gt;&gt;    serverHardwareType = $bl460SHT;
 &gt;&gt;    enclosureGroup     = $eg;
 &gt;&gt;    connections        = $conList
+&gt;&gt;    manageboot         = $True;
 &gt;&gt;    bootMode           = "UEFI";
 &gt;&gt;    pxeBootPolicy      = "IPv4ThenIPv6";
 &gt;&gt;    bootOrder          = "HardDisk";
@@ -31731,6 +31672,222 @@ Remove export of volume named 'TestVol1' only, which leaves the volume still pro
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
                 <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVStorageVolume</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
+    <!--REMOVE-HPOVUNMANAGEDDEVICE-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Remove-HPOVUnmanagedDevice</command:name>
+            <maml:description>
+                <maml:para>Remove an Unmanaged Device.</maml:para>
+            </maml:description>
+            <command:verb>Remove</command:verb>
+            <command:noun>HPOVUnmanagedDevice</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>Use this cmdlet to remove an Unmanaged Device from the appliance.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Remove-HPOVUnmanagedDevice</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
+                    <maml:name>UnmanagedDevice</maml:name>
+                    <maml:description>
+                        <maml:para>Alias [-name, -uri]
+The Name, URI or Object of the Unmanaged Device to remove.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>force</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>WhatIf</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>Confirm</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
+                <maml:name>UnmanagedDevice</maml:name>
+                <maml:description>
+                    <maml:para>Alias [-name, -uri]
+The Name, URI or Object of the Unmanaged Device to remove.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>force</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>False</dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>WhatIf</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>Confirm</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Unmanaged Device resource object.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>None.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Remove-HPOVUnmanagedDevice MyDevice
+Remove the Unmanaged Device 'MyDevice' from the appliance.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Remove-HPOVUnmanagedDevice MyDevice -confirm:$false
+Remove the Unmanaged Device 'MyDevice' from the appliance and do not prompt for confirmation.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVUnmanagedDevice | Remove-HPOVUnmanagedDevice
+Get all Unmanaged Devices on the appliance and remove them.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVUnmanagedDevice</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVUnmanagedDevice</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVUnmanagedDevice</maml:uri>
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
@@ -39431,7 +39588,7 @@ Re-apply Enclosure Group settings 'Enclosure1' enclosure.
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
-                <maml:linkText>ConvertTo-HPOVManagedEnclosure</maml:linkText>
+                <maml:linkText>Invoke-HPOVcmMigration</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>

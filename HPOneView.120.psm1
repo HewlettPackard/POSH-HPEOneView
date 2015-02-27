@@ -64,16 +64,22 @@ THE SOFTWARE.
      |  - Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent results when -Name parameter is provided and no results were found which generates a terminating error.
 ------------------------------------------
 1.20.0077.0
-     |  -  Fixed New-HPOVNetwork where an invalid property was added to the ParameterValidation for -Type.
-     |  -  Fixed New-HPOVLdap where request would not complete successfully.
-     |  -  Fixed New-HPOVLdapServer where the wrong JSON property was used for type.
-     |  -  Fixed Set-HPOVApplianceGlobalSetting where the wrong method to update a setting was used.
-     |  -  Added $Global:ResponseErrorObject that will capture API error messages, to go along with existing $Global:LastWebResponse.
+     |  - Fixed New-HPOVNetwork where an invalid property was added to the ParameterValidation for -Type.
+     |  - Fixed New-HPOVLdap where request would not complete successfully.
+     |  - Fixed New-HPOVLdapServer where the wrong JSON property was used for type.
+     |  - Fixed Set-HPOVApplianceGlobalSetting where the wrong method to update a setting was used.
+     |  - Added $Global:ResponseErrorObject that will capture API error messages, to go along with existing $Global:LastWebResponse.
+------------------------------------------
+1.20.0078.0
+     |  - Fixed New-HPOVNetwork where Ethernet network object would fail to create.
+     |  - Fixed New-HPOVProfileConnection where the wrong Fibre Channel type was created.
+     |  - Fixed Invoke-HPOVVcemMigration if Enclosure Group was provided, would error if EG wasn't found instead of creating new EG resource.
+     |  - Added Remove-HPOVUnmanagedDevice CMDLET.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.0077.0"
+$script:scriptVersion = "1.20.0078.0"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.120"}))) { 
@@ -441,6 +447,28 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
             }
         }
 
+        public class EnclosureGroupResourceException : Exception
+        {
+
+            public EnclosureGroupResourceException() : base() { }
+            public EnclosureGroupResourceException(string message) : base(message) { }
+            public EnclosureGroupResourceException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+                get
+                {
+                    return strExtraInfo;
+                }
+
+                set
+                {
+                    strExtraInfo = value;
+                }
+            }
+        }
+
         public class BaselineResourceException : Exception
         {
 
@@ -601,6 +629,28 @@ if (! ("HPOneView.PKI.SslCertificate" -as [type])) {
             public ServerProfileConnectionException() : base() { }
             public ServerProfileConnectionException(string message) : base(message) { }
             public ServerProfileConnectionException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+                get
+                {
+                    return strExtraInfo;
+                }
+
+                set
+                {
+                    strExtraInfo = value;
+                }
+            }
+        }
+
+	    public class UnmanagedDeviceResourceException : Exception
+        {
+
+            public UnmanagedDeviceResourceException() : base() { }
+            public UnmanagedDeviceResourceException(string message) : base(message) { }
+            public UnmanagedDeviceResourceException(string message, Exception e) : base(message, e) { }
 
             private string strExtraInfo;
             public string ExtraErrorInfo
@@ -1639,7 +1689,7 @@ function Send-HPOVRequest {
                     
                         405 {
                     
-                            $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: The requested HTTP method is not valid/supported.  " + $global:ResponseErrorObject.details + " URI: $uri")
+                            $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode InvalidOperation 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: The requested HTTP method is not valid/supported.  " + $global:ResponseErrorObject.details + " URI: $uri")
                             Throw $errorRecord
 
                         }
@@ -5449,6 +5499,7 @@ function Add-HPOVServer {
 
 	    [parameter(Mandatory = $false, ParameterSetName = "Managed")]
 	    [switch]$force
+        
     )
 
     Begin {
@@ -6145,7 +6196,6 @@ function Add-HPOVEnclosure {
                     hostname             = $hostname;
                     username             = $username;
                     password             = $password;
-                    force                = [bool]$force;
                     licensingIntent      = $licensingIntent;
                     enclosureGroupUri    = $enclGroup.uri;
                     firmwareBaselineUri  = $null;
@@ -6176,9 +6226,9 @@ function Add-HPOVEnclosure {
 
                         write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Task error found $($resp.taskState) $($resp.stateReason) "
 
-                        if ($resp.taskerrors | Where-Object { $_.errorCode -eq "ENCLOSURE_ALREADY_MANAGED" }) {
+                        if ($resp.taskerrors | Where-Object { ($_.errorCode -eq "ENCLOSURE_ALREADY_MANAGED") -or ($_.errorCode -eq "ENCLOSURE_MANAGED_BY_VCM") }) {
                         
-                            $errorMessage = $resp.taskerrors | Where-Object { $_.errorCode -eq "ENCLOSURE_ALREADY_MANAGED" }
+                            $errorMessage = $resp.taskerrors | Where-Object { ($_.errorCode -eq "ENCLOSURE_ALREADY_MANAGED") -or ($_.errorCode -eq "ENCLOSURE_MANAGED_BY_VCM") }
 
                             $externalManagerType = $errorMessage.data.managementProduct
                             $externalManagerIP = $errorMessage.data.managementUrl.Replace("https://","")
@@ -6200,7 +6250,7 @@ function Add-HPOVEnclosure {
                                 if ($PSBoundParameters['whatif'].ispresent) { 
                             
                                     write-warning "-WhatIf was passed, would have force added '$hostname' enclosure to appliance."
-                                    $resp= $null
+                                    $resp = $null
                             
                                 }
                                 else {
@@ -6419,8 +6469,11 @@ function Invoke-HPOVVcmMigration {
         [parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[alias('eg')]
         [ValidateScript({
-            if ($_ -is [String] -and $_.StartsWith('/rest/') -and -not ($_.StartsWith('/rest/enclosure-groups'))) { Throw "'$_' is not an allowed resource URI.  Enclosure Group Resource URI must start with '/rest/enclosure-groups'. Please check the value and try again." } 
-            elseif ($_ -is [PSCustomObject] -and -not ($_.category -eq "enclosure-groups")) { 
+            if (($_ -is [String]) -and ($_.StartsWith('/rest/')) -and (-not ($_.StartsWith('/rest/enclosure-groups')))) { Throw "'$_' is not an allowed resource URI.  Enclosure Group Resource URI must start with '/rest/enclosure-groups'. Please check the value and try again." } 
+            elseif ($_ -is [String] -and ($_.StartsWith('/rest/'))) { $True }
+            elseif ($_ -is [String]) { $True }
+            
+            elseif (($_ -is [PSCustomObject]) -and (-not ($_.category -eq "enclosure-groups"))) { 
             
                 if ($_.category) { Throw "'$_.category' is not an allowed resource category.  The resource object category must be 'enclosure-groups'. Please check the value and try again." }
                 else { Throw "The object provided does not contain an the allowed resource category 'enclosure-groups'. Please check the value and try again." }
@@ -6493,8 +6546,8 @@ function Invoke-HPOVVcmMigration {
                     #The value is an Enclosure Group URI
                     if ($EnclosureGroup.startswith('/rest/enclosure-groups')) {
 
-                        Write-Verbose "[CONVERTTO-HPOVMANAGEDENCLOSURE] Enclosure Group URI provided: $EnclosureGroup"
-                        $vcMigrationObject | Add-Member -NotePropertyName "enclosureGroupUri" -NotePropertyValue $EnclosureGroup
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group URI provided: $EnclosureGroup"
+                        $vcMigrationObject.enclosureGroupUri = $EnclosureGroup
 
                     }
 
@@ -6502,67 +6555,31 @@ function Invoke-HPOVVcmMigration {
                     else {
                         
                         #Enclosure group name provided.  Check if this is for a custom EG and LIG (LIG name also provided), or existing EG
-                        Write-Verbose "[CONVERTTO-HPOVMANAGEDENCLOSURE] Enclosure Group Name provided: $EnclosureGroup"
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Name provided: $EnclosureGroup"
 
-                        if($LogicalInterconnectGroup) {
-
-                            Write-Verbose "[CONVERTTO-HPOVMANAGEDENCLOSURE] Logical Interconnect Group Name provided: $LogicalInterconnectGroup"
-                            #We have both EG and LIG names so these will be new objects
-                            #Check that these object names do not already exist on the appliance
+                        try { 
                             
-                            #using try/catch to suppress the error message if name is not found
-                            try {$lig = Get-HPOVLogicalInterconnectGroup $LogicalInterconnectGroup}
-                            catch {}
-
-                            if($lig) {
-
-                                $errorRecord = New-ErrorRecord HPOneview.EnclosureGroupResourceException InvalidArgumentValue InvalidArgument 'ConvertTo-HPOVManagedEnclosure' -Message "Logical Interconnect Group resource name already exists on the appliance. Please check the name and try again." #-verbose
-                                $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                            }
-
-                            try {$eg = Get-HPOVEnclosureGroup $EnclosureGroup}
-
-                            catch {}
-
-                            if($eg) {
-
-                                $errorRecord = New-ErrorRecord HPOneview.EnclosureGroupResourceException InvalidArgumentValue InvalidArgument 'ConvertTo-HPOVManagedEnclosure' -Message "Enclosure Group resource name already exists on the appliance. Please check the name and try again." #-verbose
-                                $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                            }
-
-                            #If we get here, all is well... Update the object
-                            $vcMigrationObject | Add-Member -NotePropertyName "enclosureGroupName" -NotePropertyValue $EnclosureGroup
-                            $vcMigrationObject | Add-Member -NotePropertyName "logicalInterconnectGroupName" -NotePropertyValue $LogicalInterconnectGroup
-
+                            $eg = (Get-HPOVEnclosureGroup $EnclosureGroup).uri 
+                                
+                            #Add the URI property to the migration object
+                            $vcMigrationObject.enclosureGroupUri = $EnclosureGroup
+                                
                         }
 
-                        #Only the EG name was provided, so this domain is destined for an existing EG. Get the EG Uri.
-                        else {
+                        catch {
 
-                            try { $eg = (Get-HPOVEnclosureGroup $EnclosureGroup).uri }
-                            catch {
+                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group '$EnclosureGroup' not found. Specifying custom Enclosure Group Name."
+                            $vcMigrationObject | Add-Member -NotePropertyName "enclosureGroupName" -NotePropertyValue $EnclosureGroup -force
 
-                                #The EG was not found
-                                $errorRecord = New-ErrorRecord HPOneview.EnclosureGroupResourceException InvalidArgumentValue InvalidArgument 'ConvertTo-HPOVManagedEnclosure' -Message "Enclosure Group resource not found. Please check the name and try again." #-verbose
-                                $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-                            }
-
-                            #Add the URI property to the migration object
-                            $vcMigrationObject | Add-Member -NotePropertyName "enclosureGroupUri" -NotePropertyValue $eg
                         }
 
                     }
                     
-                    
                 }
                 "PSCustomObject" {
             
-                    Write-Verbose "[CONVERTTO-HPOVMANAGEDENCLOSURE] Enclosure Group resource object provided: $($EnclosureGroup | fl | out-string)"
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group resource object provided: $($EnclosureGroup | fl | out-string)"
                     $vcMigrationObject.enclosureGroupUri = $EnclosureGroup.uri
-                    #$vcMigrationObject | Add-Member -NotePropertyName logicalInterconnectGroupUri -NotePropertyValue $EnclosureGroup.logicalInterconnectGroupUri
             
                 }
 
@@ -6690,16 +6707,15 @@ function Invoke-HPOVVcmMigration {
 
                 if ($NoWait) {
 
-                    #$resp = $migrateTask | Wait-HPOVTaskComplete
                     $resp = $migrateTask
 
                 }
                 else {
                     
                     $resp = $migrateTask | Wait-HPOVTaskComplete
-                    #$resp = $migrateTask
 
                 }
+				
             }
             else {
 
@@ -11301,7 +11317,7 @@ function Get-HPOVUnmanagedDevice {
 
         $collection = Send-HPOVRequest $script:unmanagedDevicesUri
 
-        if ($collection.count -eq 0) {  Write-Warning "No unmanaged devices found." }
+        if ($collection.count -eq 0 -and (-not ($name))) {  Write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No unmanaged devices found." }
 
         else {
 
@@ -11309,10 +11325,11 @@ function Get-HPOVUnmanagedDevice {
             If ($name) { $unmanagedDevices = $collection.members | where ( $_.name -eq $name) 
             
                 #If not found, throw error
-                if (!$unmanagedDevices) { 
+                if (-not ($unmanagedDevices)) { 
+
+                    $errorRecord = New-ErrorRecord HPOneview.UnmanagedDeviceResourceException UnmangedDeviceResouceNotFound ObjectNotFound $($MyInvocation.InvocationName.ToString().ToUpper()) -Message "The '$($name)' Unmanaged Device resource was not found. Please check the name and try again." #-verbose
+                    $PSCmdlet.ThrowTerminatingError($errorRecord)
                 
-                    Write-Error "" -Category ObjectNotFound -CategoryTargetName "Get-HPOVUnmanagedDevice" -CategoryReason "$($name) Object Not Found"
-                    Break
                 }
 
             }
@@ -11366,7 +11383,13 @@ function New-HPOVUnmanagedDevice {
     Begin {
     
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-        #verify-auth "New-HPOVUnmanagedDevice"
+
+        if (! $global:cimgmtSessionId) {
+        
+            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError $($MyInvocation.InvocationName.ToString().ToUpper()) -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
             
     }
 
@@ -11380,6 +11403,85 @@ function New-HPOVUnmanagedDevice {
         $resp = Send-HPOVRequest $script:unmanagedDevicesUri POST $newDevice
 
         return $resp
+
+    }
+
+}
+
+function Remove-HPOVUnmanagedDevice {
+
+    # .ExternalHelp HPOneView.120.psm1-help.xml
+
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
+
+    Param (
+        [parameter(Mandatory = $true,ValueFromPipeline = $true,ParameterSetName = "default",
+            HelpMessage = "Enter the the Unmanaged Device to be removed.")]
+        [ValidateNotNullOrEmpty()]
+        [Alias("uri")]
+        [Alias("name")]
+        [object]$UnmanagedDevice = $null,
+
+	    [parameter(Mandatory = $false)]
+	    [switch]$force
+    )
+
+    Begin {
+        
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+ 
+        if (! $global:cimgmtSessionId) {
+        
+            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError $($MyInvocation.InvocationName.ToString().ToUpper()) -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
+    }
+
+    Process {
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+        foreach ($device in $UnmanagedDevice) {
+
+            $deviceNameOrUri = $null
+            $deviceDisplayName = $null
+
+            if ($device -is [String]) {
+
+                $deviceNameOrUri = $device
+                $deviceDisplayName = $device
+
+            }
+            elseif ($device -is [PSCustomObject] -and $device.category -ieq 'unmanaged-devices') {
+
+                $deviceNameOrUri = $device.uri
+                $deviceDisplayName = $device.name
+
+            }
+            else {
+
+                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument $($MyInvocation.InvocationName.ToString().ToUpper()) -Message "Invalid UnmanagedDevice parameter: $($device | out-string)" #-verbose
+                $pscmdlet.WriteError($errorRecord)
+
+            }
+
+            if (!$deviceNameOrUri) {
+
+                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument $($MyInvocation.InvocationName.ToString().ToUpper()) -Message "Could not determine the name or URI from the parameter value provided: $($device | out-string)" #-verbose
+                $pscmdlet.WriteError($errorRecord)
+
+            }
+            elseif ($pscmdlet.ShouldProcess($deviceDisplayName,'Remove unmanaged device from appliance?')){
+
+                if ([bool]$force) { Remove-HPOVResource -nameOrUri $deviceNameOrUri -force }
+
+                else { Remove-HPOVResource -nameOrUri $deviceNameOrUri }
+
+            }
+
+        } 
 
     }
 
@@ -11760,8 +11862,6 @@ function New-HPOVNetwork {
                 if (-not $vlanRange) {
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating '$name' Ethernet Network"
-
-                    $network = New-Object [HPOneView.EthernetNetwork]
 
                     $network = [pscustomobject]@{
                     
@@ -16275,7 +16375,7 @@ function New-HPOVProfile {
         [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
         [ValidateNotNullOrEmpty()]
-        [bool]$manageBoot = $true,
+        [switch]$manageBoot,
 
 	    [parameter(Mandatory = $false,ParameterSetName = "Default")]
         [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
@@ -16359,7 +16459,8 @@ function New-HPOVProfile {
 
         }
 
-        #$serverProfile = $null
+        if ($manageBoot.IsPresent) { [Bool]$manageBoot = $True }
+        else { [Bool]$manageBoot = $False }
 
         #New Server Resource Object
         $serverProfile = [pscustomobject]@{
@@ -16370,11 +16471,24 @@ function New-HPOVProfile {
             affinity              = $Affinity;
             hideUnusedFlexNics    = [bool]$hideUnusedFlexNics ;
             bios                  = @{
-                manageBios = [bool]$bios;
+
+                manageBios         = [bool]$bios;
                 overriddenSettings = $biosSettings
+
             }; 
-            firmware              = @{manageFirmware = [bool]$firmware; firmwareBaselineUri = $baseline; forceInstallFirmware = [bool]$forceInstallFirmware};
-            boot                  = @{manageBoot = [bool]$manageBoot; order=$bootOrder};
+            firmware                 = @{
+
+                manageFirmware       = [bool]$firmware;
+                firmwareBaselineUri  = $baseline;
+                forceInstallFirmware = [bool]$forceInstallFirmware
+                 
+            };
+            boot           = @{
+            
+                manageBoot = [bool]$manageBoot; 
+                order      = $bootOrder
+                
+            };
             bootMode              = $null;
             localStorage          = $null
             serialNumberType      = $snAssignment; 
@@ -17647,7 +17761,6 @@ function New-HPOVProfileConnection {
 
         switch ($network.Gettype().Name) {
 
-
             "String" {
 
                 #Ethernet Network URI
@@ -17673,7 +17786,7 @@ function New-HPOVProfileConnection {
                 }
 
                 #FC Network URI
-                elseif ($network.startswith($script:ethNetworksUri)) {
+                elseif ($network.startswith($script:fcNetworksUri)) {
             
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Locating FibreChannel Resource via its URI"
 
@@ -17858,15 +17971,18 @@ function New-HPOVProfileConnection {
 
 			}
 			
-			return $connection
+			#return $connection
 
 		}
+    }
 
-		else{
+    End {
 
+		#else{
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Connection object: $($connection | ConvertTo-Json)"
 			return $connection
 
-		}
+		#}
 
 	}
 
@@ -21365,6 +21481,7 @@ Export-ModuleMember -Function Set-HPOVManagedSan
 #Unmanaged Devices
 Export-ModuleMember -Function Get-HPOVUnmanagedDevice
 Export-ModuleMember -Function New-HPOVUnmanagedDevice
+Export-ModuleMember -Function Remove-HPOVUnmanagedDevice
 
 #Power Devices (iPDUs):
 Export-ModuleMember -Function Get-HPOVPowerDevice

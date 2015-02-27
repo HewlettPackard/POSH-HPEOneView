@@ -30,6 +30,13 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 1.20.0078.0
+     -- Fixed New-HPOVNetwork where Ethernet network object would fail to create.
+     -- Fixed New-HPOVProfileConnection where the wrong Fibre Channel type was created.
+     -- Fixed Invoke-HPOVVcemMigration if Enclosure Group was provided, would error if EG wasn't found 
+        instead of creating new EG resource.
+     -- Added Remove-HPOVUnmanagedDevice CMDLET.
+
     Release 1.20.0077.0
      -- Fixed New-HPOVNetwork where an invalid property was added to the ParameterValidation for -Type.
      -- Fixed New-HPOVLdap where request would not complete successfully.
