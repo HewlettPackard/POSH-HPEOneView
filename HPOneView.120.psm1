@@ -17360,9 +17360,6 @@ function Copy-HPOVProfile {
         #Create new connections with excluded properties and add to the newConnections array
         $newConnections += $profile.connections | select-object -property * -excludeproperty mac,wwnn,wwpn,deploymentstatus,interconnectUri
         
-        #Create a new array to hold the updated connections
-        $newConnections = @()        
-
         #Assign the newConnections array to $profile.connections
         $profile.connections = $newConnections
 
