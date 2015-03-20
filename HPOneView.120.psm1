@@ -17349,7 +17349,7 @@ function Copy-HPOVProfile {
                 
         }
 
-        if ($profile.sanStorage) { Write-Warning "SAN Storage Volumes found in the source profile. SAN Volumes will not be copied or assigned to the destination profile." }
+        if ($profile.sanStorage -and $profile.sanStorage.volumeAttachments) { Write-Warning "SAN Storage Volumes found in the source profile. SAN Volumes will not be copied or assigned to the destination profile." }
 
         #Need to offer the ability to copy private san volume details in a future library release.
 
