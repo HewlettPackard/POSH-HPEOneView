@@ -17349,7 +17349,7 @@ function Copy-HPOVProfile {
                 
         }
 
-        if ($profile.sanStorage) { Write-Warning "SAN Storage Volumes found in the source profile. SAN Volumes will not be copied or assigned to the destination profile." }
+        if ($profile.sanStorage -and $profile.sanStorage.volumeAttachments) { Write-Warning "SAN Storage Volumes found in the source profile. SAN Volumes will not be copied or assigned to the destination profile." }
 
         #Need to offer the ability to copy private san volume details in a future library release.
 
@@ -17360,9 +17360,6 @@ function Copy-HPOVProfile {
         #Create new connections with excluded properties and add to the newConnections array
         $newConnections += $profile.connections | select-object -property * -excludeproperty mac,wwnn,wwpn,deploymentstatus,interconnectUri
         
-        #Create a new array to hold the updated connections
-        $newConnections = @()        
-
         #Assign the newConnections array to $profile.connections
         $profile.connections = $newConnections
 
