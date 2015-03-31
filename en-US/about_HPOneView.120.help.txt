@@ -30,18 +30,28 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 1.20.0110.0
+     -- Fixed New-HPOVProfile where condition check for bootable connections and presence of -ManageBoot parameter 
+	    would always fail causing terminating error.
+
     Release 1.20.0109.0
      -- Fixed New-HPOVProfileConnection where Fibre Channel boot targets were not added to the object correctly.
-     -- Fixed Copy-HPOVProfile where the connections property of the source profile were being removed in the new Server Profile object.
+     -- Fixed Copy-HPOVProfile where the connections property of the source profile were being removed in the new 
+	    Server Profile object.
      -- Fixed Copy-HPOVProfile where the warning message about SAN volumes would not be copied would aways display.
-     -- Updated New-HPOVProfile to verify any connections configured as bootable and caller did not supply the -manageBoot switch parameter to generate a terminating error.
-     -- Updated New-HPOVProfile to generate error if no available storage systems were found when attempting to attach Storage Volume to a Server Profile.
+     -- Updated New-HPOVProfile to verify any connections configured as bootable and caller did not supply the 
+	    -manageBoot switch parameter to generate a terminating error.
+     -- Updated New-HPOVProfile to generate error if no available storage systems were found when attempting to 
+	    attach Storage Volume to a Server Profile.
      -- Updated Wait-HPOVTaskComplete to wait 2 seconds before getting task status.
      -- Updated RestClient to increate the default timeout from 10 to 20 seconds.
-     -- Updated New-HPOVStorageVolume removing the -permanent parameter, as ephemeral volumes should be created with the New-HPOVProfileAttachVolume CMDLET.
+     -- Updated New-HPOVStorageVolume removing the -permanent parameter, as ephemeral volumes should be created 
+	    with the New-HPOVProfileAttachVolume CMDLET.
      -- Updated New-HPOVProfileAttachVolume to support creating shared volumes with a new '-shared' switch parameter.
-     -- Updated Add-HPOVEnclosure to allow the Firmware Baseline File Name, Name, URI or Object to be provided instead of just the name.
-     -- Added SAN Volume Copy support to Copy-HPOVProfile.  Storage Volumes will now be copied based on the source Server Profile.
+     -- Updated Add-HPOVEnclosure to allow the Firmware Baseline File Name, Name, URI or Object to be provided 
+	    instead of just the name.
+     -- Added SAN Volume Copy support to Copy-HPOVProfile.  Storage Volumes will now be copied based on the 
+	    source Server Profile.
      -- Renamed the following CMDLETs and created alias:
         Get-HPOVSppFile --> Get-HPOVBaseline
         Add-HPOVSppFile --> Add-HPOVBaseline

@@ -91,11 +91,14 @@ THE SOFTWARE.
 	 |  - Renamed the following CMDLETs and created alias:
 			Get-HPOVSppFile --> Get-HPOVBaseline
 		    Add-HPOVSppFile --> Add-HPOVBaseline
+------------------------------------------
+1.20.0110.0
+     |  - Fixed New-HPOVProfile where condition check for bootable connections and presence of -ManageBoot parameter would always fail causing terminating error.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.0109.10"
+$script:scriptVersion = "1.20.0110.0"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.120"}))) { 
@@ -17140,7 +17143,6 @@ function New-HPOVProfile {
         [parameter(Mandatory = $false,ParameterSetName = "Default")]
         [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
-        [ValidateNotNullOrEmpty()]
         [switch]$manageBoot,
 
 	    [parameter(Mandatory = $false,ParameterSetName = "Default")]
@@ -17597,7 +17599,7 @@ function New-HPOVProfile {
 
 			}
 
-			if ($serverProfile.boot.manageBoot -and $BootableConnections.count -gt 0) {
+			if ((-not($manageBoot.IsPresent)) -and $BootableConnections.count -gt 0) {
 		
 				$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootableConnectionsFound InvalidArgument 'manageBoot' -Message "Bootable Connections $($BootableConnections -join ",") were found, however the -manageBoot switch parameter was not provided.  Please correct your command syntax and try again." #-verbose
 				$pscmdlet.ThrowTerminatingError($errorRecord)  
