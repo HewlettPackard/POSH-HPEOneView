@@ -1,5 +1,113 @@
 <?xml version="1.0" encoding="utf-8"?>
 <helpItems schema="maml">
+    <!--ADD-HPOVBASELINE-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Add-HPOVBaseline</command:name>
+            <maml:description>
+                <maml:para>Upload new SPP Baseline to appliance firmware repository.</maml:para>
+            </maml:description>
+            <command:verb>Add</command:verb>
+            <command:noun>HPOVBaseline</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>This cmdlet provides the ability to upload a new SPP Baseline into the appliance.  It will return after the upload has completed but before the SPP file has been imported into the firmware repository.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Add-HPOVBaseline</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>sppFile</maml:name>
+                    <maml:description>
+                        <maml:para>The full path and file name of the SPP file.  The function returns an error if the file path cannot be validated.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                <maml:name>sppFile</maml:name>
+                <maml:description>
+                    <maml:para>The full path and file name of the SPP file.  The function returns an error if the file path cannot be validated.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>The progress of uploading the file to the appliance, and completion result.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Add-HPOVSppFile "C:\Users\me\Documents\SPP2012060B.2012_0525.1.iso"
+Upload SPP ISO into appliance.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVSppFile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVBaseline</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
     <!--ADD-HPOVENCLOSURE-->
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
         <command:details>
@@ -518,12 +626,17 @@ Accepted values are
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="6">
-                    <maml:name>fwBaselineIsoFilename</maml:name>
+                    <maml:name>baseline</maml:name>
                     <maml:description>
-                        <maml:para>Aliases [-fwIso]
-OPTIONAL. SPP Baseline file name. e.g. SPP2013090_2013_0830_30.iso</maml:para>
+                        <maml:para>Aliases [-fwIso, -fwBaselineIsoFilename]
+OPTIONAL. Baseline File Name, Name, URI or Object.
+
+Examples:
+
+$FileName = "bp-hp-service-pack-for-proliant-oneview-2014-11-30-05.iso"
+$Name = " HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
                     </maml:description>
-                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
@@ -687,14 +800,19 @@ Accepted values are
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="6">
-                <maml:name>fwBaselineIsoFilename</maml:name>
+                <maml:name>baseline</maml:name>
                 <maml:description>
-                    <maml:para>Aliases [-fwIso]
-OPTIONAL. SPP Baseline file name. e.g. SPP2013090_2013_0830_30.iso</maml:para>
+                    <maml:para>Aliases [-fwIso, -fwBaselineIsoFilename]
+OPTIONAL. Baseline File Name, Name, URI or Object.
+
+Examples:
+
+$FileName = "bp-hp-service-pack-for-proliant-oneview-2014-11-30-05.iso"
+$Name = " HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
                 </maml:description>
-                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
-                    <maml:name>String</maml:name>
+                    <maml:name>Object</maml:name>
                     <maml:uri/>
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
@@ -5885,6 +6003,10 @@ Copy 5 Server Profiles from "Profile Template" that will be assigned to bays 11 
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
+                <maml:linkText>New-HPOVProfileAssign</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
                 <maml:linkText>Remove-HPOVProfile</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
@@ -8219,6 +8341,251 @@ Save the Appliance bacaudit log to C:\Temp
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
                 <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVAuditLog</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
+    <!--GET-HPOVBASELINE-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Get-HPOVBaseline</command:name>
+            <maml:description>
+                <maml:para>Retrieve available SPP Baseline information.</maml:para>
+            </maml:description>
+            <command:verb>Get</command:verb>
+            <command:noun>HPOVBaseline</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>Retrieves the list of SPPs that have been uploaded to the appliance, and their detail.  You can examine the included components and their versions reported by the baseline.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Get-HPOVBaseline</maml:name> 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>isoFileName</maml:name>
+                    <maml:description>
+                        <maml:para>Optional.  The ISO file name of an SPP.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>List</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem> 
+            <command:syntaxItem>
+                <maml:name>Get-HPOVBaseline</maml:name> 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                    <maml:name>SppName</maml:name>
+                    <maml:description>
+                        <maml:para>Optional.  The SPP/Baseline Name.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>version</maml:name>
+                    <maml:description>
+                        <maml:para>Optional.  If multiple SPP/Baselines with the same name exist, use the Version parameter to filter to the specific SPP/Baseline version.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>List</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                <maml:name>isoFileName</maml:name>
+                <maml:description>
+                    <maml:para>Optional.  The ISO file name of an SPP.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
+                <maml:name>SppName</maml:name>
+                <maml:description>
+                    <maml:para>Optional.  The SPP/Baseline Name.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                <maml:name>version</maml:name>
+                <maml:description>
+                    <maml:para>Optional.  If multiple SPP/Baselines with the same name exist, use the Version parameter to filter to the specific SPP/Baseline version.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>List</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>False</dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>      Single SPP resource object</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+             <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Array</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>      Multiple SPP resource objects</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+             <command:returnValue>
+                <dev:type>
+                    <maml:name>The firmware-baseline object or collection of firmware-baseline objects if no sppFile is provided in the command.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $sppCollection = Get-HPOVBaseline
+Retrieves all SPP objects from the appliance and stores them in the sppCollection object
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $sppObject = Get-HPOVSppFIle SPP2012060B.2012_0525.1.iso
+Retrieves an SPP object with the filename SPP2012060B.2012_0525.1.iso
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $sppObject = Get-HPOVSppFIle -SppName "HP Service Pack for ProLiant"
+Retrieves an SPP object with the SPP Name 'HP Service Pack for ProLiant'
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Add-HPOVSppFile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVBaseline</maml:uri>
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
@@ -11482,7 +11849,7 @@ LDAP/Active Directory Domain Name</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>Export</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-x]
+                        <maml:para>Aliases [-x]
 Export the configured directories to individual files.  Each configured directory will be saved in it's own export file.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
@@ -11491,7 +11858,7 @@ Export the configured directories to individual files.  Each configured director
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                     <maml:name>Save</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-location]
+                        <maml:para>Aliases [-location]
 Directory where the exported configured directories will be saved to.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -11528,7 +11895,7 @@ LDAP/Active Directory Domain Name</maml:para>
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>Export</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-x]
+                    <maml:para>Aliases [-x]
 Export the configured directories to individual files.  Each configured directory will be saved in it's own export file.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">SwitchParameter</command:parameterValue>
@@ -11541,7 +11908,7 @@ Export the configured directories to individual files.  Each configured director
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                 <maml:name>Save</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-location]
+                    <maml:para>Aliases [-location]
 Directory where the exported configured directories will be saved to.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18663,7 +19030,9 @@ List any pending, staged updates on the appliance.
 
 Using the -VCEMCMS, -VCEMUser and -VCEMPassword parameters, the targeted Virtual Connect Domain can be removed from a Virual Connect Enterprise Manager Domain Group first before initiating the VC Migration tool within the HP OneView appliance.
 
-{ADD NOTE ABOUT WHERE TO OBTAIN THE VCEM 7.4 Update Patch for API}
+The required VCEM 7.3/7.4 Patch is available here:  ftp://ftp.hp.com/pub/softlib2/software1/pubsw-generic/p270829882/v106568.
+
+VCEM 7.4.1 or greater users do not require the patch to be installed, as the API is built into 7.4.1 or greater.
 
 It is important to also have a Virtual Connect Domain Backup prior to migration.  You may also want to gather the output from the 'show config -includepoolinfo' VCM CLI command to review or verify resources were migrated successfully.
 
@@ -18685,7 +19054,7 @@ REQUIRED. IP address or FQDN of the Primary Onboard Administrator in the target 
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                     <maml:name>OAUserName</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-ou]
+                        <maml:para>Aliases [-ou]
 REQUIRED. Administrator account of the target OA.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18694,7 +19063,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
                     <maml:name>OAPassword</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-op]
+                        <maml:para>Aliases [-op]
 REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18703,7 +19072,7 @@ REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
                     <maml:name>VCMUserName</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-vu]
+                        <maml:para>Aliases [-vu]
 REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18712,7 +19081,7 @@ REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="5">
                     <maml:name>VCMPassword</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-vp]
+                        <maml:para>Aliases [-vp]
 REQUIRED. Password for the Administrator account of Virtual Connect Manager.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18721,16 +19090,25 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="6">
                     <maml:name>EnclosureGroup</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+                        <maml:para>Aliases [-eg]
+OPTIONAL. The Name, URI or Object of an existing Enclosure Group.  If the Enclosure Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Enclosure Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A').</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                    <maml:name>LogicalInterconnectGroup</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-lig]
+OPTIONAL. The Name, URI or Object of an existing Logical Interconnect Group.  If the Logical Interconnect Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'LIG_USE1234567A').</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="8">
                     <maml:name>licensingIntent</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-license, -l]
+                        <maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
         
 Accepted values are
@@ -18780,7 +19158,7 @@ REQUIRED. IP address or FQDN of the Primary Onboard Administrator in the target 
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                     <maml:name>OAUserName</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-ou]
+                        <maml:para>Aliases [-ou]
 REQUIRED. Administrator account of the target OA.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18789,7 +19167,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
                     <maml:name>OAPassword</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-op]
+                        <maml:para>Aliases [-op]
 REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18798,7 +19176,7 @@ REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
                     <maml:name>VCMUserName</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-vu]
+                        <maml:para>Aliases [-vu]
 REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18807,7 +19185,7 @@ REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="5">
                     <maml:name>VCMPassword</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-vp]
+                        <maml:para>Aliases [-vp]
 REQUIRED. Password for the Administrator account of Virtual Connect Manager.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18816,22 +19194,55 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="6">
                     <maml:name>EnclosureGroup</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+                        <maml:para>Aliases [-eg]
+OPTIONAL. The Name, URI or Object of an existing Enclosure Group.  If the Enclosure Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Enclosure Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A').</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                    <maml:name>LogicalInterconnectGroup</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-lig]
+OPTIONAL. The Name, URI or Object of an existing Logical Interconnect Group.  If the Logical Interconnect Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'LIG_USE1234567A').</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="8">
                     <maml:name>licensingIntent</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-license, -l]
+                        <maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
         
 Accepted values are
             
 &#8226; OneView
 &#8226; OneViewNoiLO</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="9">
+                    <maml:name>VCEMCMS</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="10">
+                    <maml:name>VCEMUser</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="11">
+                    <maml:name>VCEMPassword</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18867,7 +19278,7 @@ REQUIRED. IP address or FQDN of the Primary Onboard Administrator in the target 
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                     <maml:name>OAUserName</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-ou]
+                        <maml:para>Aliases [-ou]
 REQUIRED. Administrator account of the target OA.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18876,7 +19287,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
                     <maml:name>OAPassword</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-op]
+                        <maml:para>Aliases [-op]
 REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18885,7 +19296,7 @@ REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
                     <maml:name>VCMUserName</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-vu]
+                        <maml:para>Aliases [-vu]
 REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18894,7 +19305,7 @@ REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="5">
                     <maml:name>VCMPassword</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-vp]
+                        <maml:para>Aliases [-vp]
 REQUIRED. Password for the Administrator account of Virtual Connect Manager.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18903,22 +19314,55 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="6">
                     <maml:name>EnclosureGroup</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+                        <maml:para>Aliases [-eg]
+OPTIONAL. The Name, URI or Object of an existing Enclosure Group.  If the Enclosure Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Enclosure Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A').</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                    <maml:name>LogicalInterconnectGroup</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-lig]
+OPTIONAL. The Name, URI or Object of an existing Logical Interconnect Group.  If the Logical Interconnect Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'LIG_USE1234567A').</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="8">
                     <maml:name>licensingIntent</maml:name>
                     <maml:description>
-                        <maml:para>Aliases[-license, -l]
+                        <maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
         
 Accepted values are
             
 &#8226; OneView
 &#8226; OneViewNoiLO</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="9">
+                    <maml:name>VCEMCMS</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="10">
+                    <maml:name>VCEMUser</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="11">
+                    <maml:name>VCEMPassword</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18976,7 +19420,7 @@ REQUIRED. IP address or FQDN of the Primary Onboard Administrator in the target 
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                 <maml:name>OAUserName</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-ou]
+                    <maml:para>Aliases [-ou]
 REQUIRED. Administrator account of the target OA.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -18989,7 +19433,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
                 <maml:name>OAPassword</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-op]
+                    <maml:para>Aliases [-op]
 REQUIRED. Password for the Administrator account of the target OA.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -19002,7 +19446,7 @@ REQUIRED. Password for the Administrator account of the target OA.</maml:para>
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
                 <maml:name>VCMUserName</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-vu]
+                    <maml:para>Aliases [-vu]
 REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -19015,7 +19459,7 @@ REQUIRED. Administrator account for Virtual Connect Manager.</maml:para>
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="5">
                 <maml:name>VCMPassword</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-vp]
+                    <maml:para>Aliases [-vp]
 REQUIRED. Password for the Administrator account of Virtual Connect Manager.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -19028,8 +19472,8 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue, ByPropertyName)" position="6">
                 <maml:name>EnclosureGroup</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-eg]
-OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclosure Group Name does not exist, a new Enclosure Group with the value provided will be created.  If omitted, a new Enclosure Group and Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A' or 'LIG_USE1234567A').</maml:para>
+                    <maml:para>Aliases [-eg]
+OPTIONAL. The Name, URI or Object of an existing Enclosure Group.  If the Enclosure Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Enclosure Group will be created based on the Serial Number of the Enclosure (Example: 'EG_USE1234567A').</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -19038,16 +19482,65 @@ OPTIONAL. The Name, URI or Object of an existing enclosure group.  If the Enclos
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="7">
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="7">
+                <maml:name>LogicalInterconnectGroup</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-lig]
+OPTIONAL. The Name, URI or Object of an existing Logical Interconnect Group.  If the Logical Interconnect Group Name does not exist, a new resource with the String value provided will be created.  If omitted, a new Logical Interconnect Group will be created based on the Serial Number of the Enclosure (Example: 'LIG_USE1234567A').</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="8">
                 <maml:name>licensingIntent</maml:name>
                 <maml:description>
-                    <maml:para>Aliases[-license, -l]
+                    <maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
         
 Accepted values are
             
 &#8226; OneView
 &#8226; OneViewNoiLO</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="9">
+                <maml:name>VCEMCMS</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="10">
+                <maml:name>VCEMUser</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="11">
+                <maml:name>VCEMPassword</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -22264,6 +22757,228 @@ Creates the network(s) defined in the input file myNewNets.json
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
+    <!--NEW-HPOVPROFILEASSIGN-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>New-HPOVProfileAssign</command:name>
+            <maml:description>
+                <maml:para>Unassign or Reassign an existing Server Profile.</maml:para>
+            </maml:description>
+            <command:verb>New</command:verb>
+            <command:noun>HPOVProfileAssign</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>This cmdlet is used to unassign or reassign an existing HP OneView Server Profile.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>New-HPOVProfileAssign</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                    <maml:name>Profile</maml:name>
+                    <maml:description>
+                        <maml:para>The name of the server profile resource to modify assignment.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                    <maml:name>Server</maml:name>
+                    <maml:description>
+                        <maml:para>The server hardware resource where the new profile is to be applied.  This is normally retrieved with a 'Get-HPOVServer' call, and the Server state property should be "NoProfileApplied".  Can also be the Server Hardware name or URI.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem> 
+            <command:syntaxItem>
+                <maml:name>New-HPOVProfileAssign</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                    <maml:name>Profile</maml:name>
+                    <maml:description>
+                        <maml:para>The name of the server profile resource to modify assignment.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>Unassigned</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                <maml:name>Profile</maml:name>
+                <maml:description>
+                    <maml:para>The name of the server profile resource to modify assignment.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
+                <maml:name>Server</maml:name>
+                <maml:description>
+                    <maml:para>The server hardware resource where the new profile is to be applied.  This is normally retrieved with a 'Get-HPOVServer' call, and the Server state property should be "NoProfileApplied".  Can also be the Server Hardware name or URI.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>Unassigned</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
+                <dev:type>
+                    <maml:name>SwitchParameter</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue>False</dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Server Profile resource object from Get-HPOVProfile.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>If successful returns a task resource which may be polled to follow the progress of the profile creation.  Otherwise, a request validation error will be returned.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $sp = Get-HPOVProfile 'Profile 1'
+PS C:\&gt; New-HPOVProfileAssign -Profile $sp -Server 'Encl1, Bay 10' | Wait-HPOVTaskComplete
+
+Get 'Profile 1' Server Profile and assign it to 'Encl1, Bay 10', then wait for the async task to complete.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVProfile 'Profile 1' | New-HPOVProfileAssign -unassign | Wait-HPOVTaskComplete
+Get 'Profile 1' Server Profile and unassign it, then wait for the async task to complete.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVServer</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Copy-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Remove-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVEnclosure</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVServerHardwareType</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVProfileConnection</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVProfileConnectionList</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVProfileAttachVolume</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Wait-HPOVTaskComplete</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVProfileAssign</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
     <!--NEW-HPOVPROFILEATTACHVOLUME-->
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
         <command:details>
@@ -23043,7 +23758,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>bootable</maml:name>
                     <maml:description>
-                        <maml:para>Specify to configure bootable settings.
+                        <maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
 	
 Default: False</maml:para>
                     </maml:description>
@@ -23053,7 +23768,7 @@ Default: False</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>priority</maml:name>
                     <maml:description>
-                        <maml:para>Optional boot option for this connection.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
+                        <maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
 
 Default: NotBootable</maml:para>
                     </maml:description>
@@ -23156,7 +23871,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>bootable</maml:name>
                     <maml:description>
-                        <maml:para>Specify to configure bootable settings.
+                        <maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
 	
 Default: False</maml:para>
                     </maml:description>
@@ -23166,7 +23881,7 @@ Default: False</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>priority</maml:name>
                     <maml:description>
-                        <maml:para>Optional boot option for this connection.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
+                        <maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
 
 Default: NotBootable</maml:para>
                     </maml:description>
@@ -23237,7 +23952,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>bootable</maml:name>
                     <maml:description>
-                        <maml:para>Specify to configure bootable settings.
+                        <maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
 	
 Default: False</maml:para>
                     </maml:description>
@@ -23247,7 +23962,7 @@ Default: False</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>priority</maml:name>
                     <maml:description>
-                        <maml:para>Optional boot option for this connection.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
+                        <maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
 
 Default: NotBootable</maml:para>
                     </maml:description>
@@ -23334,7 +24049,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>bootable</maml:name>
                     <maml:description>
-                        <maml:para>Specify to configure bootable settings.
+                        <maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
 	
 Default: False</maml:para>
                     </maml:description>
@@ -23344,7 +24059,7 @@ Default: False</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>priority</maml:name>
                     <maml:description>
-                        <maml:para>Optional boot option for this connection.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
+                        <maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
 
 Default: NotBootable</maml:para>
                     </maml:description>
@@ -23718,7 +24433,7 @@ Default: 2500</maml:para>
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>bootable</maml:name>
                 <maml:description>
-                    <maml:para>Specify to configure bootable settings.
+                    <maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
 	
 Default: False</maml:para>
                 </maml:description>
@@ -23732,7 +24447,7 @@ Default: False</maml:para>
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>priority</maml:name>
                 <maml:description>
-                    <maml:para>Optional boot option for this connection.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
+                    <maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
 
 Default: NotBootable</maml:para>
                 </maml:description>
@@ -24155,9 +24870,10 @@ Default: $True</maml:para>
                     <maml:description>
                         <maml:para>Boot Order settings to be managed.
   
-Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
+Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
 
-Gen7/8/9 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
+Gen7/8 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
+Gen9 Legacy BIOS Boot Order: ‘CD’,’USB’,’HardDisk’,’PXE’
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
@@ -24456,9 +25172,10 @@ Default: $True</maml:para>
                     <maml:description>
                         <maml:para>Boot Order settings to be managed.
   
-Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
+Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
 
-Gen7/8/9 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
+Gen7/8 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
+Gen9 Legacy BIOS Boot Order: ‘CD’,’USB’,’HardDisk’,’PXE’
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
@@ -24925,9 +25642,10 @@ Default: $True</maml:para>
                 <maml:description>
                     <maml:para>Boot Order settings to be managed.
   
-Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
+Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
 
-Gen7/8/9 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
+Gen7/8 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
+Gen9 Legacy BIOS Boot Order: ‘CD’,’USB’,’HardDisk’,’PXE’
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
@@ -25589,6 +26307,10 @@ Retrieve list of all JSON files in C:\profiles, then pass each file and its full
             </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Copy-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVProfileAssign</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
@@ -26293,7 +27015,7 @@ Default: Private</maml:para>
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>Permanent</maml:name>
                     <maml:description>
-                        <maml:para>If present, indicates that the volume will persist when the profile using this volume is deleted (Persistent Volume). If not, then the volume will be deleted when the profile using this volume is deleted (Ephemeral Volume).</maml:para>
+                        <maml:para>DEPRECATED PARAMETER.  Please use the New-HPOVProfileAttachVolume to create Ephemeral Volumes.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 </command:parameter>
@@ -26340,7 +27062,7 @@ Default: Private</maml:para>
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>Permanent</maml:name>
                     <maml:description>
-                        <maml:para>If present, indicates that the volume will persist when the profile using this volume is deleted (Persistent Volume). If not, then the volume will be deleted when the profile using this volume is deleted (Ephemeral Volume).</maml:para>
+                        <maml:para>DEPRECATED PARAMETER.  Please use the New-HPOVProfileAttachVolume to create Ephemeral Volumes.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 </command:parameter>
@@ -26453,7 +27175,7 @@ Default: Private</maml:para>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>Permanent</maml:name>
                 <maml:description>
-                    <maml:para>If present, indicates that the volume will persist when the profile using this volume is deleted (Persistent Volume). If not, then the volume will be deleted when the profile using this volume is deleted (Ephemeral Volume).</maml:para>
+                    <maml:para>DEPRECATED PARAMETER.  Please use the New-HPOVProfileAttachVolume to create Ephemeral Volumes.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 <dev:type>
@@ -30000,7 +30722,7 @@ even when connectivity has been lost to the server or enclosure.</maml:para>
                 </maml:introduction>
                 <dev:code>PS C:\&gt; $task = Remove-HPOVProfile -profile "Profile6"
 PS C:\&gt; Wait-HPOVTaskComplete $task.uri
-            
+		            
 Remove the profile specifed by name. Wait for remove to complete.
 
 
@@ -30069,6 +30791,18 @@ Search for all profiles and remove them from appliance.
             </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Add-HPOVServer</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVProfile</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVProfileAssign</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
@@ -38353,8 +39087,8 @@ By specifying an Enclosure Group, all associated Enclosures will be included in 
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; Show-HPOVFirmwareReport
-Display a firmware report of all available resources currently managed by the appliance.
+                <dev:code>PS C:\&gt; Show-HPOVFirmwareReport -EG 'Production EG'
+Display a firmware report of all associated enclosures to 'Production EG' Enclosure Group currently managed by the appliance.
 
 
 
