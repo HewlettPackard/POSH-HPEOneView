@@ -133,7 +133,7 @@ if ($maxPower.optionLinks) {
 }
 
 #Create Profile
-New-HPOVProfile -name $profileName -server Unassigned -serverHardwareType $serverType -eg "Prod VC FlexFabric Group 1" -connections $conList -boot -bootOrder $bootOrder -bios -biosSettings $biosSettings | Wait-HPOVTaskComplete
+New-HPOVProfile -name $profileName -server Unassigned -serverHardwareType $serverType -eg "Prod VC FlexFabric Group 1" -connections $conList -manageBoot -bootOrder $bootOrder -bios -biosSettings $biosSettings | Wait-HPOVTaskComplete
 
 # Display the connections for our profile
 Get-HPOVProfileConnectionList $profileName

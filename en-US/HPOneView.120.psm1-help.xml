@@ -579,7 +579,7 @@ Add-HPOVEnclosure will attempt a connection to the XML Reply interface to examin
                     <maml:name>hostname</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-oa]
-REQUIRED. Administrator account of the target OA.</maml:para>
+REQUIRED. IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -597,7 +597,7 @@ REQUIRED. Enclosure Group Name to associate with the enclosure to import.</maml:
                     <maml:name>username</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-u, -user]
-REQUIRED. Administrator account of the target OA.</maml:para>
+REQUIRED. Administrator account of the target OA.  Can be either an OA Local Administrator or Active Directory (AD) account if the OA is configured for AD authentication.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -606,7 +606,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                     <maml:name>password</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-p, -pw]
-REQUIRED. Account password of the OA specified.</maml:para>
+REQUIRED. Administrator Account password of the OA specified.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -679,7 +679,7 @@ OPTIONAL.  Force the installation of the provided Firmware Baseline.</maml:para>
                     <maml:name>hostname</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-oa]
-REQUIRED. Administrator account of the target OA.</maml:para>
+REQUIRED. IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -688,7 +688,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                     <maml:name>username</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-u, -user]
-REQUIRED. Administrator account of the target OA.</maml:para>
+REQUIRED. Administrator account of the target OA.  Can be either an OA Local Administrator or Active Directory (AD) account if the OA is configured for AD authentication.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -697,7 +697,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                     <maml:name>password</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-p, -pw]
-REQUIRED. Account password of the OA specified.</maml:para>
+REQUIRED. Administrator Account password of the OA specified.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -733,7 +733,7 @@ REQUIRED. Account password of the OA specified.</maml:para>
                 <maml:name>hostname</maml:name>
                 <maml:description>
                     <maml:para>Aliases [-oa]
-REQUIRED. Administrator account of the target OA.</maml:para>
+REQUIRED. IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -759,7 +759,7 @@ REQUIRED. Enclosure Group Name to associate with the enclosure to import.</maml:
                 <maml:name>username</maml:name>
                 <maml:description>
                     <maml:para>Aliases [-u, -user]
-REQUIRED. Administrator account of the target OA.</maml:para>
+REQUIRED. Administrator account of the target OA.  Can be either an OA Local Administrator or Active Directory (AD) account if the OA is configured for AD authentication.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -772,7 +772,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
                 <maml:name>password</maml:name>
                 <maml:description>
                     <maml:para>Aliases [-p, -pw]
-REQUIRED. Account password of the OA specified.</maml:para>
+REQUIRED. Administrator Account password of the OA specified.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -21492,7 +21492,7 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>Import</maml:name>
                     <maml:description>
-                        <maml:para>Import JSON file to create LIG.</maml:para>
+                        <maml:para>Specify JSON source file to create Logical Interconnect Group.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -21686,7 +21686,7 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>Import</maml:name>
                 <maml:description>
-                    <maml:para>Import JSON file to create LIG.</maml:para>
+                    <maml:para>Specify JSON source file to create Logical Interconnect Group.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -21703,7 +21703,7 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
                     <maml:name>System.Collections.Hashtable</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>    Hashtable containing Interconnect Bay layout and associated interconnect module.</maml:para>
+                        <maml:para>Hashtable containing Interconnect Bay layout and associated interconnect module.</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -21718,7 +21718,7 @@ E.g. $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Networ
                     <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>    Logical Interconnect Group creation async task</maml:para>
+                        <maml:para>Logical Interconnect Group creation async task</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -23607,7 +23607,7 @@ Get the 'Volume1' and 'SharedVolume1' Storage Volumes via the Get-HPOVStorageVol
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -23616,7 +23616,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -23625,7 +23625,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -23668,7 +23668,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -23677,7 +23677,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -23686,7 +23686,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -23797,7 +23797,7 @@ Default: NotBootable</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -23806,7 +23806,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -23815,7 +23815,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -23894,7 +23894,7 @@ Default: NotBootable</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -23903,7 +23903,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -23912,7 +23912,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -23991,7 +23991,7 @@ Default: NotBootable</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -24000,7 +24000,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -24009,7 +24009,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -24072,7 +24072,7 @@ Default: NotBootable</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -24081,7 +24081,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -24090,7 +24090,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -24165,7 +24165,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -24174,7 +24174,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -24183,7 +24183,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -24242,7 +24242,7 @@ Default: 2500</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionID</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['id']
+                        <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Int32</command:parameterValue>
@@ -24251,7 +24251,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>connectionType</maml:name>
                     <maml:description>
-                        <maml:para>Aliases ['type']
+                        <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
@@ -24260,7 +24260,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
                     <maml:name>network</maml:name>
                     <maml:description>
-                        <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                        <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -24303,7 +24303,7 @@ Default: 2500</maml:para>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
                 <maml:name>connectionID</maml:name>
                 <maml:description>
-                    <maml:para>Aliases ['id']
+                    <maml:para>Aliases [-id]
 The numeric identifier for this connection.  Connections are normally numbered sequentially from 1 within each profile.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
@@ -24316,7 +24316,7 @@ The numeric identifier for this connection.  Connections are normally numbered s
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
                 <maml:name>connectionType</maml:name>
                 <maml:description>
-                    <maml:para>Aliases ['type']
+                    <maml:para>Aliases [-type]
 Optional network type to be used for this connection ("Ethernet" or "FibreChannel").</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
@@ -24329,7 +24329,7 @@ Optional network type to be used for this connection ("Ethernet" or "FibreChanne
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3">
                 <maml:name>network</maml:name>
                 <maml:description>
-                    <maml:para>The network resource object to be used with this connection.  Can either be the Name of a specific network, or the Network object itself obtained with Get-HPOVNetwork.</maml:para>
+                    <maml:para>The Network (Ethernet or Fibre Channel) or Network Set resource object to be used with this connection.  Can either be the Name, URI, or object obtained with Get-HPOVNetwork or Get-HPOVNetworkSet.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -26169,7 +26169,7 @@ PS C:\&gt; $bl460SHT.biosSettings
 PS C:\&gt; #Set HP Power Profile (ID 210) to Maximum Performance and HP Power Regulator (ID 140) to HP Static High Performance Mode.
 PS C:\&gt; $bl460bios = @(@{id=210;value=3},@{id=140;value=3})
 PS C:\&gt; $net41 = Get-HPOVNetwork "Net-41"
-PS C:\&gt; $con41 = New-HPOVProfileConnection 1 Ethernet $net41
+PS C:\&gt; $con41 = New-HPOVProfileConnection 1 Ethernet $net41 -bootable -priority Primary
 PS C:\&gt; $net42 = Get-HPOVNetwork "Net-42"
 PS C:\&gt; $con42 = New-HPOVProfileConnection -connectionID 2 -connectionType Ethernet -network $net42
 PS C:\&gt; $conList = @($con41, $con42)

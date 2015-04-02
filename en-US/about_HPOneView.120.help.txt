@@ -30,7 +30,7 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
-    Release 1.20.0110.0
+    Release 1.20.0112.0
      -- Fixed New-HPOVProfile where condition check for bootable connections and presence of -ManageBoot parameter 
 	    would always fail causing terminating error.
 

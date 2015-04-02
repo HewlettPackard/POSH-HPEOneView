@@ -92,13 +92,13 @@ THE SOFTWARE.
 			Get-HPOVSppFile --> Get-HPOVBaseline
 		    Add-HPOVSppFile --> Add-HPOVBaseline
 ------------------------------------------
-1.20.0110.0
+1.20.0112.0
      |  - Fixed New-HPOVProfile where condition check for bootable connections and presence of -ManageBoot parameter would always fail causing terminating error.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.0110.0"
+$script:scriptVersion = "1.20.0112.0"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.120"}))) { 
@@ -1736,7 +1736,7 @@ function Send-HPOVRequest {
 
                         }
 
-                        409 {
+                        { @(409, 412) -contains $_ } {
                     
                             $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode InvalidOperation 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: $($global:ResponseErrorObject.message) $($global:ResponseErrorObject.recommendedActions)")
                             Throw $errorRecord
@@ -12781,7 +12781,7 @@ function New-HPOVNetwork {
 
                     $netUri = $script:ethNetworksUri
 
-                    $net = $net | select name, type, vlanId, smartLink, privateNetwork, purpose, ethernetNetworkType
+                    $net = $net | select name, type, vlanId, smartLink, privateNetwork, purpose, ethernetNetworkType, connectionTemplateUri
 
                 }
 
@@ -12813,6 +12813,8 @@ function New-HPOVNetwork {
                 }
 
             }
+
+			if ($net.connectionTemplateUri) { $net.connectionTemplateUri = $Null }
 
             $objStatus = [pscustomobject]@{ Name = $net.Name; Status = $Null; Details = $Null }
 
@@ -15779,7 +15781,7 @@ function New-HPOVLogicalInterconnectGroup {
 		[Parameter(Mandatory = $False,ParameterSetName = "Default",HelpMessage = "Enable SNMP Settings", Position = 8)]
 	    [hashtable]$SNMP = $null,
 
-        [Parameter(Mandatory = $True,ParameterSetName = "Import",HelpMessage = "Specify JSON source file to great Logical Interconnect Group")]
+        [Parameter(Mandatory = $True,ParameterSetName = "Import",HelpMessage = "Specify JSON source file to create Logical Interconnect Group")]
         [ValidateScript({split-path $_ | Test-Path})]
         [Alias('i')]
 	    [object]$Import
@@ -17227,8 +17229,8 @@ function New-HPOVProfile {
 
         }
 
-        if ($manageBoot.IsPresent) { [Bool]$manageBoot = $True }
-        else { [Bool]$manageBoot = $False }
+        #if ($manageBoot.IsPresent) { [Bool]$manageBoot = $True }
+        #else { [Bool]$manageBoot = $False }
 
         #New Server Resource Object
         $serverProfile = [pscustomobject]@{
@@ -17253,7 +17255,7 @@ function New-HPOVProfile {
             };
             boot           = [PSCustomObject]@{
             
-                manageBoot = [bool]$manageBoot; 
+                manageBoot = $manageBoot.IsPresent; 
                 order      = $bootOrder
                 
             };
@@ -17600,7 +17602,10 @@ function New-HPOVProfile {
 			}
 
 			if ((-not($manageBoot.IsPresent)) -and $BootableConnections.count -gt 0) {
-		
+				write-host "ManageBoot Type" + ($manageBoot.gettype().fullname)
+				write-host "ManageBoot Present? " $manageBoot.IsPresent
+				write-host "Bootable Connections: " $BootableConnections.count
+
 				$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootableConnectionsFound InvalidArgument 'manageBoot' -Message "Bootable Connections $($BootableConnections -join ",") were found, however the -manageBoot switch parameter was not provided.  Please correct your command syntax and try again." #-verbose
 				$pscmdlet.ThrowTerminatingError($errorRecord)  
 
@@ -20951,6 +20956,26 @@ function Remove-HPOVLdap {
         }
 
 	}
+
+}
+
+Function Set-HPOVLdapDefaultDomain {
+	
+	
+    # .ExternalHelp HPOneView.120.psm1-help.xml
+
+	[CmdletBinding()]
+	param(
+		[Parameter(Position=0, Mandatory = $true)]
+		[String]$Name = $Null
+	)
+
+Begin {}
+Process {}
+End {}
+
+
+
 
 }
 

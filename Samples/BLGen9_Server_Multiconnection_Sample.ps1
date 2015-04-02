@@ -66,6 +66,7 @@ $params = @{
         connections        = $conList
         bootMode           = "UEFI";
         pxeBootPolicy      = "IPv4ThenIPv6";
+		manageBoot         = $True;
         bootOrder          = "HardDisk";
         HideUnusedFlexnics = $True
 }        
