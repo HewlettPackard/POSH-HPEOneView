@@ -27,31 +27,51 @@ COPYRIGHT
 SHORT DESCRIPTION
 
     PowerShell library for HP OneView 1.20
-	
+
 WHAT'S NEW 
+
+    Release 1.20.0124.0
+     -- Fixed Show-HPOVLdapGroups where only 1 group would be returned or displayed.
+     -- Fixed New-HPOVLdapServer where the Base64 Certificate wasn't being properly accepted by the 
+        appliance (no API error was thrown)
+     -- Fixed New-HPOVUplinkSet where Networks parameter wouldn't process an array of PSCustomObject 
+        network resources correctly.
+     -- Fixed New-HPOVNetworkSet where Networks parameter wouldn't process an array of PSCustomObject 
+        network resources correctly.
+     -- Fixed Add-HPOVStoragSystem to properly handle auto discovering Host Ports correctly when the 
+        ports parameter is not called.
+     -- Fixed New-HPOVUplinkSet where -NativeEthNetwork was not being set correctly.
+     -- Updated New-HPOVUplinkSet to support Object types for NativeEthNetwork parameter.
+     -- Updated Send-HPOVRequest to generate terminating error for HTTP 404 and 500 conditions.
+     -- Updated Connect-HPOVMgmt to generate terminating error for expired passwords. Please update 
+        your script to catch 'HPOneView.Appliance.PasswordChangeRequired' instead of lookging for a return 
+        HTTP Status Code.
+     -- Updated ApplianceConfig_Sample.ps1 to show how to configure a new appliance.
+     -- Added Get-HPOVRemoteSyslog and Set-HPOVRemoteSyslog cmdlets.
+     -- Added dependancy to FormatPX PowerShell module to fix PowerShell's Format-* cmdlet output.
 
     Release 1.20.0112.0
      -- Fixed New-HPOVProfile where condition check for bootable connections and presence of -ManageBoot parameter 
-	    would always fail causing terminating error.
+        would always fail causing terminating error.
 
     Release 1.20.0109.0
      -- Fixed New-HPOVProfileConnection where Fibre Channel boot targets were not added to the object correctly.
      -- Fixed Copy-HPOVProfile where the connections property of the source profile were being removed in the new 
-	    Server Profile object.
+        Server Profile object.
      -- Fixed Copy-HPOVProfile where the warning message about SAN volumes would not be copied would aways display.
      -- Updated New-HPOVProfile to verify any connections configured as bootable and caller did not supply the 
-	    -manageBoot switch parameter to generate a terminating error.
+        -manageBoot switch parameter to generate a terminating error.
      -- Updated New-HPOVProfile to generate error if no available storage systems were found when attempting to 
-	    attach Storage Volume to a Server Profile.
+        attach Storage Volume to a Server Profile.
      -- Updated Wait-HPOVTaskComplete to wait 2 seconds before getting task status.
      -- Updated RestClient to increate the default timeout from 10 to 20 seconds.
      -- Updated New-HPOVStorageVolume removing the -permanent parameter, as ephemeral volumes should be created 
-	    with the New-HPOVProfileAttachVolume CMDLET.
+        with the New-HPOVProfileAttachVolume CMDLET.
      -- Updated New-HPOVProfileAttachVolume to support creating shared volumes with a new '-shared' switch parameter.
      -- Updated Add-HPOVEnclosure to allow the Firmware Baseline File Name, Name, URI or Object to be provided 
-	    instead of just the name.
+        instead of just the name.
      -- Added SAN Volume Copy support to Copy-HPOVProfile.  Storage Volumes will now be copied based on the 
-	    source Server Profile.
+        source Server Profile.
      -- Renamed the following CMDLETs and created alias:
         Get-HPOVSppFile --> Get-HPOVBaseline
         Add-HPOVSppFile --> Add-HPOVBaseline
@@ -137,4 +157,3 @@ SEE ALSO
     Connect-HPOVmgmt
     Send-HPOVRequest
     [install_dir]\Samples
-

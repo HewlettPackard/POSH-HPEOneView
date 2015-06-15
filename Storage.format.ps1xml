@@ -1,0 +1,381 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <ViewDefinitions>
+    <!--PROFILE.SANVOLUME-->
+    <View>
+      <Name>sanvolumes</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Profile.SanVolume</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Volume ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Volume Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LUN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Pool</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Size</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Provisioning</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Sharing</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $profileCache[$_.volumeUri].name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>lunType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $profileCache[$_.volumeStoragePoolUri].name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} GB" -f ($profileCache[$_.volumeUri].provisionedCapacity / 1gb)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $profileCache[$_.volumeUri].provisionType</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>if ($profileCache[$_.volumeUri].shareable) { "{0}" -f "Shared" } else { "{0}" -f "Private" }</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.Volume FT-->
+    <View>
+      <Name>StorageVolume</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.Volume</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Provisioning</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Provisioned</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Sharing</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Storage System</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Storage Pool</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Used By</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>provisionType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0:N2} GB' -f ($_.provisionedCapacity / 1GB)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.shareable) { "Shared"}
+                  else              { "Private" }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>             
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(send-hpovrequest $_.storagePoolUri).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes")).members
+                  if ($associationProfileToVol) {
+                  $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri).name }
+                  [Array]::Sort([array]$profileNames)
+                  $profileNames
+                  }
+
+                  else { "No server profiles" }
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.Volume FL-->
+    <View>
+      <Name>StorageVolume</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.Volume</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.state, $_.stateReason</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>WWN</Label>
+                <PropertyName>wwn</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Provisioning</Label>
+                <PropertyName>provisionType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Provisioned capacity</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.provisionedCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Allocated capacity</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Sharing</Label>
+                <ScriptBlock>
+                  if ($_.shareable) { "Shared"}
+                  else              { "Private" }
+                </ScriptBlock>                  
+              </ListItem>
+              <ListItem>
+                <Label>Stroage System</Label>
+                <ScriptBlock>
+                  (send-hpovrequest $_.storageSystemUri).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Stroage Pool</Label>
+                <ScriptBlock>
+                  (send-hpovrequest $_.storagePoolUri).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>RAID</Label>
+                <PropertyName>raidLevel</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Storage System Volume Name</Label>
+                <PropertyName>deviceVolumeName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Used By</Label>
+                <ScriptBlock>
+                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes")).members
+                  if ($associationProfileToVol) {
+                  $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri).name }
+                  [Array]::Sort([array]$profileNames)
+                  $profileNames
+                  }
+
+                  else { "No server profiles" }
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    
+    
+    <!--Storage.SanManager-->
+    <View>
+      <Name>SanManager</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.SanManager</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+             <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Version</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Managed SANs</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>providerDisplayName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deviceManagerVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $managedSans = @()
+                  $resp = Send-HPOVRequest $_.managedSansUri
+                  if ($resp.count -gt 0) {
+                  foreach ($member in $resp.members) { $managedSans += $member.name }
+                  [array]::sort($managedSans)
+                  $managedSans
+                  }
+
+                  else { "None" }
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.ManagedSan-->
+    <View>
+      <Name>ManagedSan</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.ManagedSan</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Zoned</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Automate Zoning</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Zoning Policy</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Use Aliases</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>($_.publicAttributes | Where { $_.name -eq "NetworkName" }).value</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>zoningState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.sanPolicy.zoningPolicy -eq "NoZoning") { "No" }
+                  else { "Yes" }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  switch ($_.sanPolicy.zoningPolicy) {
+
+                  "SingleInitiatorAllTargets" { "Single initiator / all targets" }
+                  "SingleInitiatorSingleStorageSystem" { "Single initiator / single storage system" }
+                  default { $_.sanPolicy.zoningPolicy }
+
+                  }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.sanPolicy.enableAliasing</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>

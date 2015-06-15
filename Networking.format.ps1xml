@@ -1,0 +1,1189 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <SelectionSets>
+    <SelectionSet>
+      <Name>NetworkResources</Name>
+      <Types>
+        <TypeName>HPOneView.Networking.Networks.Ethernet</TypeName>
+        <TypeName>HPOneView.Networking.Networks.FibreChannel</TypeName>
+      </Types>
+    </SelectionSet>
+  </SelectionSets>
+  <Controls>
+    <!--NetworkResources-GroupingFormat-->
+    <Control>
+      <Name>NetworkResources-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Type: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      Switch ($_.type) {
+
+                      'ethernet-networkV2' { "Ethernet" }
+                      'fc-networkV2'       { "Fibre Channel" }
+
+                      }
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <!--InterconnectPortResources-GroupingFormat-->
+    <Control>
+      <Name>InterconnectPortResources-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Interconnect: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>"'{0}' {1} Ports" -f $_.interconnectName,$_.portType</ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <!--InterconnectPortResources-GroupingFormat-->
+    <Control>
+      <Name>PortStatistics-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Port Type: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>"{0}" -f $_.portConfigType</ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+  </Controls>
+  <ViewDefinitions>
+    <!--HPOneView.Networking.Networks.Ethernet FT-->
+    <View>
+      <Name>EthernetNetwork</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Networks.Ethernet</TypeName>
+        <!--<SelectionSetName>NetworkResources</SelectionSetName>-->
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>NetworkResources-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VLAN ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Purpose</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Smartlink</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Private Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Preferred Bandwidth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Max Bandwidth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ethernetNetworkType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>vlanId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>purpose</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>smartLink</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>privateNetwork</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultTypicalBandwidth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.Networks.Ethernet FL-->
+    <View>
+      <Name>EthernetNetwork</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Networks.Ethernet</TypeName>
+        <!--<SelectionSetName>NetworkResources</SelectionSetName>-->
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>NetworkResources-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>ethernetNetworkType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VLAN ID</Label>
+                <PropertyName>vlanId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Purpose</Label>
+                <PropertyName>purpose</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Smartlink</Label>
+                <PropertyName>smartLink</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Private Network</Label>
+                <PropertyName>privateNetwork</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Preferred Bandwidth</Label>
+                <PropertyName>defaultTypicalBandwidth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Max Bandwidth</Label>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Uplink Set</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.UPLINK_SET_TO_NETWORK.resource) { $indexResponse.parents.UPLINK_SET_TO_NETWORK.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Used By Server Profiles</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.server_profiles_to_networks.resource) { $indexResponse.parents.server_profiles_to_networks.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+                </ListItem>
+              <ListItem>
+                <Label>Member Of</Label>
+                <ScriptBlock>
+                  
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.NETWORKSET_TO_NETWORK.resource) { $indexResponse.parents.NETWORKSET_TO_NETWORK.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.Networks.FibreChannel-->
+    <View>
+      <Name>FCNetwork</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Networks.FibreChannel</TypeName>
+        <!--SelectionSetName>NetworkResources</SelectionSetName>-->
+      </ViewSelectedBy>
+      <groupby>
+        <propertyname>type</propertyname>
+        <customcontrolname>NetworkResources-GroupingFormat</customcontrolname>
+      </groupby>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Typical Bandwidth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Max Bandwidth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Auto Login Redistribution</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Link Stability Interval</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Managed SAN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>fabricType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultTypicalBandwidth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>autoLoginRedistribution</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>linkStabilityTime</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(Send-HPOVRequest $_.managedSanUri).name</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.Networks.FibreChannel FL-->
+    <View>
+      <Name>FCNetwork</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Networks.FibreChannel</TypeName>
+        <!--<SelectionSetName>NetworkResources</SelectionSetName>-->
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>NetworkResources-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>fabricType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Associated SAN</Label>
+                <ScriptBlock>
+                
+                  $name = (Send-HPOVRequest $_.managedSanUri).name
+                  if ($name) { $name }
+                  else { "None" }
+                  
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>SAN Manager</Label>
+                <ScriptBlock>
+                  
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.MANAGED_SAN_TO_FC_NETWORK.parents.SAN_MANAGER_TO_MANAGED_SAN.resource) { $indexResponse.parents.MANAGED_SAN_TO_FC_NETWORK.parents.SAN_MANAGER_TO_MANAGED_SAN.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Preferred Bandwidth</Label>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Max Bandwidth</Label>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Uplink Set</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.UPLINK_SET_TO_NETWORK.resource) { $indexResponse.parents.UPLINK_SET_TO_NETWORK.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Used By Server Profiles</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.server_profiles_to_fc_networks.resource) { $indexResponse.parents.server_profiles_to_fc_networks.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Used by Storage Systems</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2"
+                  if ($indexResponse.parents.FC_NETWORK_TO_STORAGE_SYSTEM.resource) { $indexResponse.parents.FC_NETWORK_TO_STORAGE_SYSTEM.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.Interconnect-->
+    <View>
+      <Name>Interconnect</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Interconnect</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LIG</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Power</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Firmware</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <!--'enablePauseFloodProtection','enableIgmpSnooping','enableNetworkLoopProtection','enableFastMacCacheFailover'-->
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(Send-HPOVRequest $_.logicalInterconnectUri).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>powerStatus</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>firmwareVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.Interconnect.UplinkPort-->
+    <View>
+      <Name>InterconnectUplinkPort</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Interconnect.UplinkPort</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>interconnectName</PropertyName>
+        <Label>Interconnect Name</Label>
+        <!--<CustomControlName>InterconnectPortResources-GroupingFormat</CustomControlName>-->
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Uplink Set</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connector</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Speed (Gb/s)</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LAG ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connected To</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>portName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  switch ($_.configPortTypes) {
+
+                  "FibreChannel" { "FC" }
+                  "Ethernet" { "Ethernet" }
+                  "EnetFcoe" { "FCoE" }
+
+                  }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} [{1}]" -f $_.portStatus,$_.portStatusReason</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(Send-HPOVRequest $_.associatedUplinkSetUri).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>connectorType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$script:getUplinkSetPortSpeeds[$_.operationalSpeed]</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>lagId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if ($_.configPortTypes -contains "FibreChannel" -and $_.portStatus -ne "Unlinked") { "{0}" -f $_.neighbor.remoteChassisId }
+                  elseif ($_.configPortTypes -contains "Ethernet" -and $_.portStatus -ne "Unlinked") { "{0} ({1})" -f $_.neighbor.remoteMgmtAddress,$_.neighbor.remotePortId }
+                  elseif ($_.portStatus -eq "Unlinked") { "" }
+
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.Interconnect.DownlinkPort-->
+    <View>
+      <Name>InterconnectDownlinkPort</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.Interconnect.DownlinkPort</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>interconnectName</PropertyName>
+        <Label>Interconnect Name</Label>
+        <!--<CustomControlName>InterconnectPortResources-GroupingFormat</CustomControlName>-->
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Adapter Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Profile</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>portName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} [{1}]" -f $_.portStatus,$_.portStatusReason</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  $interconnectUri = $Null
+                  $portUri = $_.uri -split "/"
+
+                  #rebuild Interconnect URI
+                  for ($i = 1; $i -le 3; $i++) { $interconnectUri += "/$($portUri[$i])" }
+
+                  #Get associated Server Hardware to Interconnect resources
+                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT"
+
+                  #Get Server Hardware resoruce URIs
+                  $sh = $interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ }
+
+                  $downlinkPort = $_.portName -replace "d",""
+                  $server = $sh | ? { $_.portMap.deviceSlots.physicalPorts.interconnectPort -eq $downlinkPort }
+
+                  "{0}" -f $server.name
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  $interconnectUri = $Null
+                  $downlinkPort = $_.portName -replace "d",""
+
+                  $portUri = $_.uri -split "/"
+
+                  #rebuild Interconnect URI
+                  for ($i = 1; $i -le 3; $i++) { $interconnectUri += "/$($portUri[$i])" }
+
+                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT"
+
+                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ })
+
+                  $deviceSlotDisplayHash = @{
+
+                  "lom" = "LOM";
+                  "flb" = "FlexibleLOM"
+                  "mezz" = "Mezzanine"
+
+                  }
+
+                  $sh | % {
+
+                  $_.portMap.deviceSlots | % {
+
+                  #$_.physicalPorts #-eq $Null
+
+                  if ($_.physicalPorts) {
+
+                  $port = $_ | ? { $_.physicalPorts.interconnectUri -eq $interconnectUri -and $_.physicalPorts.interconnectPort -eq $downlinkPort }
+                  $subPort = $_.physicalPorts | ? { $_.interconnectUri -eq $interconnectUri -and $_.interconnectPort -eq $downlinkPort }
+                  if ($port) { "{0} {1}:{2}" -f $deviceSlotDisplayHash[$port.location],$port.slotNumber,$subPort.portNumber }
+
+                  }
+
+                  }
+
+                  }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  $interconnectUri = $Null
+                  $downlinkPort = $_.portName -replace "d",""
+
+                  $portUri = $_.uri -split "/"
+
+                  #rebuild Interconnect URI
+                  for ($i = 1; $i -le 3; $i++) { $interconnectUri += "/$($portUri[$i])" }
+
+                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT"
+
+                  #Get Server Hardware resoruce URIs
+                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ })
+
+                  #($_.ports | ? { $_.portType -eq "Downlink" }) | % {
+
+                  #$downlinkPort = $_.portName -replace "d",""
+                  $server = $sh | ? { $_.portMap.deviceSlots.physicalPorts.interconnectPort -eq $downlinkPort }
+
+                  if ($server.serverProfileUri) { $serverProfileName = (Send-HPOVRequest $server.serverProfileUri).name }
+                  else { $serverProfileName = $Null }
+
+                  "{0}" -f $serverProfileName
+
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.UplinkSet.Ethernet-->
+    <View>
+      <Name>InterconnectUplinkPort</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.UplinkSet.Ethernet</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>networkType</PropertyName>
+        <Label>Uplink Set Type</Label>
+        <!--<CustomControlName>InterconnectPortResources-GroupingFormat</CustomControlName>-->
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Logical Interconnect</Label>
+                <ScriptBlock>
+                  (Send-HPOVRequest $_.logicalInterconnectUri).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Connection Mode</Label>
+                <PropertyName>connectionMode</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>LACP Timer</Label>
+                <ScriptBlock>
+
+                  switch ($_.lacpTimer) {
+
+                    "Short" { "Short (1s)" }
+                    "Long" { "Long (30s)" }
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Networks</Label>
+                <ScriptBlock>
+                  
+                  $networkNames = @()
+                  ForEach ($uri in $_.networkUris) {
+
+                    $net = Send-HPOVRequest $uri
+
+                    if ($uri -eq $_.nativeNetworkUri) { $net.name += " ($($net.vlanId)) [Untagged]" }
+                    else { $net.name += " ($($net.vlanId))" }
+                    $networkNames += $net.name
+
+                  }
+                  
+                  $networknames
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+
+                <Label>Uplink Ports</Label>
+
+                <ScriptBlock>
+
+                  ForEach ($port in $_.portCOnfigInfos) {
+
+                    $port = Send-HPOVRequest $port.portUri
+
+                    "{0}:{1} ({2}/{3})" -f $port.interconnectName,$port.portName,$port.portStatus,$port.portStatusReason
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>    
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.UplinkSet.FibreChannel-->
+    <View>
+      <Name>InterconnectUplinkPort</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.UplinkSet.FibreChannel</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>networkType</PropertyName>
+        <Label>Uplink Set Type</Label>
+        <!--<CustomControlName>InterconnectPortResources-GroupingFormat</CustomControlName>-->
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Logical Interconnect</Label>
+                <ScriptBlock>
+                  (Send-HPOVRequest $_.logicalInterconnectUri).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>          
+                <Label>Login redistribution</Label>
+                <ScriptBlock>
+
+                  Switch ([String](Send-HPOVRequest $_.fcNetworkUris[0]).autoLoginRedistribution) {
+
+                  "True" { "Auto" }
+                  "False" { "Manual" }
+
+                  }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Network</Label>
+                <ScriptBlock>
+
+                  $FcNetwork = Send-HPOVRequest $_.fcNetworkUris[0]
+                  "{0} [{1}]" -f $FcNetwork.name,$FcNetwork.fabricType
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+            
+                <Label>Uplink Ports</Label>
+
+                <ScriptBlock>
+
+                  ForEach ($port in $_.portCOnfigInfos) {
+
+                  $port = Send-HPOVRequest $port.portUri
+
+                  "{0}:{1} ({2}/{3})" -f $port.interconnectName,$port.portName,$port.portStatus,$port.portStatusReason
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.PortStatistics.Ethernet-->
+    <View>
+      <Name>PortStatisticsEthernet</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.PortStatistics.Ethernet</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>portConfigType</PropertyName>
+        <Label>Port Type</Label>
+      </GroupBy>
+      <!--<GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>PortStatistics-GroupingFormat</CustomControlName>
+      </GroupBy>-->
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rx Kb/s</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Tx Kb/s</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rx Packets</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Tx Packets</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rx Non-Unicast PPS</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Tx Non-Unicast PPS</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>portName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}Kbps ({1}min)" -f ($_.advancedStatistics.receiveKilobitsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}Kbps ({1}min)" -f ($_.advancedStatistics.transmitKilobitsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}pps ({1}min)" -f ($_.advancedStatistics.receivePacketsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}pps ({1}min)" -f ($_.advancedStatistics.transmitPacketsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}pps ({1}min)" -f ($_.advancedStatistics.receiveNonunicastPacketsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}pps ({1}min)" -f ($_.advancedStatistics.transmitNonunicastPacketsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.PortStatistics.Ethernet FL-->
+    <View>
+      <Name>PortStatisticsEthernetFL</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.PortStatistics.Ethernet</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>portConfigType</PropertyName>
+        <Label>Port Type</Label>
+      </GroupBy>
+      <!--<GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>PortStatistics-GroupingFormat</CustomControlName>
+      </GroupBy>-->
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>portName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Rx Kb/s</Label>
+                <ScriptBlock>"{0}Kbps ({1}min)" -f ($_.advancedStatistics.receiveKilobitsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Tx Kb/s</Label>
+                <ScriptBlock>"{0}Kbps ({1}min)" -f ($_.advancedStatistics.transmitKilobitsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>In Discards</Label>
+                <PropertyName>$_.commonStatistics.rfc1213IfInDiscards</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Out Discards</Label>
+                <PropertyName>$_.commonStatistics.rfc1213IfOutDiscards</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>In Errors</Label>
+                <PropertyName>$_.commonStatistics.rfc1213IfInErrors</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Out Errors</Label>
+                <PropertyName>$_.commonStatistics.rfc1213IfOutErrors</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>CRC Errors Rx/Tx</Label>
+                <PropertyName>$_.commonStatistics.rfc1757StatsCRCAlignErrors</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>MTU Exceeded Discards Rx/Tx</Label>
+                <PropertyName>$_.commonStatistics.rfc1493Dot1DBasePortMtuExceededDiscards</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Giants Rx/Tx</Label>
+                <PropertyName>$_.commonStatistics.rfc2665Dot3StatsFrameTooLongs</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.PortStatistics.FibreChannel-->
+    <View>
+      <Name>PortStatisticsFibreChannel</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.PortStatistics.FibreChannel</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>portConfigType</PropertyName>
+        <Label>Port Type</Label>
+      </GroupBy>
+      <!--<GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>PortStatistics-GroupingFormat</CustomControlName>
+      </GroupBy>-->
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rx Throughput</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Tx Throughput</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rx Frames (Total)</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Tx Frames (Total)</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rx Bytes (Total)</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Tx Bytes (Total)</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>portName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcRxByteRate / 1MB)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcTxByteRate / 1MB)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalTxFrames</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxBytes</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalTxBytes</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.PortStatistics.FibreChannel FL-->
+    <View>
+      <Name>PortStatisticsFibreChannelFL</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.PortStatistics.FibreChannel</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>portConfigType</PropertyName>
+        <Label>Port Type</Label>
+      </GroupBy>
+      <!--<GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>PortStatistics-GroupingFormat</CustomControlName>
+      </GroupBy>-->
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>portName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Rx Throughput</Label>
+                <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcRxByteRate / 1MB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Tx Throughput</Label>
+                <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcTxByteRate / 1MB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Rx Frames (Total)</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Tx Frames (Total)</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
+            </ListItem>
+              <ListItem>
+                <Label>Invalid CRC</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcInvalidCRC</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Link Failures</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcLinkFailures</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Link Resets</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcNumberLinkResets</ScriptBlock>
+            </ListItem>
+              <ListItem>
+                <Label>Loss of Sync</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcLossOfSynchronization</ScriptBlock>             
+            </ListItem>
+              <ListItem>
+                <Label>BB Credit Frame Failures</Label>
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcBBCreditFrameFailures</ScriptBlock>
+            </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>
