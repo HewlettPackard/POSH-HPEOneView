@@ -30,6 +30,18 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+    Release 1.20.0164.0
+
+     -- Fixed Show-HPOVSSLCertificate error handling
+     -- Fixed Connect-HPOVMgmt Error Handling
+     -- Fixed Update-HPOVStorageSystem where a variable collision would occur reulting in erronuous 
+        error.
+     -- Removed modifying PowerShell prompt.  Set-HPOVPrompt is now deprecated. Please use Show-HPOVAppliance
+        to see what appliance you are connected to.
+     -- Added support for Microsoft Desired State Configuration automation with Microsoft System Center
+        Service Management Automation. Please refer to Enable-HPOVMSDSC for more information.
+     -- Added Verbose support for PSM1 executed code during Import-Module -verbose.
+
     Release 1.20.0124.0
      -- Fixed Show-HPOVLdapGroups where only 1 group would be returned or displayed.
      -- Fixed New-HPOVLdapServer where the Base64 Certificate wasn't being properly accepted by the 
@@ -44,7 +56,7 @@ WHAT'S NEW
      -- Updated New-HPOVUplinkSet to support Object types for NativeEthNetwork parameter.
      -- Updated Send-HPOVRequest to generate terminating error for HTTP 404 and 500 conditions.
      -- Updated Connect-HPOVMgmt to generate terminating error for expired passwords. Please update 
-        your script to catch 'HPOneView.Appliance.PasswordChangeRequired' instead of lookging for a return 
+        your script to catch 'HPOneView.Appliance.PasswordChangeRequired' instead of looking for a return 
         HTTP Status Code.
      -- Updated ApplianceConfig_Sample.ps1 to show how to configure a new appliance.
      -- Added Get-HPOVRemoteSyslog and Set-HPOVRemoteSyslog cmdlets.

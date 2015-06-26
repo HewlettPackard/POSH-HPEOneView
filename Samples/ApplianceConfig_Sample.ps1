@@ -3,7 +3,7 @@
 # - Example scripts for configuring the HP OneView appliance (networking, NTP, 
 #   etc.).
 #
-#   VERSION 2.0
+#   VERSION 2.1
 #
 # (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -31,9 +31,10 @@ THE SOFTWARE.
 [CmdletBinding()]
 param(
 
-        [Parameter(Mandatory=$True)]
+        [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Please provide the Appliances DHCP Address.")]
         [string]$vm_ipaddr,
 
+		[Parameter(Position = 1, Mandatory = $True, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
         [String]$IPAddress
     )
 
@@ -57,14 +58,13 @@ $ErrorActionPreference = "Stop"
     if (Get-HPOVEulaStatus -appliance $vm_ipaddr) {
 
         Write-Host "Accepting EULA..."
-        # ret is empty for success?
+
         $ret = Set-HPOVEulaStatus -supportAccess "yes" -appliance $vm_ipaddr
 
     }
 
 
     # For initial setup, connect first using "default" Administrator credentials:
-
     Try { Connect-HPOVMgmt -appliance $vm_ipaddr -user "Administrator" -password "admin" }
     catch [HPOneView.Appliance.PasswordChangeRequired] {
 
@@ -213,7 +213,7 @@ $ErrorActionPreference = "Stop"
     New-HPOVNetwork -name "3PAR SAN DA A" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
     New-HPOVNetwork -name "3PAR SAN DA B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
     
-    $lig = "HOL Logical Interconnect Group"
+    $lig = "Logical Interconnect Group 1"
     
     $task = New-HPOVLogicalInterconnectGroup -ligName $lig -bays @{1 = "FlexFabric";2 = "FlexFabric"}
     
@@ -230,7 +230,7 @@ $ErrorActionPreference = "Stop"
     New-HPOVUplinkSet -ligName $lig -Name "3PAR SAN Fabric B" -Type "FibreChannel" -Networks "3PAR SAN DA B" -UplinkPorts "BAY2:X2"
     
     $mylig = Get-HPOVLogicalInterconnectGroup -name $lig
-    New-HPOVEnclosureGroup -name "HOL Enclosure Group" -logicalInterConnectGroup $mylig.uri -interconnectBayMappingCount 8 -stackingMode "Enclosure"
+    New-HPOVEnclosureGroup -name "Enclosure Group 1" -logicalInterConnectGroup $mylig.uri -interconnectBayMappingCount 8 -stackingMode "Enclosure"
     
     Write-host "Sleeping 90sec"
     start-sleep -Seconds 90
@@ -240,7 +240,7 @@ $ErrorActionPreference = "Stop"
         username  = "3paradm";
         password  = "3pardata";
         hostname  = "3par-array.domain.local";
-        domain    = "CINetworkingLab"
+        domain    = "NODOMAIN"
 
         #myArrayPorts = @{
         #
@@ -255,7 +255,7 @@ $ErrorActionPreference = "Stop"
     
     Write-Host "Importing POD storage array: $($params.hostname)"
     New-HPOVStorageSystem @params | Wait-HPOVTaskComplete
-    Add-HPOVStoragePool HP-P10000-2 -poolName HPNetworking_R1_FC | Wait-HPOVTaskComplete
+    Add-HPOVStoragePool HP-P7400-1 -poolName R1_FC_CPG | Wait-HPOVTaskComplete
 
     $sht= '{
     "type":  "server-hardware-type-3",
@@ -325,7 +325,7 @@ $ErrorActionPreference = "Stop"
 
     Send-HPOVRequest /rest/server-hardware-types POST ($sht | ConvertFrom-Json)
 
-    New-HPOVStorageVolume -volumeName "POD$id ESXi Cluster Shared VMFS 1" -StorageSystem "HP-P10000-2" -StoragePool HPNetworking_R1_FC -capacity 500 -shared | Wait-HPOVTaskComplete
+    New-HPOVStorageVolume -volumeName "POD$id ESXi Cluster Shared VMFS 1" -StorageSystem "HP-P7400-1" -StoragePool R1_FC_CPG -capacity 500 -shared | Wait-HPOVTaskComplete
 
     #Create Server Profiles
     $con1 = New-HPOVProfileConnection -id 1 -type Ethernet -requestedBW 1000 -network "VLAN 1-A" -bootable -priority Primary

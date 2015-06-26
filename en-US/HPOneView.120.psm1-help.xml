@@ -2505,7 +2505,7 @@ Clears the alert.
         </command:details>
         <maml:description>
             <maml:para>Establish a connection with the specified HP OneView appliance.  Logs the user into the appliance and establishes a session for use with subsequent requests.  Prompts will be displayed for any omitted values.
-
+        
 Appliance hostname or IP can include an alternate TCP port number.  While the appliance does not allow the default TCP port 443 to be changed, the appliance could reside behind a firewall, which is redirecting an alternate TCP port number.</maml:para>
         </maml:description>
         <command:syntax>
@@ -3254,6 +3254,94 @@ Disable local logins on the appliance.
 
         </maml:relatedLinks>
     </command:command>
+    <!--DISABLE-HPOVMSDSC-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Disable-HPOVMSDSC</command:name>
+            <maml:description>
+                <maml:para>Disable Microsoft DSC Support</maml:para>
+            </maml:description>
+            <command:verb>Disable</command:verb>
+            <command:noun>HPOVMSDSC</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>Using this cmdlet will create and/or modify UseMSDSC (REG_DWORD) located at HKCU:\Software\Hewlett-Packard\HPOneView, to 0 (False).  By disabling support, the module will no longer overload Write-Host.
+
+Use Enable-HPOVMsDSC to enable support.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Disable-HPOVMSDSC</maml:name> 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters/>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None. You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>None.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Disable-HPOVMSDSC
+Configures Registry value to no longer overload Write-Host.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Enable-HPOVMSDSC</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Disable-HPOVMSDSC</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
     <!--DISCONNECT-HPOVMGMT-->
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
         <command:details>
@@ -3617,6 +3705,94 @@ Enable local logins on the appliance.
                 <maml:uri></maml:uri>
             </maml:navigationLink>
 
+        </maml:relatedLinks>
+    </command:command>
+    <!--ENABLE-HPOVMSDSC-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Enable-HPOVMSDSC</command:name>
+            <maml:description>
+                <maml:para>Enable Microsoft DSC Support</maml:para>
+            </maml:description>
+            <command:verb>Enable</command:verb>
+            <command:noun>HPOVMSDSC</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>Using this cmdlet will create and/or modify UseMSDSC (REG_DWORD) located at HKCU:\Software\Hewlett-Packard\HPOneView, to 1 (True).  By enabling support, the module will overload Write-Host, and instead issue Write-Verbose commands.
+
+Use Disable-HPOVMsDSC to disable support.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Enable-HPOVMSDSC</maml:name> 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters/>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>None. You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>None.</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Enable-HPOVMSDSC
+Configures Registry value to overload Write-Host, which then uses Write-Verbose.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Disable-HPOVMSDSC</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Enable-HPOVMSDSC</maml:uri>
+            </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
     <!--GET-HPOVADDRESSPOOL-->
@@ -32241,20 +32417,14 @@ Get all Ethernet networks, and add a new Suffix to their names.
         <command:details>
             <command:name>Set-HPOVPrompt</command:name>
             <maml:description>
-                <maml:para>Modify the HPOneView POSH Prompt.</maml:para>
+                <maml:para>(Deprecated) Modify the HPOneView POSH Prompt.</maml:para>
             </maml:description>
             <command:verb>Set</command:verb>
             <command:noun>HPOVPrompt</command:noun>
             <dev:version/>
         </command:details>
         <maml:description>
-            <maml:para>By default, the HP OneView POSH Library will change the prompt to display the following in the prompt:
-
-[HPONEVIEW] user@appliance PS C:\&gt;
-
-The first part designates the module is currently loaded into the users PowerShell session.  The second part shows which user account is connect to what appliance.
-
-Using the -Disable switch, the default prompt will not be displayed when the module is loaded for the current user.  This setting is configured on a per-user basis.  When the prompt is disabled, you an use the Show-HPOVAppliance cmdlet to get the connected to information.</maml:para>
+            <maml:para>Deprecated in 1.20.0164 Release. Please use Show-HPOVAppliance to see what appliance you are connected to.</maml:para>
         </maml:description>
         <command:syntax>
 
@@ -35373,7 +35543,7 @@ Retrieve the available MAC Addresses learned in 'VLAN100' network, and export to
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
                     <maml:name>port</maml:name>
                     <maml:description>
-                        <maml:para>The name of the Logical Interconnect Group to retrieve.</maml:para>
+                        <maml:para>The name of the Interconnect Port ID (i.e. X1 or D5) to retrieve.  If no Port ID is provided, all Ports of the Interconnect will be returned.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -35381,8 +35551,7 @@ Retrieve the available MAC Addresses learned in 'VLAN100' network, and export to
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                     <maml:name>interconnect</maml:name>
                     <maml:description>
-                        <maml:para>Aliases [-x, -export]
-The full path and file name to export the contents retrieved from the call to Get-HPOVLogicalInterconnectGroup.</maml:para>
+                        <maml:para>The Interconnect resource the Port ID is a member of.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -35393,7 +35562,7 @@ The full path and file name to export the contents retrieved from the call to Ge
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
                     <maml:name>port</maml:name>
                     <maml:description>
-                        <maml:para>The name of the Logical Interconnect Group to retrieve.</maml:para>
+                        <maml:para>The name of the Interconnect Port ID (i.e. X1 or D5) to retrieve.  If no Port ID is provided, all Ports of the Interconnect will be returned.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
@@ -35404,7 +35573,7 @@ The full path and file name to export the contents retrieved from the call to Ge
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
                 <maml:name>port</maml:name>
                 <maml:description>
-                    <maml:para>The name of the Logical Interconnect Group to retrieve.</maml:para>
+                    <maml:para>The name of the Interconnect Port ID (i.e. X1 or D5) to retrieve.  If no Port ID is provided, all Ports of the Interconnect will be returned.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -35416,8 +35585,7 @@ The full path and file name to export the contents retrieved from the call to Ge
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                 <maml:name>interconnect</maml:name>
                 <maml:description>
-                    <maml:para>Aliases [-x, -export]
-The full path and file name to export the contents retrieved from the call to Get-HPOVLogicalInterconnectGroup.</maml:para>
+                    <maml:para>The Interconnect resource the Port ID is a member of.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
                 <dev:type>
@@ -37040,7 +37208,7 @@ when the [System.Net.WebRequest] GetResponse() client generates an [Net.WebExcep
 to provide the caller with an indication that the appliance is starting its services.  This will display two prompts:
 
 1. An initial text-based progress bar while the System.Net.WebRequest is able to access the web service on the appliance to begin polling
-    for service startup status.
+   for service startup status.
 2. Write-Progress indicator displaying the overall service startup.
 
 If any service fails to startup, this function will cause a terminating error, informing the caller to go visit the appliance kiosk

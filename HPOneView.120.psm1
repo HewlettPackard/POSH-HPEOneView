@@ -104,15 +104,25 @@ THE SOFTWARE.
 	 |  - Fixed New-HPOVUplinkSet where -NativeEthNetwork was not being set correctly.
 	 |  - Updated New-HPOVUplinkSet to support Object types for NativeEthNetwork parameter.
      |  - Updated Send-HPOVRequest to generate terminating error for HTTP 404 and 500 conditions.
-	 |  - Updated Connect-HPOVMgmt to generate terminating error for expired passwords. Please update your script to catch HPOneView.Appliance.PasswordChangeRequired instead of lookging for a return HTTP Status Code.
+	 |  - Updated Connect-HPOVMgmt to generate terminating error for expired passwords. Please update your script to catch HPOneView.Appliance.PasswordChangeRequired instead of looking for a return HTTP Status Code.
 	 |  - Updated ApplianceConfig_Sample.ps1 to show how to configure a new appliance.
      |  - Added Get-HPOVRemoteSyslog and Set-HPOVRemoteSyslog cmdlets.
 	 |  - Added dependancy to FormatPX PowerShell module to fix PowerShell's Format-* cmdlet output.
+------------------------------------------
+1.20.0164.0
+	 |  - Fixed Show-HPOVSSLCertificate error handling
+	 |  - Fixed Connect-HPOVMgmt Error Handling
+	 |  - Fixed Update-HPOVStorageSystem where a variable collision would occur reulting in erronuous error.
+	 |  - Removed modifying PowerShell prompt.  Set-HPOVPrompt is now deprecated.  Please use Show-HPOVAppliance to see what appliance you are connected to.
+	 |  - Added support for Microsoft Desired State Configuration automation with Microsoft System Center Service Management Automation. Please refer to Enable-HPOVMSDSC for more information.
+	 |  - Added Verbose support for PSM1 executed code during Import-Module -verbose.
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.0124.0"
+$script:scriptVersion = "1.20.0164.0"
+$Global:CallStack = Get-PSCallStack
+$verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.120"}))) { 
@@ -878,8 +888,8 @@ $Source = @"
 
 "@
 
-$Results = $CSharpProvider.CompileAssemblyFromSource($Params,$Source)
-$Assembly = $Results.CompiledAssembly
+$CompileResults = $CSharpProvider.CompileAssemblyFromSource($Params,$Source)
+$Assembly = $CompileResults.CompiledAssembly
 
 $debugMode = $False
 
@@ -1242,105 +1252,59 @@ function Set-HPOVPrompt {
 
     )
 
-    
-    Process {
+    Write-Warning "This CMDLET has been deprecated. No processing will be performed."
 
-        if ($Enable) {
-            
-            $Value = "Enabled"
+}
 
-        }
+function Enable-HPOVMSDSC {
 
-        if ($Disable) { 
-        
-            $Value = "Disabled"
+	# .ExternalHelp HPOneView.120.psm1-help.xml
 
-        }
+    [CmdletBinding()]
+    Param ()
 
-        if ($global) {
+	Begin { }
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Setting Global Prompt setting."
+	Process {
 
-            #Get Library Global Prompt Setting
-            $regkey = "HKLM:\Software\Hewlett-Packard\HPOneView" 
-            $regValueName = "Prompt"
+		$RegKey = "HKCU:\Software\Hewlett-Packard\HPOneView"
 
-        }
+		if (-not(Test-Path $RegKey)) { New-Item -Path $RegKey -force | Write-Verbose }
 
-        else {
+		$UseMSDSC = [bool](Get-ItemProperty -LiteralPath $regkeyGlobal -ea silentlycontinue).'UseMSDSC'
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Setting Per User Prompt setting."
+		if (-not($UseMSDSC)) { New-ItemProperty -Path $RegKey -Name UseMSDSC -Value 1 -Type DWORD | write-verbose }
+		else { Set-ItemProperty -Path $RegKey -Name UseMSDSC -Value 1 -Type DWORD | write-verbose }
 
-            #Get Library Per User Prompt Setting
-            $regkey = "HKCU:\Software\Hewlett-Packard\HPOneView" 
-            $regValueName = "Prompt"
+	}
 
-        }
+	End { }
 
-        $RegQueryPrompt = Get-ItemProperty $regkey $regValueName -ErrorAction SilentlyContinue
+}
 
-        #Create if it doesn't exist
-        if (! $RegQueryPrompt) {
+function Disable-HPOVMSDSC {
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Prompt (REG_SZ) at $regkey does not exist.  Creating, and setting to default 'Enabled'."
+	# .ExternalHelp HPOneView.120.psm1-help.xml
 
-            #If Global, need to check for UAC and elevate the call to Net-ItemProperty
-            #Need to elevate users prviledges due to UAC policy
-            if ($global) {
-                if ($pscmdlet.ShouldProcess("Setting Global Prompt Policy",'Are you sure?')) {
-                    If (-NOT ([Security.Principal.WindowsPrincipal][Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")) {
+    [CmdletBinding()]
+    Param ()
 
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requesting to elevate user access due to UAC."
+	Begin { }
 
-                        $arguments = "`"if (! (test-path $regkey)) { Md $regkey }; New-ItemProperty $regkey -Name $regValueName -Value Enabled -PropertyType String`""
+	Process {
 
-                        Start-Process "$psHome\powershell.exe" -Verb runAs -ArgumentList $arguments -WindowStyle Hidden
+		$RegKey = "HKCU:\Software\Hewlett-Packard\HPOneView"
 
-                    }
+		if (-not(Test-Path $RegKey)) { New-Item -Path $RegKey -force | Write-Verbose }
 
-                    #Else, UAC not enabled for HKLM write access, or per user setting
-                    else {
+		$UseMSDSC = [bool](Get-ItemProperty -LiteralPath $regkeyGlobal -ea silentlycontinue).'UseMSDSC'
 
-                        if (! (test-path $regkey)) { Md $regkey }
+		if (-not($UseMSDSC)) { New-ItemProperty -Path $RegKey -Name UseMSDSC -Value 0 -Type DWORD | write-verbose }
+		else { Set-ItemProperty -Path $RegKey -Name UseMSDSC -Value 0 -Type DWORD | write-verbose }
 
-                        New-ItemProperty $regkey -Name $regValueName -Value $value -PropertyType "String"
+	}
 
-                    }
-                }
-            }
-
-            else {
-
-                if (! (test-path $regkey)) { Md $regkey }
-
-                New-ItemProperty $regkey -Name $regValueName -Value $value -PropertyType "String"
-
-            }
-
-        }
-
-        else {
-
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Prompt (REG_SZ) at $regkey does exists.  Setting to $($Value)."
-
-            Set-ItemProperty $regkey -Name $regValueName -Value $Value
-
-        }
-
-        $RegQueryPrompt = Get-ItemProperty $regkey $regvalue -ErrorAction SilentlyContinue
-
-        #Control how the Prompt function will behave
-        $script:HPOneViewLibraryPrompt = ($RegQueryPrompt).Prompt
-
-        switch ($script:HPOneViewLibraryPrompt) {
-
-            "Enabled" { Prompt }
-
-            "Disabled" { Invoke-Expression $Global:prompt_old }
-
-        }
-
-    }
+	End { }
 
 }
 
@@ -1483,14 +1447,18 @@ function Send-HPOVRequest {
             
         }
         
+		write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSLCheckFlag: $script:SSLCheckFlag"
+
         #Check how to handle SSL Certificates
-        if (! $script:SSLCheckFlag) {
+        if (-not($script:SSLCheckFlag)) {
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSL Certificate has not been checked."
 
             #Out-Host is IMPORTANT, otherwise, the Certificate Details will NOT display when called from Connect-HPOVMgmt, or any other cmdlet for that matter.
             Try { Show-HPOVSSLCertificate | Out-Host }
             catch [System.Net.WebException] { 
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caught WebException error after calling Show-HPOVSSLCertificate"
             
                 if ($_.FullyQualifiedErrorId -match "ApplianceNotResponding") {
 
@@ -1498,11 +1466,31 @@ function Send-HPOVRequest {
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
             
                 }
+				else {
+
+					$errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException UnknownError ResourceUnavailable 'Send-HPOVRequest' -Message "Unable to connect to '$Appliance' due to unknown error [$($_.Exception.Message)]." #-verbose
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
             
             }
+			catch {
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caught OTHER error after calling Show-HPOVSSLCertificate"
+
+				$errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException UnknownError ResourceUnavailable 'Send-HPOVRequest' -Message "Unable to connect to '$Appliance' due to unknown error [$($_.Exception.Message)]." #-verbose
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
             
             #If cert is untrusted, set ServicePointManager to ignore cert checking
-            if ($global:certTrusted -eq $False) { [System.Net.ServicePointManager]::CertificatePolicy = new-object HPOneView.HPOneViewIgnoreCertPolicy }
+            if ($global:certTrusted -eq $False) { 
+			
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSL Certificate is untrusted.  Setting HPOneView.HPOneViewIgnoreCertPolicy policy."	
+
+				[System.Net.ServicePointManager]::CertificatePolicy = new-object HPOneView.HPOneViewIgnoreCertPolicy 
+				
+			}
 
             $script:SSLCheckFlag = $True
         }
@@ -1510,7 +1498,7 @@ function Send-HPOVRequest {
         #Need to check for authenticated session when the URI passed is not value of $script:loginSessionsUri
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested URI: $($uri)"
 
-        If ((!$global:cimgmtSessionId ) -and ($uri -ine $script:loginSessionsUri)) {
+        If ((-not($global:cimgmtSessionId)) -and ($uri -ine $script:loginSessionsUri)) {
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] We have reached the URI Whitelist condition block"
 
@@ -2026,7 +2014,7 @@ function Wait-HPOVApplianceStart {
         $flag = $false <# Used to control displaying either output messages #> 
 
         #Check to see if SSL Certificate trust has been validated
-        if (! $script:SSLCheckFlag) {
+        if (-not($script:SSLCheckFlag)) {
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSL Certificate has not been checked before."
 
@@ -2229,8 +2217,8 @@ function Connect-HPOVMgmt {
             }
             catch [HPOneView.Appliance.NetworkConnectionException] {
 
-                    $errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException ApplianceNotResponding ResourceUnavailable 'Connect-HPOVMgmt' -TargetType "CMDLET" -Message "Unable to connect to '$Appliance' due to timeout." #-verbose
-                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+                $errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException ($_.FullyQualifiedErrorId -split(","))[0] $_.CategoryInfo.Category 'Connect-HPOVMgmt' -TargetType "CMDLET" -Message $_.Exception.Message #-verbose
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
 
             }
 
@@ -2386,7 +2374,7 @@ function Disconnect-HPOVMgmt {
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-        If (!$global:cimgmtSessionId) { 
+        If (-not($global:cimgmtSessionId)) { 
 
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession ResourceUnavailable 'Disconnect-HPOVMgmt' -Message "No valid logon session available.  Please use Connect-HPOVMgmt to connecto to an appliance, and then use Disconnect-HPOVmgmt to terminate your session." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -3971,7 +3959,7 @@ function Set-HPOVApplianceNetworkConfig {
                     }
                 #}
             
-            if(!$configured){
+            if (-not($configured)) {
                 $freeMacs = Send-HPOVRequest $script:applMacAddresses
                 if($freeMacs.members | ? {$_.device -eq $device}){
                     $macAddr = ($freeMacs.members | ? {$_.device -eq $device}).macAddress
@@ -4052,12 +4040,12 @@ function Set-HPOVApplianceNetworkConfig {
                         if ($importConfig.applianceNetworks[$i].searchDomains -is "String"){
                             $importConfig.applianceNetworks[$i].searchDomains = @()
                             }
-                        if (!$importConfig.applianceNetworks[$i].macAddress){
+                        if (-not($importConfig.applianceNetworks[$i].macAddress)) {
                             $macAddr = ($currentConfig.applianceNetworks | ? {$_.device -eq $importConfig.applianceNetworks[$i].device}).macAddress
-                            if(!$macAddr){
+                            if(-not($macAddr)) {
                                 $macAddr = ($freeMacs.members | ? {$_.device -eq $importConfig.applianceNetworks[$i].device}).macAddress
                                 }
-                            if(!$macAddr){
+                            if(-not($macAddr)){
                                 $errorRecord = New-ErrorRecord InvalidOperationException ApplianceNICResourceNotFound ObjectNotFound 'Get-HPOVStorageSystem' -Message ($importConfig.applianceNetworks[$i].device + "does not exist on the appliance.") #-verbose
                                 #$errMessage = $importConfig.applianceNetworks[$i].device + "does not exist on the appliance."
                                 #Throw $errMessage
@@ -4577,7 +4565,7 @@ function New-HPOVSupportDump {
 
 		#Validate the path exists.  If not, create it.
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Validating $($Location) exists"
-		if (!(Test-Path $Location)) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($Location) Directory does not exist.  Creating directory..."; New-Item -ItemType directory -path $Location }
+		if (-not(Test-Path $Location)) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($Location) Directory does not exist.  Creating directory..."; New-Item -ItemType directory -path $Location }
 
     }
 
@@ -4704,7 +4692,7 @@ Function New-HPOVBackup {
     Process {
         
         #Validate the path exists.  If not, create it.
-		if (!(Test-Path $Location)){ 
+		if (-not(Test-Path $Location)){ 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory does not exist.  Creating directory..."
             New-Item $Location -itemtype directory
         }
@@ -5213,7 +5201,7 @@ function Get-HPOVScmbCertificates {
         }
         
         #Validate the path exists.  If not, create it.
-		if (!(Test-Path $Location)){ 
+		if (-not(Test-Path $Location)){ 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory does not exist.  Creating directory..."
             New-Item -path $Location -ItemType Directory
         }
@@ -5335,38 +5323,68 @@ function Show-HPOVSSLCertificate {
 
         #Attempt connection to appliance.
         try { $Response = $WebRequest.GetResponse() }
-        catch [Net.WebException] { 
 
-			$e = $_
+		catch [System.Net.WebException] { 
+		
+			#write-host "Exception GM:"
+			#$errorObject.Exception | GM -view all
+			#
+			#write-host "InnerException GM:"
+			#$errorObject.Exception.InnerException | GM -view all
+			#
+			##
+			##write-host "InnerException.Status:" $_.Exception.InnerException.Status
+			##
+			##write-host  "Exception.Message" $_.Exception.Message
+			#
+			##$e = $_
+			##write-host $error[-1].exception.InnerException.Status
+			##write-host $error[-1].exception.InnerException | gm -view all
+			#write-host "Exception: $($errorObject.Exception | out-string)"
+			#write-host "InnerExcpetion: $($errorObject.Exception.InnerException | out-string)"
+			#write-host "InnerExcpetion Status: $($errorObject.Exception.InnerException.Status | out-string)"
+			#$errorObject.Exception.Status -match "TrustFailure"
+			#$_.Exception.Status -match "TrustFailure"
+			#write-host "Exception Message: $($errorObject.Exception.Message)"
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] System.Net.WebException caught."
-
-            if ($e.exception.InnerException.Status -eq "TrustFailure") { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate failed trust validation." }
-
-            elseif ($e.Exception -match "The remote name could not be resolved") {
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] [System.Net.WebException] code block."
+		
+            if ($_.Exception.Status -match "TrustFailure") { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate failed trust validation." }
+		
+            elseif ($_.Exception -match "The remote name could not be resolved") {
                 
                 $errorRecord = New-ErrorRecord System.Net.WebException ApplianceNotResponding ObjectNotFound 'Show-HPOVSslCertificate' -Message "Unable to resolve hostname '$Appliance'.  Please check the name and try again." #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
             }
-
-            elseif ($e.Exception -match "Unable to connect to the remote server") {
-
+		
+            #elseif ($_.Exception -match "Unable to connect to the remote server") {
+			elseif ($_.Exception.Message -contains "Unable to connect to the remote server") {
+		
                 $errorRecord = New-ErrorRecord System.Net.WebException ApplianceNotResponding ConnectionError 'Show-HPOVSslCertificate' -Message "Unable to connect to '$Appliance' due to timeout or remote system didn't respond to the connection request." #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
             }
-
+		
             else {
-
+		
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Other error caught."
-
-				$errorRecord = New-ErrorRecord System.Net.WebException WebExceptionInvalidResult InvalidResult 'Show-HPOVSslCertificate' -Message $e.Exception.Message #-verbose
+		
+				$errorRecord = New-ErrorRecord System.Net.WebException WebExceptionInvalidResult InvalidResult 'Show-HPOVSslCertificate' -Message $_.Exception.Message #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
             }
         
         }
+		
+		catch {
+		
+			write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Non-Specific CATCH block."
+		
+			$errorRecord = New-ErrorRecord System.Net.WebException WebExceptionInvalidResult InvalidResult 'Show-HPOVSslCertificate' -Message $_.Exception.Message #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+		}
         
         #Close the response connection, as it is no longer needed, and will cause problems if left open.
         if ($response) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Closing response connection"; $Response.Close() }
@@ -5397,9 +5415,9 @@ function Show-HPOVSSLCertificate {
 			}
 
             #If the certificate is NOT valid, display it and warn user
-            if ((! $certObject.CertificateIsValid) -and ($certObject.ErrorInformation -contains "UntrustedRoot")) { 
+            if ((-not($certObject.CertificateIsValid)) -and ($certObject.ErrorInformation -contains "UntrustedRoot")) { 
         
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert is NOT trusted"
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert Root is NOT trusted"
 
                 #Display the certificate output in Yellow
                 $originalFGColor = [System.Console]::ForegroundColor
@@ -6051,7 +6069,7 @@ function Set-HPOVServerPower {
 
         #Validate input object type
         #Checking if the input is System.String and is NOT a URI
-        if (($server -is [string]) -and (!$server.StartsWith($script:serversUri))) {
+        if (($server -is [string]) -and (-not($server.StartsWith($script:serversUri)))) {
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Name: $($server)"
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Server URI"
@@ -6096,7 +6114,7 @@ function Set-HPOVServerPower {
         #Validate the server power state and lock
         $serverPowerState = Send-HPOVRequest $serverUri
 
-        if (($serverPowerState.powerState -ine $powerState) -and (!$serverPowerState.powerLock)) {
+        if (($serverPowerState.powerState -ine $powerState) -and (-not($serverPowerState.powerLock))) {
 
             #Enforce the proper string case
             $powerState = (Get-Culture).TextInfo.ToTitleCase($powerState)
@@ -6752,7 +6770,7 @@ function Update-HPOVEnclosure {
 
     Process { 
 
-        if (! $Enclosure) { 
+        if (-not($Enclosure)) { 
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure parameter not provided.  Calling Get-HPOVEnclosure for all Enclosure resources."
             $Enclosures = Get-HPOVEnclosure 
@@ -7914,7 +7932,7 @@ function Enclosure-Report {
         @{Expression={$_.romVersion};Label="System ROM";width=15}, `
         @{Expression={($_.mpModel + " " + $_.mpFirmwareVersion)};Label="iLO Firmware Version";width=22}, `
         @{Expression={
-						if (!$_.serverProfileUri){ 'No Profile' }
+						if (-not($_.serverProfileUri)){ 'No Profile' }
 						else { (Send-HPOVRequest $_.serverProfileUri).name }
 				};Label="Server Profile";width=30},`
         @{Expression={$_.licensingIntent};Label="Licensing";width=15}
@@ -8025,7 +8043,7 @@ function Remove-HPOVEnclosure {
 
             }
 
-            if (!$enclosureNameOrUri) {
+            if (-not($enclosureNameOrUri)) {
 
                 $errorRecord = New-ErrorRecord System.ArgumentException InvalidParameter InvalidArgument "Remove-HPOVEnclosure" -Message "Invalid enclosure parameter: $encl" #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -9275,7 +9293,7 @@ function Update-HPOVStorageSystem {
 
     process { 
 
-        if (-not $StorageSystem) { 
+        if (-not ($StorageSystem)) { 
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Storage System resource(s) provided. Calling Get-HPOVStorageSystem."
             $StorageSystem = Get-HPOVStorageSystem 
@@ -9313,6 +9331,8 @@ function Update-HPOVStorageSystem {
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System resource object provided"
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System Name: $($system.name)"
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System URI: $($system.uri)"
+
+						$ss = $system
                     }
 
                     else {
@@ -9568,13 +9588,15 @@ function Add-HPOVStorageSystem {
             if ($connectedStorageSystem.unmanagedDomains -contains $Domain){
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found Virtual Domain '$Domain'."
+
                 #The domain exists, update the managedDomain property
                 $connectedStorageSystem.managedDomain = $Domain
 
                 #remove the domain from the unManagedDomains property
-                $unManaged=@()
-                $unManaged = $connectedStorageSystem.unmanagedDomains | ? {$_ -ne $Domain}
-                $connectedStorageSystem.unmanagedDomains = $unManaged
+                [Array]$unManaged = @()
+                [Array]$unManaged = $connectedStorageSystem.unmanagedDomains | ? {$_ -ne $Domain}
+                [Array]$connectedStorageSystem.unmanagedDomains = $unManaged
+
             }
             else {
 
@@ -9582,10 +9604,9 @@ function Add-HPOVStorageSystem {
                 Send-HPOVRequest -uri $connectedStorageSystem.uri -method DELETE
 
                 $errorRecord = New-ErrorRecord InvalidOperationException StorageDomainResourceNotFound ObjectNotFound 'Add-HPOVStorageSystem' -Message "Storage Domain, '$Domain', not found.  Please check the storage domain exist on the storage system." #-verbose
-                #Generate Terminating Error
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
+
             }
-            #$ports.Keys | %{ "key is: $($_), value is $($ports[$_])" }
 
         }
 
@@ -9596,7 +9617,6 @@ function Add-HPOVStorageSystem {
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Task error occurred. Generating error message."
             
             $errorRecord = New-ErrorRecord InvalidOperationException $storageSystemDiscoveredTask.taskErrors[0].errorCode InvalidResult 'Add-HPOVStorageSystem' -Message "$($storageSystemDiscoveredTask.taskErrors[0].message)" #-verbose
-            #WRITE-ERROR "AN ERROR OCURRED. $($storageSystemDiscoveredTask.taskErrors[0].errorCode) $($storageSystemDiscoveredTask.taskErrors[0].message)" -ErrorAction Stop
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
         }
@@ -9675,7 +9695,7 @@ function Remove-HPOVStorageSystem {
 
             }
 
-            if (!$ssNameOrUri) {
+            if (-not($ssNameOrUri)) {
 
                 if ($ss.name) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] The storage system '$($ss.nam)' provided was not found. Please check the storageSystem parameter value and try again." }
                 else { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] The storage system '$($ss)' provided was not found. Please check the storageSystem parameter value and try again." }
@@ -12673,7 +12693,7 @@ function New-HPOVNetwork {
 
     Begin {
 
-        If (!$global:cimgmtSessionId) { 
+        If (-not($global:cimgmtSessionId)) { 
 
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException ResourceExists AuthenticationError $script:HPOneViewAppliance -Message "You are already logged into $Appliance. Please use Disconnect-HPOVMgmt to end your existing session, and then call Connect-HPOVMgmt again." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -16937,7 +16957,7 @@ function New-HPOVUplinkSet {
 						
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network object provided: $($nativeEthNetwork | Out-String)"
 
-						$nativeEthNetworkUri = $network.uri
+						$nativeEthNetworkUri = $nativeEthNetwork.uri
 
 					}
 
@@ -16956,7 +16976,7 @@ function New-HPOVUplinkSet {
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Ethernet Network URI provided '$nativeEthNetworkUri'."
 						
-						$nativeEthNetworkUri = $network
+						$nativeEthNetworkUri = $nativeEthNetwork
 
 					}
 					elseif ($nativeEthNetwork.StartsWith('/rest/')){
@@ -16969,7 +16989,7 @@ function New-HPOVUplinkSet {
 					
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting `"$($nativeEthNetworkUri)`" URI"
 
-						$ret = Get-HPOVNetwork $network -type Ethernet
+						$ret = Get-HPOVNetwork $nativeEthNetwork -type Ethernet
 					    
 						$nativeEthNetworkUri = $ret.uri
 
@@ -22732,12 +22752,11 @@ function New-HPOVLicense {
 			}
 			
 		}
+	}
 
-		End {
+	End {
 			
 			$ret
-
-		}
 
 	}
 
@@ -23231,6 +23250,8 @@ Export-ModuleMember -Function Enable-HPOVDebug
 Export-ModuleMember -Function Disable-HPOVDebug
 Export-ModuleMember -Function Get-HPOVRemoteSyslog
 Export-ModuleMember -Function Set-HPOVRemoteSyslog
+Export-ModuleMember -Function Enable-HPOVMSDSC
+Export-ModuleMember -Function Disable-HPOVMSDSC
 
 #Appliance Configuration:
 Export-ModuleMember -Function Get-HPOVApplianceCertificateStatus
@@ -23414,63 +23435,42 @@ $script:AuthProviderSetting = (Get-ItemProperty "HKCU:\Software\Hewlett-Packard\
 #
 
 #Check to see if Global Policy is set first.
-$regkeyGlobal = "HKLM:\Software\Hewlett-Packard\HPOneView"
-$regkeyUser   = "HKCU:\Software\Hewlett-Packard\HPOneView" 
-$regValueName = "Prompt"
+$regkeyGlobal   = "HKLM:\Software\Hewlett-Packard\HPOneView"
+$regkeyUser     = "HKCU:\Software\Hewlett-Packard\HPOneView" 
+$UserUseMSDSC   = [bool](Get-ItemProperty -LiteralPath $regkeyUser -ea silentlycontinue).'UseMSDSC'
 
-#$RegQueryGlobalPrompt = Get-ItemProperty $regkeyGlobal $regValueName -ErrorAction SilentlyContinue
-If (Test-Path "HKLM:\Software\Hewlett-Packard\HPOneView") { $RegQueryGlobalPrompt = Get-ItemProperty $regkeyGlobal $regValueName -ErrorAction SilentlyContinue } 
+Write-Verbose "$regkeyUser exists: $(Test-Path $regkeyUser)" -verbose:$verbose
+Write-Verbose "UseMSDSC Enabled: $($UserUseMSDSC)" -verbose:$verbose
 
-#$RegQueryUserPrompt = Get-ItemProperty $regkeyUser $regValueName -ErrorAction SilentlyContinue
-If (Test-Path "HKCU:\Software\Hewlett-Packard\HPOneView"){ $RegQueryGlobalPrompt = Get-ItemProperty $regkeyUser $regValueName -ErrorAction SilentlyContinue} 
+#Override Write-Host for MSDSC
+if ((Test-Path $regKeyGlobal) -and ($UserUseMSDSC)) {
+	
+	function Write-Host {
+	[CmdletBinding()]
+	    Param(
+	        [Parameter(Mandatory = $true, Position = 0)]
+	        [Object]
+	        $Object,
+	        [Switch]
+	        $NoNewLine,
+	        [ConsoleColor]
+	        $ForegroundColor,
+	        [ConsoleColor]
+	        $BackgroundColor
+	
+	    )
+	
+	    #Override default Write-Host...
+	    Write-Verbose $Object -verbose:$verbose
+	}
 
-#Per User Setting overrides Global
-if (($RegQueryUserPrompt) -and ($RegQueryGlobalPrompt)) { $RegQueryPrompt = $RegQueryUserPrompt }
-elseif ((! $RegQueryUserPrompt) -and ($RegQueryGlobalPrompt)) { $RegQueryPrompt = $RegQueryGlobalPrompt }
-elseif (($RegQueryUserPrompt) -and (!$RegQueryGlobalPrompt)) { $RegQueryPrompt = $RegQueryUserPrompt }
+	Function Get-Host {
+		[CmdletBinding()]
+	    Param()
 
-#Create Per-User if it and Global doesn't exist
-else {
+		Return [PSCustomObject]$Width = @{ UI = @{ RawUI = @{ MaxWindowSize = @{ width = 120 } } } }
 
-    $RegQueryPrompt = @{Prompt = "Enabled"}
-
-}
-
-#Control how the Prompt function will behave
-$script:HPOneViewLibraryPrompt = ($RegQueryPrompt).Prompt
-
-#Save the users PowerShell Session Prompt state
-$Global:prompt_old = Get-Content Function:\prompt
-$Script:PromptApplianceHostname = "[Not Connected]"
-
-#Change the PowerShell Prompt
-function global:prompt {
-
-    if ($script:HPOneViewLibraryPrompt -eq "Enabled") {
-
-        $cwd = (get-location).Path
-
-        #Display no more than 2 directories deep in the Prompt, otherwise there will be severe prompt wrapping
-        [array]$cwdt=$()
-        $cwdi=-1
-        do {$cwdi=$cwd.indexofany(“\”,$cwdi+1) ; [array]$cwdt+=$cwdi} until($cwdi -eq -1)
-
-        if ($cwdt.count -gt 3) {
-            $cwd = $cwd.substring(0,$cwdt[0]) + “..” + $cwd.substring($cwdt[$cwdt.count-3])
-        }
-
-        Write-Host '[HPONEVIEW]: ' -ForegroundColor Yellow -NoNewline
-	    if ($global:cimgmtSessionId){
-    	    write-host $script:userName@$Script:PromptApplianceHostname PS $cwd>  -NoNewline
-	    }
-	    else{
-		    write-host $Script:PromptApplianceHostname PS $cwd>  -NoNewline
-	    }
-        return " "
-
-    }
-
-    else { Invoke-Expression $Global:prompt_old }
+	}
 
 }
 
@@ -23522,7 +23522,7 @@ $ExecutionContext.SessionState.Module.OnRemove = {
 	if ($global:cimgmtSessionId) { Disconnect-HPOVMgmt }
 
     #Restore default prompt
-    Set-Content Function:\prompt $Global:prompt_old
+    #Set-Content Function:\prompt $Global:prompt_old
 
     if ([System.Net.ServicePointManager]::CertificatePolicy) {
 
@@ -23534,3 +23534,4 @@ $ExecutionContext.SessionState.Module.OnRemove = {
 	$script:SSLCheckFlag = $False
 
 }
+
