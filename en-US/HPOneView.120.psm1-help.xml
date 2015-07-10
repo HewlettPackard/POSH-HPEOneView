@@ -1206,8 +1206,7 @@ Add a new Brocade Network Advisor SAN Manager.
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
                     <maml:name>licensingIntent</maml:name>
                     <maml:description>
-                        <maml:para>REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses 
-to the server being imported.
+                        <maml:para>Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the server being imported.  This is only required when the -Monitored paraemter switch is not provided.  If you include the -Monitored switch, LicenseIntent is not required and should not be provided.
 
 Accepted values are
         
@@ -1334,8 +1333,7 @@ Accepted values are
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="4">
                 <maml:name>licensingIntent</maml:name>
                 <maml:description>
-                    <maml:para>REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses 
-to the server being imported.
+                    <maml:para>Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the server being imported.  This is only required when the -Monitored paraemter switch is not provided.  If you include the -Monitored switch, LicenseIntent is not required and should not be provided.
 
 Accepted values are
         
@@ -20562,7 +20560,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>macAssignment</maml:name>
                     <maml:description>
-                        <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.</maml:para>
+                        <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVProfileConnection helper CMDLET.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -20570,7 +20568,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>wwnAssignment</maml:name>
                     <maml:description>
-                        <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.</maml:para>
+                        <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVProfileConnection helper CMDLET.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -20578,9 +20576,25 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>snAssignment</maml:name>
                     <maml:description>
-                        <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual or Physical.
+                        <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
 
 Default: Virtual serial number and UUID assignment</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>serialnumber</maml:name>
+                    <maml:description>
+                        <maml:para>When specifying snAssignment parameter to UserDefined, you can provide a user defined Serial Number value.  You must also specify the UUID by using the uuid parameter.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>uuid</maml:name>
+                    <maml:description>
+                        <maml:para>When specifying snAssignment parameter to UserDefined, you can provide a user defined UUID value.  You must also specify the Serial Number by using the serialnumber parameter.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -20956,7 +20970,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>macAssignment</maml:name>
                     <maml:description>
-                        <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.</maml:para>
+                        <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVProfileConnection helper CMDLET.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -20964,7 +20978,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>wwnAssignment</maml:name>
                     <maml:description>
-                        <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.</maml:para>
+                        <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVProfileConnection helper CMDLET.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -20972,9 +20986,25 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>snAssignment</maml:name>
                     <maml:description>
-                        <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual or Physical.
+                        <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
 
 Default: Virtual serial number and UUID assignment</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>serialnumber</maml:name>
+                    <maml:description>
+                        <maml:para>When specifying snAssignment parameter to UserDefined, you can provide a user defined Serial Number value.  You must also specify the UUID by using the uuid parameter.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                </command:parameter>
+ 
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                    <maml:name>uuid</maml:name>
+                    <maml:description>
+                        <maml:para>When specifying snAssignment parameter to UserDefined, you can provide a user defined UUID value.  You must also specify the Serial Number by using the serialnumber parameter.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -21470,7 +21500,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>macAssignment</maml:name>
                 <maml:description>
-                    <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.</maml:para>
+                    <maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVProfileConnection helper CMDLET.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -21482,7 +21512,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>wwnAssignment</maml:name>
                 <maml:description>
-                    <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.</maml:para>
+                    <maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVProfileConnection helper CMDLET.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -21494,7 +21524,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>snAssignment</maml:name>
                 <maml:description>
-                    <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual or Physical.
+                    <maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
 
 Default: Virtual serial number and UUID assignment</maml:para>
                 </maml:description>
@@ -21504,6 +21534,30 @@ Default: Virtual serial number and UUID assignment</maml:para>
                     <maml:uri/>
                 </dev:type>
                 <dev:defaultValue>Virtual</dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>serialnumber</maml:name>
+                <maml:description>
+                    <maml:para>When specifying snAssignment parameter to UserDefined, you can provide a user defined Serial Number value.  You must also specify the UUID by using the uuid parameter.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
+                <maml:name>uuid</maml:name>
+                <maml:description>
+                    <maml:para>When specifying snAssignment parameter to UserDefined, you can provide a user defined UUID value.  You must also specify the Serial Number by using the serialnumber parameter.</maml:para>
+                </maml:description>
+                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <dev:type>
+                    <maml:name>String</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
             </command:parameter>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>hideUnusedFlexNics</maml:name>

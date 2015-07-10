@@ -35,92 +35,12 @@ THE SOFTWARE.
 #Revision History
 #------------------------------------------
 <#
-1.20.0.0007
-     |  - Branch to HP OneView 1.20 Release.  NOTE:  This library version does not support older appliance versions.
-     |  - Fixed New-HPOVUplinkSet where FibreChannel Uplink Set objects were not being created with uplink ports (logicalPortConfigInfos).
-     |  - Fixed Connect-HPOVMgmt to trap HTTP 401 Unauthorized request to get appliance roles after successfully connecting to appliance when user has insufficient privileges.
-     |  - Fixed Remove-HPOVNetwork pipeline input.
-     |  - Fixed New-HPOVProfile where firmware baseline URI was printed to the screen causing the callers variable to store the task object to become a System.Array type.
-     |  - Fixed New-HPOVBackup where backup file would not download.
-     |  - Fixed Add-HPOVStoragePool where the API changed.
-     |  - Fixed Wait-HPOVApplianceStart where the appliance web services needed an additional few seconds to finish their init.
-     |  - Added new parameters to Get-HPOVVersion; -CheckOnline and -ReleaseNotes. CheckOnline will check for newer library version on GitHub, and ReleaseNotes will display the found update's Release Notes.
-     |  - Added Invoke-HPOVVcmMigration cmdlet for Virtual Connect Manager migrations to HP OneView.
-     |  - Updated New-HPOVBackup to increase the timeout waiting for the create backup file async task to complete.
-     |  - Updated Send-HPOVRequest to generate terminating error for HTTP 401 Insufficient Privileges and not just for invalid session.
-     |  - Updated Set-HPOVManagedSan to support new API calls, and depricated both -EnableAutomatedZoning and -DisableAutomatedZoning parameters.
-------------------------------------------
-1.20.0050.0
-     |  - Fixed New-HPOVNetwork where creating bulk networks would not set the typical or maximum bandwidth value(s).
-     |  - Fixed Add-HPOVEnclosure where adding a monitored enclosure would fail.
-     |  - Fixed New-HPOVProfileConnection where the storage system WWN and LUN ID were not being set due to code refactoring.
-     |  - Fixed Set-HPOVInitialPassword that was causing calls to fail due to parameterset validation.
-     |  - Fixed Get-HPOVLicense where the 'HP OneView Advanced' license name wasn't provided.
-     |  - Fixed Copy-HPOVProfile where if a single Network Connection was present, the object would have been created incorrectly.
-     |  - Fixed New-HPOVUplinkSet where LIG name wasn't being passed to Get-HPOVLogicalInteconnectGroup correctly.
-     |  - Fixed Install-HPOVUpdate where it wasn't checking for a pending update when the -Update switch was used.
-     |  - Fixed Install-HPOVUpdate where Write-Progress was causing an error, even though the update would complete.
-     |  - Updated Add-HPOVPowerDevice to provide a native CMDLET Should Process/Continue prompt and use the -confirm/-whatif common parameters.
-     |  - Updated Get-HPOVEnclosure, Get-HPOVNetwork, Get-HPOVPowerDevice, and Get-HPOVRole to return consistent results when -Name parameter is provided and no results were found which generates a terminating error.
-------------------------------------------
-1.20.0077.0
-     |  - Fixed New-HPOVNetwork where an invalid property was added to the ParameterValidation for -Type.
-     |  - Fixed New-HPOVLdap where request would not complete successfully.
-     |  - Fixed New-HPOVLdapServer where the wrong JSON property was used for type.
-     |  - Fixed Set-HPOVApplianceGlobalSetting where the wrong method to update a setting was used.
-     |  - Added $Global:ResponseErrorObject that will capture API error messages, to go along with existing $Global:LastWebResponse.
-------------------------------------------
-1.20.0078.0
-     |  - Fixed New-HPOVNetwork where Ethernet network object would fail to create.
-     |  - Fixed New-HPOVProfileConnection where the wrong Fibre Channel type was created.
-     |  - Fixed Invoke-HPOVVcemMigration if Enclosure Group was provided, would error if EG wasn't found instead of creating new EG resource.
-     |  - Added Remove-HPOVUnmanagedDevice CMDLET.
-------------------------------------------
-1.20.0109.0
-     |  - Fixed New-HPOVProfileConnection where Fibre Channel boot targets were not added to the object correctly.
-	 |  - Fixed Copy-HPOVProfile where the connections property of the source profile were being removed in the new Server Profile object.
-	 |  - Fixed Copy-HPOVProfile where the warning message about SAN volumes would not be copied would aways display.
-	 |  - Updated New-HPOVProfile to verify any connections configured as bootable and caller did not supply the -manageBoot switch parameter to generate a terminating error.
-	 |  - Updated New-HPOVProfile to generate error if no available storage systems were found when attempting to attach Storage Volume to a Server Profile.
-	 |  - Updated Wait-HPOVTaskComplete to wait 2 seconds before getting task status.
-	 |  - Updated RestClient to increate the default timeout from 10 to 20 seconds.
-	 |  - Updated New-HPOVStorageVolume removing the -permanent parameter, as ephemeral volumes should be created with the New-HPOVProfileAttachVolume CMDLET.
-	 |  - Updated New-HPOVProfileAttachVolume to support creating shared volumes with a new '-shared' switch parameter.
-	 |  - Updated Add-HPOVEnclosure to allow the Firmware Baseline File Name, Name, URI or Object to be provided instead of just the name.
-	 |  - Added SAN Volume Copy support to Copy-HPOVProfile.  Storage Volumes will now be copied based on the source Server Profile.
-	 |  - Renamed the following CMDLETs and created alias:
-			Get-HPOVSppFile --> Get-HPOVBaseline
-		    Add-HPOVSppFile --> Add-HPOVBaseline
-------------------------------------------
-1.20.0112.0
-     |  - Fixed New-HPOVProfile where condition check for bootable connections and presence of -ManageBoot parameter would always fail causing terminating error.
-------------------------------------------
-1.20.0124.0
-	 |  - Fixed Show-HPOVLdapGroups where only 1 group would be returned or displayed.
-	 |  - Fixed New-HPOVLdapServer where the Base64 Certificate wasn't being properly accepted by the appliance (no API error was thrown)
-	 |  - Fixed New-HPOVUplinkSet where Networks parameter wouldn't process an array of PSCustomObject network resources correctly.
-	 |  - Fixed New-HPOVNetworkSet where Networks parameter wouldn't process an array of PSCustomObject network resources correctly.
-	 |  - Fixed Add-HPOVStoragSystem to properly handle auto discovering Host Ports correctly when the ports parameter is not called.
-	 |  - Fixed New-HPOVUplinkSet where -NativeEthNetwork was not being set correctly.
-	 |  - Updated New-HPOVUplinkSet to support Object types for NativeEthNetwork parameter.
-     |  - Updated Send-HPOVRequest to generate terminating error for HTTP 404 and 500 conditions.
-	 |  - Updated Connect-HPOVMgmt to generate terminating error for expired passwords. Please update your script to catch HPOneView.Appliance.PasswordChangeRequired instead of looking for a return HTTP Status Code.
-	 |  - Updated ApplianceConfig_Sample.ps1 to show how to configure a new appliance.
-     |  - Added Get-HPOVRemoteSyslog and Set-HPOVRemoteSyslog cmdlets.
-	 |  - Added dependancy to FormatPX PowerShell module to fix PowerShell's Format-* cmdlet output.
-------------------------------------------
-1.20.0164.0
-	 |  - Fixed Show-HPOVSSLCertificate error handling
-	 |  - Fixed Connect-HPOVMgmt Error Handling
-	 |  - Fixed Update-HPOVStorageSystem where a variable collision would occur reulting in erronuous error.
-	 |  - Removed modifying PowerShell prompt.  Set-HPOVPrompt is now deprecated.  Please use Show-HPOVAppliance to see what appliance you are connected to.
-	 |  - Added support for Microsoft Desired State Configuration automation with Microsoft System Center Service Management Automation. Please refer to Enable-HPOVMSDSC for more information.
-	 |  - Added Verbose support for PSM1 executed code during Import-Module -verbose.
+	Moved to \en-US\about_HPOneView.120.help.txt
 #>
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.0164.0"
+$script:scriptVersion = "1.20.166.0"
 $Global:CallStack = Get-PSCallStack
 $verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -9514,7 +9434,7 @@ function Add-HPOVStorageSystem {
 
                     $tempManagedPort = [pscustomobject]@{
 
-						type               = "StorageTargetPort"; 
+						type               = "StorageTargetPortV2"; 
 						portName           = $Null; 
 						actualNetworkUri   = $Null; 
 						portWwn            = $Null; 
@@ -17640,8 +17560,16 @@ function New-HPOVProfile {
 
         [parameter(Mandatory = $false,ParameterSetName = "Default")]
         [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
-        [ValidateSet("Virtual", "Physical", IgnoreCase=$true)]
+        [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$snAssignment = "Virtual",
+
+		[parameter(Mandatory = $false,ParameterSetName = "Default")]
+        [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
+        [string]$serialnumber = $Null,
+
+		[parameter(Mandatory = $false,ParameterSetName = "Default")]
+        [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
+        [string]$uuid = $Null,
 
         [parameter(Mandatory = $false,ParameterSetName = "Default")]
         [parameter(Mandatory = $false,ParameterSetName = "SANStorageAttach")]
@@ -17665,8 +17593,24 @@ function New-HPOVProfile {
 
         }
 
-        #if ($manageBoot.IsPresent) { [Bool]$manageBoot = $True }
-        #else { [Bool]$manageBoot = $False }
+		if ($snAssignment -eq "UserDefined" -and (-not($serialnumber)) -and (-not($uuid))) {
+		
+			$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'snAssignment' -Message "The -snAssignment paramter was set to 'UserDefined', however both -serialnumber and -uuid are Null.  You must specify a value for both parameters." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+		}
+		elseif ($snAssignment -eq "UserDefined" -and $serialnumber -and (-not($uuid))) {
+		
+			$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'uuid' -Message "The -snAssignment paramter was set to 'UserDefined', however -uuid is Null.  You must specify a value for both parameters." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+		elseif ($snAssignment -eq "UserDefined" -and (-not($serialnumber)) -and $uuid) {
+		
+			$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'serialnumber' -Message "The -snAssignment paramter was set to 'UserDefined', however -serialnumber is Null.  You must specify a value for both parameters." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+		}
 
         #New Server Resource Object
         $serverProfile = [pscustomobject]@{
@@ -17701,10 +17645,12 @@ function New-HPOVProfile {
             macType               = $macAssignment;
             wwnType               = $wwnAssignment;
             connections           = $connections; 
+			serialNumber          = $serialnumber;
             serverHardwareUri     = $null;
             serverHardwareTypeUri = $null;
             enclosureGroupUri     = $null;
-            sanStorage            = $null
+            sanStorage            = $null;
+			uuid                  = $uuid
         }
 
     }
@@ -17723,6 +17669,9 @@ function New-HPOVProfile {
                 #Recieved file location
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Received JSON file as input $($ProfileObj)"
                 $serverProfile = (get-content $ProfileObj) -join "`n" | convertfrom-json
+
+				#Remove unique values with Select-Object
+				$serverProfile = $serverProfile | Select-Object * -Exclude uri,created,modified,eTag
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
                 $resp = Send-HPOVRequest $script:profilesUri POST $serverProfile
