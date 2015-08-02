@@ -115,7 +115,7 @@
 							</ListItem>
 							<ListItem>
 								<Label>UnlicensedCount</Label>
-								<PropertyName>unlicensedCount</PropertyName>
+								<ScriptBlock>[int]$_.unlicensedCount</ScriptBlock>
 							</ListItem>
 						</ListItems>
 					</ListEntry>

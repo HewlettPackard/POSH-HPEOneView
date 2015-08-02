@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <ViewDefinitions>
-    <!--Server_Hardware-->
+    <!--Server_Hardware FT-->
     <View>
       <Name>ServerHardware</Name>
       <ViewSelectedBy>
@@ -200,7 +200,7 @@
         </TableRowEntries>
       </TableControl>
     </View>   
-    <!--ENCLOSURE-->
+    <!--ENCLOSURE FT-->
     <View>
       <Name>Enclosure</Name>
       <ViewSelectedBy>
@@ -373,5 +373,82 @@
         </TableRowEntries>
       </TableControl>
     </View>
-  </ViewDefinitions>
+    <!--PotentialPowerConnection FT-->
+    <View>
+      <Name>PotentialPowerConnection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.PowerDevice.PotentialPowerConnection</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connection</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connection Side</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deviceConnection</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deviceConnectionSide</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--PotentialPowerConnection FL-->
+    <View>
+      <Name>PotentialPowerConnection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.PowerDevice.PotentialPowerConnection</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Connection</Label>
+                <PropertyName>deviceConnection</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Connection Side</Label>
+                <PropertyName>deviceConnectionSide</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+  </ViewDefinitions> 
 </Configuration>

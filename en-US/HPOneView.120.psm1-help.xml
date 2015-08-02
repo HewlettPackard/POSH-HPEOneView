@@ -1503,7 +1503,7 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
             <dev:version/>
         </command:details>
         <maml:description>
-            <maml:para></maml:para>
+            <maml:para>SMTP Email Filters can be created using this CMDLET.</maml:para>
         </maml:description>
         <command:syntax>
 
@@ -1512,7 +1512,11 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                     <maml:name>filter</maml:name>
                     <maml:description>
-                        <maml:para>Aliases [-query]</maml:para>
+                        <maml:para>Aliases [-query]
+
+REST API filter specifying the resource category, URI, name, and severity.  Example:
+
+	CPU status:'warning' or status:'critical'</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -1520,19 +1524,9 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
                     <maml:name>Emails</maml:name>
                     <maml:description>
-                        <maml:para></maml:para>
+                        <maml:para>Destination EMail address(es).</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">Array</command:parameterValue>
-                </command:parameter>
- 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>Switch1</maml:name>
-                    <maml:description>
-                        <maml:para>&#8226; List Item 1
-&#8226; List Item 2
-&#8226; List Item 3</maml:para>
-                    </maml:description>
-                    <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 </command:parameter>
  
             </command:syntaxItem>
@@ -1541,7 +1535,11 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                 <maml:name>filter</maml:name>
                 <maml:description>
-                    <maml:para>Aliases [-query]</maml:para>
+                    <maml:para>Aliases [-query]
+
+REST API filter specifying the resource category, URI, name, and severity.  Example:
+
+	CPU status:'warning' or status:'critical'</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -1553,7 +1551,7 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
                 <maml:name>Emails</maml:name>
                 <maml:description>
-                    <maml:para></maml:para>
+                    <maml:para>Destination EMail address(es).</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">Array</command:parameterValue>
                 <dev:type>
@@ -1561,20 +1559,6 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
                     <maml:uri/>
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
-            </command:parameter>
-            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                <maml:name>Switch1</maml:name>
-                <maml:description>
-                    <maml:para>&#8226; List Item 1
-&#8226; List Item 2
-&#8226; List Item 3</maml:para>
-                </maml:description>
-                <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
-                <dev:type>
-                    <maml:name>SwitchParameter</maml:name>
-                    <maml:uri/>
-                </dev:type>
-                <dev:defaultValue>False</dev:defaultValue>
             </command:parameter>
 
         </command:parameters>
@@ -1599,7 +1583,7 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
                     <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>If successful, returns a user resource.</maml:para>
+                        <maml:para>If successful, returns a resource.</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -1614,8 +1598,8 @@ Add serverilo.contoso.com to the appliance as a monitored only device.
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; CMDLET params
-Description
+                <dev:code>PS C:\&gt; Add-HPOVSmtpAlertEmailFilter -query 'CPU status:warning or status:critical' -emails admin1@domain.com,admin2@domain.com
+Set SMTP Alert to notify when system CPU status is either 'warning' or 'critical', and email 2 addresses.
 
 
 
@@ -1634,28 +1618,16 @@ Description
         </command:examples>
         <maml:relatedLinks>
             <maml:navigationLink>
-                <maml:linkText>Get-Cmdlet</maml:linkText>
+                <maml:linkText>Set-HPOVSMTPConfig</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
-                <maml:linkText>Set-Cmdlet</maml:linkText>
-                <maml:uri></maml:uri>
-            </maml:navigationLink>
-            <maml:navigationLink>
-                <maml:linkText>New-Cmdlet</maml:linkText>
-                <maml:uri></maml:uri>
-            </maml:navigationLink>
-            <maml:navigationLink>
-                <maml:linkText>Remove-Cmdlet</maml:linkText>
-                <maml:uri></maml:uri>
-            </maml:navigationLink>
-            <maml:navigationLink>
-                <maml:linkText>Show-Cmdlet</maml:linkText>
+                <maml:linkText>Get-HPOVSMTPConfig</maml:linkText>
                 <maml:uri></maml:uri>
             </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
-                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/</maml:uri>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVSmtpAlertEmailFilter</maml:uri>
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
@@ -8681,8 +8653,6 @@ VLAN 501-A Tagged 501     General     True      False           OK     2500     
 VLAN 501-B Tagged 501     General     True      False           OK     2500                10000
 
 
-
-
     Type: Fibre Channel
 
 
@@ -8859,6 +8829,166 @@ Return the power device resource with name "iPDU_A".
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
                 <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVPowerDevice</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
+    <!--GET-HPOVPOWERPOTENTIALDEVICECONNECTION-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Get-HPOVPowerPotentialDeviceConnection</command:name>
+            <maml:description>
+                <maml:para>Retrieve Power Device (mPDU/Rack PDU) Potentail Connections</maml:para>
+            </maml:description>
+            <command:verb>Get</command:verb>
+            <command:noun>HPOVPowerPotentialDeviceConnection</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>Obtain a collection of potential managed and unmanaged device power connections for the provided power device resoruce.  The returned value(s) will include the potential power connections that can be manually associated when not using iPDU devices.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Get-HPOVPowerPotentialDeviceConnection</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                    <maml:name>powerDevice</maml:name>
+                    <maml:description>
+                        <maml:para>Aliases [-uri, -name]
+The name of the power device resource.  Can provide Name, URI or Object.</maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="1">
+                <maml:name>powerDevice</maml:name>
+                <maml:description>
+                    <maml:para>Aliases [-uri, -name]
+The name of the power device resource.  Can provide Name, URI or Object.</maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Potential managed/unmanaged device Power Delivery Device connection object.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Array</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Collection of matching potential power device connection objects.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $powerDevices = Get-HPOVPowerDevice
+Return all the power devices managed by this appliance.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVPowerDevice "mPDU_A" | Get-HPOVPowerPotentialDeviceConnection
+Return the potential power device connections for the "mPDU_A" power delivery device.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVPowerPotentialDeviceConnection "mPDU_A"
+Return the potential power device connections for the "mPDU_A" power delivery device.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVPowerDevice</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Add-HPOVPowerDevice</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Remove-HPOVPowerDevice</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVPowerPotentialDeviceConnection</maml:uri>
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
@@ -23794,7 +23924,7 @@ Sets the LACP mode on the uplink ports. Valid for ETHERNET Uplinks only. Acceopt
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "US1" -Type "Ethernet" -Networks "RED,BLUE,GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6", -EthMode "Auto"
+                <dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "US1" -Type "Ethernet" -Networks "RED","BLUE","GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6" -EthMode "Auto"
 To Create an Ethernet Uplink Template
 
 
@@ -33557,6 +33687,10 @@ Set the appliance's SMTP Sender Email Address to 'hpov-alerts@contoso.com' and e
 
         </command:examples>
         <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVSMTPConfig</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Add-HPOVSmtpAlertEmailFilter</maml:linkText>
                 <maml:uri></maml:uri>

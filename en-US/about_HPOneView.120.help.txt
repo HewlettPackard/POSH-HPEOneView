@@ -32,9 +32,16 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.208.0
+     -- Added HTTP 500 support handling to New-HPOVLicense.
+     -- Added Get-HPOVPowerPotentialDeviceConnection to assist with locating potential and available power 
+     delivery device connections.
+     -- Deprecated -Summary parameter in Get-HPOVLicense.
+     -- Fixed New-HPOVProfileAssign where target server resource was not passing correctly to the API.
+
     Release 1.20.166.0
      -- Added User Defined Serial Number and UUID values for New-HPOVProfile.
-	 -- Moving all "What's New" and Revision History notes to about_HPOneView.120.help.txt, and will no longer 
+     -- Moving all "What's New" and Revision History notes to about_HPOneView.120.help.txt, and will no longer 
         be contained within the main module.
 
     Release 1.20.0164.0
