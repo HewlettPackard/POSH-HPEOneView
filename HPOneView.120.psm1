@@ -2,7 +2,7 @@
 # HP OneView PowerShell Library
 ##############################################################################
 ##############################################################################
-## (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+## (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
 ##############################################################################
 <#
 
@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.208.0"
+$script:scriptVersion = "1.20.233.0"
 $Global:CallStack = Get-PSCallStack
 $verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -92,15 +92,15 @@ $Source = @"
 		{
 		    public class SslCertificate 
 			{
-			    public Uri OriginalURi;
+			    public Uri OriginalURI;
 			    public Uri ReturnedURi;
 			    public X509Certificate2 Certificate;
 			    public string Issuer;
 			    public string Subject;
-			    public string[] SubjectAlternativeNames;
+			    public string SubjectAlternativeNames;
 			    public bool CertificateIsValid;
-			    public string[] ErrorInformation;
-			    public HttpWebResponse Response;
+			    public string ErrorInformation;
+			    //public HttpWebResponse Response;
 		    }
 	    }
 
@@ -867,7 +867,19 @@ $script:applXApiVersion        = "/rest/version"
 $script:applMacAddresses       = "/rest/appliance/network-interfaces/mac-addresses"
 $script:applBackup             = "/rest/backups"
 $script:applRestoreFile        = "/rest/backups/archive"
-$script:applRestore            = "/rest/restore"
+$script:applRestores           = "/rest/restores"
+$script:progressStepEnum       = @{
+
+	COMPLETED            = "Restore Completed";
+	FAILED               = "Restore Failed";
+	PREPARING_TO_RESTORE = "Preparing to Restore";
+	RESTORING_DB         = "Restoring Database";
+	RESTORING_FILES      = "Restoring Files";
+	STARTING_SERVICES    = "Starting Services";
+	UNKNOWN              = "The restore step is unknown"
+
+}
+				
 $script:applVersion            = "/rest/appliance/version"
 $script:applSupportDump        = "/rest/appliance/support-dumps"
 $script:applHealthStatus       = "/rest/appliance/health-status"
@@ -1314,10 +1326,11 @@ function RestClient {
 
     Begin {
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | FT * -autosize -wrap | out-string)"
 
         $url = $Appliance + $uri
-        Write-Verbose "[RESTCLIENT] Building new [System.Net.HttpWebRequest] object for $method $url"
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Building new [System.Net.HttpWebRequest] object for $method https://$url"
 
     }
 
@@ -1568,10 +1581,20 @@ function Send-HPOVRequest {
 		        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Body: $($js)"
 
                 #Send the messege
-		        $stream = New-Object IO.StreamWriter $req.GetRequestStream()
-		        $stream.AutoFlush = $True
-		        $stream.WriteLine($js)
-		        $stream.Close()
+		        try {
+					
+					$stream = New-Object IO.StreamWriter $req.GetRequestStream()
+					$stream.AutoFlush = $True
+					$stream.WriteLine($js)
+					$stream.Close()
+
+				}
+				catch {
+
+					#$errorRecord = New-ErrorRecord $_.Exception.Source $_.CategoryInfo.Reason $_.CategoryInfo.Category 'Send-HPOVRequest' -Message $_.Exception.Message -InnerException $_.Exception.InnerException
+                    $pscmdlet.ThrowTerminatingError($_)
+
+				}
 
             }
 
@@ -1581,7 +1604,7 @@ function Send-HPOVRequest {
             $i = 0
             foreach ($h in $req.Headers) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Header $($i+1): $($h) = $($req.Headers[$i])"; $i++ }
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] [System.Net.HttpWebRequest] object details: $($req | select * -ExcludeProperty headers | out-string)"
+            Write-Debug "[$($MyInvocation.InvocationName.ToString().ToUpper())] [System.Net.HttpWebRequest] object details: $($req | select * -ExcludeProperty headers | out-string)"
 
             try {
 
@@ -2133,10 +2156,10 @@ function Connect-HPOVMgmt {
 
          [parameter(Mandatory = $true, HelpMessage = "Enter the user name",Position=1)]
          [ValidateNotNullOrEmpty()]
-         [alias("u")]
+         [alias("u","Username")]
          [string]$User,
 
-         [parameter(Mandatory = $false, HelpMessage = "Enter the password:",Position=2)]
+         [parameter(Mandatory = $false, HelpMessage = "Enter the password",Position=2)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [String]$password
@@ -2366,41 +2389,52 @@ function Disconnect-HPOVMgmt {
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending Delete Session ID request"
 
-		Send-HPOVRequest $loginSessionsUri DELETE $global:cimgmtSessionId
+		Try {
+			
+			Send-HPOVRequest $loginSessionsUri DELETE $global:cimgmtSessionId
 
-		if ([int]$script:lastWebResponse.StatusCode -eq 204) {
-		
-		    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Successfully logged off"
+			if ([int]$script:lastWebResponse.StatusCode -eq 204) {
+			
+			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Successfully logged off"
 
-		    $script:SSLCheckFlag            = $False
-			$global:certTrusted             = $False
-		    $script:HPOneViewAppliance      = $null
-		    $Script:PromptApplianceHostname = "Not Connected"
-		    $Appliance                      = $null
-		    $User                           = $Null
-		    $authProvider                   = $Null
-		    $global:cimgmtSessionId         = $null
+			    $script:SSLCheckFlag            = $False
+				$global:certTrusted             = $False
+			    $script:HPOneViewAppliance      = $null
+			    $Script:PromptApplianceHostname = "Not Connected"
+			    $Appliance                      = $null
+			    $User                           = $Null
+			    $authProvider                   = $Null
+			    $global:cimgmtSessionId         = $null
 
-		    #Clear the System.Net.ServicePointManager Certificate Policy
-		    if ([System.Net.ServicePointManager]::CertificatePolicy) {
+			    #Clear the System.Net.ServicePointManager Certificate Policy
+			    if ([System.Net.ServicePointManager]::CertificatePolicy) {
 
-		        #Restore System.Net.ServicePointManager
-		        [System.Net.ServicePointManager]::CertificatePolicy = $Null
+			        #Restore System.Net.ServicePointManager
+			        [System.Net.ServicePointManager]::CertificatePolicy = $Null
 
-		    }
+			    }
 
-		    #used for the Show-HPOVAppliance CMDLET
-		    $script:applianceConnectedTo = [pscustomobject]@{User = $User; Domain = $authProvider; Appliance = $Appliance}
+			    #used for the Show-HPOVAppliance CMDLET
+			    $script:applianceConnectedTo = [pscustomobject]@{User = $User; Domain = $authProvider; Appliance = $Appliance}
+
+			}
+
+			else {
+
+			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logoff request failed. Response code: $([int]$script:lastWebResponse.StatusCode)"
+			    $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff InvalidResult 'Disconnect-HPOVMgmt' -Message "Unable to remove your session" -InnerException "$($resp.errorCode) $($resp.statusCode) $($resp.details)" #-verbose
+			    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
 
 		}
 
-        else {
+		Catch {
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logoff request failed. Response code: $([int]$script:lastWebResponse.StatusCode)"
-            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff InvalidResult 'Disconnect-HPOVMgmt' -Message "Unable to remove your session" -InnerException "$($resp.errorCode) $($resp.statusCode) $($resp.details)" #-verbose
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff InvalidResult 'Disconnect-HPOVMgmt' -Message ($_.Exception.Message.ToString())
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
-        }
+		}
 
 	}
 
@@ -3058,14 +3092,14 @@ function Install-HPOVUpdate {
 	[CmdletBinding(DefaultParameterSetName = 'Update',SupportsShouldProcess = $True, ConfirmImpact = 'High')]
 	Param (
 
-		[parameter(Mandatory = $true, ParameterSetName = 'Update')]
-        [parameter(Mandatory = $true, ParameterSetName = 'Stage')]
+		[parameter(Position = 0, Mandatory = $true, ParameterSetName = 'Update')]
+        [parameter(Position = 0, Mandatory = $true, ParameterSetName = 'Stage')]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
         [string]$File,
         
-        [Parameter(Mandatory = $false, ParameterSetName = 'Update')]
-        [parameter(Mandatory = $false, ParameterSetName = 'StageInstall')]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'Update')]
+        [parameter(Position = 0, Mandatory = $false, ParameterSetName = 'StageInstall')]
         [string]$Eula,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Update')]
@@ -3137,7 +3171,7 @@ function Install-HPOVUpdate {
 
                     }
 
-                    Return
+                    Return $upload
 
                 }
                 else {
@@ -3154,13 +3188,6 @@ function Install-HPOVUpdate {
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Checking if pending update exists"
 
-                #Verify a pending update exists
-                #$pendingUpdate = Send-HPOVRequest $script:applUpdatePending
-
-                #$updateVersion = $pendingUpdate.version
-                #$updateFileName = $pendingUpdate.fileName
-                #$estUpgradeTime = $pendingUpdate.estimatedUpgradeTime
-
                 #If the request is to install a staged update, we need to handle no response.  If request is Update, then no pending update will exist yet.
                 If (-not($pendingUpdate)) {
 
@@ -3173,13 +3200,6 @@ function Install-HPOVUpdate {
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Update found $($pendingUpdate.fileName), $($pendingUpdate.version)"
 
 				$pendingUpdate
-
-                #$u = @{Expression={$_.version};Label="Version"},
-                #     @{Expression={if ($_.rebootRequired) { "Yes" } else { "No" }};Label="Reboot Required"},
-                #     @{Expression={"$($_.estimatedUpgradeTime) minutes"};Label="Estimated Upgrade Time"},
-                #     @{Expression={$_.fileName};Label="Update File Name"}
-				#
-                #$resp | format-table $u -AutoSize
                 
                 If ($DisplayReleaseNotes) {
 
@@ -3201,9 +3221,6 @@ function Install-HPOVUpdate {
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - UPLOAD FILE: $($File)"
 
                 Try {
-
-					#Verify if an existing update is present
-					#$resp = Send-HPOVRequest $script:applUpdatePending
 					
 					if ($pendingUpdate) {
 
@@ -3215,16 +3232,22 @@ function Install-HPOVUpdate {
 					
                     #Upload update
                     $FileName = Get-Item $File
-                    $upload = Upload-File $script:applUpdate $File
+                    $pendingUpdate = Upload-File $script:applUpdate $File
+
+					#Pause for 30 seconds? need to make sure appliance has finished processing update file before invoking update
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Sleeping for 5 seconds."
+					Start-Sleep -Seconds 5
                 
                 }
                 Catch {
 
-                    $errorRecord = New-ErrorRecord InvalidOperationException UploadUpdateFailed InvalidResult 'Install-HPOVUpdate' -Message $upload #-verbose
+                    $errorRecord = New-ErrorRecord InvalidOperationException UploadUpdateFailed InvalidResult 'Install-HPOVUpdate' -Message $pendingUpdate #-verbose
                     $pscmdlet.ThrowTerminatingError($errorRecord)
 
                 }
+
             }
+
         }
         
         #Process pending update
@@ -3234,7 +3257,7 @@ function Install-HPOVUpdate {
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Verifying pending update exists"
 
             #Verify a pending update exists
-            $resp = Send-HPOVRequest $script:applUpdatePending
+            $pendingUpdate = Send-HPOVRequest $script:applUpdatePending
 
             #If the request is to install a staged update, we need to handle no response.  If request is Update, then no pending update will exist yet.
             If ((-not($pendingUpdate)) -and ($PsCmdlet.ParameterSetName -eq "StageInstall")) {
@@ -3246,18 +3269,8 @@ function Install-HPOVUpdate {
 
             }
 
-            #$updateVersion = $pendingUpdate.version
-            #$updateFileName = $pendingUpdate.fileName
-            #$estUpgradeTime = $pendingUpdate.estimatedUpgradeTime
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Update found '$($pendingUpdate.fileName)', v$($pendingUpdate.version)"
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Update found $($pendingUpdate.fileName), $($pendingUpdate.version)"
-
-            #$u = @{Expression={$_.version};Label="Version"},
-            #     @{Expression={if ($_.rebootRequired) { "Yes" } else { "No" }};Label="Reboot Required"},
-            #     @{Expression={"$($_.estimatedUpgradeTime) minutes"};Label="Estimated Upgrade Time"},
-            #     @{Expression={$_.fileName};Label="Update File Name"}
-			#
-            #$resp | format-table $u -AutoSize
 			$pendingUpdate
 
             If ($Eula -ne "accept") {
@@ -3280,88 +3293,43 @@ function Install-HPOVUpdate {
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Appliance reboot required $($pendingUpdate.rebootRequired)"
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Prompting for confirmation"
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Is confirmation overridden $($confirm)"
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Is confirmation overridden $([bool]$confirm)"
 
                 #If it does require a reboot, then we need to prompt for confirmation. Overriden by -confirm:$false
                 if ($pscmdlet.ShouldProcess($script:HPOneViewAppliance,"Reboot required!  Upgrade appliance using $($pendingUpdate.fileName) ")) {
 
-                    send-hpovrequest ("$script:applUpdatePending"+"?file=$($pendingUpdate.fileName)") PUT
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Appliance reboot required and user selected YES or passed -Confirm:`$false, executing Invoke-Upgrade"
 
-                    $sw = [System.Diagnostics.Stopwatch]::StartNew()
+					$resp = Invoke-Upgrade $pendingUpdate
+                
+				}
+				
+				else {
 
-                    #Loop to display progress-bar
-                    Do {
+					if ($PSBoundParameters['whatif'].ispresent) { 
+            		
+                        write-warning "-WhatIf was passed, would have initiated appliance update."
+                        $resp = $null
+            		
+                    }
+                    else {
+					
+		    	        #If here, user chose "No", end processing
+		    	        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - User selected NO."
+                        $resp = $Null
+					
+                    }
 
-                        #Connect to update monitor web process
-                        $monitorUpdate = Send-HPOVRequest $script:applUpdateMonitor
-                        
-                        #Remove % from value in order to get INT
-                        if ($monitorUpdate.percentageCompletion) { $percentComplete = $monitorUpdate.percentageCompletion.replace("%","") }
-                        else { $percentComplete = 0 }
-                        
-                        #Remove " State = " to get proper status
-                        if ($monitorUpdate.status) { $updateStatus = $monitorUpdate.status.replace(" State = ","") }
-                        else { $updateStatus = "Starting" }
-
-                        #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                        if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."  }
-                          
-                        else { Write-Progress -activity "Installing appliance update $updateVersion " -status "$updateStatus $percentComplete% [$($sw.elapsed.minutes)min $($sw.elapsed.seconds)sec]" -percentComplete $percentComplete }
-
-                    } Until ([int]$percentComplete -eq 100)
-
-                    $sw.Stop()
-
-                    #Retrieve final update status
-                    $resp = Send-HPOVRequest $script:applUpdateNotification
-
-                    If ($resp) { $updateStatus = "Completed" }
-                    ElseIf (-not($resp)) { $updateStatus = "FAILED" }
-                    Write-Progress -activity "Installing appliance update $updateVersion " -status $updateStatus -percentComplete $percentComplete
-                }
-
-                if ($updateStatus -ne "FAILED") { Write-Warning "Appliance will begin reboot now." }
+				}
 
             }
 
             else { 
 
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Appliance reboot NOT required"
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Appliance reboot NOT required, executing Invoke-Upgrade"
                 
-                $updateTask = send-hpovrequest ("$script:applUpdatePending"+"?file=$($pendingUpdate.fileName)") PUT
-
-                $sw = [System.Diagnostics.Stopwatch]::StartNew()
+				$resp = Invoke-Upgrade $pendingUpdate
                 
-                #Loop to display progress-bar
-                Do {
-
-                    #Connect to update monitor web process
-                    $monitorUpdate = Send-HPOVRequest $script:applUpdateMonitor
-                        
-                    #Remove % from value in order to get INT
-                    $percentComplete = $monitorUpdate.percentageCompletion.replace("%","")
-                        
-                    #Remove " State = " to get proper status
-                    $updateStatus = $monitorUpdate.status.replace(" State = ","")
-
-                    #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."  }
-                      
-                    else { Write-Progress -activity "Installing appliance update $updateVersion " -status "$updateStatus $percentComplete% [$($sw.elapsed.minutes)min $($sw.elapsed.seconds)sec]" -percentComplete $percentComplete }
-
-                } Until ([int]$percentComplete -eq 100)
-                
-                $sw.Stop()
-
-                #Retrieve final update status
-                $resp = Send-HPOVRequest $script:applUpdateNotification
-
-                If ($resp) { $updateStatus = "Completed" }
-
-                ElseIf (-not($resp)) { $updateStatus = "FAILED" }
-
-                Write-Progress -activity "Installing appliance update $updateVersion " -status $updateStatus -percentComplete $percentComplete
-
             }
 
 			Return $resp
@@ -3369,6 +3337,102 @@ function Install-HPOVUpdate {
         }
 
     }
+
+}
+
+function Invoke-Upgrade  {
+
+	[CmdletBinding()]
+	Param (
+	
+		[parameter(Mandatory = $true)]
+		[ValidateNotNullorEmpty()]
+		[Object]$pendingUpdate
+	
+	)
+
+    Begin { }
+
+	Process {
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] pendingUpdate parameter: $($pendingUpdate | FL * | Out-String)"
+
+		$updateTask = send-hpovrequest ("$script:applUpdatePending"+"?file=$($pendingUpdate.fileName)") PUT
+
+		$sw = [System.Diagnostics.Stopwatch]::StartNew()
+		
+		#Loop to display progress-bar
+		Do {
+
+		    #Connect to update monitor web process
+		    $monitorUpdate = Send-HPOVRequest $script:applUpdateMonitor
+		        
+			#Remove % from value in order to get INT
+			if ($monitorUpdate.percentageCompletion) { $percentComplete = $monitorUpdate.percentageCompletion.replace("%","") }
+            else { $percentComplete = 0 }
+            
+            #Remove " State = " to get proper status
+            if ($monitorUpdate.status) { $updateStatus = $monitorUpdate.status -replace " ","" -replace "State=","" }
+            else { $updateStatus = "Starting" }
+
+
+			$sw = [System.Diagnostics.Stopwatch]::StartNew()		    
+		    #Handle the call from -Verbose so Write-Progress does not get borked on display.
+		    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."  }
+		      
+		    else { Write-Progress -id 1 -activity "Installing appliance update $updateVersion " -status "$updateStatus $percentComplete% [$($sw.elapsed.minutes)min $($sw.elapsed.seconds)sec]" -percentComplete $percentComplete }
+
+			if ($updateStatus -eq "UpdateReboot") {
+
+				#Handle the call from -Verbose so Write-Progress does not get borked on display.
+				if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { 
+					
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] pausing for 5 minutes while appliance reboots. Invoking Start-Sleep"
+					
+					Start-Sleep -Seconds 300
+
+				}
+		      
+				else { 
+
+					$time = 300
+					
+					foreach($i in (1..$time)) {
+
+					    $percentage = $i / $time
+
+						Write-Progress -id 1 -activity "Installing appliance update $updateVersion " -status "$updateStatus $percentComplete% [$($sw.elapsed.minutes)min $($sw.elapsed.seconds)sec]" -percentComplete $percentComplete
+
+						Write-Progress -id 2 -parent 1 -activity "Appliance Rebooting" -status "Pausing for 5 minutes" -percentComplete ($percentage * 100) -SecondsRemaining ($time - $i)
+
+					    Start-Sleep 1
+
+					}	
+					
+					Write-Progress -id 2 -parent 1 -activity "Appliance Rebooting" -status "Pausing for 5 minutes" -Completed			
+				
+				}
+
+			}
+
+		} Until ([int]$percentComplete -eq 100)
+		
+		$sw.Stop()
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Upgrade operation took $($sw.elapsed.minutes)min, $($sw.elapsed.seconds)sec."
+
+		#Retrieve final update status
+		$resp = Send-HPOVRequest $script:applUpdateNotification
+
+		Write-Progress -activity "Installing appliance update $updateVersion " -status $updateStatus -percentComplete $percentComplete
+
+	}
+
+	End {
+
+		Return $Resp
+
+	}
 
 }
 
@@ -4734,6 +4798,8 @@ Function New-HPOVRestore {
     
     Begin {
 
+		$restoreStatus = $Null
+
         if (-not($global:cimgmtSessionId)) {
         
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError "New-HPOVRestore" -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
@@ -4741,26 +4807,83 @@ Function New-HPOVRestore {
 
         }
 
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | FT * -autosize -wrap | out-string)"
+
     }
 
     Process {
 
-        if ($pscmdlet.ShouldProcess($script:HPOneViewAppliance,'Restore backup to appliance')){    
+		if (-not(Test-Path $FileName)) {
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.RestoreException BackupFileNotFound ObjectNotFound 'FileName' -Message "'$FileName' was not found. Please check the directory and/or name and try again." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+        if ($pscmdlet.ShouldProcess($script:HPOneViewAppliance,'Restore backup to appliance')) {    
      
 			
 		    #Send the request
 		    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Please wait while the appliance backup is uploaded.  This can take a few minutes..."
-		    $resp = Upload-File $script:applRestoreFile $FileName
+		    
+			$resp = Upload-File $script:applRestoreFile $FileName
 
             if ($resp.id){
 		    
-                Write-warning "Appliance restore in progress.  All users are now logged off."
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request to restore appliance"
-                $task = Send-HPOVRequest $resp.ID 
-                Wait-HPOVTaskComplete $task.uri
+                Write-Warning "Appliance restore in progress.  All users are now logged off."
+                
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request to restore appliance"
+
+				$restoreObject = [PSCustomObject]@{
+
+					type = "RESTORE"
+					uriOfBackupToRestore = $resp.uri
+
+				}
+                
+				$restoreStatus = Send-HPOVRequest $script:applRestores POST $restoreObject
+
+				$sw = [System.Diagnostics.Stopwatch]::StartNew()
+
+				While ($restoreStatus.status -eq "IN_PROGRESS") {
+
+					$statusMessage = "$($script:progressStepEnum[$restoreStatus.progressStep]) $($restoreStatus.percentComplete)% [$($sw.elapsed.minutes)min $($sw.elapsed.seconds)sec]"
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { 
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - $statusMessage"
+					
+					}
+					  
+					else { 
+						
+						Write-Progress -id 1 -activity "Restoring Appliance Backup $($restoreStatus.id)" -status $statusMessage -percentComplete $restoreStatus.percentComplete
+					
+					}
+
+					$restoreStatus = Send-HPOVRequest $restoreStatus.uri
+
+				} #Until ($restoreStatus.percentComplete -eq 100 -or $restoreStatus -ne "IN_PROGRESS")
+
+				$sw.Stop()
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Operation took $($sw.elapsed.minutes)min $($sw.elapsed.seconds)sec"
+
+				Write-Progress -id 1 -activity "Restoring Appliance Backup $($restoreStatus.id)" -status $statusMessage -Completed
+                
             }
+
         }
+
     }
+
+	End {
+
+		Return $restoreStatus
+
+	}
+
 }
 
 function Download-File {
@@ -5020,7 +5143,7 @@ function Upload-File {
             $disposition = 'Content-Disposition: form-data; name="file"; filename="' + $fileObj.Name + '"'
             $conType = "Content-Type: application/octet-stream"
 
-            [byte[]]$readbuffer = New-Object byte[] 1048576
+            [byte[]]$readbuffer = New-Object byte[] 4194304 #1048576
 
             [byte[]]$BoundaryBytes = [System.Text.Encoding]::UTF8.GetBytes("--" + $boundary + "`r`n");
             $rs.write($BoundaryBytes,0,$BoundaryBytes.Length);
@@ -5038,16 +5161,18 @@ function Upload-File {
             if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display." }
 
             do {
-		        $byteCount = $fs.Read($readbuffer,0,1048576)
+
+		        $byteCount = $fs.Read($readbuffer,0,4194304) #1048576)
 		        $rs.write($readbuffer,0,$byteCount)
 	        
 		        #Keep track of where we are at clearduring the read operation
 		        $numBytesRead += $bytecount
 
 		        #Use the Write-Progress cmd-let to show the progress of uploading the file.
-                [int]$percent = (($numBytesRead / $fs.Length) * 100)
-                if ($percent -gt 100) { $percent = 100 }
-                $status = "(" + $numBytesRead + " of " + $numBytesToRead + ") Completed " + $percent + "%"
+                [int]$percent = [math]::floor(($numBytesRead / $fs.Length) * 100)
+				
+                #if ($percent -gt 100) { $percent = 100 }
+                $status = "(" + $numBytesRead + " of " + $numBytesToRead + " transferred) Completed " + $percent + "%"
 
                 #Handle the call from -Verbose so Write-Progress does not get borked on display.
                 if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { 
@@ -5056,7 +5181,11 @@ function Upload-File {
                     
                 }
                   
-                else { Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation $status -percentComplete $percent }
+                else { 
+					
+					Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation $status -percentComplete $percent 
+				
+				}
 
             } while ($bytecount -gt 0)
 
@@ -5078,7 +5207,20 @@ function Upload-File {
         }
 
         try {
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Upload Request completed."
 		
+			if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') {
+			
+				 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Waiting for completion response from appliance."
+
+			}
+			else { 
+				
+				Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation "Waiting for completion response from appliance." -percentComplete $percent 
+			
+			}
+
             [net.httpWebResponse]$script:lastWebResponse = $uploadRequest.getResponse()
 			
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Status: ($([int]$script:lastWebResponse.StatusCode)) $($script:lastWebResponse.StatusDescription)"
@@ -5131,7 +5273,7 @@ function Upload-File {
     end {
 
         #Handle file uploads that generate task resource (i.e. Upload SPP Baseline)
-        if ([int]$script:lastWebResponse.StatusCode -eq 202 -or $uploadResponse.uri) {
+        if ($uploadResponse.category -eq "task") {
                   
 	        $task = Wait-HPOVTaskComplete $uploadResponse.uri -timeout (New-TimeSpan -Minutes 4)
             Write-Progress -activity "Upload File" -CurrentOperation "Uploading $Filename " -Completed
@@ -5363,7 +5505,7 @@ function Show-HPOVSSLCertificate {
             $certObject = [HPOneView.PKI.SslCertificate] @{
 
                 OriginalUri             = $ConnectString;
-                ReturnedUri             = $Response.ResponseUri;
+                #ReturnedUri             = $Response.ResponseUri;
                 Certificate             = $WebRequest.ServicePoint.Certificate;
                 Issuer                  = $WebRequest.ServicePoint.Certificate.Issuer;
                 Subject                 = $WebRequest.ServicePoint.Certificate.Subject;
@@ -5372,6 +5514,19 @@ function Show-HPOVSSLCertificate {
                 ErrorInformation        = $chain.ChainStatus | ForEach-Object {$_.Status}
             
 			}
+
+
+				#public Uri OriginalURi;
+			    #public Uri ReturnedURi;
+			    #public X509Certificate2 Certificate;
+			    #public string Issuer;
+			    #public string Subject;
+			    #public string[] SubjectAlternativeNames;
+			    #public bool CertificateIsValid;
+			    #public string[] ErrorInformation;
+			    #public HttpWebResponse Response;
+
+
 
             #If the certificate is NOT valid, display it and warn user
             if ((-not($certObject.CertificateIsValid)) -and ($certObject.ErrorInformation -contains "UntrustedRoot")) { 
@@ -14375,8 +14530,8 @@ function Get-HPOVAddressPool {
     [CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
         
-        [parameter (Mandatory = $false, ParameterSetName = "Default")]
-        [Array]$Type = @("all"),
+        [parameter (Position = 0, Mandatory = $false, ParameterSetName = "Default")]
+        [Array]$Type = "all",
 
         [parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Switch]$Ranges,
@@ -14530,7 +14685,7 @@ function Get-HPOVAddressPoolRange {
     [CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
 
-        [parameter (Mandatory = $True, ValueFromPipeline = $True, ParameterSetName = "Default")]
+        [parameter (Position = 0, Mandatory = $True, ValueFromPipeline = $True, ParameterSetName = "Default")]
         [Object]$Pool
 
     )
@@ -14549,11 +14704,11 @@ function Get-HPOVAddressPoolRange {
 
         }
 
+		[ArrayList]$rangeList = New-Object System.Collections.ArrayList
+
     }
 
     Process {
-
-		[Array]$ranges = @()
 
 		Switch ($Pool.GetType().Name) {
 		
@@ -14565,9 +14720,9 @@ function Get-HPOVAddressPoolRange {
 
 					$rangeObject = Send-HPOVRequest $Pool
 					
-					$rangeObj | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
+					$rangeObject | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
 
-                    $ranges += $rangeObj
+                    $rangeList.Add($rangeObject) | Out-Null
 
 				}
 				elseif ($Pool.StartsWith('/rest/')){
@@ -14577,33 +14732,55 @@ function Get-HPOVAddressPoolRange {
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
+
+				else {
+
+					$tmpAddressPool = Get-HPOVAddressPool $pool
+
+					foreach ($rangeUri in $tmpAddressPool.rangeUris) {
+
+						$rangeObject = Send-HPOVRequest $rangeUri
+
+						$rangeObject | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
+
+						$rangeList.Add($rangeObject)
+
+					}
+
+				}
 			
 			}
-			"PSCustomObject" {}	
+			"PSCustomObject" {
+			
+				if ($pool.category -match "id-pool-") {
 
+					foreach ($rangeUri in $pool.rangeUris) {
+
+						$rangeObject = Send-HPOVRequest $rangeUri
+
+						$rangeObject | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
+
+						$rangeList.Add($rangeObject) | Out-Null
+
+					}
+
+				}
+				else {
+
+					$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Pool' -Message "The parameter 'Pool' value '$Pool' is not a valid URI  Please correct the parameter value and try again."
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+				
+			}	
 
 		}
-
-
-
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Retrieve SN Address Range details."
-						
-            ForEach ($range in $pool.rangeUris) {
-                        
-                $rangeObj = Send-HPOVRequest $range
-
-				$rangeObj | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
-
-                $pool.ranges += $rangeObj
-
-            }
-
 
     }
 
 	End {
 		
-
+		Return $rangeList
 
 	}
 
@@ -18710,13 +18887,13 @@ function New-HPOVProfileAssign {
 
 			if ($server.serverHardwareTypeUri -ne $Profile.serverHardwareTypeUri) {
 
-				$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException IncorrectServerHardwareTypeUri InvalidArgument 'Server' -Message "The Server resource '$($Server.name)' provided does not match the same required Server Hardware Type ['$((Send-HPOVReques $profile.serverHardwareTypeUri).name)'] found in the Server Profile.  This operation is not permitted, as the Server Hardware Types must match." #-verbose
+				$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException IncorrectServerHardwareTypeUri InvalidArgument 'Server' -Message "The Server resource '$($Server.name)' provided does not match the same required Server Hardware Type ['$((Send-HPOVRequest $profile.serverHardwareTypeUri).name)'] found in the Server Profile.  This operation is not permitted, as the Server Hardware Types must match." #-verbose
 				$pscmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
 			$Profile.serverHardwareUri = $server.uri
-			$Profile.enclsoureUri      = $server.locationUri
+			$Profile.enclosureUri      = $server.locationUri
 
 		}
 
@@ -23508,6 +23685,7 @@ Export-ModuleMember -Function Remove-HPOVLogicalInterconnectGroup
 Export-ModuleMember -Function Get-HPOVUplinkSet
 Export-ModuleMember -Function New-HPOVUplinkSet
 Export-ModuleMember -Function Get-HPOVAddressPool
+Export-ModuleMember -Function Get-HPOVAddressPoolRange
 Export-ModuleMember -Function New-HPOVAddressRange
         
 #Server Profiles:

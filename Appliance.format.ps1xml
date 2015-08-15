@@ -631,7 +631,7 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>type</PropertyName>
+                <PropertyName>poolType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>enabled</PropertyName>
@@ -689,6 +689,170 @@
         </ListEntries>
       </ListControl>
     </View>
+
+
+
+
+
+<!--type                 : Range
+    prefix               :
+    enabled              : True
+    allocatorUri         : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/allocator
+    collectorUri         : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/collector
+    reservedIdCount      : 0
+    freeFragmentUri      : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/free-fragments?start=0&count=-1
+    allocatedFragmentUri : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/allocated-fragments?start=0&coun
+    t=-1
+    startAddress         : D2:BE:DE:C0:00:00
+    endAddress           : D2:BE:DE:CF:FF:FF
+    rangeCategory        : GENERATED
+    totalCount           : 1048576
+    allocatedIdCount     : 8
+    freeIdCount          : 1048568
+    defaultRange         : True
+    name                 : VMAC
+    category             : id-range-VMAC
+    created              : 2015-07-30 21:47:56.999
+    modified             : 2015-07-30 21:47:56.999
+    eTag                 : 3faa564a-e5be-41b6-8e84-af2b696c5dc2
+    uri                  : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d-->
+
+
+
+    <!--APPLIANCE_ADDRESSPOOLRANGE FT-->
+    <View>
+      <Name>AddressPoolRange</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AddressPoolRange</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Category</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Total</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Allocated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Available</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Reserved</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Start</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>End</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>rangeCategory</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>totalCount</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>allocatedIdCount</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>freeIdCount</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>reservedIdCount</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>startAddress</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>endAddress</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--APPLIANCE_ADDRESSPOOLRANGE FL-->
+    <View>
+      <Name>AddressPoolRange</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AddressPoolRange</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>enabled</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enabled</Label>
+                <PropertyName>rangeCategory</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Count</Label>
+                <PropertyName>totalCount</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Allocated</Label>
+                <PropertyName>allocatedIdCount</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Available</Label>
+                <PropertyName>freeIdCount</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Reserved</Label>
+                <PropertyName>reservedIdCount</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Start</Label>
+                <PropertyName>startAddress</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>End</Label>
+                <PropertyName>endAddress</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
     <!--APPLIANCE_HealthStatus FT-->
     <View>
       <Name>HealthStatus</Name>

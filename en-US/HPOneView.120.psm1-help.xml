@@ -3765,6 +3765,163 @@ Configures Registry value to overload Write-Host, which then uses Write-Verbose.
             </maml:navigationLink>
         </maml:relatedLinks>
     </command:command>
+    <!--GET-HPOVADDRESSPOOLRANGE-->
+    <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+        <command:details>
+            <command:name>Get-HPOVAddressPoolRange</command:name>
+            <maml:description>
+                <maml:para>Retrieve Address Pool Range information.</maml:para>
+            </maml:description>
+            <command:verb>Get</command:verb>
+            <command:noun>HPOVAddressPoolRange</command:noun>
+            <dev:version/>
+        </command:details>
+        <maml:description>
+            <maml:para>This CMDLET will display a specific Address Pool Range.</maml:para>
+        </maml:description>
+        <command:syntax>
+
+            <command:syntaxItem>
+                <maml:name>Get-HPOVAddressPoolRange</maml:name> 
+                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
+                    <maml:name>Pool</maml:name>
+                    <maml:description>
+                        <maml:para></maml:para>
+                    </maml:description>
+                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                </command:parameter>
+ 
+            </command:syntaxItem>
+        </command:syntax>
+        <command:parameters>
+            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="named">
+                <maml:name>Pool</maml:name>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <dev:type>
+                    <maml:name>Object</maml:name>
+                    <maml:uri/>
+                </dev:type>
+                <dev:defaultValue></dev:defaultValue>
+            </command:parameter>
+
+        </command:parameters>
+        <command:inputTypes>
+            <command:inputType>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Address Pool object piped from Get-HPOVAddresPool.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:inputType>
+
+        </command:inputTypes>
+        <command:returnValues>
+            <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Array</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Collection of Address Pool Range(s).</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+             <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>Single Address Pool Range object.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+
+        </command:returnValues>
+        <command:examples>
+            <command:example>
+                <maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVAddressPoolRange -range VMAC
+Name Enabled Category  Total   Allocated Available Reserved Start                   End
+---- ------- --------  -----   --------- --------- -------- -----                   ---
+VMAC True    GENERATED 1048576 0         1048576   0        8A:AD:88:90:00:00       8A:AD:88:9F:FF:FF
+
+Get the address pool ranges from the 'VMAC' pool.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVAddressPool | Get-HPOVAddressPoolRange
+Name Enabled Category  Total   Allocated Available Reserved Start                   End
+---- ------- --------  -----   --------- --------- -------- -----                   ---
+VMAC True    GENERATED 1048576 0         1048576   0        8A:AD:88:90:00:00       8A:AD:88:9F:FF:FF
+VMAC True    GENERATED 1048576 8         1048568   0        D2:BE:DE:C0:00:00       D2:BE:DE:CF:FF:FF
+VWWN False   GENERATED 1048576 0         0         0        10:00:3e:fd:a5:00:00:00 10:00:3e:fd:a5:0f:ff:ff
+VWWN True    GENERATED 1048576 4         1048572   0        10:00:2e:36:fa:f0:00:00 10:00:2e:36:fa:ff:ff:ff
+VSN  True    GENERATED 46656   1         46655     0        VCG3TKW000              VCG3TKWZZZ
+
+Get all configured Address Pools form Get-HPOVAddressPool, and display the configured ranges.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+
+        </command:examples>
+        <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Get-HPOVAddressRange</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>New-HPOVAddressRange</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
+            <maml:navigationLink>
+                <maml:linkText>Online: </maml:linkText>
+                <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVAddressPoolRange</maml:uri>
+            </maml:navigationLink>
+        </maml:relatedLinks>
+    </command:command>
     <!--GET-HPOVADDRESSPOOL-->
     <command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
         <command:details>
@@ -3778,11 +3935,11 @@ Configures Registry value to overload Write-Host, which then uses Write-Verbose.
         </command:details>
         <maml:description>
             <maml:para>This cmdlet will get the avilable and configured Address Pools, and their associated Ranges from the appliance.  Currently, the appliance supports the following Address Pools:
-
+    
     &#8226; VMAC
     &#8226; VWWN
     &#8226; VSN
-
+    
 You can specify one, some or all of the Pool types.  A Range switch is provided to include the associated Range objects.  A report switch is provided to display a report of each Address Pool type.</maml:para>
         </maml:description>
         <command:syntax>
@@ -12714,7 +12871,7 @@ Include the appliance version.</maml:para>
                     <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>      The HP OneView PowerShell Library or Appliance version information.</maml:para>
+                        <maml:para>The HP OneView PowerShell Library or Appliance version information.</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -12751,15 +12908,45 @@ Get the HP OneView PowerShell library version
                     <maml:para/>
                 </maml:introduction>
                 <dev:code>PS C:\&gt; Get-HPOVVersion -appliance
-Name                           Value
-   ----                           -----
-   applMajorVersion               1
-   applMinorVersion               10
-   applVersionInfo                1.10.03-103740
-   applXApiVersion                101
-   OneViewPowerShellLibrary       1.10.1314
+PowerShell Library Version : 1.20.208.0
+Library Path               : C:\Users\user\Documents\WindowsPowerShell\Modules\HPOneView.120
+Appliance Major Version    : 1
+Appliance Minor Version    : 20
+Appliance Version Info     : 1.20.05-0201918
+Appliance X-API Version    : 120
 
 Get the HP OneView PowerShell library, Appliance and X-API version information
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVVersion -CheckOnline
+PowerShell Library Version : 1.20.166.0
+Library Path               : C:\Users\user\Documents\WindowsPowerShell\Modules\hponeview.120
+
+
+Please Confirm
+You currently have v1.20.166.0 installed.  The HP OneView PowerShell Library v1.20.208.0 was found that is newer.  Do
+you want to download the current version of the HP OneView POSH Library (will open your web browser for you to
+download)?
+[Y] Yes  [N] No  [?] Help (default is "Y"):
+
+Display the installed library version, and check for availability of an updated version online. If an updated version is found, the CMDLET will prompt if the user would like to download it now. If so, browser window will be opened to current version to download.
 
 
 
@@ -13809,6 +13996,18 @@ List any pending updates on the appliance that might have been staged.</maml:par
                     <maml:para></maml:para>
                 </maml:description>
             </command:returnValue>
+             <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Array (System.Management.Automation.PSCustomObject)</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>When performing stage and install (no switch options provided), the return will include the uploaded patch information from the appliance, and the completed upgrade message.</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
 
         </command:returnValues>
         <command:examples>
@@ -13818,7 +14017,7 @@ List any pending updates on the appliance that might have been staged.</maml:par
                     <maml:para/>
                 </maml:introduction>
                 <dev:code>PS C:\&gt; Install-HPOVUpdate -file C:\Path\update.bin
-Install the Update.bin package to the appliance.
+Install the Update.bin package to the appliance.  User will be prompted to accept the upgrade EULA, and if a reboot is required also be prompted to confirm.
 
 
 
@@ -13838,12 +14037,8 @@ Install the Update.bin package to the appliance.
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; Install-HPOVUpdate -file C:\Path\update.bin -Stage
-Stage the Update.bin package to the appliance.
-
-PS C:\&gt; Install-HPOVUpdate -StageInstall
-
-After update has been staged, install the update now.
+                <dev:code>PS C:\&gt; Install-HPOVUpdate -file C:\Path\update.bin -Stage -DisplayReleaseNotes
+Stage the update on the appliance, and display the Release Notes to the PowerShell console.
 
 
 
@@ -13863,8 +14058,31 @@ After update has been staged, install the update now.
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; Install-HPOVUpdate -List
-List any pending, staged updates on the appliance.
+                <dev:code>PS C:\&gt; Install-HPOVUpdate -file C:\Path\update.bin -Stage
+PS C:\&gt; Install-HPOVUpdate -EULA Accept -InstallNow
+
+Stage the Update.bin package to the appliance. After update has been staged, install the update now.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Install-HPOVUpdate -ListPending -DisplayReleaseNotes
+List a pending, staged updates on the appliance, then display the Release Notes to the PowerShell console.
 
 
 
@@ -13882,6 +14100,10 @@ List any pending, staged updates on the appliance.
 
         </command:examples>
         <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Remove-HPOVPendingUpdate</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
                 <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Install-HPOVUpdate</maml:uri>
@@ -22412,10 +22634,10 @@ The full path and file name of the appliance configuration backup file.</maml:pa
         <command:returnValues>
             <command:returnValue>
                 <dev:type>
-                    <maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>The restore task.</maml:para>
+                        <maml:para>The restore process object.  This is not an Async Task.</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -26166,6 +26388,10 @@ Remove any found pending update on the appliance.
 
         </command:examples>
         <maml:relatedLinks>
+            <maml:navigationLink>
+                <maml:linkText>Install-HPOVUpdate</maml:linkText>
+                <maml:uri></maml:uri>
+            </maml:navigationLink>
             <maml:navigationLink>
                 <maml:linkText>Online: </maml:linkText>
                 <maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVPendingUpdate</maml:uri>

@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.233.0
+     -- Fixed New-HPOVRestore.
+     -- Updated Install-HPOVUpdate to handle required appliance reboots that occur midway through the update
+        process.
+     -- Increased read buffer for Upload-File from 1MB to 4MB chuncks.
+
      Release 1.20.208.0
      -- Added HTTP 500 support handling to New-HPOVLicense.
      -- Added Get-HPOVPowerPotentialDeviceConnection to assist with locating potential and available power 
