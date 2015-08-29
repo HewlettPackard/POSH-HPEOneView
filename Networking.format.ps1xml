@@ -257,7 +257,7 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--HPOneView.Networking.Networks.FibreChannel-->
+    <!--HPOneView.Networking.Networks.FibreChannel FT-->
     <View>
       <Name>FCNetwork</Name>
       <ViewSelectedBy>
@@ -329,7 +329,10 @@
                 <PropertyName>linkStabilityTime</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(Send-HPOVRequest $_.managedSanUri).name</ScriptBlock>
+                <ScriptBlock>
+                  if ($_.managedSanUri) { (Send-HPOVRequest $_.managedSanUri).name }
+                  else { $Null }
+                </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -366,11 +369,10 @@
               <ListItem>
                 <Label>Associated SAN</Label>
                 <ScriptBlock>
-                
-                  $name = (Send-HPOVRequest $_.managedSanUri).name
-                  if ($name) { $name }
-                  else { "None" }
-                  
+
+                  if ($_.managedSanUri) { (Send-HPOVRequest $_.managedSanUri).name }
+                  else { $Null }
+
                 </ScriptBlock>
               </ListItem>
               <ListItem>
@@ -426,7 +428,527 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--HPOneView.Networking.Interconnect-->
+    <!--HPOneView.Networking.LogicalInterconnectGroup FT-->
+    <View>
+      <Name>LogicalInterconnectGroup</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnectGroup</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Groups</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $indexResults = Send-HPOVRequest "/rest/index/associations?childUri=$($_.uri)&amp;name=ENCLOSURE_GROUP_TO_LOGICAL_INTERCONNECT_GROUP"
+                  ($indexResults.members.parentUri | % { Send-HPOVRequest $_ }).name
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnectGroup FL-->
+    <View>
+      <Name>LogicalInterconnectGroup</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnectGroup</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Groups</Label>
+                <ScriptBlock>
+                  $indexResults = Send-HPOVRequest "/rest/index/associations?childUri=$($_.uri)&amp;name=ENCLOSURE_GROUP_TO_LOGICAL_INTERCONNECT_GROUP"
+                  ($indexResults.members.parentUri | % { Send-HPOVRequest $_ }).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Interconnect Settings</Label>
+                <PropertyName>ethernetSettings</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Utilization Sampling</Label>
+                <PropertyName>telemetryConfiguration</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>SNMP</Label>
+                <PropertyName>snmpConfiguration</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Port Monitoring</Label>
+                <PropertyName>portMonitor</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect FT-->
+    <View>
+      <Name>LogicalInterconnect</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Stacking Health</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Consistency State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosures</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Firmware Baseline</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>stackingHealth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$script:logicalInterconnectConsistencyStatusEnum[$_.consistencyStatus]</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[String]::Format("{0}",($_.enclosureUris | % { (send-hpovrequest $_).name } ))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[String]::Format("{0}",(send-hpovrequest $_.logicalInterconnectGroupUri).name)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $baseline = Send-HPOVRequest "$($_.uri)/firmware"
+                  if ($baseline.fwBaseline -eq 'UnDefined' -and $baseline.name -eq 'UnKnown') { $baseline.sppName = "Managed Manually" }
+                  [String]::Format("{0}",$baseline.sppName)
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect FL-->
+    <View>
+      <Name>LogicalInterconnect</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Stacking Health</Label>
+                <PropertyName>stackingHealth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Consistency State</Label>
+                <ScriptBlock>$global:logicalInterconnectConsistencyStatusEnum[$_.consistencyStatus]</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosures</Label>
+                <ScriptBlock>[String]::Format("{0}",($_.enclosureUris | % { (Send-HPOVRequest $_).name } ))</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Group</Label>
+                <ScriptBlock>[String]::Format("{0}",(Send-HPOVRequest $_.logicalInterconnectGroupUri).name)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Firmware Baseline</Label>
+                <ScriptBlock>
+                  $baseline = Send-HPOVRequest "$($_.uri)/firmware"
+                  if ($baseline.fwBaseline -eq 'UnDefined' -and $baseline.name -eq 'UnKnown') { $baseline.sppName = "Managed Manually" }
+                  [String]::Format("{0}",$baseline.sppName)
+                </ScriptBlock>
+              </ListItem>
+
+              <ListItem>
+                <Label>Interconnect Settings</Label>
+                <PropertyName>ethernetSettings</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Utilization Sampling</Label>
+                <PropertyName>telemetryConfiguration</PropertyName>
+            </ListItem>
+              <ListItem>
+                <Label>SNMP</Label>
+                <PropertyName>snmpConfiguration</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Port Monitoring</Label>
+                <PropertyName>portMonitor</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>  
+    <!--HPOneView.Networking.LogicalInterconnect.SnmpConfiguration FT-->
+    <View>
+      <Name>snmpConfiguration</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.SnmpConfiguration</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Contact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Read Community</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Trap Destinations</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SNMP Access</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>enabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>systemContact</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>readCommunity</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.trapDestinations | % { $_.trapDestination }</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>snmpAccess</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.SnmpConfiguration FL-->
+    <View>
+      <Name>snmpConfiguration</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.snmpConfiguration</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Enabled</Label>
+                <PropertyName>enabled</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Contact</Label>
+                <PropertyName>systemContact</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Read Community</Label>
+                <PropertyName>readCommunity</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Trap Destinations</Label>
+                <ScriptBlock>$_.trapDestinations | % { $_.trapDestination }</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>SNMP Access</Label>
+                <PropertyName>snmpAccess</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.SnmpConfiguration.Destinations FL-->
+    <View>
+      <Name>SnmpConfigurationDestinations</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.SnmpConfiguration.Destinations</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Destination</Label>
+                <PropertyName>trapDestination</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Community</Label>
+                <PropertyName>communityString</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Format</Label>
+                <PropertyName>trapFormat</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Severity</Label>
+                <PropertyName>trapSeverities</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VCM</Label>
+                <PropertyName>vcmTrapCategories</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VC-Enet</Label>
+                <PropertyName>enetTrapCategories</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VC-FC</Label>
+                <PropertyName>fcTrapCategories</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.SnmpConfiguration.Destinations FT-->
+    <View>
+      <Name>SnmpConfigurationDestinations</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.SnmpConfiguration.Destinations</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Destination</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Community</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Format</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Severity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VCM</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VC-Enet</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VC-FC</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>trapDestination</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>communityString</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>trapFormat</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>trapSeverities</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>vcmTrapCategories</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enetTrapCategories</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>fcTrapCategories</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.InterconnectSettings FL-->
+    <View>
+      <Name>InterconnectSettings</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.InterconnectSettings</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Destination</Label>
+                <PropertyName>trapDestination</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Community</Label>
+                <PropertyName>communityString</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Format</Label>
+                <PropertyName>trapFormat</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Severity</Label>
+                <PropertyName>trapSeverities</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VCM</Label>
+                <PropertyName>vcmTrapCategories</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VC-Enet</Label>
+                <PropertyName>enetTrapCategories</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VC-FC</Label>
+                <PropertyName>fcTrapCategories</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Networking.LogicalInterconnect.InterconnectSettingss FT-->
+    <View>
+      <Name>InterconnectSettings</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Networking.LogicalInterconnect.InterconnectSettings</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Destination</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Community</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Format</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Severity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VCM</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VC-Enet</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VC-FC</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>trapDestination</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>communityString</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>trapFormat</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>trapSeverities</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>vcmTrapCategories</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enetTrapCategories</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>fcTrapCategories</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Networking.Interconnect FT-->
     <View>
       <Name>Interconnect</Name>
       <ViewSelectedBy>
@@ -444,7 +966,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>LIG</Label>
+            <Label>Logical Interconnect</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>

@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+    (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
 
 LICENSE
 
@@ -31,6 +31,17 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 1.20
 
 WHAT'S NEW 
+
+     Release 1.20.240.0
+     -- Added check routine within New-HPOVProfile when -BIOS parameter is provided, but no biosSettings
+        were passed in the call.
+     -- Fixed Upload-File to call Wait-HPOVTaskComplete using default 20 minute global task timeout instead of
+        the original 4 minutes.
+     -- Fixed Enable-HPOVMSDSC and Disable-HPOVMSDSC where the wrong registry location was being used to verify
+        setting.
+     -- Fixed Get-HPOVUplinkSet to return objects from the API correctly.
+     -- Updated Show-HPOVSSLCertificate to better handle untrusted and unverified certificates.
+     -- Updated Installer with FormatPX version (1.1.2.12) that does not require .Net Framework 4.5 or greater.
 
      Release 1.20.233.0
      -- Fixed New-HPOVRestore.

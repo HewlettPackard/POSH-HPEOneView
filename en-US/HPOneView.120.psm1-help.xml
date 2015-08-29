@@ -12335,23 +12335,24 @@ Get all unmanaged devices.
             <command:syntaxItem>
                 <maml:name>Get-HPOVUplinkSet</maml:name> 
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
-                    <maml:name>name</maml:name>
+                    <maml:name>Name</maml:name>
                     <maml:description>
                         <maml:para>Name of Uplink Set</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
-                    <maml:name>liName</maml:name>
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="2">
+                    <maml:name>LogicalInterconnect</maml:name>
                     <maml:description>
-                        <maml:para>Name of the Logical Interconnect to show associated Uplink Set.</maml:para>
+                        <maml:para>Aliases [-LiName]
+   Name of the Logical Interconnect to show associated Uplink Set.</maml:para>
                     </maml:description>
-                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>report</maml:name>
+                    <maml:name>Report</maml:name>
                     <maml:description>
                         <maml:para>Generate a report of the defined Uplink Sets.  Includes Uplink Set type, networks, redundancy report, and assigned uplink ports.</maml:para>
                     </maml:description>
@@ -12361,16 +12362,17 @@ Get all unmanaged devices.
             </command:syntaxItem> 
             <command:syntaxItem>
                 <maml:name>Get-HPOVUplinkSet</maml:name> 
-                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
-                    <maml:name>liName</maml:name>
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="2">
+                    <maml:name>LogicalInterconnect</maml:name>
                     <maml:description>
-                        <maml:para>Name of the Logical Interconnect to show associated Uplink Set.</maml:para>
+                        <maml:para>Aliases [-LiName]
+   Name of the Logical Interconnect to show associated Uplink Set.</maml:para>
                     </maml:description>
-                    <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
-                    <maml:name>type</maml:name>
+                    <maml:name>Type</maml:name>
                     <maml:description>
                         <maml:para>Specify the Uplink Set Type to display.  Will display all Uplink Sets of the type provided.  Allowed values:
 
@@ -12381,7 +12383,7 @@ Get all unmanaged devices.
                 </command:parameter>
  
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                    <maml:name>report</maml:name>
+                    <maml:name>Report</maml:name>
                     <maml:description>
                         <maml:para>Generate a report of the defined Uplink Sets.  Includes Uplink Set type, networks, redundancy report, and assigned uplink ports.</maml:para>
                     </maml:description>
@@ -12392,7 +12394,7 @@ Get all unmanaged devices.
         </command:syntax>
         <command:parameters>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
-                <maml:name>name</maml:name>
+                <maml:name>Name</maml:name>
                 <maml:description>
                     <maml:para>Name of Uplink Set</maml:para>
                 </maml:description>
@@ -12403,20 +12405,21 @@ Get all unmanaged devices.
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
-            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="2">
-                <maml:name>liName</maml:name>
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="true (ByValue)" position="2">
+                <maml:name>LogicalInterconnect</maml:name>
                 <maml:description>
-                    <maml:para>Name of the Logical Interconnect to show associated Uplink Set.</maml:para>
+                    <maml:para>Aliases [-LiName]
+   Name of the Logical Interconnect to show associated Uplink Set.</maml:para>
                 </maml:description>
-                <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
+                <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
-                    <maml:name>String</maml:name>
+                    <maml:name>Object</maml:name>
                     <maml:uri/>
                 </dev:type>
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="1">
-                <maml:name>type</maml:name>
+                <maml:name>Type</maml:name>
                 <maml:description>
                     <maml:para>Specify the Uplink Set Type to display.  Will display all Uplink Sets of the type provided.  Allowed values:
 
@@ -12431,7 +12434,7 @@ Get all unmanaged devices.
                 <dev:defaultValue></dev:defaultValue>
             </command:parameter>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
-                <maml:name>report</maml:name>
+                <maml:name>Report</maml:name>
                 <maml:description>
                     <maml:para>Generate a report of the defined Uplink Sets.  Includes Uplink Set type, networks, redundancy report, and assigned uplink ports.</maml:para>
                 </maml:description>
@@ -12447,10 +12450,10 @@ Get all unmanaged devices.
         <command:inputTypes>
             <command:inputType>
                 <dev:type>
-                    <maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para></maml:para>
+                        <maml:para>Logical Interconnect Resources from Get-HPOVLogicalInterconnect</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -12462,10 +12465,10 @@ Get all unmanaged devices.
         <command:returnValues>
             <command:returnValue>
                 <dev:type>
-                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:name>HPOneView.Networking.LogicalInterconnect.UplinkSet.Ethernet [System.Management.Automation.PSCustomObject]</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>      Single Uplink Set</maml:para>
+                        <maml:para>   Single Ethernet Uplink Set Object</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -12474,10 +12477,22 @@ Get all unmanaged devices.
             </command:returnValue>
              <command:returnValue>
                 <dev:type>
-                    <maml:name>System.Array</maml:name>
+                    <maml:name>HPOneView.Networking.LogicalInterconnect.UplinkSet.FibreChannel [System.Management.Automation.PSCustomObject]</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>      Multiple Uplink Sets</maml:para>
+                        <maml:para>   Single FibreChannel Uplink Set Object</maml:para>
+                    </maml:description>
+                </dev:type>
+                <maml:description>
+                    <maml:para></maml:para>
+                </maml:description>
+            </command:returnValue>
+             <command:returnValue>
+                <dev:type>
+                    <maml:name>System.Collections.ArrayList</maml:name>
+                    <maml:uri/>
+                    <maml:description>
+                        <maml:para>   Multiple Uplink Set Objectss</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -18073,7 +18088,7 @@ Create a new Network Set called "Production Networks", adding Ethernet Networks 
                     <maml:name>Name</maml:name>
                     <maml:description>
                         <maml:para>Required object to provide a display name for the network being created.
-   If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
+If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18081,7 +18096,12 @@ Create a new Network Set called "Production Networks", adding Ethernet Networks 
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>type</maml:name>
                     <maml:description>
-                        <maml:para></maml:para>
+                        <maml:para>Required value that specifies the type of Network Resource to create.  Allowed values are:
+
+       &#8226; Ethernet
+       &#8226; FC
+       &#8226; FibreChannel
+       &#8226; FCoE</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18160,7 +18180,7 @@ Default value is Tagged.</maml:para>
                     <maml:name>Name</maml:name>
                     <maml:description>
                         <maml:para>Required object to provide a display name for the network being created.
-   If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
+If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18168,7 +18188,12 @@ Default value is Tagged.</maml:para>
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>type</maml:name>
                     <maml:description>
-                        <maml:para></maml:para>
+                        <maml:para>Required value that specifies the type of Network Resource to create.  Allowed values are:
+
+       &#8226; Ethernet
+       &#8226; FC
+       &#8226; FibreChannel
+       &#8226; FCoE</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18235,7 +18260,7 @@ e.g. -VLANRange "10-90,94,96,200-210"</maml:para>
                     <maml:name>Name</maml:name>
                     <maml:description>
                         <maml:para>Required object to provide a display name for the network being created.
-   If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
+If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18243,7 +18268,12 @@ e.g. -VLANRange "10-90,94,96,200-210"</maml:para>
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="2">
                     <maml:name>type</maml:name>
                     <maml:description>
-                        <maml:para></maml:para>
+                        <maml:para>Required value that specifies the type of Network Resource to create.  Allowed values are:
+
+       &#8226; Ethernet
+       &#8226; FC
+       &#8226; FibreChannel
+       &#8226; FCoE</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -18285,8 +18315,8 @@ e.g. -VLANRange "10-90,94,96,200-210"</maml:para>
                     <maml:description>
                         <maml:para>Optional. Used for login balancing when logins are not distributed evenly over the Fibre Channel links (for example, when an uplink that was down becomes available).
 
-   True: Login redistribution is initiated automatically when the link stability time expires.
-   False: Login redistribution must be initiated manually.</maml:para>
+True: Login redistribution is initiated automatically when the link stability time expires.
+False: Login redistribution must be initiated manually.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
                 </command:parameter>
@@ -18325,7 +18355,7 @@ e.g. -VLANRange "10-90,94,96,200-210"</maml:para>
                 <maml:name>Name</maml:name>
                 <maml:description>
                     <maml:para>Required object to provide a display name for the network being created.
-   If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
+If specifying the -VlanRange parameter, this will become the Nework Name Prefix (i.e. 'VLAN' will become 'VLAN-[vlanid]'.)</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -18337,7 +18367,12 @@ e.g. -VLANRange "10-90,94,96,200-210"</maml:para>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>type</maml:name>
                 <maml:description>
-                    <maml:para></maml:para>
+                    <maml:para>Required value that specifies the type of Network Resource to create.  Allowed values are:
+
+       &#8226; Ethernet
+       &#8226; FC
+       &#8226; FibreChannel
+       &#8226; FCoE</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -18484,8 +18519,8 @@ Default value is Tagged.</maml:para>
                 <maml:description>
                     <maml:para>Optional. Used for login balancing when logins are not distributed evenly over the Fibre Channel links (for example, when an uplink that was down becomes available).
 
-   True: Login redistribution is initiated automatically when the link stability time expires.
-   False: Login redistribution must be initiated manually.</maml:para>
+True: Login redistribution is initiated automatically when the link stability time expires.
+False: Login redistribution must be initiated manually.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Boolean</command:parameterValue>
                 <dev:type>
@@ -18538,7 +18573,7 @@ Default value is Tagged.</maml:para>
                     <maml:name>System.Management.Automation.PSCustomObject</maml:name>
                     <maml:uri/>
                     <maml:description>
-                        <maml:para>   ManagedSan resource object to be assigned to a Fibre Channel Network.</maml:para>
+                        <maml:para>ManagedSan resource object to be assigned to a Fibre Channel Network.</maml:para>
                     </maml:description>
                 </dev:type>
                 <maml:description>
@@ -20648,7 +20683,17 @@ A server profile includes:
         
 You can create an unassigned server profile that serves as a template. Typically, you capture best-practice configurations in a server profile template, and then copy and deploy instances as individual server profiles. Similar to virtual machine (VM) templates, profiles enable you to create a provisioning baseline for server hardware types in an enclosure.
         
-When you create a server profile, it is designated for a server hardware type and enclosure group (for server blades), whether the profile is assigned or unassigned.</maml:para>
+When you create a server profile, it is designated for a server hardware type and enclosure group (for server blades), whether the profile is assigned or unassigned.
+
+To figure out BIOS Settings to override or set within the Server Profile, you will need to get the Server Hardware Type resource that your are modeling the Server Profile for.  When retrieving the resource:
+
+	$bl460cgen9sht = Get-HPOVServerHardwareType 'BL460c Gen9 1'
+
+The 'biosSettings' Array property will be available (only with supported Server Hardware Types; i.e. BL460c Gen8 or newer).  To locate potential BIOS Settings, you can use the following code as an example:
+
+	$biosSettings = $bl460cgen9sht.biosSettings | ? { $_.name -match "power" }
+
+The code example above will return all matching BIOS Settings where the name contains 'power'.  The found BIOS settings object(s) are then saved into $biosSettings.  Update the 'value' property accordingly, and you can then pass $biosSettings variable to the -biosSettings parameter.</maml:para>
         </maml:description>
         <command:syntax>
 
@@ -20850,8 +20895,8 @@ Default: $True</maml:para>
   
 Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
 
-Gen7/8 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
-Gen9 Legacy BIOS Boot Order: ‘CD’,’USB’,’HardDisk’,’PXE’
+Gen7/8 BIOS Default Boot Order: 'CD','Floppy','USB','HardDisk','PXE'
+Gen9 Legacy BIOS Boot Order: 'CD','USB','HardDisk','PXE'
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
@@ -21168,8 +21213,8 @@ Default: $True</maml:para>
   
 Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
 
-Gen7/8 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
-Gen9 Legacy BIOS Boot Order: ‘CD’,’USB’,’HardDisk’,’PXE’
+Gen7/8 BIOS Default Boot Order: 'CD','Floppy','USB','HardDisk','PXE'
+Gen9 Legacy BIOS Boot Order: 'CD','USB','HardDisk','PXE'
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
@@ -21654,8 +21699,8 @@ Default: $True</maml:para>
   
 Defines the order in which boot will be attempted on the available devices. For Gen7 and Gen8 server hardware the possible values are 'CD', 'Floppy', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 BL server hardware in UEFI or UEFI Optimized boot mode, only one value is allowed and must be either 'HardDisk' or 'PXE'. For Gen9 DL server hardware in Legacy BIOS boot mode, the possible values are 'CD', 'USB', 'HardDisk', and 'PXE'. For Gen9 DL server hardware in UEFI or UEFI Optimized boot mode, boot order configuration is not supported.
 
-Gen7/8 BIOS Default Boot Order: ‘CD’,’Floppy’,’USB’,’HardDisk’,’PXE’
-Gen9 Legacy BIOS Boot Order: ‘CD’,’USB’,’HardDisk’,’PXE’
+Gen7/8 BIOS Default Boot Order: 'CD','Floppy','USB','HardDisk','PXE'
+Gen9 Legacy BIOS Boot Order: 'CD','USB','HardDisk','PXE'
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">Array</command:parameterValue>
