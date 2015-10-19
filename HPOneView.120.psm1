@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.240.0"
+$script:scriptVersion = "1.20.251.0"
 $Global:CallStack = Get-PSCallStack
 $verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -868,7 +868,7 @@ $script:SSLCheckFlag = $False
 [String]$script:applBackup             = "/rest/backups"
 [String]$script:applRestoreFile        = "/rest/backups/archive"
 [String]$script:applRestore            = "/rest/restores"
-$script:progressStepEnum       = @{
+[Hashtable]$script:progressStepEnum    = @{
 
 	COMPLETED            = "Restore Completed";
 	FAILED               = "Restore Failed";
@@ -880,22 +880,22 @@ $script:progressStepEnum       = @{
 
 }
 				
-[String]$script:applVersion            = "/rest/appliance/version"
-[String]$script:applSupportDump        = "/rest/appliance/support-dumps"
-[String]$script:applHealthStatus       = "/rest/appliance/health-status"
-[String]$script:applRabbitmqUri        = "/rest/certificates/client/rabbitmq"
-[String]$script:applKeypairUri         = "/rest/certificates/client/rabbitmq/keypair/default"
-[String]$script:applCaUri              = "/rest/certificates/ca"
-[String]$script:applUpdate             = "/rest/appliance/firmware/image"
-[String]$script:applUpdatePending      = "/rest/appliance/firmware/pending"
-[String]$script:applUpdateNotification = "/rest/appliance/firmware/notification"
-[String]$script:applUpdateMonitor      = "/cgi-bin/status/update-status.cgi"
-[String]$script:applSnmpReadCommunity  = "/rest/appliance/device-read-community-string"
-[String]$script:applianceRebootUri     = '/rest/appliance/shutdown?type=REBOOT'
-[String]$script:applianceShutDownUri   = '/rest/appliance/shutdown?type=HALT'
-[String]$script:applianceCsr           = '/rest/certificates/https/certificaterequest'
-[String]$script:applianceSslCert       = '/rest/certificates/https'
-
+[String]$script:applVersion              = "/rest/appliance/version"
+[String]$script:applSupportDump          = "/rest/appliance/support-dumps"
+[String]$script:applHealthStatus         = "/rest/appliance/health-status"
+[String]$script:applRabbitmqUri          = "/rest/certificates/client/rabbitmq"
+[String]$script:applKeypairUri           = "/rest/certificates/client/rabbitmq/keypair/default"
+[String]$script:applCaUri                = "/rest/certificates/ca"
+[String]$script:applUpdate               = "/rest/appliance/firmware/image"
+[String]$script:applUpdatePending        = "/rest/appliance/firmware/pending"
+[String]$script:applUpdateNotification   = "/rest/appliance/firmware/notification"
+[String]$script:applUpdateMonitor        = "/cgi-bin/status/update-status.cgi"
+[String]$script:applSnmpReadCommunity    = "/rest/appliance/device-read-community-string"
+[String]$script:applianceRebootUri       = '/rest/appliance/shutdown?type=REBOOT'
+[String]$script:applianceShutDownUri     = '/rest/appliance/shutdown?type=HALT'
+[String]$script:applianceCsr             = '/rest/certificates/https/certificaterequest'
+[String]$script:applianceSslCert         = '/rest/certificates/https'
+[string]$script:applianceDebugLogSetting = '/logs/rest/debug/'
 #------------------------------------
 # Physical Resource Management
 #------------------------------------
@@ -954,6 +954,7 @@ $script:powerDevicePotentialConnections  = "/rest/power-devices/potentialConnect
 [String]$script:applVsnPoolGenerateUri       = "/rest/id-pools/vsn/generate"
 $script:macAddressPattern            = @('^([0-9a-f]{2}:){5}([0-9a-f]{2})$')
 $script:wwnAddressPattern            = @('^([0-9a-f]{2}:){7}([0-9a-f]{2})$')
+$script:wwnLongAddressPattern        = @('^([0-9a-f]{2}:){15}([0-9a-f]{2})$')
 [regex]$script:ip4regex              = "\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}"
 [Hashtable]$global:getUplinkSetPortSpeeds = @{
     Speed0M   = "0";
@@ -5895,20 +5896,21 @@ function Get-HPOVServer {
         if($name) {
 
             $svrs.members = $svrs.members | ? { $_.name -like $name }
+			$svrs.count = ($svrs.members | Measure-Object).count
 
-            if ($svrs.members -is [PSCustomObject]) { $svrs.total = 1}
-            else { $svrs.total = $svrs.members.count }
+            #if ($svrs.members -is [PSCustomObject]) { $svrs.total = 1}
+            #else { $svrs.total = $svrs.members.count }
 
         }
 
-        if ($svrs.total -eq 0 -and $name) {
+        if ($svrs.count -eq 0 -and $name) {
 				
             $errorRecord = New-ErrorRecord HPOneView.ServerHardwareResourceException ServerHardwareResourceNotFound ObjectNotFound 'Get-HPOVServer' -Message "Server '$name' not found. Please check the name again, and try again." #-verbose
             $pscmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-        elseif ($svrs.total -eq 0) { 
+        elseif ($svrs.count -eq 0) { 
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No server resources found."
             Return
@@ -5921,10 +5923,12 @@ function Get-HPOVServer {
 
     end {
 	
-        if ($svrs.members.length -eq 1) { $svrs.members[0] }
-        else { $svrs.members }
-
-        "Done. {0} server resource(s) found." -f $svrs.total | write-verbose
+        #if ($svrs.members.length -eq 1) { $svrs.members[0] }
+        #else { $svrs.members }
+		
+		Return $svrs.members
+        
+		"Done. {0} of {1} server resource(s) found." -f $svrs.count,$svrs.total | write-verbose
 
     }
 
@@ -6499,7 +6503,7 @@ function Remove-HPOVEnclosureGroup {
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
-        $enclosureGroup,
+        [Object]$enclosureGroup,
 
 	    [parameter(Mandatory = $false)] 
         [switch]$force
@@ -6600,7 +6604,7 @@ function Add-HPOVEnclosure {
         [string]$password,
 
         [parameter(position = 4,Mandatory = $true, HelpMessage = "Enter licensing intent for servers in this enclosure (OneView or OneViewNoiLO).",ParameterSetName = "Managed")]
-        [ValidateSet("OneView", "OneViewNoiLO")]
+        [ValidateSet("OneView", "OneViewNoiLO", IgnoreCase = $False)]
         [Alias("license", "l")]
         [string]$licensingIntent,
 
@@ -6738,6 +6742,7 @@ function Add-HPOVEnclosure {
                 }       
     
                 write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Sending request to import managed enclosure"
+
                 $resp = Send-HPOVRequest $script:enclosuresUri POST $import
 
                 #Wait for task to get into Starting stage
@@ -6811,6 +6816,8 @@ function Add-HPOVEnclosure {
                 }
 
             }
+
+			# // Update Catch block for other conditions, re Issue 
             catch [System.InvalidOperationException]{
             
                 #write-host "caught System.InvalidOperationException exception"
@@ -6820,6 +6827,7 @@ function Add-HPOVEnclosure {
             }
         
         }
+
         else {
 
             $import = [PSCustomObject]@{
@@ -9866,11 +9874,24 @@ function Get-HPOVStoragePool {
 
         }
 
+		if ($PSBoundParameters['list'])
+		{
+
+			Write-Warning "The -list parameter is deprecated.  This CMDLET now defaults to displaying Format styles.  Please update your scripts."
+
+		}
+
     }
 
     Process {
 
-		$poolName = $poolName -replace ("[*]","%25") -replace ("[&]","%26")
+		if ($PSBoundParameters['poolName'])
+		{
+			
+			$poolName = $poolName -replace ("[*]","%25") -replace ("[&]","%26")
+
+		}
+
 		#$poolName = [System.Web.HttpUtility]::UrlEncode($poolName)
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of Storage Pools"
@@ -9880,7 +9901,7 @@ function Get-HPOVStoragePool {
         #if poolName parameter was provided, append an API filter for the Pool Resource Name
         if ($poolName) {
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] -poolName was provided.  Filtering for '$poolname'"
-            $uri += "?filter=name matches '$poolName'" -replace "[*]","%25"
+            $uri += "?filter=name matches '$poolName'"
             
         }
 
@@ -9926,60 +9947,67 @@ function Get-HPOVStoragePool {
 
     end {
 
-        if (!$storagePools.members -and $name){
+        if ($storagePools.count -eq 0 -and $poolName){
                 
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Pool '$name' not found."
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Pool '$poolName' not found."
             
-                $errorRecord = New-ErrorRecord InvalidOperationException StoragePoolResourceNotFound ObjectNotFound 'Get-HPOVStoragePool' -Message "Storage Pool '$name' not found.  Please check the name and try again." #-verbose
+                $errorRecord = New-ErrorRecord InvalidOperationException StoragePoolResourceNotFound ObjectNotFound 'Get-HPOVStoragePool' -Message "Storage Pool '$poolName' not found.  Please check the name and try again." #-verbose
 
                 #Generate Terminating Error
                 $PSCmdlet.ThrowTerminatingError($errorRecord)    
 
         }
-        elseif (!$storagePools.members -and -not $name){
+
+        elseif ((-not($storagePools.members)) -and (-not($poolName))){
             
             #No storage pools found matching the provided criteria
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No storage pools found."
-            
-            $Null
 
         }
 
         else {
+
+			$storagePools.members | % {
+
+				$_.PSObject.TypeNames.Insert(0,'HPOneView.Storage.Pool')
+
+			}
             
-            if ($List) {
-
-                $d = @{Expression={$_.status};Label="Status"}, `
-                     @{Expression={$_.name};Label="Name"}, `
-                     @{Expression={(send-hpovrequest $_.storageSystemUri).name};Label="Storage System"}, `
-                     @{Expression={$_.domain};Label="Storage Domain"}, `
-                     @{Expression={$_.deviceType};Label="Drive Type"}, `
-                     @{Expression={$_.supportedRAIDLevel};Label="RAID"}, `
-                     @{Expression={
-                        $value = '{0:N2}' -f ($_.totalCapacity / 1GB)
-                        $value + "GB"
-                     };Label="Total   "}, `
-                     @{Expression={
-                        $value = '{0:N2}' -f ($_.allocatedCapacity / 1GB)
-                        $value + "GB"
-                     };Label="Allocated  "}, `
-                     @{Expression={
-                        $value = '{0:N2}' -f ($_.freeCapacity / 1GB)
-                        $value + "GB"
-                     };Label="Free   "}, `
-                     @{Expression={ (Send-HPOVRequest ($script:indexUri + "?category=storage-volumes&query=storage_volume_storagepool_uri:'$($_.uri)'")).count};Label="Volumes"}, `
-                     @{Expression={ (Send-HPOVRequest ($script:indexUri + "?sort=name:asc&category=storage-volume-templates&query=storagePoolUri:'$($_.uri)'")).count};Label="Volume Templates"}
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Displaying formated table list."
-
-                $storagePools.members | sort-object 'Name' | format-table $d -autosize
-            }
-            
-            else { $storagePools.members }
+            #if ($List) {
+			#
+            #    $d = @{Expression={$_.status};Label="Status"}, `
+            #         @{Expression={$_.name};Label="Name"}, `
+            #         @{Expression={(send-hpovrequest $_.storageSystemUri).name};Label="Storage System"}, `
+            #         @{Expression={$_.domain};Label="Storage Domain"}, `
+            #         @{Expression={$_.deviceType};Label="Drive Type"}, `
+            #         @{Expression={$_.supportedRAIDLevel};Label="RAID"}, `
+            #         @{Expression={
+            #            $value = '{0:N2}' -f ($_.totalCapacity / 1GB)
+            #            $value + "GB"
+            #         };Label="Total   "}, `
+            #         @{Expression={
+            #            $value = '{0:N2}' -f ($_.allocatedCapacity / 1GB)
+            #            $value + "GB"
+            #         };Label="Allocated  "}, `
+            #         @{Expression={
+            #            $value = '{0:N2}' -f ($_.freeCapacity / 1GB)
+            #            $value + "GB"
+            #         };Label="Free   "}, `
+            #         @{Expression={ (Send-HPOVRequest ($script:indexUri + "?category=storage-volumes&query=storage_volume_storagepool_uri:'$($_.uri)'")).count};Label="Volumes"}, `
+            #         @{Expression={ (Send-HPOVRequest ($script:indexUri + "?sort=name:asc&category=storage-volume-templates&query=storagePoolUri:'$($_.uri)'")).count};Label="Volume Templates"}
+			#
+            #    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Displaying formated table list."
+			#
+            #    $storagePools.members | sort-object 'Name' | format-table $d -autosize
+            #}
+            #
+            #else {  }
 
         }
 
-        "Done. {0} storage pool(s) found." -f $storagePools.count | write-verbose
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Done. $($storagePools.count) storage pool(s) found."
+
+		Return $storagePools.members
 
     }
 
@@ -11046,7 +11074,7 @@ function Add-HPOVStorageVolume {
         [parameter (Mandatory = $true, HelpMessage = "Specify the name of the storage volume.", Position = 1, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias("volid","id","wwn")]
-        [ValidateScript({if ($_ -match $script:wwnAddressPattern) {$true} else { Throw "The input value '$_' does not match the required format of 'AA:BB:CC:DD:EE:AA:BB:CC'. Please correct and try again." }})]
+        [ValidateScript({if ($_ -match $script:wwnLongAddressPattern) {$true} else { Throw "The input value '$_' does not match the required format of 'AA:BB:CC:DD:EE:AA:BB:CC:DD:EE:AA:BB:CC:DD:EE:AA'. Please correct and try again." }})]
         [string]$VolumeID,
 
         [parameter (Mandatory = $true, ParameterSetName = "default", HelpMessage = "Specify the name of the storage volume.", Position = 2)]
@@ -12302,36 +12330,42 @@ function Get-HPOVUnmanagedDevice {
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
 
-        $collection = Send-HPOVRequest $script:unmanagedDevicesUri
+        $unmanagedDevices = Send-HPOVRequest $script:unmanagedDevicesUri
 
-        if ($collection.count -eq 0 -and (-not ($name))) {  Write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No unmanaged devices found." }
+        if ($unmanagedDevices.count -eq 0 -and (-not ($name))) {  Write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No unmanaged devices found." }
 
         else {
 
             #Look for the specified name
-            If ($name) { $unmanagedDevices = $collection.members | where ( $_.name -eq $name) 
+            If ($name) { 
+				
+				$unmanagedDevices.members = $unmanagedDevices.members | ? name -like $name
+
+				$unmanagedDevices.count = ($unmanagedDevices.members | Measure-Object).count
             
                 #If not found, throw error
-                if (-not ($unmanagedDevices)) { 
+                if ($unmanagedDevices.count -eq 0) { 
 
-                    $errorRecord = New-ErrorRecord HPOneview.UnmanagedDeviceResourceException UnmangedDeviceResouceNotFound ObjectNotFound $($MyInvocation.InvocationName.ToString().ToUpper()) -Message "The '$($name)' Unmanaged Device resource was not found. Please check the name and try again." #-verbose
+					Write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($unmanagedDevices | Out-String)"
+
+                    $errorRecord = New-ErrorRecord HPOneview.UnmanagedDeviceResourceException UnmangedDeviceResouceNotFound ObjectNotFound 'Name' -Message "The '$($name)' Unmanaged Device resource was not found. Please check the name and try again." #-verbose
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
                 
                 }
 
             }
 
-            else { $unmanagedDevices = $collection.members }
-
 		}
+
+		Write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($unmanagedDevices | Out-String)"
 
 	}
 
 	End {
 
-		$unmanagedDevices | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.UnmanagedResource") }
+		if ($unmanagedDevices.count -gt 0) { $unmanagedDevices | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.UnmanagedResource") } }
 
-		return $unmanagedDevices
+		return $unmanagedDevices.members
 
     }
 
@@ -12384,7 +12418,7 @@ function New-HPOVUnmanagedDevice {
 
         $resp = Send-HPOVRequest $script:unmanagedDevicesUri POST $newDevice
 
-		 $resp | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.UnmanagedResource") }
+		$resp | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.UnmanagedResource") }
 
         return $resp
 
@@ -12399,12 +12433,12 @@ function Remove-HPOVUnmanagedDevice {
     [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
 
     Param (
-        [parameter(Mandatory = $true,ValueFromPipeline = $true,ParameterSetName = "default",
-            HelpMessage = "Enter the the Unmanaged Device to be removed.")]
+
+		[parameter(Mandatory = $true, Position = 0, ValueFromPipeline = $true,ParameterSetName = "default", HelpMessage = "Enter the the Unmanaged Device to be removed.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
-        [object]$UnmanagedDevice = $null,
+        [System.Object]$UnmanagedDevice,
 
 	    [parameter(Mandatory = $false)]
 	    [switch]$force
@@ -13761,7 +13795,7 @@ function Remove-HPOVNetwork {
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
-        [System.Object]$network = $null
+        [System.Object]$network
     )
 
     Begin {
@@ -14484,7 +14518,7 @@ function Remove-HPOVNetworkSet {
         [ValidateNotNullOrEmpty()]
         [Alias("uri")]
         [Alias("name")]
-        [object]$networkSet = $null
+        [object]$networkSet
 
     )
 
@@ -20492,9 +20526,33 @@ function Wait-HPOVTaskStart  {
             else {
 
                 #Display the task status
+				if ($taskObject.taskStatus)
+				{
+
+					$progressStatus = $taskObject.taskStatus
+
+				}
+						
+				else
+				{
+
+					$progressStatus = $taskObject.taskState
+
+				}
                 
-                if ($taskObj.expectedDuration) { Write-Progress -activity $taskName -status $taskObj.taskStatus -percentComplete ($i / $taskObj.expectedDuration * 100) }
-                else { Write-Progress -activity $taskName -status $taskObj.taskStatus -percentComplete $taskObj.percentComplete }
+                if ($taskObj.expectedDuration) 
+				{ 
+					
+					Write-Progress -activity $taskName -status $progressStatus -percentComplete ($i / $taskObj.expectedDuration * 100) 
+				
+				}
+
+                else 
+				{ 
+					
+					Write-Progress -activity $taskName -status $progressStatus -percentComplete $taskObj.percentComplete 
+				
+				}
                 
             }
 
@@ -20615,7 +20673,21 @@ function Wait-HPOVTaskComplete {
                     #There is a child task, but it's statusUpdate value is NULL, so just display the parent task status
                     else {
                      
-                        Write-Progress -activity "$($taskObj.name) ($($taskObj.associatedResource.resourceName))" -status $taskObj.taskStatus -percentComplete $taskObj.percentComplete
+						if ($taskObject.taskStatus)
+						{
+
+							$progressStatus = $taskObject.taskStatus
+
+						}
+						
+						else
+						{
+
+							$progressStatus = $taskObject.taskState
+
+						}
+
+                        Write-Progress -activity "$($taskObj.name) ($($taskObj.associatedResource.resourceName))" -status $progressStatus -percentComplete $taskObj.percentComplete
                     }
                 }
 
@@ -21961,64 +22033,124 @@ function New-HPOVLdapServer {
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
-	[CmdletBinding()]
-	param(
-		[Parameter(Position=0, Mandatory = $true)]
+	[CmdletBinding(DefaultParameterSetName = "default")]
+	param
+	(
+		
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "default")]
 		[String]$Name = $Null,
 
-		[Parameter(Position=1, Mandatory = $false)]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default")]
 		[Alias('port')]
         [ValidateRange(1,65535)]
         [Int32]$SSLPort = 636,
 
-        [Parameter(Position=2, Mandatory = $true)]
+        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "default")]
         [Alias('cert')]
-        [Object]$Certificate = $Null
+        [Object]$Certificate = $null
+
 	)
 
-	begin {
-
-        if (-not $PSBoundParameters['Certificate']) { $Pipelineinput = $True }
-
-    }
-
-    Process {
+	begin 
+	{
 
         
-        if (Test-Path $Certificate) { 
+    }
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate file found."
+    Process 
+	{
 
-            $readfile = [System.IO.File]::OpenText($Certificate)
-            $certificate = $readfile.ReadToEnd()
-            $readfile.Close()
-			$TempCertificate += ($Certificate | Out-String) -join "\n"
+		if ($PSBoundParameters['Certificate'])
+		{
 
-        }
+			if (Test-Path $Certificate) 
+			{ 
 
-        else {
+			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate file found."
 
-            $errorRecord = New-ErrorRecord System.IO.FileNotFoundException CertificateNotFound ObjectNotFound 'Certificate:Object' -Message "Autehntication Directory Server SSL certiciate not found.  Please check the path of the public key, and try again." #-verbose
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+			    $readfile = [System.IO.File]::OpenText($Certificate)
+			    $certificate = $readfile.ReadToEnd()
+			    $readfile.Close()
+				$Base64Certificate = ($Certificate | Out-String) -join "`n"
 
-        }
+			}
 
+			else 
+			{
+
+			    $errorRecord = New-ErrorRecord System.IO.FileNotFoundException CertificateNotFound ObjectNotFound 'Certificate' -TargetType 'PSObject' -Message "Autehntication Directory Server SSL certiciate not found.  Please check the path of the public key, and try again." #-verbose
+			    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+		}
+
+		else
+		{
+
+			# // Support Getting LDAP Server Certificate       
+			$WebRequest = [Net.WebRequest]::Create("https://$($Name):636")
+
+			try {$Response = $WebRequest.GetResponse()}
+			
+			catch [Net.WebException] 
+			{ 
+
+			    if (-not($WebRequest.Connection) -and ([int]$Response.StatusCode -eq 0)) 
+				{
+
+			        Write-Error $_.Exception.Message -Category ObjectNotFound -ErrorAction Stop
+
+			    } 
+
+			}
+
+			#Close the response connection, as it is no longer needed, and will cause problems if left open.
+			if ($response) 
+			{ 
+				
+				write-verbose "Closing response connection"
+			
+				$Response.Close() 
+			
+			}
+
+			if ($WebRequest.ServicePoint.Certificate -ne $null) 
+			{
+			    
+				#Get certificate
+				$Cert = New-Object Security.Cryptography.X509Certificates.X509Certificate2($WebRequest.ServicePoint.Certificate)
+
+				$out = New-Object String[] -ArgumentList 3
+				         
+				$out[0] = "-----BEGIN CERTIFICATE-----"
+				$out[1] = [System.Convert]::ToBase64String($Cert.RawData, "InsertLineBreaks")
+				$out[2] = "-----END CERTIFICATE-----"
+
+				$Base64Certificate = $out -join "`n"
+
+			}
+
+		}
+        
         $ldapServer = [PSCustomObject]@{
         
             type                                 = "LoginDomainDirectoryServerInfoDto";
             directoryServerIpAddress             = $Name;
-            directoryServerCertificateBase64Data = $TempCertificate;
+            directoryServerCertificateBase64Data = $Base64Certificate;
             directoryServerSSLPortNumber         = [string]$sslport 
             
         }
 
 	}
 
-    End {
+    End 
+	{
 
         Return $ldapServer
 
     }
+
 }
 
 function Show-HPOVLdapGroups {

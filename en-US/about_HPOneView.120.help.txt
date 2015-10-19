@@ -32,6 +32,20 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.251.0
+     -- Added Appliance_Backup_Sample.ps1 sample script.
+     -- Updated New-HPOVLdapServer to retrieve the Directory Servers Public SSL Certificate if the -Certificate
+        parameter is not provided. 
+     -- Updated Get-HPOVStoragePool to return Format-Table and Format-List objects, deprecating -list parameter.
+     -- Udpated Wait-HPOVTaskComplete to display Parent Task State instead of Status, which would cause Write-Progress
+        to fail.
+     -- Fixed Get-HPOVStoragePool which would generate an error if the poolName parameter was not provided.
+     -- Fixed Add-HPOVStorageVolume where target volume WWN was validating for an 8 pair HEX value instead of 16.
+
+     Release 1.20.241.0
+     -- Fixed Get-HPOVUnmanagedDevice that would return a NULL array object, causing Remove-HPOVUnmanagedDevice
+        to error when issuing Get-HPOVUnmanagedDevice | Remove-HPOVUnmanagedDevice.
+
      Release 1.20.240.0
      -- Added check routine within New-HPOVProfile when -BIOS parameter is provided, but no biosSettings
         were passed in the call.

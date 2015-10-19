@@ -2493,7 +2493,9 @@ Appliance hostname or IP can include an alternate TCP port number.  While the ap
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="4">
                     <maml:name>authProvider</maml:name>
                     <maml:description>
-                        <maml:para>The Directory Name for LDAP/Active Directory authentication, or LOCAL for appliance internal user accounts.  Default is LOCAL.</maml:para>
+                        <maml:para>The Directory Name for LDAP/Active Directory authentication, or LOCAL for appliance internal user accounts.  The Directory Name does not need to match the Active Directory or LDAP Authentication Realm name.  It is the Authentication Directory Display Name configured on the HP OneView Appliance.
+
+Default is LOCAL.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -2534,7 +2536,9 @@ Password to log into the appliance.</maml:para>
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="4">
                 <maml:name>authProvider</maml:name>
                 <maml:description>
-                    <maml:para>The Directory Name for LDAP/Active Directory authentication, or LOCAL for appliance internal user accounts.  Default is LOCAL.</maml:para>
+                    <maml:para>The Directory Name for LDAP/Active Directory authentication, or LOCAL for appliance internal user accounts.  The Directory Name does not need to match the Active Directory or LDAP Authentication Realm name.  It is the Authentication Directory Display Name configured on the HP OneView Appliance.
+
+Default is LOCAL.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -2619,7 +2623,7 @@ Password to log into the appliance.</maml:para>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.acme.com
+                <dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.domain.com
 Connect to a specific appliance FQDN.  The user will be prompted for authentication provider, user name and password.
 
 
@@ -2640,8 +2644,31 @@ Connect to a specific appliance FQDN.  The user will be prompted for authenticat
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
-                <dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.acme.com:11223
+                <dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.domain.com:11223
 Connect to a specific appliance, where the target TCP port isn't the default.  The user will be prompted for authentication provider, user name and password.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Connect-HPOVMgmt -Appliance myappliance.domain.com -Username MyAccount@domain.com -Password MyPassword -AuthProvider MyDomain
+Connect to a specific appliance, using an Authentication Directory User Account.
+
+Note: MyDomain is the Display Name of the Authentication Directory configured on the appliance, and does not necessarily match the Active Directory or LDAP Authentication Realm name.
 
 
 
@@ -10746,7 +10773,8 @@ Retrieve the SNMP Read Community string the appliance is configured to use.
                 <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                     <maml:name>List</maml:name>
                     <maml:description>
-                        <maml:para></maml:para>
+                        <maml:para>Aliases['report']
+This parameter is deprecated.</maml:para>
                     </maml:description>
                     <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 </command:parameter>
@@ -10781,7 +10809,8 @@ Retrieve the SNMP Read Community string the appliance is configured to use.
             <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="named">
                 <maml:name>List</maml:name>
                 <maml:description>
-                    <maml:para></maml:para>
+                    <maml:para>Aliases['report']
+This parameter is deprecated.</maml:para>
                 </maml:description>
                 <command:parameterValue required="false" variableLength="false">SwitchParameter</command:parameterValue>
                 <dev:type>
@@ -10810,7 +10839,7 @@ Retrieve the SNMP Read Community string the appliance is configured to use.
         <command:returnValues>
             <command:returnValue>
                 <dev:type>
-                    <maml:name>System.Management.Automation.PSCustomObject</maml:name>
+                    <maml:name>HPOneView.Storage.Pool [System.Management.Automation.PSCustomObject]</maml:name>
                     <maml:uri/>
                     <maml:description>
                         <maml:para>Single Storage Pool resource</maml:para>
@@ -10852,6 +10881,78 @@ Retrieve the SNMP Read Community string the appliance is configured to use.
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVStoragePool
+Status Name     Storage System    Storage Domain Drive Type RAID  Total          Allocated   Free           
+------ ----     --------------    -------------- ---------- ----  --------       ----------- -------        
+OK     FC_NO_DN ThreePAR7200-5706 NoDomain       FC         RAID5 1,048,576.00GB 22.13GB     1,048,553.88GB 
+OK     FC_NO_DN ThreePAR7200-2870 NoDomain       FC         RAID5 1,048,576.00GB 22.13GB     1,048,553.88GB 
+
+Get all available storage pools.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; Get-HPOVStoragePool | format-list
+Name             : FC_NO_DN
+Status           : OK
+Storage System   : ThreePAR7200-5706
+Domain           : NoDomain
+Drive Type       : FC
+RAID             : RAID5
+Total            : 1,048,576.00 GB
+Allocated        : 22.13 GB
+Free             : 1,048,553.88 GB
+Volumes          : 0
+Volume Templates : 0
+
+Name             : FC_NO_DN
+Status           : OK
+Storage System   : ThreePAR7200-2870 
+Domain           : NoDomain
+Drive Type       : FC
+RAID             : RAID5
+Total            : 1,048,576.00 GB
+Allocated        : 22.13 GB
+Free             : 1,048,553.88 GB
+Volumes          : 0
+Volume Templates : 0
+
+
+Get all available storage pools, display using Format-List to see extended information.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
                 <dev:code>PS C:\&gt; $myPool = Get-HPOVStoragePool -name "HP_CPG1"
 Return the storage pool resource(s) with the name "HP_CPG1"
 
@@ -10869,7 +10970,7 @@ Return the storage pool resource(s) with the name "HP_CPG1"
                 </command:commandLines>
             </command:example>
              <command:example>
-                <maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+                <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
@@ -10890,7 +10991,7 @@ Return all the storage pool resources
                 </command:commandLines>
             </command:example>
              <command:example>
-                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
@@ -10911,38 +11012,12 @@ Returns all managed storage pool resources on the storage system "HP_3PAR_1"
                 </command:commandLines>
             </command:example>
              <command:example>
-                <maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+                <maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
                 <maml:introduction>
                     <maml:para/>
                 </maml:introduction>
                 <dev:code>PS C:\&gt; Get-HPOVStoragePool -poolName "HP_CPG1" -systemName "HP_3PAR_1"
 Returns the storage pool resource "HP_CPG1" on the storage system "HP_3PAR_1"
-
-
-
-
-</dev:code>
-                <dev:remarks>
-                    <maml:para></maml:para>
-                </dev:remarks>
-                <command:commandLines>
-                    <command:commandLine>
-                        <command:commandText/>
-                    </command:commandLine>
-                </command:commandLines>
-            </command:example>
-             <command:example>
-                <maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
-                <maml:introduction>
-                    <maml:para/>
-                </maml:introduction>
-                <dev:code>PS C:\&gt; Get-HPOVStoragePool -List
-Status Name     Storage System    Storage Domain Drive Type RAID  Total          Allocated   Free           Volumes Volume Templates
------- ----     --------------    -------------- ---------- ----  --------       ----------- -------        ------- ----------------
-OK     FC_NO_DN ThreePAR7200-5706 NoDomain       FC         RAID5 1,048,576.00GB 22.13GB     1,048,553.88GB       0                2
-OK     FC_NO_DN ThreePAR7200-2870 NoDomain       FC         RAID5 1,048,576.00GB 22.13GB     1,048,553.88GB       8                1
-
-Get all available storage pools, and display a report.
 
 
 
@@ -16996,7 +17071,7 @@ Add "MY Directory Group1" from Domain1 with Server and Backup administrator role
                 <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                     <maml:name>Name</maml:name>
                     <maml:description>
-                        <maml:para>Directory server name to add.</maml:para>
+                        <maml:para>Directory server name to add.  This value will also be used to retrieve the SSL certificate from the Directory Server if the -Certificate parameter is not used.</maml:para>
                     </maml:description>
                     <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 </command:parameter>
@@ -17010,13 +17085,13 @@ Directory Server's LDAP SSL Port.</maml:para>
                     <command:parameterValue required="false" variableLength="false">Int32</command:parameterValue>
                 </command:parameter>
  
-                <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+                <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3">
                     <maml:name>Certificate</maml:name>
                     <maml:description>
                         <maml:para>Aliases [-cert]
-Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.</maml:para>
+Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the directory server Name value will be used to connect to the Directory Server to retrieve the SSL certificate.</maml:para>
                     </maml:description>
-                    <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                    <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 </command:parameter>
  
             </command:syntaxItem>
@@ -17025,7 +17100,7 @@ Directory Server SSL Certificate, either location to Base64 Cert or multi-line s
             <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="1">
                 <maml:name>Name</maml:name>
                 <maml:description>
-                    <maml:para>Directory server name to add.</maml:para>
+                    <maml:para>Directory server name to add.  This value will also be used to retrieve the SSL certificate from the Directory Server if the -Certificate parameter is not used.</maml:para>
                 </maml:description>
                 <command:parameterValue required="true" variableLength="false">String</command:parameterValue>
                 <dev:type>
@@ -17047,13 +17122,13 @@ Directory Server's LDAP SSL Port.</maml:para>
                 </dev:type>
                 <dev:defaultValue>636</dev:defaultValue>
             </command:parameter>
-            <command:parameter required="true" variableLength="false" globbing="false" pipelineInput="false" position="3">
+            <command:parameter required="false" variableLength="false" globbing="false" pipelineInput="false" position="3">
                 <maml:name>Certificate</maml:name>
                 <maml:description>
                     <maml:para>Aliases [-cert]
-Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.</maml:para>
+Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the directory server Name value will be used to connect to the Directory Server to retrieve the SSL certificate.</maml:para>
                 </maml:description>
-                <command:parameterValue required="true" variableLength="false">Object</command:parameterValue>
+                <command:parameterValue required="false" variableLength="false">Object</command:parameterValue>
                 <dev:type>
                     <maml:name>Object</maml:name>
                     <maml:uri/>
@@ -17121,6 +17196,27 @@ Define a new Directory Server, ServerA, specifying the Base64 Public Certificate
                 </maml:introduction>
                 <dev:code>PS C:\&gt; $ServerA = New-HPOVLdapServer -Name servera.domain.com -Port 2636 -Certificate C:\dir\servera.cer
 Define a new Directory Server, ServerA, specifying the Base64 Public Certificate, using a custom LDAP SSL port.
+
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $ServerA = New-HPOVLdapServer -Name servera.domain.com -Port 636
+Define a new Directory Server, ServerA, and the Directory Server's public Secure LDAP certificate will be retrieved online.
 
 
 

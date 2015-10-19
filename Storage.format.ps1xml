@@ -239,8 +239,155 @@
         </ListEntries>
       </ListControl>
     </View>
-    
-    
+
+    <!--Storage.Pool FT-->
+    <View>
+      <Name>StoragePool</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.Pool</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Storage System</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Domain</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drive Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RAID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Total</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Allocated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Free</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>domain</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deviceType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>supportedRAIDLevel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.totalCapacity / 1GB)</ScriptBlock>
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity / 1GB)</ScriptBlock>
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.freeCapacity / 1GB)</ScriptBlock>
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.Volume FL-->
+    <View>
+      <Name>StoragePool</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.Pool</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>Status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Storage System</Label>
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Domain</Label>
+                <PropertyName>domain</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Drive Type</Label>
+                <PropertyName>deviceType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>RAID</Label>
+                <PropertyName>supportedRAIDLevel</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Total</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.totalCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Allocated</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Free</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.freeCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Volumes</Label>
+                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?category=storage-volumes&amp;query=storage_volume_storagepool_uri:'$($_.uri)'").count</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Volume Templates</Label>
+                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?sort=name:asc&amp;category=storage-volume-templates&amp;query=storagePoolUri:'$($_.uri)'").count</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
     <!--Storage.SanManager-->
     <View>
       <Name>SanManager</Name>
