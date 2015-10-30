@@ -15486,12 +15486,15 @@ function Update-HPOVLogicalInterconnect {
 
 }
 
-function Show-HPOVLogicalInterconnectMacTable {
+function Show-HPOVLogicalInterconnectMacTable 
+	{
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdLetBinding(DefaultParameterSetName = "default")]
-    Param (
+    Param 
+	(
+
         [parameter (Position = 0, Mandatory = $false, ValueFromPipeline = $True, ParameterSetName = "default")]
         [parameter (Position = 0, Mandatory = $false, ValueFromPipeline = $True, ParameterSetName = "MACAddress")]
         [alias("name","li")]
@@ -15514,11 +15517,14 @@ function Show-HPOVLogicalInterconnectMacTable {
         [parameter (Mandatory = $false, ParameterSetName = "default")]
         [parameter (Mandatory = $false, ParameterSetName = "MACAddress")]
         [Switch]$List
+
     )
 
-    Begin {
+    Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
+        if (-not($global:cimgmtSessionId)) 
+		{
         
             $errorRecord = New-ErrorRecord AuthSessionException NoAuthSession AuthenticationError 'Show-HPOVLogicalInterconnectMacTable' -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -15527,43 +15533,58 @@ function Show-HPOVLogicalInterconnectMacTable {
 
         if (-not $PSBoundParameters['LogicalInterconnect']) { $PipelineInput = $True }
 
-        [PSCustomObject]$MacTables = @{count = 0; tables = @()}
+        $MacTables = New-Object System.Collections.ArrayList
 
     }
 
-    Process {
+    Process 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Interconnect via PipeLine: $PipelineInput"
 
-        if (-not $LogicalInterconnect) {
+        if (-not($LogicalInterconnect))
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Logical Interconnects provided via parameter. Getting all LI resources."
+
             $LogicalInterconnect = Get-HPOVLogicalInterconnect
 
         }
 
-        foreach ($li in $LogicalInterconnect) {
+        foreach ($li in $LogicalInterconnect) 
+		{
 
-            if ($li -is [String] -and $li.StartsWith("/rest/logical-interconnects")) {
+            if ($li -is [String] -and $li.StartsWith("/rest/logical-interconnects")) 
+			{
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Interconnect URI provided via parameter: $li"
+
                 $uri = $li +"/forwarding-information-base"
 
             }
-            elseif ($li -is [String]) {
+
+            elseif ($li -is [String]) 
+			{
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Interconnect Name provided via parameter: $li"
+
                 $uri = (Get-HPOVLogicalInterconnect $li).uri +"/forwarding-information-base"
 
             }
-            elseif ($li -is [PSCustomObject] -and $li.category -eq "logical-interconnects") {
+
+            elseif ($li -is [PSCustomObject] -and $li.category -eq "logical-interconnects") 
+			{
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Interconnect object provided: $($li.name)"
+
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Interconnect object URI: $($li.uri)"
+
                 $uri = $li.uri +"/forwarding-information-base"
 
             }
-            else {
+
+            else 
+			{
 
                 #Unsupported type
                 $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Show-HPOVLogicalInterconnectMacTable' -Message "The parameter -LogicalInterconnect contains an invalid parameter value type, '$($LogicalInterconnect.gettype().fullname)' is not supported.  Only [System.String] and [PSCustomObject] types are allowed." #-verbose
@@ -15572,34 +15593,54 @@ function Show-HPOVLogicalInterconnectMacTable {
             }
 
             #Filter the request for a specific Network
-            if ($Network) {
+            if ($Network) 
+			{
                 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Filtering for '$Network' Network Resource"
                 
                 $internalVlanId = (Get-HPOVNetwork $network).internalVlanId
+
                 $uri += "?filter=internalVlan=$internalVlanId"
+
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $uri"
-                $resp = Send-HPOVRequest $uri
+
+                $resp = (Send-HPOVRequest $uri).members
+
             }
-            elseif ($MacAddress) {
+
+            elseif ($MacAddress) 
+			{
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Filtering for MAC Address '$MacAddress'"
+
                 $uri += "?filter=macAddress='$MacAddress'"
+
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $uri"
-                $resp = Send-HPOVRequest $uri
+
+                $resp = (Send-HPOVRequest $uri).members
+
             }
-            else {
+
+            else 
+			{
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Generating '$uri' mactable file."
+
                 $macTableFile = Send-HPOVRequest $uri POST 
 
-                if ($macTableFile.state -eq "Success") {
+                if ("Success","Completed" -match $macTableFile.state) 
+				{
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($macTableFile.uri)' mactable file."
+
                     $resp = Download-MacTable $macTableFile.uri
                 
+					#Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] MAC Table entries: $($resp | Out-String)"
+
                 }
-                else {
+
+                else 
+				{
 
                     $errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidInterconnectFibDataInfo InvalidResult 'Show-HPOVLogicalInterconnectMacTable' -Message ($macTableFile.state + ": " + $macTableFile.status)
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -15608,20 +15649,29 @@ function Show-HPOVLogicalInterconnectMacTable {
 
             }
 
-            $MacTables.count += $resp.count
-            if ($resp.members) { $MacTables.tables += $resp.members }
-            else { $MacTables.tables += $resp }
+			$resp | % {
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding $($_.address) to collection"
+
+				[void]$MacTables.Add($_)
+
+			} 
 
         }
 
     }
 
-    End {
+    End 
+	{
 
-        if ($list) {
+        if ($list) 
+		{
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Displaying formatted table."
-            if ($name -or $MacAddress) {
+
+            if ($name -or $MacAddress) 
+			{
+
                 $m = @{Expression={($_.interconnectName -split ",")[0]};Label="Enclosure"},
                      @{Expression={($_.interconnectName -split ",")[1]};Label="Interconnect"},		         
                      @{Expression={$_.networkInterface};Label="Interface"},
@@ -15629,8 +15679,11 @@ function Show-HPOVLogicalInterconnectMacTable {
                      @{Expression={$_.entryType};Label="Type"},
                      @{Expression={$_.networkName};Label="Network"},
                      @{Expression={$_.externalVlan};Label="VLAN"}
-            }
-            else {
+            
+			}
+
+            else 
+			{
 
                 $m = @{Expression={$_.Enclosure};Label="Enclosure"},
                      @{Expression={$_.Interconnect};Label="Interconnect"},
@@ -15643,23 +15696,29 @@ function Show-HPOVLogicalInterconnectMacTable {
 
             }
 
-            $MacTables.tables | sort "Enclosure","Interconnect",macAddress | format-table $m -autosize
+            $MacTables | sort "Enclosure","Interconnect",macAddress | format-table $m -autosize
 
         }
-        elseif ($exportFile) {
+
+        elseif ($exportFile) 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Exporting to CSV file: $exportFile"
-            $MacTables.tables | sort "Enclosure","Interconnect",macAddress | Export-CSV $exportFile -NoTypeInformation
+
+            $MacTables | sort "Enclosure","Interconnect",macAddress | Export-CSV $exportFile -NoTypeInformation
 
         }
-        else {
+
+        else 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Displaying results."
-            $MacTables.tables | sort "Enclosure","Interconnect",macAddress
+
+            $MacTables | sort "Enclosure","Interconnect",macAddress
 
         }
         
-        "Done. {0} mac table entry(ies) found." -f $MacTables.count | write-verbose
+        "Done. {0} mac table entry(ies) found." -f $MacTables.Count | write-verbose
 
     }
 
@@ -15766,7 +15825,7 @@ function Download-MacTable {
         $sr = New-Object System.IO.Compression.GZipStream($outStream,[System.IO.Compression.CompressionMode]::Decompress)
         
         #Reset variable to collect uncompressed result
-        $byteArray = New-Object byte[]($source.Length*1024)
+        $byteArray = New-Object byte[]($source.Length+1024)
         
         #Decompress
         [int]$rByte = $sr.Read($byteArray, 0, $source.Length)
@@ -20519,26 +20578,43 @@ function Wait-HPOVTaskStart  {
             }
 
             #Display Progress Bar
+			
+			if ($taskObject.taskStatus -and $taskObject.taskStatus.Length -gt 0)
+			{
+
+				$progressStatus = $taskObject.taskStatus
+
+			}
+					
+			elseif ($taskObject.taskState -and $taskObject.taskState.Length -gt 0)
+			{
+
+				$progressStatus = $taskObject.taskState
+
+			}
+			
+			else
+			{
+
+				$progressStatus = "Waiting to start*"
+
+			}
             
             #Handle the call from -Verbose so Write-Progress does not get borked on display.
-            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."  }
+            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+			{ 
+				
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."  
+			
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Progress Status: $progressStatus "  
+
+			}
              
             else {
 
-                #Display the task status
-				if ($taskObject.taskStatus)
-				{
+                
 
-					$progressStatus = $taskObject.taskStatus
-
-				}
-						
-				else
-				{
-
-					$progressStatus = $taskObject.taskState
-
-				}
+				
                 
                 if ($taskObj.expectedDuration) 
 				{ 
@@ -20673,19 +20749,29 @@ function Wait-HPOVTaskComplete {
                     #There is a child task, but it's statusUpdate value is NULL, so just display the parent task status
                     else {
                      
-						if ($taskObject.taskStatus)
+						#Display the task status
+						if ($taskObject.taskStatus -and $taskObject.taskStatus.Length -gt 0)
 						{
 
 							$progressStatus = $taskObject.taskStatus
 
 						}
 						
-						else
+						elseif ($taskObject.taskState -and $taskObject.taskState.Length -gt 0)
 						{
 
 							$progressStatus = $taskObject.taskState
 
 						}
+				
+						else
+						{
+
+							$progressStatus = "Running*"
+
+						}
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Progress Status: $progressStatus "  
 
                         Write-Progress -activity "$($taskObj.name) ($($taskObj.associatedResource.resourceName))" -status $progressStatus -percentComplete $taskObj.percentComplete
                     }
