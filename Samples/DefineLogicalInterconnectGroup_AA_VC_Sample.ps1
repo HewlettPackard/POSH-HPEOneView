@@ -2,9 +2,9 @@
 # DefineLogicalInterconnectGroup_AA_VC_Sample.ps1
 # - Example script for creating Logical Interconnect Group with A/A VC Networking.
 #
-#   VERSION 1.0
+#   VERSION 2.0
 #
-# (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,23 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+Import-Module HPOneView.200
 
 # First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+if (-not ($global:ConnectionSessions)) { Connect-HPOVMgmt }
 
-$LIGName = "MyAALIG" 
+$LIGName = "My AA LIG" 
 $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
 $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Network Admin"; snmpAccess = @("192.168.1.2/32","10.1.1.0/24");trapDestinations = @(@{trapDestination="myhost.local";communityString="MyTr@p2";trapFormat="SNMPv1";trapSeverities=@("Critical", "Major", "Minor", "Warning", "Normal", "Info", "Unknown");fcTrapCategories=@("PortStatus", "Other")})}
 
-$task = new-HPOVlogicalinterconnectgroup -name $LIGName -bays $bays -snmp $snmp
+$task = New-HPOVLogicalInterconnectGroup -name $LIGName -bays $bays -snmp $snmp
 $task = Wait-HPOVTaskComplete $task.uri -timeout (New-TimeSpan -Minutes 10)
-$newLigUri = $task.associatedResource.resourceUri
+$NewLigObject = Send-HPOVRequest $task.associatedResource.resourceUri
 
-Write-Host "New LIG URI: " $newLigUri
+Write-Host "New LIG Object: " $NewLigObject
 
 #Create Ethernet Uplink Sets on this LIG
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "Networks Side A" -usType "Ethernet" -usNetworks "VLAN 10-A","VLAN 20-A","VLAN 30-A" -usNativeEthNetwork "VLAN 10-A" -usUplinkPorts "BAY1:X5","BAY1:X6" -usEthMode "Auto"
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "Networks Side B" -usType "Ethernet" -usNetworks "VLAN 10-B","VLAN 20-B","VLAN 30-B" -usNativeEthNetwork "VLAN 10-B" -usUplinkPorts "BAY2:X5","BAY2:X6" -usEthMode "Auto"
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "Fabric A" -usType "FibreChannel" -usNetworks "Production Fabric A" -usUplinkPorts "BAY1:X1","BAY1:X2"
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "Fabric B" -usType "FibreChannel" -usNetworks "Production Fabric B" -usUplinkPorts "BAY2:X1","BAY2:X2"
+$NewLigObject | New-HPOVUplinkSet -Name "Networks Side A" -Type "Ethernet" -Networks "VLAN 10-A","VLAN 20-A","VLAN 30-A" -NativeEthNetwork "VLAN 10-A" -UplinkPorts "BAY1:X5","BAY1:X6" -EthMode "Auto"
+$NewLigObject | New-HPOVUplinkSet -Name "Networks Side B" -Type "Ethernet" -Networks "VLAN 10-B","VLAN 20-B","VLAN 30-B" -NativeEthNetwork "VLAN 10-B" -UplinkPorts "BAY2:X5","BAY2:X6" -EthMode "Auto"
+$NewLigObject | New-HPOVUplinkSet -Name "Fabric A" -Type "FibreChannel" -Networks "Production Fabric A" -UplinkPorts "BAY1:X1","BAY1:X2"
+$NewLigObject | New-HPOVUplinkSet -Name "Fabric B" -Type "FibreChannel" -Networks "Production Fabric B" -UplinkPorts "BAY2:X1","BAY2:X2"

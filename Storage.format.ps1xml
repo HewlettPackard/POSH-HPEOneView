@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <ViewDefinitions>
-    <!--PROFILE.SANVOLUME-->
+    <!--Profile.SanVolume FT-->
     <View>
       <Name>sanvolumes</Name>
       <ViewSelectedBy>
@@ -76,6 +76,8 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    
+    
     <!--Storage.Volume FT-->
     <View>
       <Name>StorageVolume</Name>
@@ -134,7 +136,7 @@
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>             
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>(send-hpovrequest $_.storagePoolUri).name</ScriptBlock>
@@ -199,7 +201,7 @@
                 <ScriptBlock>
                   if ($_.shareable) { "Shared"}
                   else              { "Private" }
-                </ScriptBlock>                  
+                </ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Stroage System</Label>
@@ -240,11 +242,11 @@
       </ListControl>
     </View>
 
-    <!--Storage.Pool FT-->
+    <!--Storage.System.Pool FT-->
     <View>
-      <Name>StoragePool</Name>
+      <Name>StorageSystemPool</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Storage.Pool</TypeName>
+        <TypeName>HPOneView.Storage.System.Pool</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
@@ -328,11 +330,11 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--Storage.Volume FL-->
+    <!--Storage.System.Pool FL-->
     <View>
-      <Name>StoragePool</Name>
+      <Name>StorageSystemPool</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Storage.Pool</TypeName>
+        <TypeName>HPOneView.Storage.System.Pool</TypeName>
       </ViewSelectedBy>
       <ListControl>
         <ListEntries>
@@ -387,8 +389,9 @@
         </ListEntries>
       </ListControl>
     </View>
-
-    <!--Storage.SanManager-->
+    
+    
+    <!--Storage.SanManager FT-->
     <View>
       <Name>SanManager</Name>
       <ViewSelectedBy>
@@ -402,8 +405,12 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>State</Label>
-             <Alignment>Left</Alignment>
+            <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Type</Label>
@@ -425,6 +432,9 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>state</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
@@ -435,12 +445,15 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  $managedSans = @()
-                  $resp = Send-HPOVRequest $_.managedSansUri
-                  if ($resp.count -gt 0) {
-                  foreach ($member in $resp.members) { $managedSans += $member.name }
-                  [array]::sort($managedSans)
-                  $managedSans
+                  $managedSans = New-Object System.Collections.ArrayList
+                  if ($_.managedSansUri)
+                  {
+
+                    $resp = Send-HPOVRequest $_.managedSansUri -Hostname $_.ApplianceConnection.Name
+                    foreach ($member in $resp.members) { [void]$managedSans.Add($member.name) }
+
+                    $managedSans
+                    
                   }
 
                   else { "None" }
@@ -451,7 +464,59 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--Storage.ManagedSan-->
+    <!--Storage.SanManager FL-->
+    <View>
+      <Name>SanManager</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.SanManager</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>providerDisplayName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Version</Label>
+                <PropertyName>deviceManagerVersion</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Managed SANs</Label>
+                <ScriptBlock>
+                  $managedSans = New-Object System.Collections.ArrayList
+                  if ($_.managedSansUri)
+                  {
+
+                  $resp = Send-HPOVRequest $_.managedSansUri -Hostname $_.ApplianceConnection.Name
+                  foreach ($member in $resp.members) { [void]$managedSans.Add($member.name) }
+
+                  $managedSans
+
+                  }
+
+                  else { "None" }
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View> 
+    <!--Storage.ManagedSan FT-->
     <View>
       <Name>ManagedSan</Name>
       <ViewSelectedBy>
@@ -462,6 +527,18 @@
         <TableHeaders>
           <TableColumnHeader>
             <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Principle Switch</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -490,6 +567,15 @@
             <TableColumnItems>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>principalSwitch</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>($_.publicAttributes | Where { $_.name -eq "NetworkName" }).value</ScriptBlock>
@@ -523,6 +609,338 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
+    </View>
+    <!--Storage.ManagedSan FL-->
+    <View>
+      <Name>ManagedSan</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.ManagedSan</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Principal Switch</Label>
+                <PropertyName>principalSwitch</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Network</Label>
+                <ScriptBlock>($_.publicAttributes | Where { $_.name -eq "NetworkName" }).value</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Zoned</Label>
+                <PropertyName>zoningState</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Automate Zoning</Label>
+                <ScriptBlock>
+                  if ($_.sanPolicy.zoningPolicy -eq "NoZoning") { "No" }
+                  else { "Yes" }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Zoning Policy</Label>
+                <ScriptBlock>
+
+                  switch ($_.sanPolicy.zoningPolicy) {
+
+                  "SingleInitiatorAllTargets" { "Single initiator / all targets" }
+                  "SingleInitiatorSingleStorageSystem" { "Single initiator / single storage system" }
+                  default { $_.sanPolicy.zoningPolicy }
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Use Aliases</Label>
+                <ScriptBlock>$_.sanPolicy.enableAliasing</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
+    <!--Storage.System FT-->
+    <View>
+      <Name>StorageSystem</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.System</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Firmware</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+         </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>wwn</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>firmware</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.System FL-->
+    <View>
+      <Name>StorageSystem</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.System</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>serialNumber</Label>
+                <PropertyName>serialNumber</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>WWN</Label>
+                <PropertyName>wwn</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Firmware</Label>
+                <PropertyName>firmware</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Total Capacity</Label>
+                <ScriptBlock>'{0:N2} TB' -f ($_.totalCapacity / 1TB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Allocated Capacity</Label>
+                <ScriptBlock>'{0:N2} TB' -f ($_.allocatedCapacity / 1TB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Free Capacity</Label>
+                <ScriptBlock>'{0:N2} TB' -f ($_.freeCapacity / 1TB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Use Aliases</Label>
+                <ScriptBlock>$_.sanPolicy.enableAliasing</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+    <!--Storage.System.Port FT-->
+    <View>
+      <Name>StorageSystemPort</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.System.Port</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWPN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Expected Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Actual Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Port Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>portName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portWwn</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.expectedNetworkUri -and -not ($_.expectedNetworkUri -eq "unknown") ) 
+                  {
+                    $net = send-hpovrequest $_.expectedNetworkUri -Hostname $_.ApplianceConnection.Name
+                    if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
+                    else {" $($net.name) [DA]"}
+                  }
+                  else { $_.expectedNetworkUri }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.actualNetworkUri -and -not ($_.actualNetworkUri -eq "unknown") ) {
+                  $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
+                  if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
+                  else {" $($net.name) [DA]"}
+                  }
+                  else { $_.actualNetworkUri }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>groupName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.System.Port FL-->
+    <View>
+      <Name>StorageSystemPort</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.System.Port</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>portName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>WWPN</Label>
+                <PropertyName>portWwn</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Expected Network</Label>
+                <ScriptBlock>
+                  if ($_.expectedNetworkUri -and -not ($_.expectedNetworkUri -eq "unknown") ) {
+                  $net = send-hpovrequest $_.expectedNetworkUri -Hostname $_.ApplianceConnection.Name
+                  if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
+                  else {" $($net.name) [DA]"}
+                  }
+                  else { $_.expectedNetworkUri }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Actual Network</Label>
+                <ScriptBlock>
+                  if ($_.actualNetworkUri -and -not ($_.actualNetworkUri -eq "unknown") ) {
+                  $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
+                  if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
+                  else {" $($net.name) [DA]"}
+                  }
+                  else { $_.actualNetworkUri }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Port Group</Label>
+                <PropertyName>groupName</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
     </View>
   </ViewDefinitions>
 </Configuration>

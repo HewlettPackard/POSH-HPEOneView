@@ -77,7 +77,7 @@ if (-not(Test-Path $Location))
 
 }
 
-import-module HPOneView.120
+import-module HPOneView.200
 
 # First connect to the HP OneView appliance.
 if (-not $global:cimgmtSessionId) 

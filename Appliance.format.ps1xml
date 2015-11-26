@@ -1,6 +1,83 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 	<ViewDefinitions>
+    <!--ApplianceConnection FT-->
+    <View>
+      <Name>ApplianceConnection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.Connection</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ConnectionID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UserName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AuthLoginDomain</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ConnectionID</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UserName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AuthLoginDomain</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ApplianceConnection FL-->
+    <View>
+      <Name>ApplianceConnection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.Connection</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>ConnectionID</Label>
+                <PropertyName>ConnectionID</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>UserName</Label>
+                <PropertyName>UserName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>AuthLoginDomain</Label>
+                <PropertyName>AuthLoginDomain</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View> 
     <!--APPLIANCE_SMTPALERTS-->
 		<View>
 			<Name>SmtpConfigurationObject</Name>
@@ -36,9 +113,44 @@
 				</ListEntries>
 			</ListControl>
 		</View>
+
+
+    <!--ApplianceSnmpCommunity FT-->
+    <View>
+      <Name>SnmpCommunity</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpCommunity</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SNMP Community Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>communityString</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
     <!--APPLIANCE_TASKS-->
 		<View>
-			<Name>TaskObject</Name>
+			<Name>TaskResource</Name>
 			<ViewSelectedBy>
 				<TypeName>HPOneView.Appliance.TaskResource</TypeName>
 			</ViewSelectedBy>
@@ -121,7 +233,7 @@
 					</ListEntry>
 				</ListEntries>
 			</ListControl>
-		</View>
+		</View>       
     <!--APPLIANCE_USER_ROLES-->
 		<View>
 			<Name>UserRole</Name>
@@ -133,7 +245,6 @@
 				<TableHeaders>
 					<TableColumnHeader>
 						<Label>RoleName</Label>
-						<!--<Width>22</Width>-->
 						<Alignment>Left</Alignment>
 					</TableColumnHeader>
 				</TableHeaders>
@@ -147,8 +258,68 @@
 					</TableRowEntry>
 				</TableRowEntries>
 			</TableControl>
-		</View>
-    <!--APPLIANCE_GLOBALDIRECTORYSETTINGS-->
+		</View>   
+    <!--APPLIANCEUSER FT-->
+		<View>
+			<Name>User</Name>
+			<ViewSelectedBy>
+				<TypeName>HPOneView.Appliance.User</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+        <AutoSize/>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Label>Name</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+          <TableColumnHeader>
+						<Label>Enabled</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+        	<TableColumnHeader>
+						<Label>Role</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+          <TableColumnHeader>
+						<Label>Email</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+          <TableColumnHeader>
+						<Label>Office</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+          <TableColumnHeader>
+						<Label>Mobile</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>userName</PropertyName>
+							</TableColumnItem>
+            	<TableColumnItem>
+								<PropertyName>enabled</PropertyName>
+							</TableColumnItem>
+      				<TableColumnItem>
+								<PropertyName>roles</PropertyName>
+							</TableColumnItem>
+    					<TableColumnItem>
+								<PropertyName>emailAddress</PropertyName>
+							</TableColumnItem>
+            	<TableColumnItem>
+								<PropertyName>officePhone</PropertyName>
+							</TableColumnItem>
+      				<TableColumnItem>
+								<PropertyName>mobilePhone</PropertyName>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>  
+    <!--AuthGlobalDirectoryConfiguration FT-->
     <View>
       <Name>AuthGlobalDirectoryConfiguration</Name>
       <ViewSelectedBy>
@@ -158,24 +329,32 @@
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Allow Local Login</Label>
-            <!--<Width>17</Width>-->
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Local Login</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Default Directory</Label>
-            <!--<Width>17</Width>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Configured Directories</Label>
-            <!--<Width>22</Width>-->
+            <Label>Directories</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Login Message</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>allowLocalLogin</PropertyName>
               </TableColumnItem>
@@ -185,14 +364,17 @@
               <TableColumnItem>
                 <ScriptBlock>($_.configuredLoginDomains | Sort-Object -property name) | ForEach { $_.name }</ScriptBlock>
               </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>if ($_.loginMessage.acknowledgment) { 'Enabled' } else { 'Disabled' }</ScriptBlock>
+              </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>
-    <!--APPLIANCE_AUTHDIRECTORIES-->
+    </View>   
+    <!--AuthDirectory FT-->
     <View>
-      <Name>AuthDirectories</Name>
+      <Name>AuthDirectory</Name>
       <ViewSelectedBy>
         <TypeName>HPOneView.Appliance.AuthDirectory</TypeName>
       </ViewSelectedBy>
@@ -200,28 +382,23 @@
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Name</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Type</Label>
-            <Width>4</Width>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Root</Label>
-            <!--<AutoSize/>-->
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Search Context</Label>
-            <!--<AutoSize/>-->
+            <Label>Base DN</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Directory Servers</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -229,25 +406,144 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>authProtocol</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>top</PropertyName>
+                <PropertyName>baseDn</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>org</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>($_.directoryServers | Sort-Object -property name) | ForEach { "$($_.directoryServerIpAddress)`:$($_.directoryServerSSLPortNumber)"}</ScriptBlock>
+                <ScriptBlock>($_.directoryServers | Sort-Object -property name) | ForEach { "{0}:{1}" -f $_.directoryServerIpAddress,$_.directoryServerSSLPortNumber }</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
     </View>
+    <!--AuthDirectory FL-->
+    <View>
+      <Name>AuthDirectory</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AuthDirectory</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>authProtocol</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Base DN</Label>
+                <PropertyName>baseDn</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Directory Servers</Label>
+                <ScriptBlock>($_.directoryServers | Sort-Object -property name) | ForEach { "{0}:{1}" -f $_.directoryServerIpAddress,$_.directoryServerSSLPortNumber }</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--AuthDirectoryServer FT-->
+    <View>
+      <Name>AuthDirectoryServer</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AuthDirectoryServer</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SSL Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SSL Certificate Valid Until</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SSL Certificate</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>directoryServerIpAddress</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>directoryServerSSLPortNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>validUntil</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>directoryServerCertificateBase64Data</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--AuthDirectoryServer FL-->
+    <View>
+      <Name>AuthDirectoryServer</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AuthDirectoryServer</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>authProtocol</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Base DN</Label>
+                <PropertyName>baseDn</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Directory Servers</Label>
+                <ScriptBlock>($_.directoryServers | Sort-Object -property name) | ForEach { "{0}:{1}" -f $_.directoryServerIpAddress,$_.directoryServerSSLPortNumber }</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
+
     <!--APPLIANCE_AUTHDIRECTORYGROUPS-->
     <View>
       <Name>AuthDirectoryGroup</Name>
@@ -347,6 +643,56 @@
         </TableRowEntries>
       </TableControl>
     </View>
+
+    <!--Appliance.AuditLogEntry FL-->
+    <View>
+      <Name>AuditLogEntry</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AuditLogEntry</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Date</Label>
+                <PropertyName>dateTimeStamp</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Source</Label>
+                <PropertyName>objectType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Action</Label>
+                <PropertyName>action</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Result</Label>
+                <PropertyName>result</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Severity</Label>
+                <PropertyName>severity</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Details</Label>
+                <PropertyName>msg</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Source IP</Label>
+                <PropertyName>sourceIp</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
     <!--APPLIANCE_ALERTS-->
     <View>
       <Name>ApplianceAlert</Name>
@@ -367,7 +713,7 @@
               </ListItem>
               <ListItem>
                 <Label>Resource</Label>
-                <ScriptBlock>(Send-HPOVRequest $_.resourceUri).name</ScriptBlock>
+                <ScriptBlock>(Send-HPOVRequest $_.resourceUri -hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Date</Label>
@@ -380,6 +726,10 @@
               <ListItem>
                 <Label>Owner</Label>
                 <PropertyName>assignedToUser</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Notes</Label>
+                <ScriptBlock>$_.changeLog | % { "[{0}] {1}" -f (Get-Date $_.created),$_.notes }</ScriptBlock>
               </ListItem>
             </ListItems>
           </ListEntry>
@@ -520,7 +870,69 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--HPOneView.Appliance.Version.Extended-->
+    <!--HPOneView.Appliance.Version.Extended FT-->
+    <View>
+      <Name>VersionExtended</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.Version.Extended</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Major</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Minor</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Software Version</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>X-API Version</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>applianceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>major</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>minor</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>softwareVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>xapiVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>modelNumber</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
+    <!--HPOneView.Appliance.Version.Extended FL-->
     <View>
       <Name>VersionExtended</Name>
       <ViewSelectedBy>
@@ -531,28 +943,28 @@
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>PowerShell Library Version</Label>
-                <PropertyName>OneViewPowerShellLibrary</PropertyName>
+                <Label>Appliance</Label>
+                <PropertyName>applianceName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Library Path</Label>
-                <PropertyName>libraryLoadedPath</PropertyName>
+                <Label>Major</Label>
+                <PropertyName>major</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Appliance Major Version</Label>
-                <PropertyName>applMajorVersion</PropertyName>
+                <Label>Minor</Label>
+                <PropertyName>minor</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Appliance Minor Version</Label>
-                <PropertyName>applMinorVersion</PropertyName>
+                <Label>Software Version</Label>
+                <PropertyName>softwareVersion</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Appliance Version Info</Label>
-                <PropertyName>applVersionInfo</PropertyName>
+                <Label>X-API Version</Label>
+                <PropertyName>xapiVersion</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Appliance X-API Version</Label>
-                <PropertyName>applXApiVersion</PropertyName>
+                <Label>Model</Label>
+                <PropertyName>modelNumber</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>
@@ -689,35 +1101,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
-
-
-
-<!--type                 : Range
-    prefix               :
-    enabled              : True
-    allocatorUri         : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/allocator
-    collectorUri         : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/collector
-    reservedIdCount      : 0
-    freeFragmentUri      : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/free-fragments?start=0&count=-1
-    allocatedFragmentUri : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d/allocated-fragments?start=0&coun
-    t=-1
-    startAddress         : D2:BE:DE:C0:00:00
-    endAddress           : D2:BE:DE:CF:FF:FF
-    rangeCategory        : GENERATED
-    totalCount           : 1048576
-    allocatedIdCount     : 8
-    freeIdCount          : 1048568
-    defaultRange         : True
-    name                 : VMAC
-    category             : id-range-VMAC
-    created              : 2015-07-30 21:47:56.999
-    modified             : 2015-07-30 21:47:56.999
-    eTag                 : 3faa564a-e5be-41b6-8e84-af2b696c5dc2
-    uri                  : /rest/id-pools/vmac/ranges/8df4afab-4356-4cd1-b402-a7cc5e5b3d0d-->
-
-
 
     <!--APPLIANCE_ADDRESSPOOLRANGE FT-->
     <View>
@@ -965,10 +1348,6 @@
       <TableControl>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Time</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
             <Label>ApplianceNetworks</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -979,10 +1358,8 @@
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
+            <Wrap/>
             <TableColumnItems>
-              <TableColumnItem>
-                <PropertyName>time</PropertyName>
-              </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>applianceNetworks</PropertyName>
               </TableColumnItem>
@@ -1005,9 +1382,75 @@
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>Time</Label>
-                <PropertyName>time</PropertyName>
+                <Label>ApplianceNetworks</Label>
+                <PropertyName>applianceNetworks</PropertyName>
               </ListItem>
+              <ListItem>
+                <Label>ServerCertificate</Label>
+                <PropertyName>serverCertificate</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+    <!--ApplianceServerDateTime FT-->
+    <View>
+      <Name>ApplianceServerDateTime</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ApplianceServerDateTime</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Time</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Time Zone</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>NTP Servers</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>NTP Polling</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>dateTime</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>timezone</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ntpServers</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>pollingInterval</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ApplianceServerDateTime FL-->
+    <View>
+      <Name>ApplianceServerDateTime</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ApplianceServerDateTime</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
               <ListItem>
                 <Label>ApplianceNetworks</Label>
                 <PropertyName>applianceNetworks</PropertyName>

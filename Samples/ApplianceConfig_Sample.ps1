@@ -5,7 +5,7 @@
 #
 #   VERSION 2.1
 #
-# (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -29,51 +29,91 @@ THE SOFTWARE.
 ##############################################################################
 
 [CmdletBinding()]
-param(
+param
+(
 
-        [Parameter(Position = 0, Mandatory = $True, HelpMessage = "Please provide the Appliances DHCP Address.")]
-        [string]$vm_ipaddr,
+    [Parameter(Position = 0, Mandatory, HelpMessage = "Please provide the Appliances DHCP Address.")]
+    [string]$vm_ipaddr,
 
-		[Parameter(Position = 1, Mandatory = $True, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
-        [String]$IPAddress
-    )
+	[Parameter(Position = 1, Mandatory, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+    [String]$IPAddress
+
+)
 
 $ErrorActionPreference = "Stop"
+
+if (-not (get-module HPOneview.200)) 
+{
+
+    Import-Module HPOneView.200
+
+}
 
 #region 
 
     $csrdir = "C:\Certs\Requests\"
-    if (-not(Test-Path $csrdir)) { New-Item -Path $csrdir -ItemType directory | Out-Null }
+
+    if (-not(Test-Path $csrdir)) 
+	{ 
+		
+		New-Item -Path $csrdir -ItemType directory | Out-Null 
+	
+	}
 
     $template = "WebServer" # must always use concatenated name format
-    $CA = "dc1.domain.local\domain-DC1-CA"
-
-    if (-not (get-module HPOneview.120)) {
-       Import-Module HPOneView.120
-    }
+    $CA = "MyCA.domain.local\domain-MyCA-CA"
 
     $global:hostname = "hpov.domain.local"
 
     # Accept the EULA
-    if (Get-HPOVEulaStatus -appliance $vm_ipaddr) {
+    if (Get-HPOVEulaStatus -Appliance $vm_ipaddr) 
+	{
 
         Write-Host "Accepting EULA..."
 
-        $ret = Set-HPOVEulaStatus -supportAccess "yes" -appliance $vm_ipaddr
+        $ret = Set-HPOVEulaStatus -SupportAccess "yes" -Appliance $vm_ipaddr
 
     }
 
 
     # For initial setup, connect first using "default" Administrator credentials:
-    Try { Connect-HPOVMgmt -appliance $vm_ipaddr -user "Administrator" -password "admin" }
-    catch [HPOneView.Appliance.PasswordChangeRequired] {
+    Try 
+	{ 
+		
+		Connect-HPOVMgmt -appliance $vm_ipaddr -user "Administrator" -password "admin" -verbose
+	
+	}
+
+    catch [HPOneView.Appliance.PasswordChangeRequired] 
+	{
 
         Write-Host "Set initial password"
-        Set-HPOVInitialPassword -userName "Administrator" -oldPassword "admin" -newPassword "hpinvent"
+
+        Set-HPOVInitialPassword -UserName "Administrator" -OldPassword "admin" -NewPassword "hpinvent" -Appliance $vm_ipaddr -verbose
     
     }
 
+	Catch
+	{
+
+		if ($_.Exception -is [System.Management.Automation.ErrorRecord])
+		{
+
+			Write-Error -Message $_.Exception.Message -EA Stop
+
+		}
+		
+		else
+		{
+
+			Write-Error -Message $_.Message -EA Stop
+
+		}
+
+	}
+
     Write-Host "Reconnect with new password"
+
     Connect-HPOVMgmt -appliance $vm_ipaddr -user Administrator -password "hpinvent"
 
     Write-Host "Set appliance networking configuration"
@@ -100,7 +140,36 @@ $ErrorActionPreference = "Stop"
     $task = Set-HPOVApplianceNetworkConfig @params #-import $global:fts_config
     Wait-HPOVTaskComplete $task
 
-    if (-not($Global:cimgmtSessionId)) { Connect-HPOVMgmt -appliance $global:hostname -user Administrator -password "hpinvent" }
+    if (-not($Global:cimgmtSessionId)) 
+	{ 
+	
+		Try
+		{
+
+			Connect-HPOVMgmt -appliance $global:hostname -user Administrator -password "hpinvent" 
+
+		}	
+		
+		Catch
+		{
+
+			if ($_.Exception -is [System.Management.Automation.ErrorRecord])
+			{
+
+				Write-Error -Message $_.Exception.Message -EA Stop
+
+			}
+			
+			else
+			{
+
+				Write-Error -Message $_.Message -EA Stop
+
+			}
+
+		}
+	
+	}
 
     Write-Host "Completed appliance networking configuration"
 

@@ -5,7 +5,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,20 +33,20 @@ Import-Module HPOneView.120
 if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
 
 #Connect a Storage System using OneView Expected Connectivity
-$myStorageSystem      = "HP3Par_1-array.contoso.com"
+$myStorageSystem = "HP3Par_1-array.contoso.com"
 $myStorageSystemAdmin = "3paradm"
-$myStorageSystemPass  = "3pardata"
+$myStorageSystemPass = "3pardata"
 
 # Now import the enclosure using this new enclosure group
 $task = New-HPOVStorageSystem -hostname $myStorageSystem -username $myStorageSystemAdmin -password $myStorageSystemPass
 $myStorageSystem1 = Wait-HPOVTaskComplete $task.uri
 
 #Add Storage System specifying the Virtual Domain and Storage Host Ports
-$myStorageSystem       = "HP3Par_2-array.contoso.com"
-$myStorageSystemAdmin  = "3paradm"
-$myStorageSystemPass   = "3pardata"
+$myStorageSystem = "HP3Par_2-array.contoso.com"
+$myStorageSystemAdmin = "3paradm"
+$myStorageSystemPass = "3pardata"
 $myStorageSystemDomain = "VirtualDomain1" #NOTE: The value is case sensitive.
-$myStorageSystemPorts  = @{"1:1:1" = "Fabric A"; "2:1:1" = "FabricA"; "1:1:2" = "Fabric B"; "2:1:2" = "Fabric B"}
+$myStorageSystemPorts = @{"1:1:1" = "Fabric A"; "2:1:1" = "FabricA"; "1:1:2" = "Fabric B"; "2:1:2" = "Fabric B"}
 
 # Now import the enclosure using this new enclosure group
 $task = New-HPOVStorageSystem -hostname $myStorageSystem -username $myStorageSystemAdmin -password $myStorageSystemPass -Domain $myStorageSystemDomain -Ports $myStorageSystemPorts

@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpInfo xmlns="http://schemas.microsoft.com/powershell/help/2010/05">
-  <HelpContentURI>http://www.hp.com/go/OneViewPowershell/updatehelp</HelpContentURI>
+  <HelpContentURI>http://www.hpe.com/info/OneViewPowershell/updatehelp</HelpContentURI>
   <SupportedUICultures>
     <UICulture>
       <UICultureName>en-US</UICultureName>
-      <UICultureVersion>1.20.251.1</UICultureVersion>
+      <UICultureVersion>2.0.10.13</UICultureVersion>
     </UICulture>
   </SupportedUICultures>
 </HelpInfo>

@@ -1,11 +1,11 @@
 ##############################################################################
 # Alerts_Sample.ps1
-# - Example scripts for configuring the CI Manager appliance (networking, NTP, 
-#   etc.).
+# - Example scripts for creating a user account, and retrieving alerts specific
+#   to the new user.
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2015 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy

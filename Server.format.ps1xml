@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <ViewDefinitions>
-    <!--Server_Hardware FT-->
+    <!--ServerHardware FT-->
     <View>
       <Name>ServerHardware</Name>
       <ViewSelectedBy>
@@ -12,47 +12,38 @@
         <TableHeaders>
           <TableColumnHeader>
             <Label>Name</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Status</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Power</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Serial Number</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Model</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>ROM</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>iLO</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Server Profile</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>License</Label>
-            <!--<AutoSize/>-->
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -83,8 +74,8 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if (!$_.serverProfileUri){ 'No Profile' }
-                  else { (Send-HPOVRequest $_.serverProfileUri).name }
+                  if (-not($_.serverProfileUri)) { 'No Profile' }
+                  else { (Send-HPOVRequest $_.serverProfileUri -hostname $_.ApplianceConnection.Name).name }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -95,6 +86,287 @@
         </TableRowEntries>
       </TableControl>
     </View>
+
+    <!--// TODO -->
+    <!--ServerHardware FL-->
+    <View>
+      <Name>ServerHardware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerHardware</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Form Factor</Label>
+                <PropertyName>formFactor</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Adapters</Label>
+                <ScriptBlock>
+
+                  $_.adapters | % {
+
+                  "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    
+    <!--ServerHardwareType FT-->
+    <View>
+      <Name>ServerHardwareType</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerHardwareType</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Form Factor</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Adapters</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>formFactor</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                
+                $_.adapters | % {
+                
+                    "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
+                                
+                }
+                
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerHardwareType FL-->
+    <View>
+      <Name>ServerHardwareType</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerHardwareType</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Form Factor</Label>
+                <PropertyName>formFactor</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Adapters</Label>
+                <ScriptBlock>
+
+                  $_.adapters | % {
+
+                  "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+    <!--ServerProfile FT-->
+    <View>
+      <Name>ServerProfile</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfile</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Compliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Template</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Affinity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>templateCompliance</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverProfileTemplateUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverHardwareUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>affinity</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerProfile FL-->
+    <View>
+      <Name>ServerProfile</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfile</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Compliance</Label>
+                <PropertyName>templateCompliance</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Template</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverProfileTemplateUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Server Hardware</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverHardwareUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Server Hardware Type</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Affinity</Label>
+                <PropertyName>affinity</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.serialNumber,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>UUID</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.uuid,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Connections</Label>
+                <ScriptBlock>"{0}" -f $_.connections.count</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Manage BIOS</Label>
+                <ScriptBlock>"{0}" -f $_.bios.manageBios</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    
+    
     <!--Server_Profile_Connections FT-->
     <View>
       <Name>connections</Name>
@@ -164,16 +436,25 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  $bootSetting = @()
-                  $bootSetting += $_.boot.priority
-                  if ($_.boot.targets) {
+                  $bootSetting = New-Object System.Collections.ArrayList
+                  
+                  [void]$bootSetting.Add($_.boot.priority)
+                  
+                  if ($_.boot.targets) 
+                  {
 
-                  for ($i=0; $i -eq $boot.targets.count; $i++) { $bootSetting += "WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)" }
+                    for ($i=0; $i -eq $boot.targets.count; $i++) { [void]$bootSetting.Add("WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)") }
 
                   }
-                  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets)) { $bootSetting += "(Use Adapter BIOS)" }
-                  $bootSettingString = $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
-                  $bootSettingString
+                  
+                  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets)) 
+                  { 
+                  
+                    [void]$bootSetting.Add("(Use Adapter BIOS)") 
+                    
+                  }
+                  
+                  $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -181,16 +462,16 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  $address = @()
+                  $address = New-Object System.Collections.ArrayList
 
-                  if ($_.macType -eq "Virtual" -and $_.mac) { $address += "MAC $($_.mac) (V)" }
-                  elseif ($_.macType -eq "Physical" -and $_.mac) { $address += "MAC $($_.mac) (p)" }
+                  if ($_.macType -eq "Virtual" -and $_.mac)      { [void]$address.Add("MAC $($_.mac) (V)") }
+                  elseif ($_.macType -eq "Physical" -and $_.mac) { [void]$address.Add("MAC $($_.mac) (p)") }
 
-                  if ($_.wwpnType -eq "Virtual" -and $_.wwnn) { $address += "WWNN $($_.wwnn) (v)"}
-                  elseif ($_.wwpnType -eq "Physical" -and $_.wwnn) { $address += "WWNN $($_.wwnn) (p)" }
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwnn)      { [void]$address.Add("WWNN $($_.wwnn) (v)") }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwnn) { [void]$address.Add("WWNN $($_.wwnn) (p)") }
 
-                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn) { $address += "WWPN $($_.wwpn) (v)"}
-                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { $address += "WWPN $($_.wwpn) (p)" }
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { [void]$address.Add("WWPN $($_.wwpn) (v)") }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { [void]$address.Add("WWPN $($_.wwpn) (p)") }
 
                   $address | Out-String | % { $_ -replace '^\s+|\s+$' }
                 </ScriptBlock>
@@ -199,7 +480,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>   
+    </View>
     <!--ENCLOSURE FT-->
     <View>
       <Name>Enclosure</Name>
@@ -214,15 +495,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>State</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Serial Number</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Model</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -245,20 +526,20 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>enclosureType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>state</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>serialNumber</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>enclosureType</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
                 <PropertyName>rackName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.enclosureGroupUri) { (Send-HPOVRequest $_.enclosureGroupUri).name }
+                  if ($_.enclosureGroupUri) { (Send-HPOVRequest $_.enclosureGroupUri -HostName $_.ApplianceConnection.Name).name }
                   else { "N/A" }
                 </ScriptBlock>
               </TableColumnItem>
@@ -269,6 +550,152 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
+    </View>
+    <!--ENCLOSURE FL-->
+    <View>
+      <Name>Enclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Enclosure</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>enclosureType</PropertyName>
+              </ListItem>
+              <ListItem>
+                  <Label>State</Label>
+                  <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <PropertyName>serialNumber</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Rack</Label>
+                <PropertyName>rackName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>
+                  if ($_.enclosureGroupUri) { (Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name }
+                  else { "N/A" }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Populated Bays</Label>
+                <ScriptBlock>"$(($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}).count)/$($_.deviceBays.count)"</ScriptBlock>
+              </ListItem>          
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--LOGICALENCLOSURE FT-->
+    <View>
+      <Name>LogicalEnclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.LogicalEnclosure</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosures</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Logical Interconnects</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.enclosureUris | % { Send-HPOVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.logicalInterconnectUris | % { Send-HPOVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ENCLOSURE FL-->
+    <View>
+      <Name>LogicalEnclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.LogicalEnclosure</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosures</Label>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.enclosureUris | % { Send-HPOVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>(Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Logical Interconnects</Label>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.logicalInterconnectUris | % { Send-HPOVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
     </View>
     <!--ENCLOSURE_GROUP FT-->
     <View>
