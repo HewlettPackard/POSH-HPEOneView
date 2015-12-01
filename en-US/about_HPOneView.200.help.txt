@@ -30,8 +30,9 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
-    Release 2.0.10.12
+    Release 2.0.10.15
 	 -- HPE OneView 2.00 PowerShell library Release.
+	 -- Fixed issue with missing PowerShell 'ModuleVersion' string in HPOneView.200.psd1.
 
 LONG DESCRIPTION
 
