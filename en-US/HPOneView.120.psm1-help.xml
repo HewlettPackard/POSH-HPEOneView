@@ -19659,7 +19659,28 @@ Get the 'Volume1' and 'SharedVolume1' Storage Volumes via the Get-HPOVStorageVol
                     <maml:para/>
                 </maml:introduction>
                 <dev:code>PS C:\&gt; $attachVolume1 = Get-HPOVStoragePool CPG_R5_1 | New-HPOVProfileAttachVolume -volumeid 1 -name "PrivateVol1" -capacity 100
+Create an Ephemeral Private Volume from 'CPG_R5_1' Storage Pool, of 100GB in size.
 
+
+
+
+</dev:code>
+                <dev:remarks>
+                    <maml:para></maml:para>
+                </dev:remarks>
+                <command:commandLines>
+                    <command:commandLine>
+                        <command:commandText/>
+                    </command:commandLine>
+                </command:commandLines>
+            </command:example>
+             <command:example>
+                <maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+                <maml:introduction>
+                    <maml:para/>
+                </maml:introduction>
+                <dev:code>PS C:\&gt; $attachVolume1 = Get-HPOVStoragePool CPG_R5_1 | New-HPOVProfileAttachVolume -volumeid 1 -name "PrivateVol1" -capacity 100 -permanent
+Create a non-Ephemeral, Private Volume from 'CPG_R5_1' Storage Pool, of 100GB in size.
 
 
 

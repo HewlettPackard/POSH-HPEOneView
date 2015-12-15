@@ -32,6 +32,16 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.275.0
+     -- Fixed Get-HPOVStorageVolume where the exception 'HPOneView.StorageVolumeResourceException'
+        wasn't defined.
+     -- Fixed Send-HPOVRequest where Array objects returned would cause an endless loop.
+     -- Fixed New-HPOVProfileAttachVolume where parameter binding for Volume would be bound to
+        all other parameter sets and should not be.
+     -- [Installer] Updated the installer to detect if .Net Framework 4.0 and Windows Management
+        Framework 3.0 are installed. If not, installer will download and assist installing
+        requirements.
+
      Release 1.20.255.0
      -- Fixed Show-HPOVLogicalInterconnectMacTable where results were not being returned
      -- Fixed Wait-HPOVTaskStart and Wait-HPOVTaskComplete where a null value would cause Write-Progress

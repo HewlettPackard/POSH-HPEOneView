@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.251.0"
+$script:scriptVersion = "1.20.275.0"
 $Global:CallStack = Get-PSCallStack
 $verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -702,6 +702,30 @@ $Source = @"
                 }
             }
         }
+
+		public class StorageVolumeResourceException : Exception
+		{
+
+		    public StorageVolumeResourceException() : base() { }
+		    public StorageVolumeResourceException(string message) : base(message) { }
+		    public StorageVolumeResourceException(string message, Exception e) : base(message, e) { }
+
+		    private string strExtraInfo;
+		    public string ExtraErrorInfo
+		    {
+		        get
+		        {
+		            return strExtraInfo;
+		        }
+
+		        set
+		        {
+		            strExtraInfo = value;
+		        }
+
+		    }
+
+		}
 	
 	    public class ServerProfileResourceException : Exception
         {
@@ -1073,7 +1097,8 @@ $script:applAuditLog              = "/rest/audit-logs/download"
 # Basic Support Functions
 #
 
-function New-ErrorRecord {
+function New-ErrorRecord 
+{
 
     <#  
     .Synopsis
@@ -1140,7 +1165,8 @@ function New-ErrorRecord {
      #>
 
     [CmdletBinding()]
-    param(
+    param
+	(
 
         [Parameter(Mandatory = $true, Position = 0)]
         [System.String]$Exception,
@@ -1174,7 +1200,19 @@ function New-ErrorRecord {
 
     )
 
-    process {
+	begin
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
+	}
+
+    process 
+	{
 
         # ...build and save the new Exception depending on present arguments, if it...
         $_exception = if ($Message -and $InnerException) {
@@ -1199,12 +1237,14 @@ function New-ErrorRecord {
 
 }
 
-function Set-HPOVPrompt {
+function Set-HPOVPrompt 
+{
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding(SupportsShouldProcess = $True,ConfirmImpact = 'High')]
-    Param (
+    Param 
+	(
 
         [parameter(Mandatory = $true, ParameterSetName = 'Enable')]
         [Switch]$Enable,
@@ -1222,16 +1262,27 @@ function Set-HPOVPrompt {
 
 }
 
-function Enable-HPOVMSDSC {
+function Enable-HPOVMSDSC 
+{
 
 	# .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
     Param ()
 
-	Begin { }
+	Begin 
+	{ 
+	
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-	Process {
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+	
+	}
+
+	Process 
+	{
 
 		$RegKey = "HKCU:\Software\Hewlett-Packard\HPOneView"
 
@@ -1248,16 +1299,27 @@ function Enable-HPOVMSDSC {
 
 }
 
-function Disable-HPOVMSDSC {
+function Disable-HPOVMSDSC 
+{
 
 	# .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
     Param ()
 
-	Begin { }
+	Begin 
+	{ 
 
-	Process {
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
+	}
+
+	Process 
+	{
 
 		$RegKey = "HKCU:\Software\Hewlett-Packard\HPOneView"
 
@@ -1274,7 +1336,8 @@ function Disable-HPOVMSDSC {
 
 }
 
-function RestClient {
+function RestClient 
+{
 
 <#
 
@@ -1318,7 +1381,8 @@ function RestClient {
 #>
 
     [CmdletBinding()]
-    Param (
+    Param 
+	(
 
         [parameter(Mandatory = $False, Position = 0)]
         [ValidateScript({if ("GET","POST","DELETE","PATCH","PUT" -match $_) {$true} else { Throw "'$_' is not a valid Method.  Only GET, POST, DELETE, PATCH, or PUT are allowed." }})]
@@ -1334,9 +1398,14 @@ function RestClient {
 
     )
 
-    Begin {
+    Begin 
+	{
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | FT * -autosize -wrap | out-string)"
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
 
         $url = $Appliance + $uri
 
@@ -1345,14 +1414,15 @@ function RestClient {
     }
 
 
-    Process {
+    Process 
+	{
 
-        [System.Net.httpWebRequest]$restClient      = [System.Net.httpWebRequest]::Create("https://$url")
+        [System.Net.httpWebRequest]$restClient              = [System.Net.httpWebRequest]::Create("https://$url")
         [String]$restClient.Method                          = $method
         [int]$restClient.Timeout                            = 20000
         [String]$restClient.ContentType                     = "application/json"
         [String]$restClient.Accept                          = "application/json"
-	[String]$restClient.Headers.Item("X-API-Version")   = $script:MaxXAPIVersion
+		[String]$restClient.Headers.Item("X-API-Version")   = $script:MaxXAPIVersion
         [String]$restClient.Headers.Item("accept-language") = "en_US"
         [String]$restClient.Headers.Item("accept-encoding") = "gzip, deflate"
 
@@ -1363,7 +1433,8 @@ function RestClient {
 
     }
 
-    End {
+    End 
+	{
 
         Return [System.Net.HttpWebRequest]$restClient
 
@@ -1371,42 +1442,50 @@ function RestClient {
 
 }
 
-function Send-HPOVRequest {
+function Send-HPOVRequest 
+{
     
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
-    Param (
+    Param 
+	(
 
         [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
-         [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
-         [string]$uri,
+        [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
+        [string]$uri,
 
         [parameter(Position = 1, Mandatory = $false)]
-         [string]$method = "GET",
+        [string]$method = "GET",
          
         [parameter(Position = 2, Mandatory = $false)]
-         [object]$body = $null,
+        [object]$body = $null,
 
         [parameter(Position = 3, Mandatory = $false)]
-         [int]$start = 0,
+        [int]$start = 0,
 
         [parameter(Position = 4, Mandatory = $false)]
-         [int]$count = 0,
+        [int]$count = 0,
 
         [parameter(Position = 5, Mandatory = $false)]
-         [hashtable]$addHeader
+        [hashtable]$addHeader
 
     )
 
-    Begin { 
+    Begin 
+	{ 
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] BEGIN"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
         #BROKEN? Check to see if System.Net.Webrequest is still "active"
-        if ($req) { 
+        if ($req) 
+		{ 
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] System.Net.Webrequest was not closed properly. Fixing..."
             $req = $Null
@@ -1425,23 +1504,34 @@ function Send-HPOVRequest {
 		write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSLCheckFlag: $script:SSLCheckFlag"
 
         #Check how to handle SSL Certificates
-        if (-not($script:SSLCheckFlag)) {
+        if (-not($script:SSLCheckFlag)) 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSL Certificate has not been checked."
 
             #Out-Host is IMPORTANT, otherwise, the Certificate Details will NOT display when called from Connect-HPOVMgmt, or any other cmdlet for that matter.
-            Try { Show-HPOVSSLCertificate | Out-Host }
-            catch [System.Net.WebException] { 
+            Try 
+			{ 
+				
+				Show-HPOVSSLCertificate | Out-Host 
+			
+			}
+
+            catch [System.Net.WebException] 
+			{ 
 
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caught WebException error after calling Show-HPOVSSLCertificate"
             
-                if ($_.FullyQualifiedErrorId -match "ApplianceNotResponding") {
+                if ($_.FullyQualifiedErrorId -match "ApplianceNotResponding") 
+				{
 
                     $errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException ApplianceNotResponding ResourceUnavailable 'Send-HPOVRequest' -Message "Unable to connect to '$Appliance' due to timeout." #-verbose
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
             
                 }
-				else {
+
+				else 
+				{
 
 					$errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException UnknownError ResourceUnavailable 'Send-HPOVRequest' -Message "Unable to connect to '$Appliance' due to unknown error [$($_.Exception.Message)]." #-verbose
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -1449,7 +1539,9 @@ function Send-HPOVRequest {
 				}
             
             }
-			catch {
+
+			catch 
+			{
 
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caught OTHER error after calling Show-HPOVSSLCertificate"
 
@@ -1459,7 +1551,8 @@ function Send-HPOVRequest {
 			}
             
             #If cert is untrusted, set ServicePointManager to ignore cert checking
-            if ($global:certTrusted -eq $False) { 
+            if ($global:certTrusted -eq $False) 
+			{ 
 			
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSL Certificate is untrusted.  Setting HPOneView.HPOneViewIgnoreCertPolicy policy."	
 
@@ -1473,7 +1566,8 @@ function Send-HPOVRequest {
         #Need to check for authenticated session when the URI passed is not value of $script:loginSessionsUri
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested URI: $($uri)"
 
-        If ((-not($global:cimgmtSessionId)) -and ($uri -ine $script:loginSessionsUri)) {
+        If ((-not($global:cimgmtSessionId)) -and ($uri -ine $script:loginSessionsUri)) 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] We have reached the URI Whitelist condition block"
 
@@ -1487,7 +1581,8 @@ function Send-HPOVRequest {
             elseif ($uri -eq "/startstop/rest/component?fields=status") { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unauth request allowed." } #Allow the unauthenticated request 
             
             #Else, require authentication
-            else {
+            else 
+			{
 
                 $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError 'Send-HPOVRequest' -Message "No valid session ID found.  The call to '$uri' requires authentication.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -1497,7 +1592,8 @@ function Send-HPOVRequest {
 
     }
 
-    Process {
+    Process 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] PROCESS"
     
@@ -1508,17 +1604,21 @@ function Send-HPOVRequest {
         #(if so, we will let them handle pagination manually)
         [bool]$manualPaging=$false
 
-        if ($uri.ToLower().Contains("count=") -or $uri.ToLower().Contains("count =")) {
+        if ($uri.ToLower().Contains("count=") -or $uri.ToLower().Contains("count =")) 
+		{
 
             $manualPaging=$true
 
         }
-        elseif ($count -gt 0) {
+
+        elseif ($count -gt 0) 
+		{
 
             $manualPaging=$true
 
             #add start & count params to the URI
-            if (-not ($uri -contains "?")) {
+            if (-not ($uri -contains "?")) 
+			{
 
                 $uri += "?"    
 
@@ -1527,13 +1627,17 @@ function Send-HPOVRequest {
             $uri += ("start=" + $start + "&")
 
             $uri += ("count=" + $count)
+
         }
-        elseif ($start -gt 0) {
+
+        elseif ($start -gt 0) 
+		{
 
             #start specified, but no count -- just set the start param & auto-page from there on:
             $manualPaging = $false
 
-            if (-not ($uri -contains "?")) {
+            if (-not ($uri -contains "?")) 
+			{
 
                 $uri += "?"   
              
@@ -1591,7 +1695,8 @@ function Send-HPOVRequest {
 		        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Body: $($js)"
 
                 #Send the messege
-		        try {
+		        try 
+				{
 					
 					$stream = New-Object IO.StreamWriter $req.GetRequestStream()
 					$stream.AutoFlush = $True
@@ -1599,7 +1704,9 @@ function Send-HPOVRequest {
 					$stream.Close()
 
 				}
-				catch {
+
+				catch 
+				{
 
 					#$errorRecord = New-ErrorRecord $_.Exception.Source $_.CategoryInfo.Reason $_.CategoryInfo.Category 'Send-HPOVRequest' -Message $_.Exception.Message -InnerException $_.Exception.InnerException
                     $pscmdlet.ThrowTerminatingError($_)
@@ -1616,7 +1723,8 @@ function Send-HPOVRequest {
 
             Write-Debug "[$($MyInvocation.InvocationName.ToString().ToUpper())] [System.Net.HttpWebRequest] object details: $($req | select * -ExcludeProperty headers | out-string)"
 
-            try {
+            try 
+			{
 
                 #just to be sure this is cleared, if an exception is thrown
                 $script:lastWebResponse = $null 
@@ -1640,7 +1748,7 @@ function Send-HPOVRequest {
 
                 $resp = ConvertFrom-json $responseJson
 
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp | fl * -force | out-string)"
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp | Out-String)"
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Manual Pagination: $($manualPaging)"
 
                 #Handle multi-page result sets
@@ -1676,13 +1784,15 @@ function Send-HPOVRequest {
 				{
 
 					#workaround for PowerShell bug where a non-existent 
-					if ($resp.nextPageUri -and ($resp.nextPageUri -eq "" -or $resp.nextPageUri -eq $Null))
+					if (($resp.nextPageUri -eq "" -or $resp.nextPageUri -eq $Null) -or (-not($resp.nextPageUri)))
 					{
 
 						$nextPageUri = $False
 
 					}
-					else {
+
+					else 
+					{
 
 						$nextPageUri = $True
 
@@ -1691,20 +1801,23 @@ function Send-HPOVRequest {
 				}
 
                 #If asynchronous (HTTP status=202), make sure we return a Task object:
-                if ([int]$script:lastWebResponse.StatusCode -eq 202) {
+                if ([int]$script:lastWebResponse.StatusCode -eq 202) 
+				{
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Async Task (HTTP 202) received"
 
                     #Asynchronous operation -- in some cases we get the Task object returned in the body.
                     #In other cases, we only get the Task URI in the Location header.
                     #In either case, return a Task object with as much information as we know
-                    if ($script:lastWebResponse.Headers.Item('Location')) {
+                    if ($script:lastWebResponse.Headers.Item('Location')) 
+					{
 
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Async Task Location found in HTTP headers: $($script:lastWebResponse.Headers.Item('Location'))"
 
                         #Return custom task resource if response does not contain actual task resource
                         #if (-not $resp.type -and -not $resp.category -eq "TaskResourceV2" ) {   #$resp.type shouldn't be a condition here.
-                        if (-not ($resp.category -eq "tasks") ) {
+                        if (-not ($resp.category -eq "tasks") ) 
+						{
 
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Task Resource Object to return to caller."
 
@@ -1714,7 +1827,8 @@ function Send-HPOVRequest {
                             #First, make sure the task URI is relative:
                             $pos = $taskUri.IndexOf("/rest/")
 
-                            if ($pos -gt 0) {
+                            if ($pos -gt 0) 
+							{
 
                                 $taskUri = $taskUri.Substring($pos)
 
@@ -1723,7 +1837,8 @@ function Send-HPOVRequest {
                             $resp = Send-HPOVRequest $taskUri
 
 							#Handle previous Send-HPOVRequest call
-                            if ([int]$script:lastWebResponse.statusCode -eq 200) {
+                            if ([int]$script:lastWebResponse.statusCode -eq 200) 
+							{
                                 
                                 #Change the statusCode from 200 to 202, as wewant to reply to the caller with HTTP 202 as Async Task status.
                                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating HTTP statusCode property to 202"
@@ -1743,7 +1858,9 @@ function Send-HPOVRequest {
                         Return
 
                     }
-                    elseif (-not($resp)) {
+
+                    elseif (-not($resp)) 
+						{
 
                         $errorRecord = New-ErrorRecord InvalidOperationException RestAPIError InvalidResult 'Send-HPOVRequest' -Message 'SEND-HPOVREQUEST: REST API ERROR: The operation is asynchronous, but neither a Task resource or URI was returned!' #-verbose
                         throw $errorRecord
@@ -1752,39 +1869,46 @@ function Send-HPOVRequest {
                     
                     #We have recieved an async task, and need to break out of the Do/While loop
                     $taskRecieved = $true
+
                     return
 
                 }
 
 				#Handle Task Objects that have been directly accessed via task URI and not created async tasks (HTTP 202)
-				if ([int]$script:lastWebResponse.StatusCode -eq 200 -and $resp.category -eq "tasks" -and (-not($resp.PSObject.TypeNames -match "HPOneView.Appliance.TaskResource"))) {
+				if ([int]$script:lastWebResponse.StatusCode -eq 200 -and $resp.category -eq "tasks" -and (-not($resp.PSObject.TypeNames -match "HPOneView.Appliance.TaskResource"))) 
+				{
 					
 					$resp | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.TaskResource") }
 
 				}
 
-           } 
+			} 
        
-            catch [System.Net.WebException] { 
+            catch [System.Net.WebException] 
+			{ 
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Net.WebException Error caught"
                 
-                if ($_.Exception.InnerException -match "System.Net.WebException: Unable to connect to the remote server") { 
+                if ($_.Exception.InnerException -match "System.Net.WebException: Unable to connect to the remote server") 
+				{ 
                 
                     $errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException ApplianceNotResponding ResourceUnavailable 'Connect-HPOVMgmt' -Message "Unable to connect to '$Appliance' due to timeout." #-verbose
                     Throw $errorRecord
 
                 }
 
-                if ($_.Exception.InnerException) {
+                if ($_.Exception.InnerException) 
+				{
 
-                    if ($_.Exception.InnerException.Response) {
+                    if ($_.Exception.InnerException.Response) 
+					{
 
                         $script:lastWebResponse = $_.Exception.InnerException.Response
 
                     }
 
-                    else {
+                    else 
+					{
 
                         Write-Error $_.Exception.InnerException.Message
 
@@ -1792,22 +1916,27 @@ function Send-HPOVRequest {
 
                 } 
             
-                else {
+                else 
+				{
 
-                    if ($_.Exception.Response) {
+                    if ($_.Exception.Response) 
+					{
 
                         $script:lastWebResponse = $_.Exception.Response
 
                     }
 
-                    else {
+                    else 
+					{
 
                         Write-Error $_.Exception.Message
 
                     }
+
                 }
 
-                if ($script:lastWebResponse) {
+                if ($script:lastWebResponse) 
+				{
 
                     $rs = $script:lastWebResponse.GetResponseStream()
 
@@ -1823,18 +1952,38 @@ function Send-HPOVRequest {
                     foreach ($h in $script:lastWebResponse.Headers) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Header: $($h) = $($script:lastWebResponse.Headers[$i])"; $i++ }
                     
                     #Handle HTTP 404 Errors with no response messege.
-                    if ($global:ResponseErrorObject) { $global:ResponseErrorObject | Add-Member -MemberType NoteProperty -Name statusCode -Value ([int]$script:lastWebResponse.StatusCode) -Force }
-                    else { $global:ResponseErrorObject = [PsCustomObject]@{statusCode = ([int]$script:lastWebResponse.StatusCode); statusMessage = $($script:lastWebResponse.StatusDescription); lastCall = $uri } }
+                    if ($global:ResponseErrorObject) 
+					{ 
+						
+						$global:ResponseErrorObject | Add-Member -MemberType NoteProperty -Name statusCode -Value ([int]$script:lastWebResponse.StatusCode) -Force 
+					
+					}
 
-                    switch ([int]$script:lastWebResponse.StatusCode) {
+                    else 
+					{ 
+						
+						$global:ResponseErrorObject = [PsCustomObject]@{
+							
+							statusCode    = ([int]$script:lastWebResponse.StatusCode); 
+							statusMessage = $($script:lastWebResponse.StatusDescription); 
+							lastCall      = $uri 
+						
+						} 
+					
+					}
+
+                    switch ([int]$script:lastWebResponse.StatusCode) 
+					{
 
                         # Generic HTTP 400 error
-                        400 {
+                        400 
+						{
                             
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP 400 error caught."
 
                             #Hande initial authentication errors
-                            if ($global:ResponseErrorObject.errorCode -eq "AUTHN_AUTH_DIR_FAIL") {
+                            if ($global:ResponseErrorObject.errorCode -eq "AUTHN_AUTH_DIR_FAIL") 
+							{
 
                                 $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$($global:ResponseErrorObject.message)  $($global:ResponseErrorObject.recommendedActions)"
                                 $pscmdlet.ThrowTerminatingError($errorRecord)
@@ -1842,7 +1991,8 @@ function Send-HPOVRequest {
                             }
 							
 							#Handle invalid user session
-							elseif ($global:ResponseErrorObject.errorCode -eq "AUTHN_LOGOUT_FAILED") {
+							elseif ($global:ResponseErrorObject.errorCode -eq "AUTHN_LOGOUT_FAILED") 
+							{
 
 								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User session no longer valid, likely due to session timeout. Clearing library runtime global and script variables."
 
@@ -1855,7 +2005,9 @@ function Send-HPOVRequest {
                                 Throw $errorRecord
 
                             }
-                            else {
+
+                            else 
+							{
 
                                 if ($global:ResponseErrorObject.errorSource) { $source = $global:ResponseErrorObject.errorSource }
                                 else { $source = 'Send-HPOVRequest' }
@@ -1868,11 +2020,13 @@ function Send-HPOVRequest {
                         }
 
                         #User is unauthorized
-                        401 { 
+                        401 
+						{ 
 
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP 401 error caught."
                             
-                            if ( $global:ResponseErrorObject.details -cmatch "User not authorized for this operation" ) {
+                            if ( $global:ResponseErrorObject.details -cmatch "User not authorized for this operation" ) 
+							{
 
 								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($global:ResponseErrorObject.message) Request was '$method' at '$uri'."
 
@@ -1880,7 +2034,9 @@ function Send-HPOVRequest {
                                 Throw $errorRecord
 
                             }
-                            else {
+
+                            else 
+							{
                             
                                 $script:HPOneViewAppliance = $null
                                 $Script:PromptApplianceHostname = "Not Connected"
@@ -1892,16 +2048,32 @@ function Send-HPOVRequest {
                             }
 
                         }
-						403 {
+
+						403 
+						{
 							
 							$resp = $Null
-							if ($global:ResponseErrorObject.errorCode -eq "PASSWORD_CHANGE_REQUIRED") { $errorRecord = New-ErrorRecord HPOneview.Appliance.PasswordChangeRequired PasswordExpired PermissionDenied "URI" -Message ($global:ResponseErrorObject.message + " " + $global:ResponseErrorObject.recommendedActions) }
-							else { $errorRecord = New-ErrorRecord HPOneview.Appliance.ResourcePrivledgeException ResourcePrivledge PermissionDenied "URI" -Message ($global:ResponseErrorObject.message + " " + $global:ResponseErrorObject.recommendedActions) }
+
+							if ($global:ResponseErrorObject.errorCode -eq "PASSWORD_CHANGE_REQUIRED") 
+							{
+								
+								$errorRecord = New-ErrorRecord HPOneview.Appliance.PasswordChangeRequired PasswordExpired PermissionDenied "URI" -Message ($global:ResponseErrorObject.message + " " + $global:ResponseErrorObject.recommendedActions) 
+							
+							}
+
+							else 
+							{ 
+								
+								$errorRecord = New-ErrorRecord HPOneview.Appliance.ResourcePrivledgeException ResourcePrivledge PermissionDenied "URI" -Message ($global:ResponseErrorObject.message + " " + $global:ResponseErrorObject.recommendedActions) 
+							
+							}
+
                             Throw $errorRecord
 
                         }
 
-						404 {
+						404
+						{
 							
 							$resp = $Null
 
@@ -1924,10 +2096,22 @@ function Send-HPOVRequest {
 
                         }
 
-						500 {
+						500 
+						{
 
-							if ($global:ResponseErrorObject.details) { $message = $global:ResponseErrorObject.details }
-							else { $message = $global:ResponseErrorObject.message }
+							if ($global:ResponseErrorObject.details) 
+							{
+								 
+								$message = $global:ResponseErrorObject.details 
+							
+							}
+
+							else 
+							{
+								 
+								$message = $global:ResponseErrorObject.message 
+							
+							}
 							
 							if (-not($message.Substring($message.length - 1) -eq ".")) { $message += "." }
 							
@@ -1937,7 +2121,8 @@ function Send-HPOVRequest {
 						}
 
                         #Wait for appliance startup here by calling Wait-HPOVApplianceStart
-                        { @(503, 0) -contains $_ } {
+                        { @(503, 0) -contains $_ } 
+						{
                             
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP $([int]$script:lastWebResponse.StatusCode) error caught."
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Calling Wait-HPOVApplianceStart"
@@ -1946,12 +2131,25 @@ function Send-HPOVRequest {
 
                             #appliance startup should have finished.
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Returning caller back to: $($method.ToUpper()) $uri"
-                            if ($addHeader) { return (Send-HPOVRequest $uri $method $body $addHeader) }
-                            else { return (Send-HPOVRequest $uri $method $body) }
+
+                            if ($addHeader) 
+							{ 
+								
+								return (Send-HPOVRequest $uri $method $body $addHeader) 
+							
+							}
+
+                            else 
+							{
+								
+								return (Send-HPOVRequest $uri $method $body) 
+							
+							}
 
                         }
 
-                        501 {
+                        501 
+						{
 
                             $errorRecord = New-ErrorRecord InvalidOperationException $global:ResponseErrorObject.errorCode SyntaxError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: " + $global:ResponseErrorObject.message + " " + $global:ResponseErrorObject.recommendedActions) -InnerException $global:ResponseErrorObject.details #-verbose
                             Throw $errorRecord
@@ -1962,25 +2160,29 @@ function Send-HPOVRequest {
 
                 }
 
-                else {
+                else 
+				{
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Returning Null"
                     return $null
 
                 }
+
             }
 
         } until (($manualPaging) -or (-not($nextPageUri)))
 
     }
 
-    End {
+    End 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] END"
 
         $taskRecieved = $False
 
-        if ($allResults) { 
+        if ($allResults) 
+		{ 
 		
 			#$allResults | % {
 			#
@@ -1991,10 +2193,17 @@ function Send-HPOVRequest {
 			return $allResults 
 			
 		}
-        elseif ($resp) { 
+
+        elseif ($resp) 
+		{ 
         
             #If task resource, add the custom PSObject TypeName HPOneView.Appliance.TaskResource to object
-            if ($resp.category -eq "tasks" -and (-not($resp.PSObject.TypeNames -match "HPOneView.Appliance.TaskResource"))) { $resp | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.TaskResource") } }
+            if ($resp.category -eq "tasks" -and (-not($resp.PSObject.TypeNames -match "HPOneView.Appliance.TaskResource"))) 
+			{ 
+				
+				$resp | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.TaskResource") } 
+			
+			}
             
             return $resp 
             
@@ -2004,20 +2213,32 @@ function Send-HPOVRequest {
 
 }
 
-function Wait-HPOVApplianceStart {
+function Wait-HPOVApplianceStart 
+{
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
     
     [CmdletBinding()]
-    Param (
+    Param 
+	(
+
          [parameter(Position = 0, Mandatory = $false, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
          [ValidateNotNullOrEmpty()]
          [string]$Appliance = $script:HPOneViewAppliance
+
     )
 
-    Begin { 
+    Begin 
+	{
+		
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"  
     
-        if (-not($Appliance)) {
+        if (-not($Appliance)) 
+		{
 
             $errorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'Appliance' -Message "No parameter values" #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -2027,7 +2248,8 @@ function Wait-HPOVApplianceStart {
         $flag = $false <# Used to control displaying either output messages #> 
 
         #Check to see if SSL Certificate trust has been validated
-        if (-not($script:SSLCheckFlag)) {
+        if (-not($script:SSLCheckFlag)) 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SSL Certificate has not been checked before."
 
@@ -2042,9 +2264,11 @@ function Wait-HPOVApplianceStart {
         
     }
 
-    Process {
+    Process 
+	{
 
-        do {
+        do 
+		{
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Services not started. Monitoring startup progress"
             
@@ -2056,7 +2280,8 @@ function Wait-HPOVApplianceStart {
             $i = 0
             foreach ($h in $waitRequest.Headers) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Header $($i+1): $($h) = $($waitRequest.Headers[$i])"; $i++ }
 
-            try {
+            try 
+			{
 
                 #Get response from appliance
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting response..."
@@ -2065,7 +2290,8 @@ function Wait-HPOVApplianceStart {
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Received HTTP\$([int]$waitResponse.StatusCode) status."
 
                 #This will trigger when the GetResponse() does not generate an HTTP Error Code and get trapped by the Catch clause below
-                If ($flag) {
+                If ($flag) 
+				{
 
                     write-host "]"
 
@@ -2081,7 +2307,8 @@ function Wait-HPOVApplianceStart {
                 $resp = ConvertFrom-json $responseJson
                 
                 #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { 
+                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+				{ 
                     
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Percent Complete: $([Math]::Round(($resp.complete / $resp.total) * 100,$mathMode))"
@@ -2089,7 +2316,8 @@ function Wait-HPOVApplianceStart {
 
                 }
                   
-                else {
+                else 
+				{
 
                     #Display progress-bar
                     $percentComplete = [Math]::Round(($resp.complete / $resp.total) * 100,$mathMode)
@@ -2101,9 +2329,11 @@ function Wait-HPOVApplianceStart {
             }
 
             #Catch if we haven't received HTTP 200, as we should display a nice message stating services are still beginning to start
-            catch [Net.WebException] {
+            catch [Net.WebException] 
+			{
 
-                if ($waitResponse) {
+                if ($waitResponse) 
+				{
 
                     $rs = $waitResponse.GetResponseStream()
 
@@ -2120,15 +2350,20 @@ function Wait-HPOVApplianceStart {
                 write-verbose "$($waitResponse| Out-string)"
 
                 #Only want to display this message once.
-                if (-not $flag) {
+                if (-not $flag) 
+				{
+
                     Write-host "Waiting for services to begin starting [" -nonewline
+
                 }
 
-                if (-not ([int]$waitResponse.StatusCode -eq 200)) {
+                if (-not ([int]$waitResponse.StatusCode -eq 200))
+				{
 
                     Write-host "*" -nonewline -ForegroundColor Green
                     $flag = $true
                     start-sleep -s 5
+
                 }
 
                 $waitRequest = $null
@@ -2138,7 +2373,8 @@ function Wait-HPOVApplianceStart {
 
     }
 
-    end {
+    end 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Web Services have started successfully"
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Pausing 5 seconds to let web services finish their final startup"
@@ -2150,12 +2386,15 @@ function Wait-HPOVApplianceStart {
     }
 }
 
-function Connect-HPOVMgmt {
+function Connect-HPOVMgmt 
+{
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
-    Param(
+    Param
+	(
+
          [parameter(Mandatory = $true, HelpMessage = "Enter the appliance DNS name or IP",Position=0)]
          [ValidateNotNullOrEmpty()]
          [string] $appliance,
@@ -2173,14 +2412,21 @@ function Connect-HPOVMgmt {
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [String]$password
+
     )
 
-    Begin {
+    Begin 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
         #Check to see if the user is already connected
-        if ($global:cimgmtSessionId) {
+        if ($global:cimgmtSessionId) 
+		{
         
             #write-error -Category ResourceExists "You are already logged into $Appliance. Please use Disconnect-HPOVMgmt to end your existing session, and then call Connect-HPOVMgmt again." -ErrorAction Stop
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException ResourceExists AuthenticationError $script:HPOneViewAppliance -Message "You are already logged into $Appliance. Please use Disconnect-HPOVMgmt to end your existing session, and then call Connect-HPOVMgmt again." #-verbose
@@ -2188,23 +2434,27 @@ function Connect-HPOVMgmt {
 
         }
 
-        else {
+        else 
+		{
 
-            if (-not($password)){
+            if (-not($password))
+			{
 
                 [SecureString]$password = read-host -AsSecureString "Password"
                 $decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
             
             }
 
-            else {
+            else 
+			{
 
                 $decryptPassword = $password
 
             }
 
             #Handle connecting to other appliances where SSL Cert validation has not ocurred yet.
-            if ($Appliance -ne $script:HPOneViewAppliance -and -not $script:HPOneViewAppliance -eq $Null) { 
+            if ($Appliance -ne $script:HPOneViewAppliance -and -not $script:HPOneViewAppliance -eq $Null) 
+			{ 
                 
                 Disconnect-HPOVMgmt
             
@@ -2215,11 +2465,13 @@ function Connect-HPOVMgmt {
             #Check to make sure the appliance X-API-Version is at least the supported minimum
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Checking X-API Version"
             
-            try {
+            try 
+			{
             
                 $applianceVersion = (Send-HPOVRequest $script:applXApiVersion).currentVersion
 
-                if ($applianceVersion -and $applianceVersion -lt $script:applMinVersion ) {
+                if ($applianceVersion -and $applianceVersion -lt $script:applMinVersion ) 
+				{
 
                     #Display terminating error
                     $errorRecord = New-ErrorRecord System.NotImplementedException LibraryTooNew OperationStopped $script:HPOneViewAppliance -Message "The appliance you are connecting to supports an older version of this library.  Please visit https://github.com/HewlettPackard/POSH-HPOneView for a supported version of the library." #-verbose
@@ -2228,14 +2480,17 @@ function Connect-HPOVMgmt {
                 }
 
             }
-            catch [HPOneView.Appliance.NetworkConnectionException] {
+
+            catch [HPOneView.Appliance.NetworkConnectionException] 
+			{
 
                 $errorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException ($_.FullyQualifiedErrorId -split(","))[0] $_.CategoryInfo.Category 'Connect-HPOVMgmt' -TargetType "CMDLET" -Message $_.Exception.Message #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
             }
 
-            catch {
+            catch 
+			{
 
                 write-error $_ -TargetObject "Connect-HPOVMgmt" -ErrorAction Stop 
 
@@ -2245,11 +2500,13 @@ function Connect-HPOVMgmt {
     
     }
 
-    Process {
+    Process 
+	{
 
         $authinfo = @{userName=$user; password=$decryptPassword; authLoginDomain=$authProvider}
 
-        try {
+        try 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending auth request"
             
@@ -2257,7 +2514,8 @@ function Connect-HPOVMgmt {
 
         } 
 
-        catch [HPOneView.Appliance.AuthSessionException] {
+        catch [HPOneView.Appliance.AuthSessionException] 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Username, Password or Auth Directory"
 
@@ -2266,7 +2524,8 @@ function Connect-HPOVMgmt {
 
         }
 
-		catch [HPOneview.Appliance.PasswordChangeRequired] {
+		catch [HPOneview.Appliance.PasswordChangeRequired] 
+		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Password needs to be changed. Use Set-HPOVInitialPassword if this is first time setup, or Set-HPOVUserPassword to update your own accounts password."
 
@@ -2276,7 +2535,8 @@ function Connect-HPOVMgmt {
         
         }
 		    
-        catch [Net.WebException] {
+        catch [Net.WebException] 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp)"
             
@@ -2294,13 +2554,15 @@ function Connect-HPOVMgmt {
 
     }
 
-    end {
+    end 
+	{
 
         $global:er = $resp
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] RESP: $($resp)"
 
         #If a sessionID is returned, then the user has authenticated
-        if ($resp.sessionID) {
+        if ($resp.sessionID) 
+		{
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Session token received: $($resp.sessionID)"
                 
@@ -2324,23 +2586,36 @@ function Connect-HPOVMgmt {
             #Get list of supported Roles from the appliance
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of supported roles from appliance."
 
-            try { $script:applSecurityRoles = (Send-HPOVRequest /rest/roles).members.roleName }
+            try 
+			{ 
+				
+				$script:applSecurityRoles = (Send-HPOVRequest /rest/roles).members.roleName 
+			
+			}
 
-            catch [HPOneview.Appliance.AuthPrivilegeException] { $script:applSecurityRoles = $Null }
+            catch [HPOneview.Appliance.AuthPrivilegeException] 
+			{ 
+				
+				$script:applSecurityRoles = $Null 
+			
+			}
 
         }
 
-        else { 
+        else 
+		{ 
             
             #Need to generate error when auth fails due to invalid username or password
-            if ([int]$resp.statusCode -eq 400) {
+            if ([int]$resp.statusCode -eq 400) 
+			{
 
                 $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError "UserName" -Message "You entered an invalid username or password. Please check your credentials and try again." -InnerException "$($resp.errorCode) $($resp.statusCode) $($resp.details)" #-verbose
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
             }
 
-            else {
+            else 
+			{
                     
                 return $resp 
             }
@@ -2351,59 +2626,79 @@ function Connect-HPOVMgmt {
 
 }
 
-function Show-HPOVAppliance {
+function Show-HPOVAppliance 
+{
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
     Param()
 
-    Begin {
+    Begin 
+	{
     
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
     
     }
 
-    Process {
+    Process 
+	{
 
         $script:applianceConnectedTo
     
     }
 
-    End {
+    End 
+	{
 
 
     }
 
 }
 
-function Disconnect-HPOVMgmt {
+function Disconnect-HPOVMgmt 
+{
     
     # .ExternalHelp HPOneView.120.psm1-help.xml
     
     [CmdletBinding()]
     Param()
 
-    Begin {
+    Begin 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-        If (-not($global:cimgmtSessionId)) { 
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
+        If (-not($global:cimgmtSessionId)) 
+		{ 
 
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession ResourceUnavailable 'Disconnect-HPOVMgmt' -Message "No valid logon session available.  Please use Connect-HPOVMgmt to connecto to an appliance, and then use Disconnect-HPOVmgmt to terminate your session." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
             
         }
+
     }
 
-    Process {
+    Process 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending Delete Session ID request"
 
-		Try {
+		Try 
+		{
 			
 			Send-HPOVRequest $loginSessionsUri DELETE $global:cimgmtSessionId
 
-			if ([int]$script:lastWebResponse.StatusCode -eq 204) {
+			if ([int]$script:lastWebResponse.StatusCode -eq 204) 
+			{
 			
 			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Successfully logged off"
 
@@ -2417,7 +2712,8 @@ function Disconnect-HPOVMgmt {
 			    $global:cimgmtSessionId         = $null
 
 			    #Clear the System.Net.ServicePointManager Certificate Policy
-			    if ([System.Net.ServicePointManager]::CertificatePolicy) {
+			    if ([System.Net.ServicePointManager]::CertificatePolicy) 
+				{
 
 			        #Restore System.Net.ServicePointManager
 			        [System.Net.ServicePointManager]::CertificatePolicy = $Null
@@ -2429,7 +2725,8 @@ function Disconnect-HPOVMgmt {
 
 			}
 
-			else {
+			else 
+			{
 
 			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logoff request failed. Response code: $([int]$script:lastWebResponse.StatusCode)"
 			    $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff InvalidResult 'Disconnect-HPOVMgmt' -Message "Unable to remove your session" -InnerException "$($resp.errorCode) $($resp.statusCode) $($resp.details)" #-verbose
@@ -2439,7 +2736,8 @@ function Disconnect-HPOVMgmt {
 
 		}
 
-		Catch {
+		Catch 
+		{
 
 			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff InvalidResult 'Disconnect-HPOVMgmt' -Message ($_.Exception.Message.ToString())
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -2450,12 +2748,14 @@ function Disconnect-HPOVMgmt {
 
 }
 
-function New-HPOVResource {
+function New-HPOVResource 
+{
     
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
-    Param (
+    Param 
+	(
 
          [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the URI string of the resource type to be created")]
          [ValidateNotNullOrEmpty()]
@@ -2465,11 +2765,19 @@ function New-HPOVResource {
          [ValidateNotNullOrEmpty()]
          [object] $resource
     
-		 )
+	)
 
-    Begin {
+    Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
+        if (-not($global:cimgmtSessionId)) 
+		{
         
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError "New-HPOVResource" -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -2478,20 +2786,37 @@ function New-HPOVResource {
 
     }
 
-    Process {
+    Process 
+	{
 
-        Send-HPOVRequest $uri POST $resource
+		Try
+		{
+
+			Send-HPOVRequest $uri POST $resource
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+        
 
     }
 
 }
 
-function Set-HPOVResource {
+function Set-HPOVResource 
+{
     
     # .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdletBinding()]
-    Param (
+    Param 
+	(
+
          [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the resource object that has been modifed")]
          [ValidateNotNullOrEmpty()]
          [ValidateScript({$_.Uri})]
@@ -2499,11 +2824,20 @@ function Set-HPOVResource {
 
          [parameter(Mandatory = $false)]
          [string]$force = $false
+
     )
     
-    Begin {
+    Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
+        if (-not($global:cimgmtSessionId)) 
+		{
         
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError $script:HPOneViewAppliance -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -2512,43 +2846,66 @@ function Set-HPOVResource {
 
     }
 
-    Process {
+    Process 
+	{
 
         $uri = $resource.uri
 
         if ($force -eq $true) { $uri += "?force=true" }
+
+		Try
+		{
         
-        Send-HPOVRequest $uri PUT $resource
+			Send-HPOVRequest $uri PUT $resource
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
 
     }
 
 }    
 
-function Remove-HPOVResource {
+function Remove-HPOVResource 
+{
     
     # .ExternalHelp HPOneView.120.psm1-help.xml
      
     [CmdletBinding(DefaultParameterSetName = "nameOrUri")]
-    Param (
-          [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "resource", HelpMessage = "Enter the PowerShell variable name of the resource object.")]
-          [ValidateScript({$_.uri})]
-          [Alias("ro")]
-          [object] $resource,
+    Param 
+	(
 
-          [parameter(Position = 0, Mandatory = $true, ParameterSetName = "nameOrUri", HelpMessage = "Enter the URI of the resource.")]
-          [ValidateNotNullOrEmpty()]
-          [Alias("uri","name")]
-          [string] $nameOruri,
+		[parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "resource", HelpMessage = "Enter the PowerShell variable name of the resource object.")]
+		[ValidateScript({$_.uri})]
+		[Alias("ro")]
+		[object] $resource,
 
-          [parameter(Mandatory = $false)]
-          [switch] $force
-        )
+		[parameter(Position = 0, Mandatory = $true, ParameterSetName = "nameOrUri", HelpMessage = "Enter the URI of the resource.")]
+		[ValidateNotNullOrEmpty()]
+		[Alias("uri","name")]
+		[string] $nameOruri,
 
-    Begin {
+		[parameter(Mandatory = $false)]
+		[switch] $force
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $($pscmdlet.CommandOrigin)"
+	)
 
-        if (-not($global:cimgmtSessionId)) {
+    Begin 
+	{
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+
+        if (-not($global:cimgmtSessionId)) 
+		{
         
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError $script:HPOneViewAppliance -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -2557,13 +2914,16 @@ function Remove-HPOVResource {
 
     }
 
-    Process {
+    Process 
+	{
          
         $deleteUri = $null
 
-        switch ($PsCmdlet.ParameterSetName) { 
+        switch ($PsCmdlet.ParameterSetName) 
+		{ 
 
-            "resource"  { 
+            "resource"  
+			{ 
                 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource object passed."
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Name: $($resource.name)"
@@ -2574,10 +2934,12 @@ function Remove-HPOVResource {
                 
             }
          
-            "nameOrUri"  {
+            "nameOrUri"  
+			{
                 
                 #nameOrUri value is a URI
-                if($nameOrUri.StartsWith("/rest")){
+                if($nameOrUri.StartsWith("/rest"))
+				{
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource URI passed: $($nameOrUri)"
 
@@ -2586,52 +2948,103 @@ function Remove-HPOVResource {
                 }
 
                 #It's a string value
-                else {
+                else 
+				{
                     
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource name provided: $($nameOrUri)"
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Querying appliance index for resource."
 
                     #Use Index filtering to locate object
-                    $resources = Send-HPOVRequest ($indexUri + "?filter=name='$nameOrUri'")
+					Try
+					{
+					
+						$resources = Send-HPOVRequest ($indexUri + "?filter=name='$nameOrUri'")
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found $($resources.count) resources."
 
-                    if($resources.members){
+                    if($resources.members)
+					{
 
                         #Error should only be displayed if a Name was provided, and it wasn't globally unique on the appliance (i.e. Server Profile and Ethernet Network with the same name, which is completely valid.)
-                        if($resources.count -gt 1){
+                        if($resources.count -gt 1)
+						{
                             
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resources found: $($resources.members | % { $_.name + " of type " + $_.category })"
-                            $errorRecord = New-ErrorRecord InvalidOperationException ResourceNotUnique LimitsExceeded 'nameOrUri' -Message "'$nameOrUri' is not unique.  Located $($resources.count) resources with the same value." #-verbose
+                            
+							$errorRecord = New-ErrorRecord InvalidOperationException ResourceNotUnique LimitsExceeded 'nameOrUri' -Message "'$nameOrUri' is not unique.  Located $($resources.count) resources with the same value." #-verbose
                             $pscmdlet.ThrowTerminatingError($errorRecord)
 
                         }
 
-                        else { 
+                        else
+						{ 
                         
                             #If $resources.members is an Array, get the first item which should be the only item in the array
-                            if ($resources.members -is [array]) { $deleteUri = $resources.members[0].uri }
+                            if ($resources.members -is [array]) 
+							{ 
+								
+								$deleteUri = $resources.members[0].uri 
+							
+							}
 
                             #Else, return the URI of the hashtable member
-                            else { $deleteUri = $resources.members.uri }
+                            else 
+							{ 
+								
+								$deleteUri = $resources.members.uri 
+							
+							}
+
                         }
+
                     }
 
-                    else { 
+                    else 
+					{ 
 
                         $errorRecord = New-ErrorRecord InvalidOperationException ResourceNotFound ObjectNotFound 'nameOrUri' -Message "Resource '$nameOrUri' not found. Please check the resource value provided and try the call again." #-verbose
                         $pscmdlet.ThrowTerminatingError($errorRecord)
 
                     }
+
                 }
-            }     
+
+            }   
+			  
         }
     
-        if ($deleteUri) {
+        if ($deleteUri) 
+		{
 
-            if ([bool]$force) { $deleteUri += "?force=true" }
+            if ([bool]$force) 
+			{ 
+				
+				$deleteUri += "?force=true" 
+			
+			}
 
-            Send-HPOVRequest $deleteUri DELETE
+			Try
+			{
+
+				Send-HPOVRequest $deleteUri DELETE
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
         }
 
@@ -2639,23 +3052,31 @@ function Remove-HPOVResource {
 
 }
 
-function Set-DefaultDisplay ($resources, [string[]]$defProps) {
+function Set-DefaultDisplay ($resources, [string[]]$defProps) 
+{
 <#
      .DESCRIPTION 
      Handy internal utility function to set default display properties
 #>
     $defDisplayProps = New-Object -TypeName System.Management.Automation.PSPropertySet -ArgumentList DefaultDisplayPropertySet, $defProps
+
     $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]$defDisplayProps 
 
-    ForEach ($resource in $resources) {
+    ForEach ($resource in $resources) 
+	{
+
         Add-Member -InputObject $resource -MemberType MemberSet -Name PSStandardMembers -Value $PSStandardMembers -Force
+
     }
+
 }
 
-function ConvertFrom-HTML {
+function ConvertFrom-HTML 
+{
 
     [CmdletBinding()]
-    param(
+    param
+	(
 
         [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $True)]
         [ValidateNotNullOrEmpty()]
@@ -2665,9 +3086,19 @@ function ConvertFrom-HTML {
         
     )
 
-    Begin { }
+    Begin 
+	{ 
+	
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-    Process {
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller" 
+	
+	}
+
+    Process 
+	{
         
         # remove line breaks, replace with spaces
         if (-not ($NoClobber.ispresent)) { $html = $html -replace "(`r|`n|`t)", " " }
@@ -2706,9 +3137,11 @@ function ConvertFrom-HTML {
             @("&amp;(.{2,6});", ""),
             @("&nbsp;", " ")
         ) | % { $html = $html -replace $_[0], $_[1] }
+
     }
 
-    End {
+    End 
+	{
     
         return $html
 
@@ -11509,14 +11942,14 @@ function Get-HPOVSanManager {
         #Filter results for specific SAN Manager
         if ($SanManager) { 
         
-            $sanManagers = $sanManagers | where { $_.name -eq $SanManager } 
+            $sanManagers.members = $sanManagers.members | where { $_.name -eq $SanManager } 
 
             #Generate Terminating Error if resource not found
-            if (-not($sanManagers)) {
+            if (-not($sanManagers.members)) {
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Managed SAN '$($SanManager)' not found."
                     
-                $errorRecord = New-ErrorRecord InvalidOperationException SanManagerResourceNotFound ObjectNotFound 'Get-HPOVSanManager' -Message "Request SAN Manager '$($SanManager)' not found.  Please check the name and try again." #-verbose
+                $errorRecord = New-ErrorRecord InvalidOperationException SanManagerResourceNotFound ObjectNotFound 'SanManager' -Message "Request SAN Manager '$($SanManager)' not found.  Please check the name and try again." #-verbose
                     
                 #Generate Terminating Error
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -11957,7 +12390,7 @@ function Remove-HPOVSanManager {
 
                     if ($pscmdlet.ShouldProcess($manager.Name,"Remove SAN Manager from appliance?")){
                         if ([bool]$force) { Remove-HPOVResource -nameOrUri $manager.uri -force }
-                        else { Remove-HPOVResource -nameOrUri $manager } 
+                        else { Remove-HPOVResource -nameOrUri $manager.uri } 
                         #Remove-HPOVResource -nameOrUri $enclosureNameOrUri -force $force
                     }
 
@@ -11977,7 +12410,7 @@ function Remove-HPOVSanManager {
 
                 if ($pscmdlet.ShouldProcess($Manager.Name,"Remove SAN Manager from appliance?")){    
                     if ([bool]$force) { Remove-HPOVResource -nameOrUri $manager.uri -force }
-                    else { Remove-HPOVResource -nameOrUri $manager } 
+                    else { Remove-HPOVResource -nameOrUri $manager.uri } 
                     #Remove-HPOVResource -nameOrUri $Manager.uri
                 }
                   
@@ -18556,18 +18989,20 @@ function New-HPOVProfile {
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SAN Storage being requested"
             
+				# // QUIX QXCR1001458320
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of available storage systems"
+
                 #Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
                 $availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$($serverProfile.enclosureGroupUri)&serverHardwareTypeUri=$($serverHardwareType.uri)")).members
-
+				
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage Systems: $($availStorageSystems | fl | out-string)"
-
+				
                 #Error on no available storage systems
                 if (-not ($availStorageSystems)) {
-
+				
                     $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoAvailableStorageSystems ObjectNotFound 'SANStorage' -Message "No available storage systems found for '$($serverHardwareType.name)' Server Hardware Type and '$((Send-HPOVRequest $serverProfile.enclosureGroupUri).name)' Enclosure Group.  Please verify an available Storage System exists, and has connectivity to the destination server or Enclosure Group." #-verbose
 				    $pscmdlet.ThrowTerminatingError($errorRecord)  
-
+				
                 }
                 
                 $serverProfile.sanStorage = [pscustomobject]@{
@@ -19898,47 +20333,45 @@ function New-HPOVProfileAttachVolume {
 	[CmdLetBinding(DefaultParameterSetName = "Default")]
     Param (
 
-        [parameter(Mandatory = $true,ParameterSetName = "Default")]
-        [parameter(Mandatory = $True,ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $True,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $True,ParameterSetName = "DynamicVolAttachManual")]
+        [parameter(Position = 0, Mandatory = $true, ParameterSetName = "Default")]
+        [parameter(Position = 0, Mandatory = $True, ParameterSetName = "ManualLunIdType")]
+        [parameter(Position = 0, Mandatory = $True, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Position = 0, Mandatory = $True, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
-	    [parameter(Position=0)]
 		[Alias('id')]
         [int]$VolumeID = 1,
 
-        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "Default")]
-        [parameter(Mandatory = $True, ValueFromPipeline = $True, ParameterSetName = "ManualLunIdType")]
+        [parameter(Position = 1,Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "Default")]
+        [parameter(Position = 1,Mandatory = $True, ValueFromPipeline = $True, ParameterSetName = "ManualLunIdType")]
 		[ValidateNotNullOrEmpty()]
-	    [parameter(Position=1)]
         [object]$Volume = $Null,
 
-        [parameter(Mandatory = $true,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $true,ParameterSetName = "DynamicVolAttachManual")]
+        [parameter(Mandatory = $true, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $true, ParameterSetName = "DynamicVolAttachManual")]
         [object]$Name,
 
         [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "DynamicVolAttachAuto")]
         [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "DynamicVolAttachManual")]
         [object]$StoragePool,
 
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachManual")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
         [object]$StorageSystem,
 
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachManual")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
         [int64]$Capacity,
 
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
         [switch]$full,
 
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachManual")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
         [switch]$permanent,
 
-		[parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachManual")]
+		[parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
         [switch]$shared,
 
         [parameter(Mandatory = $False,ParameterSetName = "Default")]
@@ -19950,17 +20383,16 @@ function New-HPOVProfileAttachVolume {
 		[Alias('type')]
         [string]$LunIdType = "Auto",
 
-        [parameter(Mandatory = $True,ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $True,ParameterSetName = "DynamicVolAttachManual")]		
+        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]
+        [parameter(Mandatory = $True, ParameterSetName = "DynamicVolAttachManual")]		
         [ValidateRange(0,254)]
         [int]$LunID,
 
-        [parameter(Mandatory = $false,ParameterSetName = "Default")]
-        [parameter(Mandatory = $false,ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $false,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $false,ParameterSetName = "DynamicVolAttachManual")]
+        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "ManualLunIdType")]
+        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateRange(1,32)]
-	    [parameter(Position=4)]
         [int]$ProfileConnectionID
 
 	)
