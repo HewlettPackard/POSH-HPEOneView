@@ -30,6 +30,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.40.0
+	 -- Fixed Connect-HPOVMgmt where if the users PC didn't have .Net 4.6 Framework installed,
+        the appliance connection would never complete successfully and leave a stale object behind.
+	 -- Fixed restclient internal helper class to use SubjectAlternativName value of the Certificate
+        to address Windows 7 and Server 2008 systems.
+     -- [Installer] Updated the installer to detect if .Net Framework 4.6 and Windows Management
+        Framework 4.0 are installed. If not, installer will download and assist installing
+        requirements.
+
+    Release 2.0.22.0
+	 -- Fixed Get-HPOVStorageVolume where the exception 'HPOneView.StorageVolumeResourceException'
+        wasn't defined.
+
     Release 2.0.10.15
 	 -- HPE OneView 2.00 PowerShell library Release.
 	 -- Fixed issue with missing PowerShell 'ModuleVersion' string in HPOneView.200.psd1.

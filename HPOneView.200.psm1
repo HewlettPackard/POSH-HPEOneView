@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.10.15"
+[version]$script:ModuleVersion = "2.0.40.0"
 $Global:CallStack = Get-PSCallStack
 $verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -1834,6 +1834,30 @@ namespace HPOneView
 
     }
 
+	public class StorageVolumeResourceException : Exception
+    {
+
+        public StorageVolumeResourceException() : base() { }
+        public StorageVolumeResourceException(string message) : base(message) { }
+        public StorageVolumeResourceException(string message, Exception e) : base(message, e) { }
+
+        private string strExtraInfo;
+        public string ExtraErrorInfo
+        {
+            get
+            {
+                return strExtraInfo;
+            }
+
+            set
+            {
+                strExtraInfo = value;
+            }
+
+        }
+
+    }
+
 	public class SanManagerResourceException : Exception
     {
 
@@ -2310,6 +2334,7 @@ function NewObject
 		[switch]$BulkEthernetNetworks,
 		[switch]$FCNetwork,
 		[switch]$FCoENetwork,
+		[switch]$NetworkSet,
 		[switch]$ProfileConnection,
 		[switch]$ServerProfileStorageVolume,
 		[switch]$EphemeralStorageVolume,
@@ -2451,6 +2476,7 @@ function NewObject
 				}	
 
 			}
+
 			'AuthDirectory'
 			{
 
@@ -2548,7 +2574,6 @@ function NewObject
 
 			'PowerDeliveryDeviceAdd'
 			{
-
 
 				Return [PSCustomObject]@{
 
@@ -2979,6 +3004,20 @@ function NewObject
 
 				}
 				
+			}
+
+			'NetworkSet'
+			{
+
+				Return [PSCustomObject] @{
+
+					type             = "network-set"; 
+					name             = $null; 
+					networkUris      = System.Collections.ArrayList; 
+					nativeNetworkUri = $null; 
+	    		
+				}
+
 			}
 
 			'EnclosureGroup'
@@ -4107,15 +4146,26 @@ function RestClient
  
             $_certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]$args[1]
 
+            try 
+			{ 
+				
+				$_san = ($_certificate.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", " 
+			
+			}
 
-            try { $_san = ($_certificate.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", " }
-            catch { $_san = $null }
+            catch 
+			{ 
+				
+				$_san = $null 
+			
+			}
 
             $_chain = New-Object Security.Cryptography.X509Certificates.X509Chain 
 
             [void]$_chain.ChainPolicy.ApplicationPolicy.Add("1.3.6.1.5.5.7.3.1")
 
             $_status = $_chain.Build($_certificate)
+
             if ($_chain.ChainStatus) { $_chainstatus = $_chain.ChainStatus | % { $_.Status.ToString() } }
 
             $_certObject = [HPOneView.PKI.SslCertificate] @{
@@ -4129,7 +4179,8 @@ function RestClient
 
             }
 
-            if ($_certificate.DnsNameList -contains $_WebRequest.Host -and (-not($_status)) -and ($_chainstatus -contains "UntrustedRoot"))
+			# // Check _san as well?  DnsNameList is likely not enough, and is failing cert chain validation in some cases with DCS.
+            if (($_certificate.DnsNameList -contains $_WebRequest.Host -or $_certObject.SubjectAlternativeNames -match $_WebRequest.Host) -and (-not($_status)) -and ($_chainstatus -contains "UntrustedRoot"))
             {
 
                 if (-not(($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host).SslChecked))
@@ -5514,6 +5565,19 @@ function Connect-HPOVMgmt
         #Create the connection object for tracking
         else 
         {
+
+			# Look for Connection where Name exists but SessionID does not, and remove the object from $ConnectedSessions
+			if ((${Global:ConnectedSessions}.Name -contains $Hostname) -and (-not(${Global:ConnectedSessions} | ? { $_.name -eq $Hostname}).SessionID)) 
+			{
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found incomplete session object in $ConnectedSessions for '$Hostname'. Removing."
+
+				#Found incomplete session connection. must remove it from the collection first.
+				$_ndx = [array]::IndexOf(${Global:ConnectedSessions}, (${Global:ConnectedSessions}.Name -contains $Hostname))
+
+				[void]$TaskCollection.RemoveAt($_ndx)
+			        
+			}
 
             write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating Session Container"
 
@@ -24496,7 +24560,8 @@ function Remove-HPOVNetwork
 
 }
 
-function New-HPOVNetworkSet {
+function New-HPOVNetworkSet 
+{
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
@@ -24504,37 +24569,92 @@ function New-HPOVNetworkSet {
     Param 
 	(
 
-       [parameter (Position=0,Mandatory = $True)]
-       [String]$Name = $null,
+		[parameter (Position = 0,Mandatory = $True)]
+		[String]$Name = $null,
 
-       [parameter (Position=1,Mandatory = $True)]
-       [alias('networkUris')]
-       [Object]$Networks = $null,
+		[parameter (Position = 1,Mandatory = $True)]
+		[alias('networkUris')]
+		[Object]$Networks = $null,
 
-       [parameter (Position=2,Mandatory = $False)]
-       [Alias ('untagged','native','untaggedNetworkUri')]
-       [Object]$UntaggedNetwork = $null,
+		[parameter (Position = 2,Mandatory = $False)]
+		[Alias ('untagged','native','untaggedNetworkUri')]
+		[Object]$UntaggedNetwork = $null,
 
-       [parameter (Position=3,Mandatory = $False)]
-       [int32]$typicalBandwidth = 2500,
+		[parameter (Position = 3,Mandatory = $False)]
+		[int32]$typicalBandwidth = 2500,
 
-       [parameter (Position=4,Mandatory = $False)]
-       [int32]$maximumBandwidth = 10000
+		[parameter (Position = 4,Mandatory = $False)]
+		[int32]$maximumBandwidth = 10000,
+	
+		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, position = 5)]
+		[ValidateNotNullorEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = $Null
 
     )
 	
-	Begin {
+	Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
-        
-            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError "New-HPOVNetworkSet" -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-        }
+		$Caller = (Get-PSCallStack)[1].Command
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		$c = 0
+
+		ForEach ($_Connection in $ApplianceConnection) 
+		{
+
+			Try 
+			{
+	
+				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			$c++
+
+		}
 
 	}
 	
-	Process {
+	Process 
+	{
+
+		ForEach ($_connection in $ApplianceConnection)
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_connection.Name)' Appliance Connection"
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Building NetworkSet '$($name) object."
+
+			$_NewNetSet = Newobject -NetworkSet
+
+			# Validate Networks if they are objects, and ApplianceConnection prop matches $_connection.Name value
+
+			# Validate NativeNetwork if it is an object, and ApplianceConnection prop matches $_connection.Name value
+
+
+		}
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requesting to create $($name)"
 
