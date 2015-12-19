@@ -113,8 +113,6 @@
 				</ListEntries>
 			</ListControl>
 		</View>
-
-
     <!--ApplianceSnmpCommunity FT-->
     <View>
       <Name>SnmpCommunity</Name>
@@ -141,6 +139,45 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>communityString</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--GlobalSetting FT-->
+    <View>
+      <Name>GlobalSetting</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.GlobalSetting</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Value</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>value</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

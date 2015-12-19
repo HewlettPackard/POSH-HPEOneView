@@ -86,8 +86,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
-    <!--// TODO -->
     <!--ServerHardware FL-->
     <View>
       <Name>ServerHardware</Name>
@@ -365,8 +363,6 @@
         </ListEntries>
       </ListControl>
     </View>
-    
-    
     <!--Server_Profile_Connections FT-->
     <View>
       <Name>connections</Name>
@@ -544,7 +540,7 @@
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>"$(($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}).count)/$($_.deviceBays.count)"</ScriptBlock>
+                <ScriptBlock>"{0}/{1}" -f (($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}) | Measure-Object).Count,$_.deviceBays.count</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -590,7 +586,7 @@
               </ListItem>
               <ListItem>
                 <Label>Populated Bays</Label>
-                <ScriptBlock>"$(($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}).count)/$($_.deviceBays.count)"</ScriptBlock>
+                <ScriptBlock>"{0}/{1}" -f (($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}) | Measure-Object).Count,$_.deviceBays.count</ScriptBlock>
               </ListItem>          
             </ListItems>
           </ListEntry>

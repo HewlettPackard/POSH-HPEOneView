@@ -76,8 +76,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    
-    
     <!--Storage.Volume FT-->
     <View>
       <Name>StorageVolume</Name>
@@ -143,9 +141,9 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes")).members
+                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes") -Hostname $_.ApplianceConnection.Name).members
                   if ($associationProfileToVol) {
-                  $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri).name }
+                  $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri -Hostname $_.ApplianceConnection.Name).name }
                   [Array]::Sort([array]$profileNames)
                   $profileNames
                   }
@@ -226,9 +224,9 @@
               <ListItem>
                 <Label>Used By</Label>
                 <ScriptBlock>
-                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes")).members
+                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes") -Hostname $_.ApplianceConnection.Name).members
                   if ($associationProfileToVol) {
-                  $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri).name }
+                  $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri -Hostname $_.ApplianceConnection.Name).name }
                   [Array]::Sort([array]$profileNames)
                   $profileNames
                   }
@@ -241,7 +239,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
     <!--Storage.System.Pool FT-->
     <View>
       <Name>StorageSystemPool</Name>
@@ -299,7 +296,7 @@
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>domain</PropertyName>
@@ -350,7 +347,7 @@
               </ListItem>
               <ListItem>
                 <Label>Storage System</Label>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Domain</Label>
@@ -378,19 +375,17 @@
               </ListItem>
               <ListItem>
                 <Label>Volumes</Label>
-                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?category=storage-volumes&amp;query=storage_volume_storagepool_uri:'$($_.uri)'").count</ScriptBlock>
+                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?category=storage-volumes&amp;query=storage_volume_storagepool_uri:'$($_.uri)'" -Hostname $_.ApplianceConnection.Name).count</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Volume Templates</Label>
-                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?sort=name:asc&amp;category=storage-volume-templates&amp;query=storagePoolUri:'$($_.uri)'").count</ScriptBlock>
+                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?sort=name:asc&amp;category=storage-volume-templates&amp;query=storagePoolUri:'$($_.uri)'" -Hostname $_.ApplianceConnection.Name).count</ScriptBlock>
               </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
       </ListControl>
     </View>
-    
-    
     <!--Storage.SanManager FT-->
     <View>
       <Name>SanManager</Name>
@@ -578,7 +573,7 @@
                 <PropertyName>principalSwitch</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>($_.publicAttributes | Where { $_.name -eq "NetworkName" }).value</ScriptBlock>
+                <ScriptBlock>($_.publicAttributes | ? name -eq "NetworkName" ).value</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>zoningState</PropertyName>
@@ -674,8 +669,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
     <!--Storage.System FT-->
     <View>
       <Name>StorageSystem</Name>
@@ -802,7 +795,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
     <!--Storage.System.Port FT-->
     <View>
       <Name>StorageSystemPort</Name>
