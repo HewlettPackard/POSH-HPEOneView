@@ -30,6 +30,29 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.111.0
+     -- Fixed Wait-HPOVTaskComplete where VerifyAuth logic wasn't being handled properly,
+        causing 'Unable to index into an object of type System.Management.Automation.PSObject'
+        to be thrown.
+     -- Fixed New-HPOVProfile to support Enclosure Bay ID when using the Bay parameter when assigning
+        to an empty device bay in an enclosure.
+     -- Fixed Connect-HPOVMgmt where a non-terminating error would be generated when using a Backup 
+        Administrator account to authenticate to an appliance.
+     -- Fixed New-HPOVEnclosureGroup where if two or more Logical Interconnect Group resources
+        were provided with the -LogicalInterconnectMapping parameter, the API call would fail.
+     -- Fixed Server.format.ps1xml Display Formats file which would generate non-terminating
+        errors when displaying HPOneView.EnclosureGroup resources.
+     -- [#53] Fixed Advanced Function Export for Get-HPOVServerProfileTemplate and 
+        New-HPOVServerProfileTemplate.
+     -- [#54] Fixed Module Manifest HelpInfoURI and fixed HPE.com repository with correct
+        offline help system update files.
+     -- [#52] Added File Return status to Download-File, which is used by New-HPOVBackup.
+     -- Added ConvertTo-HPOVServerProfileTemplate CMDLET to provide a way to copy a Server
+        Profile resource to a Server Profile Template.
+     -- Added ServerProfileTemplate parameter to New-HPOVServerProfile.
+     -- Added Update-HPOVServer to allow a Server Administrator to refresh 1 or more server hardware
+        devices management state on an appliance.
+
     Release 2.0.67.0
      -- [#46] Fixed New-HPOVBackup where download file URI wasn't being passed correctly.
      -- [#48] Fixed Get-HPOVVersion where if -CheckOnline was provided without an active appliance

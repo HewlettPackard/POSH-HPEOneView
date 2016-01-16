@@ -220,7 +220,115 @@
         </ListEntries>
       </ListControl>
     </View>
-
+    <!--ServerProfileTemplate FT-->
+    <View>
+      <Name>ServerProfileTemplate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfileTemplate</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Affinity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+               <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>affinity</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerProfileTemplate FL-->
+    <View>
+      <Name>ServerProfileTemplate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfileTemplate</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Server Hardware Type</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Affinity</Label>
+                <PropertyName>affinity</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.serialNumber,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>UUID</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.uuid,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Connections</Label>
+                <ScriptBlock>"{0}" -f $_.connections.count</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Manage BIOS</Label>
+                <ScriptBlock>"{0}" -f $_.bios.manageBios</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
     <!--ServerProfile FT-->
     <View>
       <Name>ServerProfile</Name>
@@ -723,12 +831,16 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  (Send-HPOVRequest $_.interconnectBayMappings.logicalInterconnectGroupUri[0]).name
+
+                  $_HostName = $_.ApplianceConnection.Name
+
+                  ($_.associatedLogicalInterconnectGroups | % { (send-hpovrequest $_ -Hostname $_HostName).Name }) -join ","
+
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  ((send-hpovrequest "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_ENCLOSURE'&amp;parentUri='${_.uri}'").members | % { $_.childResource.name}) -join ","
+                  ((send-hpovrequest "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_ENCLOSURE'&amp;parentUri='$($_.uri)'" -Hostname $_.ApplianceConnection.Name).members | % { $_.childResource.name}) -join ","
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>

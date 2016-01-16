@@ -1,5 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ModuleInfo>
-  <ModuleContentURI>http://www.hp.com/go/OneViewPowershell/updatehelp</ModuleContentURI>
-  <Version>2.0.67.0</Version>
+  <!--<ModuleContentURI>http://www.hp.com/go/OneViewPowershell/updatehelp</ModuleContentURI>-->
+  <ModuleContentURI>http://hpe.com/info/powershell-updatehelp</ModuleContentURI>
+  <Version>2.0.111.0</Version>
 </ModuleInfo>
