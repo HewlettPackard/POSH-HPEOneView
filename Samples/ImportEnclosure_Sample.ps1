@@ -2,9 +2,9 @@
 # ImportEnclosure_Sample.ps1
 # - Example scripts for importing an enclosure to a specific EG.
 #
-#   VERSION 1.0
+#   VERSION 1.1
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,10 +26,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+
+if (-not (get-module HPOneview.200)) 
+{
+
+    Import-Module HPOneView.200
+
+}
 
 # First connect to the HP OneView appliance
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+if (-not($ConnectedSessions)
+{ 
+	
+	$ApplianceConnection = Connect-HPOVMgmt 
+
+}
 
 # Get the OA hostname, user name and password 
 $myOA = Read-Host "Enclosure OA hostname or IP address"
@@ -40,5 +51,4 @@ $licenseIntent = Read-Host "Licensing intent (OneView or OneViewNoiLO)"
 $sppFileName   = Read-Host "SPP file name ('SPP*.iso'), or <Enter> to skip firmware"
 
 # Now import the enclosure using this new enclosure group
-$task = New-HPOVEnclosure -hostname $myOA -enclGroupName $enclGroupName -username $myOAUser -password $myOAPass -licensingIntent $licenseIntent -fwBaselineIsoFilename $sppFileName
-Wait-HPOVTaskComplete $task.uri -timeout (New-TimeSpan -Minutes 10)
+$task = New-HPOVEnclosure -hostname $myOA -enclGroupName $enclGroupName -username $myOAUser -password $myOAPass -licensingIntent $licenseIntent -fwBaselineIsoFilename $sppFileName | Wait-HPOVTaskComplete

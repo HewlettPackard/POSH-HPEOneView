@@ -3,7 +3,7 @@
 # - Example scripts for creating a user account, and retrieving alerts specific
 #   to the new user.
 #
-#   VERSION 1.0
+#   VERSION 1.1
 #
 # (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -28,40 +28,143 @@ THE SOFTWARE.
 
 #>
 ##############################################################################
-Import-Module HPOneView.120
+if (-not (get-module HPOneview.200)) 
+{
+
+    Import-Module HPOneView.200
+
+}
 
 # First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+if (-not($global:ConnectedSessions))
+{ 
+	
+	Connect-HPOVMgmt 
+
+}
 
 # Make sure we have a local user 'Sally'
-$sally = Get-HPOVUser Sally
-if (!$sally) {
-    New-HPOVUser Sally -fullName "Sally Test User" -password SallyPassword -roleNames ("Network administrator")
+Try
+{
+
+	$sally = Get-HPOVUser Sally
+
+}
+
+Catch [HPOneView.Appliance.UserResourceException]
+{
+
+	Write-Host 'User Sally does not exist. Creating user account.'
+
+	Try
+	{
+
+		New-HPOVUser Sally -fullName "Sally Test User" -password SallyPassword -roleNames ("Network administrator")
+
+	}
+
+	Catch
+	{
+
+		Write-Error -ErrorRecord $_ -EA Stop
+
+	}
+
+}
+
+Catch
+{
+
+	Write-Error -ErrorRecord $_ -EA Stop
+
 }
 
 # Now view the list of alerts
 # Note: If there is a large set of alerts on the appliance, calling Get-HPOVAlert (without any filters)
 # can take a VERY long time!  This query really needs to be filtered by category, state, etc.
-Get-HPOVAlert | Sort-Object created -Descending| ft -AutoSize
+Try
+{
+
+	Get-HPOVAlert
+
+}
+
+Catch
+{
+
+	Write-Error -ErrorRecord $_ -EA Stop
+
+}
 
 # Let's assign any Interconnect Bay alerts to Administrator
-$alerts = Get-HPOVAlert -healthCategory Logical-Interconnect -alertState Active
-foreach ($alert in $alerts) {
-    $updatedAlert = Set-HPOVAlertAssignToUser $alert.uri "Sally"
-    Write-Host "Assigned to Sally:" $updatedAlert.description
-    }
+
+Try
+{
+
+	$alerts = Get-HPOVAlert -healthCategory Logical-Interconnect -alertState Active
+
+}
+
+Catch
+{
+
+	Write-Error -ErrorRecord $_ -EA Stop
+
+}
+
+foreach ($alert in $alerts) 
+{
+
+	Try
+	{
+
+		$updatedAlert = Set-HPOVAlert $alert "Sally"
+
+		"Assigned to Sally: {0}" -f $updatedAlert.description | Write-Host
+
+	}
+
+	Catch
+	{
+
+		Write-Error -ErrorRecord $_ -EA Stop
+
+	}
+   
+}
 
 # Clear any alerts older than one week
 $alerts = Get-HPOVAlert -alertState Active
-foreach ($alert in $alerts) {
+
+foreach ($alert in $alerts) 
+{
+
     $created = Get-Date $alert.created
 
-    if ((Get-Date) -gt $created.AddDays(7)) {
-        $updatedAlert = Set-HPOVAlertCleared $alert.uri
-        Write-Host "Cleared from" $created ":" $updatedAlert.description
+    if ((Get-Date) -gt $created.AddDays(7)) 
+	{
+
+		Try
+		{
+
+			$updatedAlert = Clear-HPOVAlert $alert
+
+			"Cleared from {0} : {1}" -f $created,$updatedAlert.description | Write-Host 
+
+		}
+
+		Catch
+		{
+
+			Write-Error -ErrorRecord $_ -EA Stop
+
+		}
+
     }
+
 }
 
 #Display the active alerts for Sally, most recent first
 Write-Host "Sally's active alerts:"
-Get-HPOVAlert -assignedToUser Sally -alertState Active | Sort-Object created -Descending | Format-Table -Property created, severity, description, resourceURI -AutoSize
+
+Get-HPOVAlert -assignedToUser Sally -alertState Active

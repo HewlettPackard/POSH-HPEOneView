@@ -739,7 +739,7 @@
               <TableColumnItem>
                 <ScriptBlock>
                   $indexResults = Send-HPOVRequest "/rest/index/associations?childUri=$($_.uri)&amp;name=ENCLOSURE_GROUP_TO_LOGICAL_INTERCONNECT_GROUP" -hostname $_.ApplianceConnection.Name
-                  ($indexResults.members.parentUri | % { Send-HPOVRequest $_ -hostname $_.ApplianceConnection.Name}).name
+                  ($indexResults.members | % { Send-HPOVRequest $_.parentUri -hostname $_.ApplianceConnection.Name}).name
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
@@ -765,7 +765,7 @@
                 <Label>Enclosure Groups</Label>
                 <ScriptBlock>
                   $indexResults = Send-HPOVRequest "/rest/index/associations?childUri=$($_.uri)&amp;name=ENCLOSURE_GROUP_TO_LOGICAL_INTERCONNECT_GROUP" -hostname $_.ApplianceConnection.Name
-                  ($indexResults.members.parentUri | % { Send-HPOVRequest $_ -hostname $_.ApplianceConnection.Name }).name
+                  ($indexResults.members | % { Send-HPOVRequest $_.parentUri -hostname $_.ApplianceConnection.Name}).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>

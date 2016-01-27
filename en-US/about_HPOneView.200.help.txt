@@ -6,6 +6,8 @@ COPYRIGHT
 
     (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 
+LICENSE
+
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
     in the Software without restriction, including without limitation the rights
@@ -29,6 +31,39 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
+
+    Release 2.0.139.0
+     -- [#55] Fixed New-HPOVLicense where the HTTP Method parameter was not being provided
+        in the API call to add the requested license key.
+     -- [#55] Fixed New-HPOVUser where auth verification flag was inadvertantly deleted causing
+        an exception during CMDLET execution.
+     -- [#47] Fixed Test-HPOVAuth and New-HPOVUser to fix a condition where an terminating error
+        would never be thrown if atleast 1 valid appliance connection existed, even though
+        the cmdlet would never process.
+     -- Fixed Add-HPOVServer where the server import object wasn't built correctly.
+     -- Fixed Set-HPOVApplianceNetworkConfig where the correct interface index was not being used.
+     -- Fixed New-HPOVEnclosurGroup where a single Logical Interconnect Group resource was not being
+        processed correctly.
+     -- Fixed Wait-HPOVTaskComplete where Task URI value wasn't being validated.
+     -- Enhanced Upload-File internal helper cmdlet to better handle Net.WebException errors.
+     -- Enhanced Send-HPOVRequest to handle API paginated and non-paginated results where some
+        URI's will return a collection, and others will return an array of objects.
+     -- Updated library examples.
+     -- Updated -StorageSystem in the New-HPOVStorageVolume CMDLET to support Objects, instead 
+        of just String values.
+     -- [#43] Added multiple appliance connection support to the following CMDLETs:
+
+        * Get-HPOVScmbCertificates
+        * Get-HPOVPowerDevice
+        * Get-HPOVPowerPotentialDeviceConnection
+        * Get-HPOVUnmanagedDevice       
+        * New-HPOVNetworkSet
+        * New-HPOVServerProfileAssign  
+        * New-HPOVUnmanagedDevice
+        * Remove-HPOVNetworkSet 
+        * Remove-HPOVPowerDevice
+        * Remove-HPOVUnmanagedDevice
+        * Set-HPOVNetworkSet 
 
     Release 2.0.111.0
      -- Fixed Wait-HPOVTaskComplete where VerifyAuth logic wasn't being handled properly,
@@ -118,7 +153,7 @@ LONG DESCRIPTION
 SEE ALSO
 
     https://github.com/HewlettPackard/POSH-HPOneView
-    http://hp.com/go/oneviewcommunity
+    http://hpe.com/info/oneviewcommunity
     Update-Help HPOneview.200
     Help about_Appliance_Connections
     Connect-HPOVmgmt

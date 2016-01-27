@@ -634,48 +634,71 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>Import a power device (iPDU)</maml:para>
+			<maml:para>Import a power device (iPDU) to be managed by an HPE OneView appliance.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<command:syntaxItem>
 				<maml:name>Add-HPOVPowerDevice</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>hostname</maml:name>
+					<maml:name>Hostname</maml:name>
 					<maml:description>
-						<maml:para>Hostname of the server's iLO, either IP Address or FQDN.</maml:para>
+						<maml:para>Hostname of the iPDU, either IP Address or FQDN.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">hostname</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Hostname</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
-					<maml:name>username</maml:name>
+					<maml:name>Username</maml:name>
 					<maml:description>
-						<maml:para>Administrator account of the target iLO.</maml:para>
+						<maml:para>Administrator account of the target iPDU.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">username</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Username</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="3">
-					<maml:name>password</maml:name>
+					<maml:name>Password</maml:name>
 					<maml:description>
-						<maml:para>Account password of the iLO specified.</maml:para>
+						<maml:para>Account password of the iPDU specified.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">password</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Password</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>force</maml:name>
+					<maml:name>Force</maml:name>
 					<maml:description>
-						<maml:para>Force the import of the server when currently managed by another OneView appliance.</maml:para>
+						<maml:para>Force the import of the iPDU when currently managed by another HPE OneView appliance.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">force</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Force</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
-				<maml:name>hostname</maml:name>
+				<maml:name>Hostname</maml:name>
 				<maml:description>
-					<maml:para>Hostname of the server's iLO, either IP Address or FQDN.</maml:para>
+					<maml:para>Hostname of the iPDU, either IP Address or FQDN.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">hostname</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Hostname</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -683,11 +706,11 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
-				<maml:name>username</maml:name>
+				<maml:name>Username</maml:name>
 				<maml:description>
-					<maml:para>Administrator account of the target iLO.</maml:para>
+					<maml:para>Administrator account of the target iPDU.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">username</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Username</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -695,11 +718,11 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="3">
-				<maml:name>password</maml:name>
+				<maml:name>Password</maml:name>
 				<maml:description>
-					<maml:para>Account password of the iLO specified.</maml:para>
+					<maml:para>Account password of the iPDU specified.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">password</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Password</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -707,16 +730,54 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>force</maml:name>
+				<maml:name>Force</maml:name>
 				<maml:description>
-					<maml:para>Force the import of the server when currently managed by another OneView appliance.</maml:para>
+					<maml:para>Force the import of the iPDU when currently managed by another HPE OneView appliance.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">force</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Force</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -736,7 +797,7 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 		<command:returnValue>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>Async Task resource to monitor progress.</maml:para>
@@ -753,7 +814,7 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Add-HPOVPowerDevice ipdu24.example.com admin password
+				<dev:code>PS C:\&gt; Add-HPOVPowerDevice ipdu24.example.com admin password -ApplianceConnection MyAppliance.example.com
 </dev:code>
 				<dev:remarks>
 					<dev:para>Add the iPDU to the appliance.</dev:para>
@@ -6252,11 +6313,11 @@ Encl1, interconnect 2 HP VC FlexFabric 10Gb/24-Port Module WECFSED101    4.10
 			<command:syntaxItem>
 				<maml:name>Get-HPOVEnclosureGroup</maml:name>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>name</maml:name>
+					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the Enclosure Group resource to be returned.  All enclosure group resources will be returned if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
 					<maml:name>ApplianceConnection</maml:name>
@@ -6281,11 +6342,11 @@ Full path and file name to save the output of Get-HPOVEnclosureGroup</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-				<maml:name>name</maml:name>
+				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the Enclosure Group resource to be returned.  All enclosure group resources will be returned if omitted.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -8435,40 +8496,73 @@ The full path and file name to export the contents retrieved from the call to Ge
 			<command:syntaxItem>
 				<maml:name>Get-HPOVLogicalInterconnectGroup</maml:name>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>name</maml:name>
+					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the Logical Interconnect Group to retrieve.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
 
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>exportFile</maml:name>
+					<maml:name>ExportFile</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x, -export]
 The full path and file name to export the contents retrieved from the call to Get-HPOVLogicalInterconnectGroup.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">exportFile</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">ExportFile</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVLogicalInterconnectGroup</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+					<maml:name>Resource</maml:name>
+					<maml:description>
+						<maml:para>Pipeline input resource generated from Wait-HPOVTaskComplete, or successfully completed Async Task resource object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<maml:name>Resource</maml:name>
+				<maml:description>
+					<maml:para>Pipeline input resource generated from Wait-HPOVTaskComplete, or successfully completed Async Task resource object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-				<maml:name>name</maml:name>
+				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the Logical Interconnect Group to retrieve.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -8480,7 +8574,7 @@ The full path and file name to export the contents retrieved from the call to Ge
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
 
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
@@ -8492,12 +8586,12 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>exportFile</maml:name>
+				<maml:name>ExportFile</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-x, -export]
 The full path and file name to export the contents retrieved from the call to Get-HPOVLogicalInterconnectGroup.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">exportFile</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">ExportFile</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -8508,10 +8602,10 @@ The full path and file name to export the contents retrieved from the call to Ge
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
-						<maml:para />
+						<maml:para>Successfully Completed Async task resource from Wait-HPOVTaskComplete or other supported method.</maml:para>
 					</maml:description>
 				</dev:type>
 				<maml:description>
@@ -8590,6 +8684,30 @@ The full path and file name to export the contents retrieved from the call to Ge
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
+				<dev:code>PS C:\&gt; $LigName = 'VC FF Virt Prod'
+PS C:\&gt; $CreatedLig = New-HPOVLogicalInterconnectGroup -Name $LigName -bays @{1 = "FlexFabric";2 = "FlexFabric"} -EnableIgmpSnooping $True -InternalNetworks 'VMMigration Network' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+PS C:\&gt; $CreatedLig
+
+Name            Enclosure Groups
+----            ----------------
+VC FF Virt Prod
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a new Logical Interconnect Group resource, wait for the task to complete, then retrieve the created resource.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
 				<dev:code>PS C:\&gt; Get-HPOVLogicalInterconnectGroup -exportFile "c:\myApplianceConfig\LogicaICGs.json"
 </dev:code>
 				<dev:remarks>
@@ -8605,11 +8723,11 @@ The full path and file name to export the contents retrieved from the call to Ge
 		</command:examples>
 		<maml:relatedLinks>
 			<maml:navigationLink>
-				<maml:linkText>Send-HPOVRequest</maml:linkText>
+				<maml:linkText>New-HPOVLogicalInterconnectGroup</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>New-HPOVLogicalInterconnectGroup</maml:linkText>
+				<maml:linkText>Remove-HPOVLogicalInterconnectGroup</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -8808,7 +8926,7 @@ Fabric A Ready OK     BNA Managed Fabric A Zoned             True
 		<command:syntax>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVNetwork</maml:name>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the network resource to be returned.  All network resources will be returned if omitted.  Supports '*' wildcard character.</maml:para>
@@ -8848,7 +8966,7 @@ The full path and file name to export the JSON formatted definition of the netwo
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the network resource to be returned.  All network resources will be returned if omitted.  Supports '*' wildcard character.</maml:para>
@@ -8914,10 +9032,10 @@ The full path and file name to export the JSON formatted definition of the netwo
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:name>System.String</maml:name>
 					<maml:uri />
 					<maml:description>
-						<maml:para />
+						<maml:para>Network Resource Name(s).</maml:para>
 					</maml:description>
 				</dev:type>
 				<maml:description>
@@ -9032,6 +9150,23 @@ The full path and file name to export the JSON formatted definition of the netwo
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
+				<dev:code>PS C:\&gt; $ethNets = 'Net1','Net2','Net3' | Get-HPOVNetwork -Type Ethernet -ApplianceConnection MyAppliance.domain.com
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return Net1, Net2, and Net3 Ethernet Networks from the specified appliance connection.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
 				<dev:code>PS C:\&gt; Get-HPOVNetwork -exportFile "c:\myApplianceConfig\myNets.json"
 </dev:code>
 				<dev:remarks>
@@ -9045,7 +9180,7 @@ The full path and file name to export the JSON formatted definition of the netwo
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -9062,7 +9197,7 @@ The full path and file name to export the JSON formatted definition of the netwo
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -9168,40 +9303,55 @@ FCOE12 OK     12     2500              10000
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>Retrieves a list of all Network Sets or just specific Networks Sets via a query if the name
-parameter is provided.  The Network Set output can be sent to a file using the exportFile parameter.</maml:para>
+			<maml:para>Retrieves a list of all Network Sets or just specific Networks Sets via a query if the name parameter is provided.  The Network Set output can be sent to a file using the exportFile parameter.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVNetworkSet</maml:name>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>name</maml:name>
+					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the Network Set to retrieve.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>List</maml:name>
+					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
-						<maml:para>Display Network Set information in a formatted table.</maml:para>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">List</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVNetworkSet</maml:name>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>name</maml:name>
+					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the Network Set to retrieve.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>exportFile</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x, -export]
+
 The full path and file name to export the contents retrieved from the call to Get-HPOVNetworkSet.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">exportFile</command:parameterValue>
@@ -9210,11 +9360,11 @@ The full path and file name to export the contents retrieved from the call to Ge
 		</command:syntax>
 		<command:parameters>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-				<maml:name>name</maml:name>
+				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the Network Set to retrieve.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -9222,21 +9372,26 @@ The full path and file name to export the contents retrieved from the call to Ge
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>List</maml:name>
+				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
-					<maml:para>Display Network Set information in a formatted table.</maml:para>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">List</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				<dev:type>
-					<maml:name>SwitchParameter</maml:name>
+					<maml:name>Array</maml:name>
 					<maml:uri />
 				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>exportFile</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-x, -export]
+
 The full path and file name to export the contents retrieved from the call to Get-HPOVNetworkSet.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">exportFile</command:parameterValue>
@@ -9267,7 +9422,7 @@ The full path and file name to export the contents retrieved from the call to Ge
 					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
 					<maml:uri />
 					<maml:description>
-						<maml:para>      Single Network Set</maml:para>
+						<maml:para>Single Network Set</maml:para>
 					</maml:description>
 				</dev:type>
 				<maml:description>
@@ -9280,18 +9435,6 @@ The full path and file name to export the contents retrieved from the call to Ge
 					<maml:uri />
 					<maml:description>
 						<maml:para>Multiple Network Sets</maml:para>
-					</maml:description>
-				</dev:type>
-				<maml:description>
-					<maml:para />
-				</maml:description>
-			</command:returnValue>
-			<command:returnValue>
-				<dev:type>
-					<maml:name>A Network Set or Network Sets collection object.</maml:name>
-					<maml:uri />
-					<maml:description>
-						<maml:para />
 					</maml:description>
 				</dev:type>
 				<maml:description>
@@ -9491,6 +9634,306 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Install-HPOVUpdate</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--GET-HPOVPOWERDEVICE-->
+		<command:details>
+			<command:name>Get-HPOVPowerDevice</command:name>
+			<maml:description>
+				<maml:para>Retrieve Power Device (iPDU) resource(s).</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVPowerDevice</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Obtain a collection of power device resources which have the specified name, and display the information about the power device.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVPowerDevice</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the power device resource to be returned.  All power device resources will be returned if omitted.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the power device resource to be returned.  All power device resources will be returned if omitted.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.PowerDeliveryDevice [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>The matching power device resources.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>The matching power device resources.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $powerDevices = Get-HPOVPowerDevice
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return all the power devices managed by this appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $powerDeviceA = Get-HPOVPowerDevice "iPDU_A"
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return the power device resource with name "iPDU_A".</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVPowerDevice</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--GET-HPOVPOWERPOTENTIALDEVICECONNECTION-->
+		<command:details>
+			<command:name>Get-HPOVPowerPotentialDeviceConnection</command:name>
+			<maml:description>
+				<maml:para>Retrieve Power Device (mPDU/Rack PDU) Potentail Connections</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVPowerPotentialDeviceConnection</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Obtain a collection of potential managed and unmanaged device power connections for the provided power device resoruce.  The returned value(s) will include the potential power connections that can be manually associated when not using iPDU devices.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVPowerPotentialDeviceConnection</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>powerDevice</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-uri, -name]
+The name of the power device resource.  Can provide Name, URI or Object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">powerDevice</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>powerDevice</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-uri, -name]
+The name of the power device resource.  Can provide Name, URI or Object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">powerDevice</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Potential managed/unmanaged device Power Delivery Device connection object.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Collection of matching potential power device connection objects.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $powerDevices = Get-HPOVPowerDevice
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return all the power devices managed by this appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVPowerDevice "mPDU_A" | Get-HPOVPowerPotentialDeviceConnection
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return the potential power device connections for the "mPDU_A" power delivery device.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVPowerPotentialDeviceConnection "mPDU_A"
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return the potential power device connections for the "mPDU_A" power delivery device.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVPowerPotentialDeviceConnection</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -9730,6 +10173,196 @@ Local Direct Attach Manager Direct Attach SAN Manager 1.0.0    Ready None       
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVSanManager</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--GET-HPOVSCMBCERTIFICATES-->
+		<command:details>
+			<command:name>Get-HPOVScmbCertificates</command:name>
+			<maml:description>
+				<maml:para>Get State Change Message Bus certificates.</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVScmbCertificates</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Retrieve and store the certificates necessary to register with the State Change Message Bus.  The SCMB only supports a single read-only "account".</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVScmbCertificates</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Location</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Save]
+Directory to store the SSL certificates.  If the directory doesn't exist, it will be created.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Location</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ConvertToPFx</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-pfx]		
+Convert rabbitmq_readonly client certificate to PFX format for .Net consumption.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ConvertToPFx</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+					<maml:name>Password</maml:name>
+					<maml:description>
+						<maml:para>Password that will be used to encrypt the PFX client certificate.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Password</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVScmbCertificates</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Location</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Save]
+Directory to store the SSL certificates.  If the directory doesn't exist, it will be created.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Location</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>Location</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Save]
+Directory to store the SSL certificates.  If the directory doesn't exist, it will be created.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Location</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>($pwd).path</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ConvertToPFx</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-pfx]		
+Convert rabbitmq_readonly client certificate to PFX format for .Net consumption.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ConvertToPFx</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<maml:name>Password</maml:name>
+				<maml:description>
+					<maml:para>Password that will be used to encrypt the PFX client certificate.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Password</command:parameterValue>
+				<dev:type>
+					<maml:name>SecureString</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>SecureString</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Password for PFX file</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>3 files will be created:</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVScmbCertificates
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the HPE OneView appliance SCMB SSL certificates, and save them in the current directory.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; read-host 'Password' -AsSecureString | Get-HPOVScmbCertificates C:\scmbcerts -pfx
+</dev:code>
+				<dev:remarks>
+					<dev:para>Prompt for secure password input and pipe the value to Get-HPOVScmbCertificates to convert the cert.pem to PFX format with the pipeline secure password.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVScmbCertificates</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -12643,6 +13276,166 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVTask</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--GET-HPOVUNMANAGEDDEVICE-->
+		<command:details>
+			<command:name>Get-HPOVUnmanagedDevice</command:name>
+			<maml:description>
+				<maml:para>Get Unmanaged Devices.</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVUnmanagedDevice</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>HPE OneView provides administrators with the capability to define unmanaged devices to them place within Racks, in order to provide a more realistic and complete data center layout.  This cmdlet will retrieve all or a specified Unmanaged Device.  A report switch is provided to display the output in an easier to read format.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVUnmanagedDevice</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the Unmanaged Device.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>List</maml:name>
+					<maml:description>
+						<maml:para>Deprecated parameter.  CMDLET now defaults to Format-Table output.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">List</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the Unmanaged Device.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Name</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>List</maml:name>
+				<maml:description>
+					<maml:para>Deprecated parameter.  CMDLET now defaults to Format-Table output.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">List</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.UnmanagedResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Single Unmanaged Device resource object.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Multiple Unmanaged Device resource objects.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVUnmanagedDevice
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get all unmanaged devices.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVUnmanagedDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVUnmanagedDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVUnmanagedDevice</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -17033,7 +17826,7 @@ Specify the HPOneView.Appliance.Connection object(s) or Name property value(s). 
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Networking.LogicalInterconnectGroup [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>Single Logical Interconnect Group resource object.</maml:para>
@@ -17047,7 +17840,7 @@ Specify the HPOneView.Appliance.Connection object(s) or Name property value(s). 
 		<command:returnValue>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.EnclosureGroup [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>The newly created enclosure group resource</maml:para>
@@ -19504,6 +20297,263 @@ PS C:\&gt; New-HPOVNetwork -name "VLAN B Side" -VlanRange "10,20,30,40,50,60"
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVNetwork</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--NEW-HPOVNETWORKSET-->
+		<command:details>
+			<command:name>New-HPOVNetworkSet</command:name>
+			<maml:description>
+				<maml:para>Create a new Network Set.</maml:para>
+			</maml:description>
+			<command:verb>New</command:verb>
+			<command:noun>HPOVNetworkSet</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Create a new Network Set and connection type resource.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>New-HPOVNetworkSet</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the new Network Set resource to be created.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Networks</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-networkUris]
+Ethernet Network Name(s), URI(')s or Resource Object(s).</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Networks</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>UntaggedNetwork</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-untagged, -native, -untaggedNetworkUri]
+Network (from the above list) to be considered the "native" network in this set.  Traffic on this network will leave the Virtual Connect downlink port untagged.  When untagged traffic is received on this port, it will be mapped to this network.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">UntaggedNetwork</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+					<maml:name>typicalBandwidth</maml:name>
+					<maml:description>
+						<maml:para>Optional preferred amount of bandwidth to assign, specified in Mbps.  Default value is 2500.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">typicalBandwidth</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+					<maml:name>maximumBandwidth</maml:name>
+					<maml:description>
+						<maml:para>Optional maximum amount of bandwidth to assign, specified in Mbps.  Default value is 10000.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">maximumBandwidth</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="6">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the new Network Set resource to be created.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>Networks</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-networkUris]
+Ethernet Network Name(s), URI(')s or Resource Object(s).</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Networks</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+				<maml:name>UntaggedNetwork</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-untagged, -native, -untaggedNetworkUri]
+Network (from the above list) to be considered the "native" network in this set.  Traffic on this network will leave the Virtual Connect downlink port untagged.  When untagged traffic is received on this port, it will be mapped to this network.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">UntaggedNetwork</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+				<maml:name>typicalBandwidth</maml:name>
+				<maml:description>
+					<maml:para>Optional preferred amount of bandwidth to assign, specified in Mbps.  Default value is 2500.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">typicalBandwidth</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>2500</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+				<maml:name>maximumBandwidth</maml:name>
+				<maml:description>
+					<maml:para>Optional maximum amount of bandwidth to assign, specified in Mbps.  Default value is 10000.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">maximumBandwidth</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>10000</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="6">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>If bandwidth settings are specified, the newly created Network Set resource is returned.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>If no bandwidth settings specified, an async task object is returned.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; New-HPOVNetworkSet -name "Production Networks" -untaggedNetwork yellow -networks blue, green, yellow
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a new Network Set called "Production Networks", adding Ethernet Networks 'blue', 'green', and 'yellow', on all connected appliances.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $networks = 'blue','green','yellow' | % { Get-HPOVNetwork $_ -type Ethernet -ApplianceConnection MyAppliance.domain.com }
+PS C:\&gt; New-HPOVNetworkSet -name "Production Networks" -Networks $networks -UntaggedNetwork $networks[1] -ApplianceConnection MyAppliance.domain.com
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get Ethernet Networks 'blue', 'green', and 'yellow', then create a new Network Set, with 'Green' as the UntaggedNetowrk for the specified appliance connection.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; New-HPOVNetworkSet -name "Production Networks" -untaggedNetwork yellow -networks blue, green, yellow -TypicalBandwidth 1000 -MaximumBandwidth 5000
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a new Network Set called "Production Networks", adding Ethernet Networks 'blue', 'green', and 'yellow', setting the Typical and Maximum Bandwidth.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVNetworkSet</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVNetwork</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVNetwork</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVNetworkSet</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -22259,6 +23309,241 @@ PS C:\&gt; $jsonProfiles | foreach-object { New-HPOVServerProfile -import -file 
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVServerProfile</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--NEW-HPOVSERVERPROFILEASSIGN-->
+		<command:details>
+			<command:name>New-HPOVServerProfileAssign</command:name>
+			<maml:description>
+				<maml:para>Unassign or Reassign an existing Server Profile.</maml:para>
+			</maml:description>
+			<command:verb>New</command:verb>
+			<command:noun>HPOVServerProfileAssign</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>This cmdlet is used to unassign or reassign an existing HPE OneView Server Profile.  The destination Server and its Server Hardware Type does not need to match the original Server Hardware Type defined in the Server Profile.  The Server Profile will be updated accordingly.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>New-HPOVServerProfileAssign</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Profile</maml:name>
+					<maml:description>
+						<maml:para>The name or object of the server profile resource to modify assignment.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Profile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Server</maml:name>
+					<maml:description>
+						<maml:para>The server hardware resource where the new profile is to be applied.  This is normally retrieved with a 'Get-HPOVServer' call, and the Server state property should be "NoProfileApplied".  Can also be the Server Hardware name.s</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Server</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>New-HPOVServerProfileAssign</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Profile</maml:name>
+					<maml:description>
+						<maml:para>The name or object of the server profile resource to modify assignment.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Profile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Unassigned</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Unassigned</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>Profile</maml:name>
+				<maml:description>
+					<maml:para>The name or object of the server profile resource to modify assignment.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Profile</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>Server</maml:name>
+				<maml:description>
+					<maml:para>The server hardware resource where the new profile is to be applied.  This is normally retrieved with a 'Get-HPOVServer' call, and the Server state property should be "NoProfileApplied".  Can also be the Server Hardware name.s</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Server</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Unassigned</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Unassigned</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Server Profile resource object from Get-HPOVServerProfile.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>If successful returns a task resource which may be polled to follow the progress of the profile creation.  Otherwise, a request validation error will be returned.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile 'Profile 1' | New-HPOVServerProfileAssign -Server 'Encl1, Bay 10' | Wait-HPOVTaskComplete
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get 'Profile 1' Server Profile and assign it to 'Encl1, Bay 10', then wait for the async task to complete.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile 'Profile 1' | New-HPOVServerProfileAssign -unassign | Wait-HPOVTaskComplete
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get 'Profile 1' Server Profile and unassign it, then wait for the async task to complete.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Copy-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVEnclosure</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerHardwareType</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileConnection</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfileConnectionList</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileAttachVolume</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Wait-HPOVTaskComplete</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVServerProfileAssign</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -25176,7 +26461,7 @@ The name of the appliance or list of appliances to execute the command against.<
 					<maml:para />
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $applianceconnection = Connect-HPOVMgmt MyAppliance.domain.com administrator MyP@ssw0rd
-PS C:\&gt; $profileName = "HP ProLiant BL460 Gen9 Profile Template"
+PS C:\&gt; $Name = "HP ProLiant BL460 Gen9 Profile Template"
 PS C:\&gt; $net1 = Get-HPOVNetwork "Net-41-A" 
 PS C:\&gt; $con1 = New-HPOVServerProfileConnection -network $net1 -connectionType Ethernet -connectionId 1
 PS C:\&gt; $net2 = Get-HPOVNetwork "Net-41-B"
@@ -25185,14 +26470,14 @@ PS C:\&gt; $conList = @($con1, $con2)
 PS C:\&gt; $bl460SHT = Get-HPOVServerHardwareTypes -name "BL460c Gen9 1"
 PS C:\&gt; $eg = Get-HPOVEnclosureGroup "Default EG1"
 PS C:\&gt; $params = @{
-&gt;&gt;    name                = $profileName;
+&gt;&gt;    name                = $Name;
 &gt;&gt;    serverHardwareType  = $bl460SHT;
 &gt;&gt;    enclosureGroup      = $eg;
 &gt;&gt;    connections         = $conList
 &gt;&gt;    ApplianceConnection = 'MyAppliance1.domain.com'
 &gt;&gt;}
 &gt;&gt;
-PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
+PS C:\&gt; New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete
     
 </dev:code>
 				<dev:remarks>
@@ -25215,7 +26500,7 @@ PS C:\&gt; $con41 = New-HPOVServerProfileConnection -network $net41 -connectionT
 PS C:\&gt; $net42 = Get-HPOVNetwork "Net-42"
 PS C:\&gt; $con42 = New-HPOVServerProfileConnection -network $net42 -connectionType Ethernet -connectionId 2
 PS C:\&gt; $conList = @($con41, $con42)
-PS C:\&gt; $task = New-HPOVServerProfile -name $profileName -serverHardwareType "bl460c Gen8 1" -enclosureGroup "Production Encl Grp1" -connections $conList -ApplianceConnection MyAppliance1.domain.com
+PS C:\&gt; $task = New-HPOVServerProfileTemplate -name $Name -serverHardwareType "bl460c Gen8 1" -enclosureGroup "Production Encl Grp1" -connections $conList -ApplianceConnection MyAppliance1.domain.com
 PS C:\&gt; Wait-HPOVTaskComplete -taskUri $task.uri
     
 </dev:code>
@@ -26397,6 +27682,262 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--NEW-HPOVUNMANAGEDDEVICE-->
+		<command:details>
+			<command:name>New-HPOVUnmanagedDevice</command:name>
+			<maml:description>
+				<maml:para>Create an Unmanaged Device.</maml:para>
+			</maml:description>
+			<command:verb>New</command:verb>
+			<command:noun>HPOVUnmanagedDevice</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>HPE OneView provides administrators with the capability to define unmanaged devices to them place within Racks, in order to provide a more realistic and complete data center layout.  Creating a device does not provide the ability to manage it from HPE OneView.  The administrator will need to specify static characteristics of the device being added.  The unmanaged device can then be assigned into the appropriate rack manually.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>New-HPOVUnmanagedDevice</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the Unmanaged Device.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Model</maml:name>
+					<maml:description>
+						<maml:para>The device model.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Model</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>Height</maml:name>
+					<maml:description>
+						<maml:para>Rack Unit height of the Unmanaged Device.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Height</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="4">
+					<maml:name>MaxPower</maml:name>
+					<maml:description>
+						<maml:para>The maximum power consumption of the Unmanaged Device.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">MaxPower</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+					<maml:name>MacAddress</maml:name>
+					<maml:description>
+						<maml:para>Provide the management interface L2 address.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">MacAddress</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="6">
+					<maml:name>IPV4Address</maml:name>
+					<maml:description>
+						<maml:para>Provide the IPv4 Address value of the management interface.  This value does not provide a method for an HPE OneView appliance to communicate with the management interface.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">IPV4Address</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="7">
+					<maml:name>IPV6Address</maml:name>
+					<maml:description>
+						<maml:para>Provide the IPv6 Address value of the management interface.  This value does not provide a method for an HPE OneView appliance to communicate with the management interface.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">IPV6Address</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the Unmanaged Device.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>Model</maml:name>
+				<maml:description>
+					<maml:para>The device model.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Model</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+				<maml:name>Height</maml:name>
+				<maml:description>
+					<maml:para>Rack Unit height of the Unmanaged Device.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Height</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>1</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="4">
+				<maml:name>MaxPower</maml:name>
+				<maml:description>
+					<maml:para>The maximum power consumption of the Unmanaged Device.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">MaxPower</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>0</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+				<maml:name>MacAddress</maml:name>
+				<maml:description>
+					<maml:para>Provide the management interface L2 address.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">MacAddress</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="6">
+				<maml:name>IPV4Address</maml:name>
+				<maml:description>
+					<maml:para>Provide the IPv4 Address value of the management interface.  This value does not provide a method for an HPE OneView appliance to communicate with the management interface.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">IPV4Address</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="7">
+				<maml:name>IPV6Address</maml:name>
+				<maml:description>
+					<maml:para>Provide the IPv6 Address value of the management interface.  This value does not provide a method for an HPE OneView appliance to communicate with the management interface.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">IPV6Address</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.UnmanagedResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Newly created Unmanaged Device resource.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; New-HPOVUnmanagedDevice -name "Unmanaged-SRVR1" -model "ProLiant DL380 G6" -height 2 -maxpower 750 -IPV4Address 10.154.1.10 -ApplianceConnection 'MyAppliance.domain.com'
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a new unmanaged server device.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; New-HPOVUnmanagedDevice -name "HPN5900CP1" -model "HPN 5900CP" -height 1 -maxpower 260 -ApplianceConnection -IPV4Address 172.18.254.99 'MyAppliance.domain.com'
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a new unmanaged switch device.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVUnmanagedDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVUnmanagedDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVUnmanagedDevice</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--NEW-HPOVUPLINKSET-->
 		<command:details>
 			<command:name>New-HPOVUplinkSet</command:name>
@@ -26511,6 +28052,17 @@ Example: 'Bay1:X1'</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">fcUplinkSpeed</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVUplinkSet</maml:name>
@@ -26557,7 +28109,7 @@ VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVUplinkSet</maml:name>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -26623,7 +28175,7 @@ Array of Ethernet Network Names</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Networks</command:parameterValue>
 				<dev:type>
-					<maml:name>ArrayList</maml:name>
+					<maml:name>Array</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>@()</dev:defaultValue>
@@ -26652,7 +28204,7 @@ VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">UplinkPorts</command:parameterValue>
 				<dev:type>
-					<maml:name>ArrayList</maml:name>
+					<maml:name>Array</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>@()</dev:defaultValue>
@@ -26719,7 +28271,7 @@ Example: 'Bay1:X1'</maml:para>
 				</dev:type>
 				<dev:defaultValue>Auto</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -26739,10 +28291,22 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>None. You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:name>HPOneView.Networking.LogicalInterconnect [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
-						<maml:para />
+						<maml:para>Logical Interconnect Resource from Get-HPOVLogicalInterconnect</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Networking.LogicalInterconnectGroup [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Logical Interconnect Group Resource from Get-HPOVLogicalInterconnectGroup</maml:para>
 					</maml:description>
 				</dev:type>
 				<maml:description>
@@ -26770,7 +28334,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "US1" -Type "Ethernet" -Networks "RED","BLUE","GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6" -EthMode "Auto"
+				<dev:code>PS C:\&gt; Get-HPOVLogicalInterconnectGroup 'LIG Prod' | New-HPOVUplinkSet -Name "Uplink Set 1" -Type Ethernet -Networks "RED","BLUE","GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6" -EthMode "Auto"
 </dev:code>
 				<dev:remarks>
 					<dev:para>To Create an Ethernet Uplink Template</dev:para>
@@ -26787,10 +28351,12 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "Fabric A" -Type "FibreChannel" -Networks "FABRIC_A" -UplinkPorts "BAY1:X1","BAY1:X2"
+				<dev:code>PS C:\&gt; $ethNets = 'Net1','Net2','Net3' | Get-HPOVNetwork -Type Ethernet -ApplianceConnection MyAppliance.domain.com
+PS C:\&gt; Get-HPOVLogicalInterconnectGroup 'LIG Prod' | New-HPOVUplinkSet -Name "Uplink Set 1" -Type Ethernet -Networks $ethNets -NativeEthNetwork $ethNets[0] -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6" -EthMode "Auto"
+
 </dev:code>
 				<dev:remarks>
-					<dev:para>To Create a Fibre Channel Uplink Template for VC FlexFabric modules.</dev:para>
+					<dev:para>Get the network resource objects, and define a new Uplink Set template that will be assigned to the Logical Interconnect Group resource.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -26804,10 +28370,46 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; New-HPOVUplinkSet -ligName "LIG Prod" -Name "VCFC Fabric A" -Type "FibreChannel" -Networks "VCFC FABRIC A" -UplinkPorts "BAY3:1","BAY3:2"
+				<dev:code>PS C:\&gt; $LIGProd = Get-HPOVLogicalInterconnectGroup 'LIG Prod'
+PS C:\&gt; New-HPOVUplinkSet -Resource $LIGProd -Name "Fabric A" -Type FibreChannel -Networks "FABRIC_A" -UplinkPorts "BAY1:X1","BAY1:X2"
+
 </dev:code>
 				<dev:remarks>
-					<dev:para>To Create a Fibre Channel Uplink Template for VC Fibre Channel modules.</dev:para>
+					<dev:para>To Create a Fibre Channel Uplink Template for VC FlexFabric modules.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLogicalInterconnect 'Encl1 LIG Prod' | New-HPOVUplinkSet -Name "New Uplink Set" -Type Ethernet -Networks "RED","BLUE","GREEN" -NativeEthNetwork "RED" -UplinkPorts "BAY1:X5","BAY1:X6","BAY2:X5","BAY2:X6" -EthMode "Auto"
+</dev:code>
+				<dev:remarks>
+					<dev:para>Add a new Uplink Set to an existing Logical Interconnect resource.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $LI = Get-HPOVLogicalInterconnect 'Encl1 LIG Prod'
+</dev:code>
+				<dev:remarks>
+					<dev:para>PS C:\&gt; New-HPOVUplinkSet -Resource $LI -Name "Fabric A" -Type FibreChannel -Networks FABRIC_A -UplinkPorts "BAY1:X1","BAY1:X2"</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -29261,6 +30863,227 @@ PS C:\&gt; Remove-HPOVNetwork -network $net -confirm:$false
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--REMOVE-HPOVNETWORKSET-->
+		<command:details>
+			<command:name>Remove-HPOVNetworkSet</command:name>
+			<maml:description>
+				<maml:para>Remove a network set.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVNetworkSet</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Delete a network set and its corresponding default connection type.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVNetworkSet</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>NetworkSet</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-name, -uri]
+The network set object(s), name(s) or uri(s) to be deleted.  If providing a URI, you must specify an Applinace Connection.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">NetworkSet</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>NetworkSet</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-name, -uri]
+The network set object(s), name(s) or uri(s) to be deleted.  If providing a URI, you must specify an Applinace Connection.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">NetworkSet</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Name</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Network Set Name or URI</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Network Set resource object</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Removal task.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $task = Remove-HPOVNetworkSet -networkSet "MyNetSet"
+PS C:\&gt; Wait-HPOVTaskComplete $task
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the network set specifed by name.  Wait for remove to complete.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $netSet = Get-HPOVNetworkSet -name "MyNetSet" | Remove-HPOVNetwork
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the specified network set.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVNetworkSet | Remove-HPOVNetworkSet
+</dev:code>
+				<dev:remarks>
+					<dev:para>Search for all network sets and remove them from appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVNetworkSet</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVNetworkSet</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Wait-HPOVTaskComplete</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVNetworkSet</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--REMOVE-HPOVPENDINGUPDATE-->
 		<command:details>
 			<command:name>Remove-HPOVPendingUpdate</command:name>
@@ -29391,6 +31214,209 @@ PS C:\&gt; Remove-HPOVNetwork -network $net -confirm:$false
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVPendingUpdate</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--REMOVE-HPOVPOWERDEVICE-->
+		<command:details>
+			<command:name>Remove-HPOVPowerDevice</command:name>
+			<maml:description>
+				<maml:para>Remove power device (iPDU)</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVPowerDevice</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Removes a power device (iPDU) from appliance management.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVPowerDevice</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+					<maml:name>powerDevice</maml:name>
+					<maml:description>
+						<maml:para>The Power Device object(s), name(s) or uri(s) to be removed from management.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">powerDevice</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>force</maml:name>
+					<maml:description>
+						<maml:para>Set to $true to force-remove the power device.
+Force-removing will succeed even when there are connectivity issues or resource errors.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">force</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<maml:name>powerDevice</maml:name>
+				<maml:description>
+					<maml:para>The Power Device object(s), name(s) or uri(s) to be removed from management.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">powerDevice</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>force</maml:name>
+				<maml:description>
+					<maml:para>Set to $true to force-remove the power device.
+Force-removing will succeed even when there are connectivity issues or resource errors.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">force</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>    Power Device (iPDU) Resource Object.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>    Async remove task.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $task = Remove-HPOVPowerDevice -powerDevice "iPDU16"
+PS C:\&gt; Wait-HPOVTaskComplete $task.uri
+                
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the power device specifed by name. Wait for remove to complete.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $ipdu = Get-HPOVPowerDevice -name "iPDU24"
+PS C:\&gt; Remove-HPOVPowerDevice $ipdu -force -confirm:$false
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Force-Remove the profile specifed by $ipdu. Disable confirmation prompt.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVPowerDevice | Remove-HPOVPowerDevice
+</dev:code>
+				<dev:remarks>
+					<dev:para>Search for all power devices and remove them from appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVPowerDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Wait-HPOVTaskComplete</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVPowerDevice</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -30877,6 +32903,201 @@ PS C:\&gt; Remove-HPOVStorageVolumeTemplate -name $svt -confirm:$false
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVStorageVolumeTemplate</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--REMOVE-HPOVUNMANAGEDDEVICE-->
+		<command:details>
+			<command:name>Remove-HPOVUnmanagedDevice</command:name>
+			<maml:description>
+				<maml:para>Remove an Unmanaged Device.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVUnmanagedDevice</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Use this cmdlet to remove an Unmanaged Device from the appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVUnmanagedDevice</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+					<maml:name>UnmanagedDevice</maml:name>
+					<maml:description>
+						<maml:para>Alias [-name, -uri]
+The Name, URI or Object of the Unmanaged Device to remove.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">UnmanagedDevice</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>force</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">force</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<maml:name>UnmanagedDevice</maml:name>
+				<maml:description>
+					<maml:para>Alias [-name, -uri]
+The Name, URI or Object of the Unmanaged Device to remove.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">UnmanagedDevice</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>force</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">force</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Unmanaged Device resource object.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>None.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Remove-HPOVUnmanagedDevice MyDevice
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the Unmanaged Device 'MyDevice' from the appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Remove-HPOVUnmanagedDevice MyDevice -confirm:$false
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the Unmanaged Device 'MyDevice' from the appliance and do not prompt for confirmation.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVUnmanagedDevice | Remove-HPOVUnmanagedDevice
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get all Unmanaged Devices on the appliance and remove them.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVUnmanagedDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVUnmanagedDevice</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVUnmanagedDevice</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -34047,6 +36268,250 @@ PS C:\&gt; Get-HPOVNetwork -type Ethernet | % { Set-HPOVNetwork -network $_ -Nam
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVNetwork</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--SET-HPOVNETWORKSET-->
+		<command:details>
+			<command:name>Set-HPOVNetworkSet</command:name>
+			<maml:description>
+				<maml:para>Modify an existing network set.</maml:para>
+			</maml:description>
+			<command:verb>Set</command:verb>
+			<command:noun>HPOVNetworkSet</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Modify a network set and/or its connection information.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVNetworkSet</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>netSet</maml:name>
+					<maml:description>
+						<maml:para>The name of the network set resource to be modified.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">netSet</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>name</maml:name>
+					<maml:description>
+						<maml:para>The updated name value of the Network Set.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>networks</maml:name>
+					<maml:description>
+						<maml:para>An array containing the updated list of networks.  May contain Network Names or URI's.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">networks</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+					<maml:name>untaggedNetwork</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-untagged, -native, -untaggedNetworkUri]
+The Name or URI of the Untaggged, or Native Network for the Network Set.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">untaggedNetwork</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="6">
+					<maml:name>typicalBandwidth</maml:name>
+					<maml:description>
+						<maml:para>The updated Typical or Preferred bandwidth, in Mbps.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">typicalBandwidth</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="7">
+					<maml:name>maximumBandwidth</maml:name>
+					<maml:description>
+						<maml:para>The updated MAximum bandwidth, in Mbps.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">maximumBandwidth</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-appliance]
+The name of the appliance or list of appliances to execute the command against.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>netSet</maml:name>
+				<maml:description>
+					<maml:para>The name of the network set resource to be modified.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">netSet</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>name</maml:name>
+				<maml:description>
+					<maml:para>The updated name value of the Network Set.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">name</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+				<maml:name>networks</maml:name>
+				<maml:description>
+					<maml:para>An array containing the updated list of networks.  May contain Network Names or URI's.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">networks</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+				<maml:name>untaggedNetwork</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-untagged, -native, -untaggedNetworkUri]
+The Name or URI of the Untaggged, or Native Network for the Network Set.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">untaggedNetwork</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="6">
+				<maml:name>typicalBandwidth</maml:name>
+				<maml:description>
+					<maml:para>The updated Typical or Preferred bandwidth, in Mbps.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">typicalBandwidth</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="7">
+				<maml:name>maximumBandwidth</maml:name>
+				<maml:description>
+					<maml:para>The updated MAximum bandwidth, in Mbps.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">maximumBandwidth</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-appliance]
+The name of the appliance or list of appliances to execute the command against.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Single Network Set resource</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>Update Network Set resource task.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValue>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $netset = Get-HPOVNetworkSet "Set-1"
+PS C:\&gt; $netset.maximumBandwidth = 5000
+PS C:\&gt; $netset.typicalBandwidth = 3000
+PS C:\&gt; Set-HPOVNetworkSet $netset
+</dev:code>
+				<dev:remarks>
+					<dev:para>Modify "Set-1" to be maximum bandwidth of 5000.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVNetworkSet NetSet-1 | Set-HPOVNetworkSet -name NewNetSet-1 -networks @(bluenet,rednet,greennet) -untagged bluenet
+</dev:code>
+				<dev:remarks>
+					<dev:para>Update 'NetSet-1' with a new name, adjust the networks, and set 'bluenet' as the Untagged Network.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVNetworkSet</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVNetworkSet</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVNetworkSet</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVNetworkSet</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -37772,7 +40237,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 			</command:inputType>
 			<command:inputType>
 				<dev:type>
-					<maml:name>HPOneView.Task {System.Management.Automation.PSCustomObject}</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>Task resource object.</maml:para>
@@ -37786,7 +40251,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 		<command:returnValue>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>HPOneView.Task {System.Management.Automation.PSCustomObject}</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>The finished Task object that includes the task result.</maml:para>
@@ -37981,7 +40446,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>HPOneView.Task {System.Management.Automation.PSCustomObject}</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>Task async object.</maml:para>
@@ -37995,7 +40460,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		<command:returnValue>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>HPOneView.Task {System.Management.Automation.PSCustomObject}</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>Task async object.</maml:para>
