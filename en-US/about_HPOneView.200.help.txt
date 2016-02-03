@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 
 LICENSE
 
@@ -31,6 +31,27 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
+
+    Release 2.0.175.0
+     -- Fixed Add-HPOVStorageSystem where provided StoragePorts were not processing correctly.
+     -- Fixed New-HPOVServerProfileTemplate where BIOS settings were not being set when provided.
+     -- Fixed New-HPOVServerProfile where the incorrect boot order value was being passed if Server
+        Hardware Type was a Gen9 and BootMode was set to UEFI or UEFIOptimized.
+     -- Fixed New-HPOVServerProfileTemplate where the incorrect boot order value was being passed if 
+        Server Hardware Type was a Gen9 and BootMode was set to UEFI or UEFIOptimized.
+     -- Fixed Get-HPOVManagedSan where searching for a specific name would fail.
+     -- Fixed New-HPOVLicense where the license would fail to be applied if double quotes were in
+        the license key string value when reading from a text file.
+     -- Added New-HPOVServerProfileLogicalDisk helper CMDLET to create a new Logical Disk policy
+        object for New-HPOVServerProfile and New-HPOVServerProfileTemplate CMDLETs.
+     -- Updated Code Signing process to sign components with HP Enterprise's Code Signing Certificate.
+     -- Refactored Remove-HPOVServer.
+     -- [#43] Added multiple appliance connection support to the following CMDLETs:
+
+        * Remove-HPOVSanManager
+        * Show-HPOVPortStatistics
+        * Update-HPOVSanManager 
+        * Update-HPOVStorageSystem
 
     Release 2.0.139.0
      -- [#55] Fixed New-HPOVLicense where the HTTP Method parameter was not being provided

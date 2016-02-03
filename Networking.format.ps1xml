@@ -1411,7 +1411,17 @@
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(Send-HPOVRequest $_.logicalInterconnectUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>
+                  if ($_.status -ne 'Inventory')
+                  {
+                  (Send-HPOVRequest $_.logicalInterconnectUri -Hostname $_.ApplianceConnection.Name).name
+                  }
+                  
+                  else
+                  {
+                    'N/A (Unmanaged)'
+                  }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>state</PropertyName>
@@ -1453,7 +1463,17 @@
               </ListItem>
               <ListItem>
                 <Label>Logical Interconnect</Label>
-                <ScriptBlock>(Send-HPOVRequest $_.logicalInterconnectUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>
+                  if ($_.status -ne 'Inventory')
+                  {
+                  (Send-HPOVRequest $_.logicalInterconnectUri -Hostname $_.ApplianceConnection.Name).name
+                  }
+
+                  else
+                  {
+                  'N/A (Unmanaged)'
+                  }
+                </ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>State</Label>
@@ -1696,16 +1716,17 @@
                 <ScriptBlock>
 
                   $interconnectUri = $Null
+                  $ApplianceConnection = $_.ApplianceConnection.Name
                   $portUri = $_.uri -split "/"
 
                   #rebuild Interconnect URI
                   for ($i = 1; $i -le 3; $i++) { $interconnectUri += "/$($portUri[$i])" }
 
                   #Get associated Server Hardware to Interconnect resources
-                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT" -Hostname $_.ApplianceConnection.Name
+                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT" -Hostname $ApplianceConnection
 
                   #Get Server Hardware resoruce URIs
-                  $sh = $interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ -Hostname $_.ApplianceConnection.Name }
+                  $sh = $interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ -Hostname $ApplianceConnection }
 
                   $downlinkPort = $_.portName -replace "d",""
                   $server = $sh | ? { $_.portMap.deviceSlots.physicalPorts.interconnectPort -eq $downlinkPort }
@@ -1761,6 +1782,7 @@
                 <ScriptBlock>
 
                   $interconnectUri = $Null
+                  $ApplianceConnection = $_.ApplianceConnection.Name
                   $downlinkPort = $_.portName -replace "d",""
 
                   $portUri = $_.uri -split "/"
@@ -1768,17 +1790,17 @@
                   #rebuild Interconnect URI
                   for ($i = 1; $i -le 3; $i++) { $interconnectUri += "/$($portUri[$i])" }
 
-                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT" -Hostname $_.ApplianceConnection.Name
+                  $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT" -Hostname $ApplianceConnection
 
                   #Get Server Hardware resoruce URIs
-                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ -Hostname $_.ApplianceConnection.Name })
+                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ -Hostname $ApplianceConnection })
 
                   #($_.ports | ? { $_.portType -eq "Downlink" }) | % {
 
                   #$downlinkPort = $_.portName -replace "d",""
                   $server = $sh | ? { $_.portMap.deviceSlots.physicalPorts.interconnectPort -eq $downlinkPort }
 
-                  if ($server.serverProfileUri) { $serverProfileName = (Send-HPOVRequest $server.serverProfileUri -Hostname $_.ApplianceConnection.Name).name }
+                  if ($server.serverProfileUri) { $serverProfileName = (Send-HPOVRequest $server.serverProfileUri -Hostname $ApplianceConnection).name }
                   else { $serverProfileName = $Null }
 
                   "{0}" -f $serverProfileName

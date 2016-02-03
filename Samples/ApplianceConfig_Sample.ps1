@@ -3,7 +3,7 @@
 # - Example scripts for configuring the HP OneView appliance (networking, NTP, 
 #   etc.).
 #
-#   VERSION 2.2
+#   VERSION 2.3
 #
 # (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -610,6 +610,9 @@ ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
 		#Attach Volumes
 		$VMwareSharedVolume = Get-HPOVStorageVolume "VMware Hypervisor Cluster Shared VMFS 1" | New-HPOVProfileAttachVolume -volumeid 1
 
+		#Set Local Storage Policy
+		$LogicalDisk = New-HPOVServerProfileLogicalDisk 'MyDisk' -Bootable
+
 		#Submit profile to the appliance
 		$params = @{
 
@@ -620,15 +623,14 @@ ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
 			connections        = $con1, $con2, $conFC1, $conFC2, $con5, $con6, $con7, $con8
 			localStorage       = $true
 			initialize         = $true
-			RaidLevel          = "RAID1"
-			Bootable           = $true
+			LogicalDisk        = $LogicalDisk
 			SANStorage         = $True
 			HostOStype         = "VMware"
 			StorageVolume      = $VMwareSharedVolume 
 			hideUnusedFlexNics = $True
 			manageBoot         = $True
 			bootOrder          = ’PXE’,‘CD’,’Floppy’,’USB’,’HardDisk’
-			bios               = $True
+			bios               = $True		
 			biosSettings       = @(@{id=210;value=3},@{id=140;value=3},@{id=208;value=2},@{id=204;value=4},@{id=247;value=3},@{id=308;value=3},@{id=293;value=1})
 
 		}
@@ -667,6 +669,9 @@ ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
 		#Attach Volumes
 		$HyperVSharedVolume = Get-HPOVStorageVolume "Hyper-V Hypervisor Cluster Shared VMFS 1" | New-HPOVProfileAttachVolume -volumeid 1
 
+		#Set Local Storage Policy
+		$LogicalDisk = New-HPOVServerProfileLogicalDisk 'MyDisk' -Bootable
+
 		#Submit profile to the appliance
 		$params = @{
 
@@ -677,15 +682,14 @@ ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
 			connections        = $con1, $con2, $conFC1, $conFC2, $con5, $con6, $con7, $con8
 			localStorage       = $true
 			initialize         = $true
-			RaidLevel          = "RAID1"
-			Bootable           = $true
+			LogicalDisk        = $LogicalDisk
 			SANStorage         = $True
-			HostOStype         = "VMware"
-			StorageVolume      = $HyperVSharedVolume 
+			HostOStype         = "Win2k12"
+			StorageVolume      = $VMwareSharedVolume 
 			hideUnusedFlexNics = $True
 			manageBoot         = $True
 			bootOrder          = ’PXE’,‘CD’,’Floppy’,’USB’,’HardDisk’
-			bios               = $True
+			bios               = $True		
 			biosSettings       = @(@{id=210;value=3},@{id=140;value=3},@{id=208;value=2},@{id=204;value=4},@{id=247;value=3},@{id=308;value=3},@{id=293;value=1})
 
 		}

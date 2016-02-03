@@ -1,7 +1,8 @@
 ##############################################################################
 # BLGen9_Server_Multiconnection_Sample.ps1
 #
-# Example script to demonstrate creating a Server Profile with the following:
+# Example script to demonstrate creating a Server Profile Template
+# with the following:
 #
 # - HP ProLiant BL Gen9
 # - Set BootMode to UEFI
@@ -9,7 +10,10 @@
 # - Configure 2 NICs in assigned to Net-41A and Net-41B
 # - Set requested bandwidth
 #
-#   VERSION 1.1
+# Then create a Server Profile from the Template, assigning to a specific
+# server.
+#
+#   VERSION 2.0
 #
 # (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -60,25 +64,35 @@ Get-HPOVEnclosure
 # Now list all the servers that have been imported with their current state
 Get-HPOVServer
 
-$profileName = "HP ProLiant BL460 Gen 9 UEFI Profile Template"
+$profileName = "Hypervisor Cluster Node Template v1"
 $bl460SHT = Get-HPOVServerHardwareTypes -name "BL460c Gen9 1"
 $eg = Get-HPOVEnclosureGroup "Default EG1"
-$net1 = Get-HPOVNetwork "Net-41-A" -ApplianceConnection $ApplianceConnection
-$con1 = New-HPOVProfileConnection -network $net1 -connectionType Ethernet -connectionId 1
-$net2 = Get-HPOVNetwork "Net-41-B" -ApplianceConnection $ApplianceConnection
-$con2 = New-HPOVProfileConnection -network $net2 -connectionType Ethernet -connectionId 2
-$conList = @($con1, $con2)
+$con1 = Get-HPOVNetwork "Net 41-A" -ApplianceConnection $global:myAppliance | New-HPOVProfileConnection -connectionId 1
+$con2 = Get-HPOVNetwork "Net 41-B" -ApplianceConnection $global:myAppliance | New-HPOVProfileConnection -connectionId 2
+$con3 = Get-HPOVNetworkSet 'Prod NetSet A' -ApplianceConnection $global:myAppliance | New-HPOVProfileConnection -connectionId 3
+$con4 = Get-HPOVNetworkSet 'Prod NetSet B' -ApplianceConnection $global:myAppliance | New-HPOVProfileConnection -connectionId 4
+$LogicalDisk = New-HPOVServerProfileLogicalDisk 'MyDisk'
 $params = @{
-        name               = $profileName;
-        server             = "unassigned";
-        serverHardwareType = $bl460SHT;
-        enclosureGroup     = $eg;
-        connections        = $conList
-        bootMode           = "UEFI";
-        pxeBootPolicy      = "IPv4ThenIPv6";
-		manageBoot         = $True;
-        bootOrder          = "HardDisk";
-        HideUnusedFlexnics = $True
+	name               = $profileName;
+	serverHardwareType = $bl460SHT;
+	enclosureGroup     = $eg;
+	connections        = $con1, $con2,$con3,$con4;
+	bootMode           = "UEFI";
+	pxeBootPolicy      = "IPv4ThenIPv6";
+	manageBoot         = $True;
+	bootOrder          = "HardDisk";
+	LocalStorage       = $True;
+	initialize         = $true;
+	LogicalDisk        = $LogicalDisk;
+	HideUnusedFlexnics = $True
 }        
 
-New-HPOVProfile @params -ApplianceConnection $ApplianceConnection | Wait-HPOVTaskComplete
+New-HPOVServerProfileTemplate @params -ApplianceConnection $ApplianceConnection | Wait-HPOVTaskComplete
+
+#Display Server Profile Templates that are configured
+Get-HPOVServerProfileTemplate
+
+#Create Server Profile from Server Profile Template to 'Encl1, Bay 1' server resource
+$svr = Get-HPOVServer "Encl1, Bay 1" -ApplianceConnection $global:myAppliance
+$spt = Get-HPOVServerProfileTemplate 'Hypervisor Cluster Node Template v1'  -ApplianceConnection $global:myAppliance
+New-HPOVServerProfile -name "Hyp-Clus-01" -server $svr -ServerProfileTemplate $spt -ApplianceConnection  $global:myAppliance | Wait-HPOVTaskComplete

@@ -249,6 +249,10 @@
             <Label>Affinity</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Profiles</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -268,6 +272,15 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>affinity</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  (Send-HPOVRequest ("/rest/index/associations?parentUri={0}&amp;name=server_profile_template_to_server_profiles" -f $_.uri) -Hostname $_.ApplianceConnection.Name).members | % {
+
+                    "{0}" -f (Send-HPOVRequest $_.childUri -ApplianceConnection $_.ApplianceConnection.Name).name
+                    
+                  }
+                </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

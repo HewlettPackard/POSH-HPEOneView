@@ -296,7 +296,7 @@
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>if ($_.storageSystemUri) { (send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>domain</PropertyName>
@@ -314,7 +314,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity / 1GB)</ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity.totalAllocatedCapacity / 1GB)</ScriptBlock>
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -347,7 +347,7 @@
               </ListItem>
               <ListItem>
                 <Label>Storage System</Label>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>if ($_.storageSystemUri) { (send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Domain</Label>
@@ -367,7 +367,7 @@
               </ListItem>
               <ListItem>
                 <Label>Allocated</Label>
-                <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity / 1GB)</ScriptBlock>
+                <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity.totalAllocatedCapacity / 1GB)</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Free</Label>
@@ -849,19 +849,12 @@
                 <PropertyName>portWwn</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                  if ($_.expectedNetworkUri -and -not ($_.expectedNetworkUri -eq "unknown") ) 
-                  {
-                    $net = send-hpovrequest $_.expectedNetworkUri -Hostname $_.ApplianceConnection.Name
-                    if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
-                    else {" $($net.name) [DA]"}
-                  }
-                  else { $_.expectedNetworkUri }
-                </ScriptBlock>
+                <PropertyName>expectedNetworkName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.actualNetworkUri -and -not ($_.actualNetworkUri -eq "unknown") ) {
+                  if ($_.actualNetworkUri -and (-not($_.actualNetworkUri -eq "unknown")))
+                  {
                   $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
                   if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
                   else {" $($net.name) [DA]"}
@@ -905,19 +898,13 @@
               </ListItem>
               <ListItem>
                 <Label>Expected Network</Label>
-                <ScriptBlock>
-                  if ($_.expectedNetworkUri -and -not ($_.expectedNetworkUri -eq "unknown") ) {
-                  $net = send-hpovrequest $_.expectedNetworkUri -Hostname $_.ApplianceConnection.Name
-                  if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
-                  else {" $($net.name) [DA]"}
-                  }
-                  else { $_.expectedNetworkUri }
-                </ScriptBlock>
+                <PropertyName>expectedNetworkName</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Actual Network</Label>
                 <ScriptBlock>
-                  if ($_.actualNetworkUri -and -not ($_.actualNetworkUri -eq "unknown") ) {
+                  if ($_.actualNetworkUri -and (-not($_.actualNetworkUri -eq "unknown")))
+                  {
                   $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
                   if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
                   else {" $($net.name) [DA]"}
