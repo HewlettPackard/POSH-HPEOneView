@@ -185,7 +185,7 @@
       </TableControl>
     </View>
 
-    <!--APPLIANCE_TASKS-->
+    <!--Appliance.TaskResource FL-->
 		<View>
 			<Name>TaskResource</Name>
 			<ViewSelectedBy>
@@ -195,6 +195,10 @@
 				<ListEntries>
 					<ListEntry>
 						<ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+            </ListItem>
 							<ListItem>
 								<Label>Name</Label>
 								<PropertyName>name</PropertyName>
@@ -203,12 +207,20 @@
 								<Label>Owner</Label>
 								<PropertyName>owner</PropertyName>
 							</ListItem>
+              <ListItem>
+                <Label>Created</Label>
+                <PropertyName>created</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Duratuon</Label>
+                <ScriptBlock>"{0:hh\:mm\:ss}" -f ((Get-Date $_.modified) - (Get-Date $_.created))</ScriptBlock>
+              </ListItem>
 							<ListItem>
 								<Label>TaskState</Label>
 								<PropertyName>taskState</PropertyName>
 							</ListItem>
 							<ListItem>
-								<Label>PercentComplete</Label>
+								<Label>Complete</Label>
 								<PropertyName>percentComplete</PropertyName>
 							</ListItem>
 							<ListItem>
@@ -220,14 +232,6 @@
 								<PropertyName>taskErrors</PropertyName>
 							</ListItem>
 							<ListItem>
-								<Label>Created</Label>
-								<PropertyName>created</PropertyName>
-							</ListItem>
-							<ListItem>
-								<Label>Nodified</Label>
-								<PropertyName>modified</PropertyName>
-							</ListItem>
-							<ListItem>
 								<Label>ParentTaskUri</Label>
 								<PropertyName>parentTaskUri</PropertyName>
 							</ListItem>
@@ -236,7 +240,77 @@
 				</ListEntries>
 			</ListControl>
 		</View>
-    <!--APPLIANCE_LICENSE-->
+
+    <!--Appliance.TaskResource FT-->
+    <View>
+      <Name>TaskResource</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.TaskResource</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Owner</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Created</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Duration</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>TaskState</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PercentComplete</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>owner</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>Get-Date $_.created</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0:hh\:mm\:ss}" -f ((Get-Date $_.modified) - (Get-Date $_.created))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>taskState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>percentComplete</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
+    <!--APPLIANCE_LICENSE FL-->
 		<View>
 			<Name>License</Name>
 			<ViewSelectedBy>
@@ -271,7 +345,7 @@
 				</ListEntries>
 			</ListControl>
 		</View>       
-    <!--APPLIANCE_USER_ROLES-->
+    <!--APPLIANCE_USER_ROLES FT-->
 		<View>
 			<Name>UserRole</Name>
 			<ViewSelectedBy>

@@ -35,7 +35,7 @@ if (-not (get-module HPOneview.200))
 }
 
 # First connect to the HP OneView appliance
-if (-not($ConnectedSessions)
+if (-not($ConnectedSessions))
 { 
 	
 	$ApplianceConnection = Connect-HPOVMgmt 
@@ -43,12 +43,12 @@ if (-not($ConnectedSessions)
 }
 
 # Get the OA hostname, user name and password 
-$myOA = Read-Host "Enclosure OA hostname or IP address"
-$myOAUser = Read-Host "OA user name"
-$myOAPass = Read-Host "OA password"
+$myOA          = Read-Host "Enclosure OA hostname or IP address"
+$myOAUser      = Read-Host "OA user name"
+$myOAPass      = Read-Host "OA password"
 $enclGroupName = Read-Host "Enclosure Group name"
 $licenseIntent = Read-Host "Licensing intent (OneView or OneViewNoiLO)"
 $sppFileName   = Read-Host "SPP file name ('SPP*.iso'), or <Enter> to skip firmware"
 
 # Now import the enclosure using this new enclosure group
-$task = New-HPOVEnclosure -hostname $myOA -enclGroupName $enclGroupName -username $myOAUser -password $myOAPass -licensingIntent $licenseIntent -fwBaselineIsoFilename $sppFileName | Wait-HPOVTaskComplete
+$task = New-HPOVEnclosure -hostname $myOA -enclGroupName $enclGroupName -username $myOAUser -password $myOAPass -licensingIntent $licenseIntent -fwBaselineIsoFilename $sppFileName -ApplianceConnection $ApplianceConnection | Wait-HPOVTaskComplete

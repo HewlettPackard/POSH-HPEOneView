@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.175.0"
+[version]$script:ModuleVersion = "2.0.202.0"
 $Global:CallStack = Get-PSCallStack
 $verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -4865,7 +4865,20 @@ function Send-HPOVRequest
 					$reader.Close()
 					$LastWebResponse.Close()                   
 
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp | fl * -force | out-string)"
+					if ($resp -is [String])
+					{
+
+						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: {0}" -f $resp | Write-Verbose 
+
+					}
+
+					else
+					{
+
+						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: {0}" -f ($resp | fl * -force | out-string) | Write-Verbose 
+
+					}
+                    
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Manual Pagination: $($manualPaging)"
 
@@ -4950,7 +4963,7 @@ function Send-HPOVRequest
 
                     }
 
-					elseif ([int]$LastWebResponse.StatusCode -eq 204 -and $method -eq "DELETE")
+					elseif (([int]$LastWebResponse.StatusCode -eq 204 -or [int]$LastWebResponse.StatusCode -eq 200) -and $method -eq "DELETE")
 					{
 						
 						$resp = [PSCustomObject]@{StatusCode = [int]$LastWebResponse.StatusCode; Message = "Resource deleted successfully." }
@@ -13084,7 +13097,9 @@ function Import-HPOVSslCertificate
 			{
 
 				#Get certificate
-				$Cert = [Security.Cryptography.X509Certificates.X509Certificate2]$WebRequest.ServicePoint.Certificate #.Handle
+				$Cert = [Security.Cryptography.X509Certificates.X509Certificate2]$WebRequest.ServicePoint.Certificate
+
+
 
 				$StoreScope = "CurrentUser"
 				$StoreName  = "Root" 
@@ -13103,17 +13118,6 @@ function Import-HPOVSslCertificate
 					$store.Close()
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert added successfully"
-
-					# // NEEDED ANYMORE? We don't use SSLCheckFlag global variable, nor do we use ServicePointManager.
-					# Maybe set SSLCheck on connection object? what about if caller doesn't have an auth connection, which isn't required for this CMDLET?
-					#Reset [System.Net.ServicePointManager]::CertificatePolicy after cert has been successfully imported.
-					#if (($script:SSLCheckFlag) -and ([System.Net.ServicePointManager]::CertificatePolicy)) 
-					#{
-					#
-					#	[System.Net.ServicePointManager]::CertificatePolicy = $Null
-					#	$script:SSLCheckFlag = $False
-					#
-					#}
 
 				}
 
@@ -14088,7 +14092,7 @@ function Set-HPOVServerPower
 		if (-not($PSBoundParameters['Server']))
 		{
 
-			$PipelineInput - $True
+			$PipelineInput = $True
 
 		}
 
@@ -14209,7 +14213,7 @@ function Set-HPOVServerPower
 		Try
 		{
 
-			$_serverObj = Send-HPOVRequest $serverUri -appliance $ApplianceConnection
+			$_serverObj = Send-HPOVRequest $serverUri -appliance $ApplianceConnection.Name
 
 		}
 
@@ -14233,7 +14237,7 @@ function Set-HPOVServerPower
 				#Enforce the proper string case
 				$powerState = (Get-Culture).TextInfo.ToTitleCase($powerState)
         
-				$uri = $_serverObj + "/powerState"
+				$uri = $_serverObj.uri + "/powerState"
 	    
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server to change power state: $($uri)"
 	    
@@ -15226,7 +15230,7 @@ function Remove-HPOVEnclosureGroup
 	End
 	{
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($_EnclosureCollection.count) Enclosure resources to remove."
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($_EnclosureGroupCollection.count) Enclosure Group resources to remove."
 
 		#Process Enclosure Resources
 		ForEach ($_enclosuregroup in $_EnclosureGroupCollection)
@@ -17863,20 +17867,23 @@ function Remove-HPOVEnclosure
 			ForEach ($_connection in $ApplianceConnection) 
 			{
 
-				Try {
+				Try 
+				{
 			
 					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
 
 				}
 
-				Catch [HPOneview.Appliance.AuthSessionException] {
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
 					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
 
-				Catch {
+				Catch 
+				{
 
 					$PSCmdlet.ThrowTerminatingError($_)
 
@@ -26126,14 +26133,14 @@ function New-HPOVNetwork
 		[parameter(Mandatory = $false, ParameterSetName = "FCOE",Position=1)]
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=1)]
 		[ValidateSet("Ethernet", "FC", "FibreChannel", "Fibre Channel", "FCoE")]
-		[string]$type = "Ethernet",
+		[string]$Type = "Ethernet",
         
-		[parameter(Mandatory = $true, ParameterSetName = "Ethernet",Position=2)] 
+		[parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=2)] 
 		[parameter(Mandatory = $true, ParameterSetName = "FCOE",Position=2)] 
-		[int32]$vlanId,
+		[int32]$VlanId,
 
 		[parameter(Mandatory = $true, ParameterSetName = "VLANIDRange",Position=1)]
-		[string]$vlanRange,
+		[string]$VlanRange,
 
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=3)] 
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=2)]
@@ -26143,42 +26150,42 @@ function New-HPOVNetwork
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
 		[ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
-		[string]$purpose = "General", 
+		[string]$Purpose = "General", 
 
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[boolean]$smartLink = $true, 
+		[boolean]$SmartLink = $true, 
 
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[boolean]$privateNetwork = $false, 
+		[boolean]$PrivateNetwork = $false, 
 
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
 		[parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(2,20000)]
-		[int32]$typicalBandwidth = 2500, 
+		[int32]$TypicalBandwidth = 2500, 
         
 		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
 		[parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(100,20000)]
-		[int32]$maximumBandwidth = 10000, 
+		[int32]$MaximumBandwidth = 10000, 
 
 		[parameter(Mandatory = $false, ParameterSetName = "FC")]
-		[int32]$linkStabilityTime = 30, 
+		[int32]$LinkStabilityTime = 30, 
 
 		[parameter(Mandatory = $false, ParameterSetName = "FC")]
-		[boolean]$autoLoginRedistribution = $False,
+		[boolean]$AutoLoginRedistribution = $False,
 
 		[parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[ValidateSet("FabricAttach","FA", "DirectAttach","DA")]
-		[string]$fabricType = "FabricAttach",
+		[string]$FabricType = "FabricAttach",
 
 		[parameter(Mandatory = $false, ParameterSetName = "FC", ValueFromPipeline = $True)]
 		[parameter(Mandatory = $false, ParameterSetName = "FCOE", ValueFromPipeline = $True, Position = 3)] 
 		[ValidateNotNullOrEmpty()]
-		[object]$managedSan = $Null,
+		[object]$ManagedSan = $Null,
 
 		[parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
@@ -26190,7 +26197,7 @@ function New-HPOVNetwork
 
 		[parameter(Mandatory = $true, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
-		[string]$importFile
+		[string]$ImportFile
 
     )
 
@@ -26249,6 +26256,26 @@ function New-HPOVNetwork
      
     Process 
 	{
+
+		#Validate Ethernet VLAN ID Setting if Type = 'Tagged'
+		if ($PSBoundParameters['VLANType'] -eq 'Tagged' -and (-not($PSBoundParameters['VLANID'])))
+		{
+
+			#Generate Error
+			$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidNetworkTypeOperation InvalidOperation 'VLANType' -Message "The -VLANType parameter was used to specify a 'Tagged' Network, however the -VLANID parameter was not provided.  Please provide a VLANID to the Network resource you are creating." #-verbose
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		#Validate Ethernet VLAN ID Setting if Network Type is FCoE
+		if ($PSBoundParameters['Type'] -eq 'FCoE' -and (-not($PSBoundParameters['VLANID'])))
+		{
+
+			#Generate Error
+			$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidNetworkTypeOperation InvalidOperation 'Type' -Message "The -Type parameter was used to specify a 'FCoE' Network, however the -VLANID parameter was not provided.  Please provide a VLANID to the Network resource you are creating." #-verbose
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
 
 		ForEach ($_appliance in $ApplianceConnection)
 		{
@@ -26316,7 +26343,8 @@ function New-HPOVNetwork
 
 						}
 
-					    else {
+					    else 
+						{
                     
 							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating bulk '$name' + '$vlanRange' Ethernet Networks"
 
@@ -26334,7 +26362,8 @@ function New-HPOVNetwork
 
 					}
 					
-					{ @("FC","FibreChannel","Fibre Channel") -contains $_ } {
+					{ @("FC","FibreChannel","Fibre Channel") -contains $_ } 
+					{
 
 					    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating '$name' FC Network"
 
@@ -26352,7 +26381,8 @@ function New-HPOVNetwork
 
 					}
 
-					"FCOE" {
+					"FCOE" 
+					{
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating '$name' FCOE Network"
 
@@ -26382,7 +26412,7 @@ function New-HPOVNetwork
 			    switch ($net.type) 
 				{
 
-			        "ethernet-networkV3" 
+			        {$_ -match "ethernet-network"}
 					{
 
 			            write-host "Creating Ethernet Network" $net.name 
@@ -26393,7 +26423,7 @@ function New-HPOVNetwork
 
 			        }
 
-			        "fc-networkV2" 
+			        {$_ -match "fc-network"}
 					{
 
 			            write-host "Creating FC Network" $net.name
@@ -26404,7 +26434,7 @@ function New-HPOVNetwork
 
 			        }
 
-					"fcoe-network"
+					{$_ -match "fcoe-network"}
 					{
 
 						write-host "Creating FCoE Network" $net.name
@@ -26415,10 +26445,11 @@ function New-HPOVNetwork
 
 					}
 
-			        "bulk-ethernet-network" 
+			        {$_ -match "bulk-ethernet-network"}
 					{
 			            
 			            write-host "Creating bulk '$name' + '$vlanRange' Ethernet Networks"
+
 			            $netUri = $script:ethNetworksUri + "/bulk"
 
 			        }
@@ -26427,7 +26458,7 @@ function New-HPOVNetwork
 			        default 
 					{
 
-			            $errorRecord = New-ErrorRecord System.ArgumentException InvalidNetworkType InvalidType 'New-HPOVNetwork' -Message "(INTERNAL ERROR) The Network Resource Type $($net.type) is invalid for '$($net.name)' network." #-verbose
+			            $errorRecord = New-ErrorRecord System.ArgumentException InvalidNetworkType InvalidType 'type' -Message "(INTERNAL ERROR) The Network Resource Type $($net.type) is invalid for '$($net.name)' network." #-verbose
 			            
 			            #Generate Terminating Error
 			            $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -26435,9 +26466,6 @@ function New-HPOVNetwork
 			        }
 
 			    }
-
-				#Not sure why this is here
-				#if ($net.connectionTemplateUri) { $net.connectionTemplateUri = $Null }
 
 			    $objStatus = [pscustomobject]@{ 
 					
@@ -26513,7 +26541,6 @@ function New-HPOVNetwork
 						$PSCMdlet.ThrowTerminatingError($_)
 
 					}
-			        
 
 			        $objStatus.Status  = $task.taskState
 			        $objStatus.Details = $task
@@ -26532,7 +26559,19 @@ function New-HPOVNetwork
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Network object to retrieve ConnectionTemplate URI"
 
 					#Get network resource URI
-			        $net = Send-HPOVRequest $objStatus.Details.associatedResource.resourceUri -Hostname $_appliance
+					Try
+					{
+
+						$net = Send-HPOVRequest $objStatus.Details.associatedResource.resourceUri -Hostname $_appliance
+
+					}
+			        
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ConnectionTemplate URI '$($net.connectionTemplateUri)'"
 
@@ -26540,8 +26579,20 @@ function New-HPOVNetwork
 					{
 
 			            $ctUri = $net.connectionTemplateUri
+						
+						Try
+						{
 
-			            $ct = Send-HPOVRequest $ctUri -Hostname $_appliance
+							$ct = Send-HPOVRequest $ctUri -Hostname $_appliance
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}        
 
 			            if ($ct -and $ct.bandwidth) 
 						{
@@ -26564,13 +26615,20 @@ function New-HPOVNetwork
 
     }
 
-    end {
+    end 
+	{
 
-        if ($colStatus | ? { $_.Status -ne "Completed" }) { write-error "One or more networks failed the creation attempt!" }
+        if ($colStatus | ? { $_.Status -ne "Completed" }) 
+		{ 
+			
+			write-error "One or more networks failed the creation attempt!" 
+		
+		}
 
         Return $colStatus
         
     }
+
 }
 
 function VerifyManagedSan 
@@ -33747,21 +33805,22 @@ function New-HPOVUplinkSet
 	(
 
         [parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectEthernet")]
+		[parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [alias('li','lig')]
         [Object]$Resource,
 
-		[parameter(Mandatory = $true, Position = 0, ParameterSetName = "PipelineOrObjectFibreChannel")]
+		[parameter(Mandatory = $true, Position = 1, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [parameter(Mandatory = $true, Position = 1, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usName')]
         [String]$Name,
 
-		[parameter(Mandatory = $true, Position = 1, ParameterSetName = "PipelineOrObjectFibreChannel")]
+		[parameter(Mandatory = $true, Position = 2, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [parameter(Mandatory = $true, Position = 2, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usType')]
         [ValidateSet("Ethernet", "FibreChannel", "Untagged", "Tunnel", IgnoreCase=$false)]
         [String]$Type = $Null,
 
-		[parameter(Mandatory = $false, Position = 2, ParameterSetName = "PipelineOrObjectFibreChannel")]
+		[parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usNetworks')]
         [Array]$Networks = @(),
@@ -33770,7 +33829,7 @@ function New-HPOVUplinkSet
         [Alias ('usNativeEthNetwork','Native','PVID')]
         [Object]$NativeEthNetwork = $Null,
 
-		[parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectFibreChannel")]
+		[parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [parameter(Mandatory = $false, Position = 5, ParameterSetName = "PipelineOrObjectEthernet")]
         [Alias ('usUplinkPorts')]
         [ValidateScript({($_.Split(","))[0].contains(":")})]
@@ -33796,6 +33855,7 @@ function New-HPOVUplinkSet
 		
 		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObject")]
 		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectEthernet")]
+		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectFibreChannel")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
@@ -37726,13 +37786,13 @@ function New-HPOVServerProfileTemplate
 			$_spt.macType                       = $macAssignment
 			$_spt.wwnType                       = $wwnAssignment
 
-
 			#Exmamine the profile connections parameter and pull only those connections for this appliance connection
 			If ($connections)
 			{
 							    
 				ForEach($c in $connections)
 				{
+
 			        if($c -is [array])
 					{
 
@@ -37754,7 +37814,7 @@ function New-HPOVServerProfileTemplate
 			
 			}
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_spt)"
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_spt | FL * -force | Out-String)"
 		    
 		    #Check to see if the serverHardwareType or enclosureGroup is null, and generate error(s) then break.
 		    if (-not($serverHardwareType))
@@ -37899,6 +37959,7 @@ function New-HPOVServerProfileTemplate
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group object provided"
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Name: $($enclosureGroup.name)"
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Uri: $($enclosureGroup.uri)"
+
                 #Retrieve only EG from this appliance connection
                 $_spt.enclosureGroupUri = ($enclosureGroup | ? {$_Connection.name -eq $_.applianceConnection.name}).uri 
 
@@ -37913,8 +37974,7 @@ function New-HPOVServerProfileTemplate
                             
             else 
 			{ 
-            
-                #write-error "The Enclosure Group object was invalid." -Category SyntaxError -RecommendedAction "Specify a correct Enclosure Group name, URI or object." -CategorytargetName "New-HPOVServerProfile" 
+ 
                 $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureGroupObject InvalidArgument 'EnclsoureGroup' -TargetType $EnclosureGroup.GetType().Name -Message "Enclosure Group is invalid.  Please specify a correct Enclosure Group name, URI or object and try again." #-verbose
 
                 #Generate Terminating Error
@@ -38602,7 +38662,7 @@ function New-HPOVServerProfileTemplate
 			Try
 			{
 
-				$resp = Send-HPOVRequest -uri $uri POST $_spt -appliance $_Connection
+				$resp = Send-HPOVRequest -uri $uri POST $_spt -appliance $_Connection.Name
 
 			}
 	        

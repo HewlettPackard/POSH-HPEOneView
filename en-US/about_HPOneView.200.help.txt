@@ -31,6 +31,11 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
+    Release 2.0.202.0
+     -- Fixed New-HPOVUplinkSet where FibreChannel specific parameters was missing the -Resource
+        parameter in the defined parameter set.
+     -- Fixed New-HPOVNetwork where Untagged networks would fail to be created.
+     -- [#63] Fixed Set-HPOVServerPower where URI wasn't being built properly causing request to fail.
 
     Release 2.0.175.0
      -- Fixed Add-HPOVStorageSystem where provided StoragePorts were not processing correctly.

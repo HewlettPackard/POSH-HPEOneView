@@ -1,6 +1,6 @@
 ﻿##############################################################################
 # ValidateInterconnect_Sample.ps1
-# - Example scripts for importing an enclosure to a specific EG.
+# - Example script to compare Logical Interconnect with Logical Interconnect Group
 #
 #   VERSION 1.0
 #
