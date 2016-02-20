@@ -40,9 +40,9 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-$script:scriptVersion = "1.20.275.0"
+[Version]$script:ModuleVersion = "1.20.306.0"
 $Global:CallStack = Get-PSCallStack
-$verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
+$script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" } ).position.text -match "-verbose"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % { $_.name -eq "HPOneView.120"}))) { 
@@ -3960,7 +3960,7 @@ function Get-HPOVVersion {
 
         $versionInfo = [PSCustomObject]@{ 
 
-            "OneViewPowerShellLibrary" = $script:scriptVersion;
+            "OneViewPowerShellLibrary" = $script:ModuleVersion;
             "libraryLoadedPath"        = (split-path -parent (get-module -Name hponeview.120).path)
 
         }
@@ -6706,6 +6706,188 @@ function Set-HPOVServerPower {
             if ($errorMessage) { write-error $errorMessage -Category InvalidOperation -CategoryTargetName "Set-HPOVServerPower" -ErrorAction Stop}
         }
     }
+}
+
+	
+function Update-HPOVServer
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdLetBinding()]
+    Param 
+    (
+    
+        [parameter (Mandatory, ValueFromPipeline, HelpMessage = "Provide a Server Hardware resource Name or Object, or a Server Profile Object.", Position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [Alias("name")]
+        [object]$Server
+	
+    )
+
+	Begin 
+    {
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		if (-not($PSBoundParameters['Server']))
+		{
+
+			$PipelineInput - $True
+
+		}
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		
+		if (-not($global:cimgmtSessionId)) 
+		{
+        
+            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError 'Auth' -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
+            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
+		$_ServerRefreshCol = New-Object System.Collections.ArrayList
+
+    }
+    
+    Process 
+	{
+
+        #Validate input object type
+        #Checking if the input is System.String and is NOT a URI
+        if (($server -is [string]) -and (-not($server.StartsWith($script:serversUri)))) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Name: $($server)"
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Server URI"
+
+            Try
+			{
+
+				$server = Send-HPOVRequst $server
+
+			}
+			
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+        }
+
+        #Checking if the input is System.String and IS a URI
+        elseif (($server -is [string]) -and ($server.StartsWith($script:serversUri))) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server device URI: $($server)"
+
+            Try
+			{
+
+				$server = Send-HPOVRequst $server
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+        
+        }
+
+        #Checking if the input is PSCustomObject, and the category type is server-profiles, which could be passed via pipeline input
+        elseif (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-hardware")) 
+		{
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Device object: $($server.name)"
+        
+        }
+
+        #Checking if the input is PSCustomObject, and the category type is server-hardware, which would be passed via pipeline input
+        elseif (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-profiles") -and ($server.serverHardwareUri)) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Profile object: $($server.name)"
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting server hardware device assigned to Server Profile."
+
+			if (-not($server.serverHardwareUri))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException ServerProfileUnassigned InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The Server Profile '$($Server.name)' is unassigned.  This cmdlet only supports Server Profiles that are assigned to Server Hardware resources. Please check the input object and try again." #-verbose
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+            Try
+			{
+
+				$Server = Send-HPOVRequst $Server.serverHardwareUri
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+        
+        }
+
+        else 
+		{
+
+            $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The parameter 'Server' value is invalid.  Please validate the 'Server' parameter value you passed and try again." #-verbose
+            $pscmdlet.ThrowTerminatingError($errorRecord)
+
+        }
+
+		"[$($MyInvocation.InvocationName.ToString().ToUpper())] Refreshing Server Hardware device: {0}" -f $Server.name | Write-Verbose 
+        
+		$uri = $Server.uri + "/refreshState"
+
+		$body = [pscustomobject]@{
+			
+			refreshState   = 'RefreshPending'
+			
+		}
+	    
+		Try
+		{
+
+			$_resp = Send-HPOVRequest $uri PUT $body
+		
+		}
+	    
+		Catch
+		{
+	    
+	    	$PSCmdlet.ThrowTerminatingError($_)
+		
+		}
+
+		[void]$_ServerRefreshCol.Add($_resp)
+	
+    }
+
+	End
+	{
+
+		Return $_ServerRefreshCol
+
+	}
+
 }
 
 function Get-HPOVEnclosureGroup {
@@ -15194,7 +15376,7 @@ function Get-HPOVAddressPoolRange {
 
         }
 
-		[ArrayList]$rangeList = New-Object System.Collections.ArrayList
+		$rangeList = New-Object System.Collections.ArrayList
 
     }
 
@@ -17583,6 +17765,7 @@ function New-HPOVUplinkSet {
             #Retrieve the interconnect type based on the bay number that was passed in in the ports parameter
 
             write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())]] Looking for Interconnect URI for Bay $($bay)"
+
             ForEach ($l in $ligInterconnects) { 
 
                 $found = $l.logicalLocation.locationEntries | ? {$_.type -eq "Bay" -and $_.relativeValue -eq $bay}
@@ -24413,15 +24596,21 @@ $regkeyGlobal   = "HKLM:\Software\Hewlett-Packard\HPOneView"
 $regkeyUser     = "HKCU:\Software\Hewlett-Packard\HPOneView" 
 $UserUseMSDSC   = [bool](Get-ItemProperty -LiteralPath $regkeyUser -ea silentlycontinue).'UseMSDSC'
 
-Write-Verbose "$regkeyUser exists: $(Test-Path $regkeyUser)" -verbose:$verbose
-Write-Verbose "UseMSDSC Enabled: $($UserUseMSDSC)" -verbose:$verbose
+Write-Verbose "$regkeyUser exists: $(Test-Path $regkeyUser)" -verbose:$script:ModuleVerbose
+Write-Verbose "UseMSDSC Enabled: $($UserUseMSDSC)" -verbose:$script:ModuleVerbose
 
 #Override Write-Host for MSDSC
-if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
+if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) 
+{
 	
-	function Write-Host {
-	[CmdletBinding()]
-	    Param(
+	function Write-Host 
+	{
+		
+		[CmdletBinding()]
+	    
+		Param
+		(
+
 	        [Parameter(Mandatory = $false, Position = 0)]
 	        [Object]$Object,
 
@@ -24444,7 +24633,9 @@ if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
 
 	}
 
-	Function Get-Host {
+	Function Get-Host 
+	{
+
 		[CmdletBinding()]
 	    Param()
 
@@ -24456,7 +24647,7 @@ if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
 
 # Import-Module Text
 write-host " "
-write-host "         Welcome to the HP OneView POSH Library, v$script:scriptVersion"
+write-host ("         Welcome to the HP OneView POSH Library, v{0}" -f $script:ModuleVersion.ToString())
 write-host "         ----------------------------------------------------"
 write-host " "
 write-host " To get a list of available CMDLETs in this library, type :  " -NoNewline

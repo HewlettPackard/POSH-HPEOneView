@@ -32,6 +32,11 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.306.0
+     -- Fixed an issue with module not loading when -verbose was called with the Import-Module command.
+     -- Added Update-HPOVServer to allow a Server Administrator to refresh 1 or more server hardware
+        devices management state on an appliance.
+
      Release 1.20.275.0
      -- Fixed Get-HPOVStorageVolume where the exception 'HPOneView.StorageVolumeResourceException'
         wasn't defined.
