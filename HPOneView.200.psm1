@@ -40,9 +40,9 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.202.0"
+[version]$script:ModuleVersion = "2.0.233.0"
 $Global:CallStack = Get-PSCallStack
-$verbose = ($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
+$script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
 #Check to see if another module is loaded in the console, but allow Import-Module to process normally if user specifies the same module name
 if ($(get-module -name HPOneView*) -and (-not $(get-module -name HPOneView* | % name -eq "HPOneView.200"))) 
@@ -2414,19 +2414,20 @@ $script:licensesUri = "/rest/licenses"
 #------------------------------------
 #  Security
 #------------------------------------
-$script:loginSessionsUri          = "/rest/login-sessions"
-$script:activeUserSessionsUri     = '/rest/active-user-sessions'
-$script:usersUri                  = "/rest/users"
-$script:userRoleUri               = "/rest/users/role"
-$script:authnProvidersUri         = "/rest/logindomains"
-$script:authnProviderValidatorUri = "/rest/logindomains/validator"
-$script:authnSettingsUri          = "/rest/logindomains/global-settings"
-$script:authnDirectoryGroups      = "/rest/logindomains/groups"
-$script:authnEgroupRoleMappingUri = "/rest/logindomains/grouptorolemapping"
-$script:applAuditLogsUri          = "/rest/audit-logs"
-$script:applAuditLogDownloadUri   = "/rest/audit-logs/download"
-$Script:applianceRolesUri         = '/rest/roles'
-$Script:OrganizationalUnitPattern = '^(?:(?:CN|OU|DC)\=[\w\s]+,)*(?:CN|OU|DC)\=[\w\s]+$'
+$script:LoginSessionsUri            = '/rest/login-sessions'
+$script:activeUserSessionsUri       = '/rest/active-user-sessions'
+$script:usersUri                    = "/rest/users"
+$script:userRoleUri                 = "/rest/users/role"
+$script:authnProvidersUri           = "/rest/logindomains"
+$script:authnProviderValidatorUri   = "/rest/logindomains/validator"
+$script:authnSettingsUri            = "/rest/logindomains/global-settings"
+$script:authnDirectoryGroups        = "/rest/logindomains/groups"
+$script:authnEgroupRoleMappingUri   = "/rest/logindomains/grouptorolemapping"
+$script:applAuditLogsUri            = "/rest/audit-logs"
+$script:applAuditLogDownloadUri     = "/rest/audit-logs/download"
+$Script:applianceRolesUri           = '/rest/roles'
+$Script:ApplianceLoginDomainDetails = '/rest/logindetails'
+$Script:OrganizationalUnitPattern   = '^(?:(?:CN|OU|DC)\=[\w\s]+,)*(?:CN|OU|DC)\=[\w\s]+$'
 
 #endregion
 
@@ -2440,7 +2441,8 @@ $script:WhiteListedURIs = @(
     $applEulaSave,
     ($usersUri + "/changePassword"),
     "/startstop/rest/component?fields=status",
-	$applianceStartProgress
+	$applianceStartProgress,
+	$ApplianceLoginDomainDetails
 
 )
 
@@ -5057,6 +5059,8 @@ function Send-HPOVRequest
                 { 
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Net.WebException Error caught"
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0}" -f $_.Exception.Message | write-verbose
                     
                     if ($_.Exception.InnerException -match "System.Net.WebException: Unable to connect to the remote server") 
 					{ 
@@ -5079,6 +5083,8 @@ function Send-HPOVRequest
                         if ($_.Exception.InnerException.Response) 
 						{
 
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] InnerException"
+
                             $LastWebResponse = $_.Exception.InnerException.Response
 
                         }
@@ -5098,6 +5104,8 @@ function Send-HPOVRequest
                         if ($_.Exception.Response) 
 						{
 
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Exception"
+
                             $LastWebResponse = $_.Exception.Response
 
                         }
@@ -5114,18 +5122,27 @@ function Send-HPOVRequest
                     if ($LastWebResponse) 
 					{
 
-                        #$rs = $LastWebResponse.GetResponseStream()
+                        Try
+						{
 
-                        #$reader = New-Object System.IO.StreamReader($rs)
-						$reader = New-Object System.IO.StreamReader($LastWebResponse.GetResponseStream())
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Error Response."
+						
+							$reader = New-Object System.IO.StreamReader($LastWebResponse.GetResponseStream())
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
 
                         $ErrorResponse = $reader.ReadToEnd() | ConvertFrom-JSON
 
 						$LastWebResponse.Close()
 
 						$reader.Close()
-
-						#$ErrorResponse = ConvertFrom-JSON $responseJson
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ERROR RESPONSE: $($ErrorResponse | out-string)"
 
@@ -5167,55 +5184,77 @@ function Send-HPOVRequest
                         switch ([int](${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).LastWebResponse.StatusCode) 
 						{
 
-                            # Generic HTTP 400 error
+                            #HTTP 400 errors
                             400 
 							{
                                 
                                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP 400 error caught."
 
-                                #Hande initial authentication errors
-                                if ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode -eq "AUTHN_AUTH_DIR_FAIL") 
+								switch ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode)
 								{
+
+									#Hande initial authentication errors
+									"AUTHN_AUTH_DIR_FAIL"
+									{
                                     
-                                    ${Global:ConnectedSessions}.Remove($ApplianceHost)
-                                    $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message)  $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.recommendedActions)"
-                                    $pscmdlet.ThrowTerminatingError($errorRecord)
+										${Global:ConnectedSessions}.Remove($ApplianceHost)
+										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message)  $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.recommendedActions)"
+										$pscmdlet.ThrowTerminatingError($errorRecord)
 
-                                }
+									}
+
+									#Handle invalid user session
+		    						"AUTHN_LOGOUT_FAILED"
+									{
+
+		    							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User session no longer valid, likely due to session timeout. Clearing library runtime global and script variables."
+
+										${Global:ConnectedSessions}.Remove($ApplianceHost)
+
+										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUserSession AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message "$($global:ResponseErrorObject.($ApplianceHost.Name).details)"
+										Throw $errorRecord
+
+									}
+
+									#Handle user not acknowledging login message
+		    						"AUTHN_LOGIN_MESSAGE_ACKNOWLEDGMENT_REQUIRED"
+									{
+
+		    							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User needed to accept the Login Message."
+
+										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException LoginMessageAcknowledgementRequired AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message ("{0} {1} " -f $global:ResponseErrorObject.($ApplianceHost.Name).details, $global:ResponseErrorObject.($ApplianceHost.Name).recommendedActions)
+										Throw $errorRecord
+
+									}
+
+									default
+									{
+
+										if ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorSource) 
+										{ 
+										
+											$source = (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorSource 
+									
+										}
+
+										else 
+										{ 
+										
+											$source = 'Send-HPOVRequest' 
+									
+										}
+
+										$errorRecord = New-ErrorRecord InvalidOperationException InvalidAuthOperation InvalidOperation $source -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.details)"
+										$pscmdlet.ThrowTerminatingError($errorRecord)
+
+									}
+
+								}
+
+                                
 		    					
-		    					#Handle invalid user session
-		    					elseif ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode -eq "AUTHN_LOGOUT_FAILED") 
-								{
-
-		    						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User session no longer valid, likely due to session timeout. Clearing library runtime global and script variables."
-
-                                    ${Global:ConnectedSessions}.Remove($ApplianceHost)
-
-                                    $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUserSession AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message "$($global:ResponseErrorObject.($ApplianceHost.Name).details)"
-                                    Throw $errorRecord
-
-                                }
-                                else 
-								{
-
-                                    if ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorSource) 
-									{ 
-										
-										$source = (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorSource 
-									
-									}
-
-                                    else 
-									{ 
-										
-										$source = 'Send-HPOVRequest' 
-									
-									}
-
-                                    $errorRecord = New-ErrorRecord InvalidOperationException InvalidOperation InvalidOperation $source -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.details)"
-                                    $pscmdlet.ThrowTerminatingError($errorRecord)
-
-                                }
+		    					
+                                
 
                             }
 
@@ -5377,7 +5416,7 @@ function Send-HPOVRequest
                     else 
 					{
 
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Returning Null"
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Exception Response Object to return."
 
                         return $null
 
@@ -5874,25 +5913,28 @@ function Connect-HPOVMgmt
     Param
 	(
 
-         [parameter(Mandatory, HelpMessage = "Enter the appliance DNS name or IP",Position=0)]
-         [ValidateNotNullOrEmpty()]
-         [alias('Appliance')]
-         [string]$Hostname,
+		[parameter(Mandatory, HelpMessage = "Enter the appliance DNS name or IP", Position = 0)]
+		[ValidateNotNullOrEmpty()]
+		[alias('Appliance')]
+		[string]$Hostname,
 
-         [parameter(Mandatory = $false, HelpMessage = "Enter the authentication domain",Position=3)]
-         [ValidateNotNullOrEmpty()]
-         [alias('authProvider')]
-         [string]$AuthLoginDomain = 'LOCAL',
+		[parameter(Mandatory = $false, HelpMessage = "Enter the authentication domain", Position = 3)]
+		[ValidateNotNullOrEmpty()]
+		[alias('authProvider')]
+		[string]$AuthLoginDomain = 'LOCAL',
 
-         [parameter(Mandatory, HelpMessage = "Enter the user name",Position=1)]
-         [ValidateNotNullOrEmpty()]
-         [alias("u",'user')]
-         [string]$UserName,
+		[parameter(Mandatory, HelpMessage = "Enter the user name", Position = 1)]
+		[ValidateNotNullOrEmpty()]
+		[alias("u",'user')]
+		[string]$UserName,
 
-         [parameter(Mandatory = $false, HelpMessage = "Enter the password:",Position=2)]
-         [alias("p")]
-         [ValidateNotNullOrEmpty()]
-         [String]$password
+		[parameter(Mandatory = $false, HelpMessage = "Enter the password:", Position = 2)]
+		[alias("p")]
+		[ValidateNotNullOrEmpty()]
+		[String]$password,
+
+		[parameter(Mandatory = $false)]
+		[switch]$LoginAcknowledge 
 
     )
 
@@ -6037,6 +6079,13 @@ function Connect-HPOVMgmt
         $_authinfo.password        = $decryptPassword
         $_authinfo.authLoginDomain = $AuthLoginDomain
 
+		if ($PSBoundParameters['LoginAcknowledge'])
+		{
+
+			$_authinfo | Add-Member -NotePropertyName loginMsgAck -NotePropertyValue $True
+
+		}
+
         try 
         {
 
@@ -6049,13 +6098,109 @@ function Connect-HPOVMgmt
         catch [HPOneView.Appliance.AuthSessionException] 
         {
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Username, Password or Auth Directory"
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Exception Caught."
 
-			#Remove Connection from global tracker
-			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+			switch ($_.FullyQualifiedErrorId)
+			{
 
-            $errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Connect-HPOVMgmt' -Message $_.Exception.Message 
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+				'LoginMessageAcknowledgementRequired'
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Exception Caught."
+
+					#Get LoginMessage from appliance.
+					Try
+					{
+
+						$_LoginMessage = Send-HPOVRequest $ApplianceLoginDomainDetails -Hostname $Hostname
+
+						Write-Host ("{0}" -f $_LoginMessage.loginMessage.message)
+
+						$caption = "Please Confirm";
+						$message = "Do you acknowledge the login message?";
+						$yes     = new-Object System.Management.Automation.Host.ChoiceDescription "&Yes","Yes, I accept the login message.";
+						$no      = new-Object System.Management.Automation.Host.ChoiceDescription "&No","No, I do not.";
+						$choices = [System.Management.Automation.Host.ChoiceDescription[]]($yes,$no);
+						$answer  = $host.ui.PromptForChoice($caption,$message,$choices,0) 
+
+						switch ($answer)
+						{
+
+							#YES
+							0 
+							{
+
+								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Submitting auth request again, with login message acknowledgement."
+                            
+								$_authinfo | Add-Member -NotePropertyName loginMsgAck -NotePropertyValue $True
+
+								Try
+								{
+
+									$resp = Send-HPOVRequest $LoginSessionsUri POST $_authinfo -Hostname $Hostname
+
+								}
+
+								Catch
+								{
+
+									$PSCmdlet.ThrowTerminatingError($_)
+
+								}
+
+							}
+
+							#NO
+							1
+							{
+
+								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User selected 'No'."
+
+								'You are not authenticated to {0}, as you chose not to accept the Login Message acknowledgement.' -f $Hostname | Write-Warning 
+
+								#Remove Connection from global tracker
+								[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+
+								Return
+
+							}
+
+						}   
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+				}
+
+				{'InvalidUsernameOrPassword' -match $_}
+				{
+
+					#Remove Connection from global tracker
+					[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+
+					$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Connect-HPOVMgmt' -Message $_.Exception.Message 
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				default
+				{
+
+					#Remove Connection from global tracker
+					[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+
+					$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException ($_ -split ",")[0] AuthenticationError 'Connect-HPOVMgmt' -Message $_.Exception.Message 
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+			}           
 
         }
 
@@ -6101,8 +6246,6 @@ function Connect-HPOVMgmt
     
             #Get list of supported Roles from the appliance
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of supported roles from appliance."
-
-            #$roles = Send-HPOVRequest $Script:applianceRolesUri -Hostname $Hostname
 
             try 
 			{ 
@@ -6257,7 +6400,7 @@ function Disconnect-HPOVMgmt
 		        try 
                 {
                 
-                    $Resp = Send-HPOVRequest $script:loginSessionsUri DELETE $_Connection.SessionId -Hostname $_Connection.Name
+                    $Resp = Send-HPOVRequest $script:LoginSessionsUri DELETE $_Connection.SessionId -Hostname $_Connection.Name
 
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing connection from global connection tracker"
 
@@ -26327,7 +26470,7 @@ function New-HPOVNetwork
 					"Ethernet" 
 					{
 
-					    if (-not $vlanRange) 
+					    if (-not($PSBoundParameters['vlanRange'])) 
 						{
 
 						    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating '$name' Ethernet Network"
@@ -26412,6 +26555,17 @@ function New-HPOVNetwork
 			    switch ($net.type) 
 				{
 
+					{$_ -match "bulk-ethernet-network"}
+					{
+			            
+			            write-host "Creating bulk '$name' + '$vlanRange' Ethernet Networks"
+
+			            $netUri = $script:ethNetworksUri + "/bulk"
+
+						break
+
+			        }
+
 			        {$_ -match "ethernet-network"}
 					{
 
@@ -26445,15 +26599,6 @@ function New-HPOVNetwork
 
 					}
 
-			        {$_ -match "bulk-ethernet-network"}
-					{
-			            
-			            write-host "Creating bulk '$name' + '$vlanRange' Ethernet Networks"
-
-			            $netUri = $script:ethNetworksUri + "/bulk"
-
-			        }
-			        
 			        #Should never get here.  If so, this is an internal error we need to fix.
 			        default 
 					{
@@ -26477,7 +26622,8 @@ function New-HPOVNetwork
 				}
 
 			    #Check if Network Type is Direct Attach and if ManagedFabric parameter is being called at the same time.
-			    if (($fabricType -eq "DirectAttach" -or $fabricType -eq "DA") -and $managedfabric) { 
+			    if (($fabricType -eq "DirectAttach" -or $fabricType -eq "DA") -and $managedfabric) 
+				{ 
 
 			        $objStatus.Details = "You specified a DirectAttach Fabric Type and passed the ManagedSan parameter.  The ManagedSan parameter is to be used for FabricAttach networks only."
 			       
@@ -26550,8 +26696,7 @@ function New-HPOVNetwork
 			    [void] $colStatus.add($objStatus) #| Out-Null
 
 				#Update Bandwidth allocation if set to different than default values
-			    #if($objStatus.details.associatedResource.resourceUri) {
-				if (($typicalBandwidth -or $maximumBandwidth) -and (-not($objStatus.Status -eq "Failed"))) 
+				if (($typicalBandwidth -or $maximumBandwidth) -and (-not($objStatus.Status -eq "Failed")) -and $net.type -ne 'bulk-ethernet-network' ) 
 				{
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Setting bandwidth to network object"
@@ -26562,7 +26707,7 @@ function New-HPOVNetwork
 					Try
 					{
 
-						$net = Send-HPOVRequest $objStatus.Details.associatedResource.resourceUri -Hostname $_appliance
+						$net = Send-HPOVRequest $objStatus.associatedResource.resourceUri -Hostname $_appliance
 
 					}
 			        
@@ -46774,7 +46919,7 @@ function Set-HPOVAlert
         [Object]$Alert,
 
         [parameter (Position = 1, Mandatory = $false)]
-        [string]$AssignToUser = $null,
+        [string]$AssignToUser,
 
         [parameter (Position = 2, Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
@@ -46856,24 +47001,45 @@ function Set-HPOVAlert
 
 		$_AlertUpdateObject = NewObject -UpdateAlert
 
-		if ($PSBoundParameters['Cleared'])
+		if (-not($PSBoundParameters['Notes']))
 		{
 
-			$_AlertUpdateObject.alertState = 'Cleared';
+			$_AlertUpdateObject.notes = 'Updated alert with: {0}' -f (($PSBoundParameters.Keys | ? { 'Cleared','Active','AssignToUser' -contains $_ } | % { "{0} ({1})" -f $_,$PSBoundParameters[$_] } )-Join ", ")
 
 		}
 
-		elseif ($PSBoundParameters['Active'])
+		switch ($PSBoundParameters.keys)
 		{
 
-			$_AlertUpdateObject.alertState = 'Active';
+			'Cleared'
+			{
 
-		}
+				$_AlertUpdateObject.alertState = 'Cleared'
+
+			}
+
+			'Active'
+			{
+
+				$_AlertUpdateObject.alertState = 'Active'
+
+			}
+
+			'AssignToUser'
+			{
+
+				$_AlertUpdateObject.assignedToUser = $AssignToUser
+
+			}
+
+			'Notes'
+			{
 			
-		$_AlertUpdateObject.assignedToUser = $AssignToUser;
-		$_AlertUpdateObject.notes          = $Notes;
+				$_AlertUpdateObject.notes = $Notes
+			
+			}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource provided via pipeline."
+		}
 
 		#Validate input object is correct
 		if ($Alert.category -ne 'alerts')
@@ -46884,7 +47050,7 @@ function Set-HPOVAlert
 
 		}
 			
-		if (-not($Alert.ApplianceConnection.Name))
+		if (-not($Alert.ApplianceConnection.Name) -and -not($ApplianceConnection))
 		{
 
 			$errorRecord = New-ErrorRecord InvalidOperationException InvalidAlertObject InvalidArgument 'Alert' -TargetType $Alert.GetType().Name -Message 'The Alert parameter value does not contain a valid ApplianceConnection property.  Please check the value and try again.'
@@ -46909,7 +47075,7 @@ function Set-HPOVAlert
 
 			}
 
-			$_resp = Send-HPOVRequest $Alert.uri PUT $_AlertUpdateObject -Hostname $ApplianceConnection.ApplianceConnection.Name
+			$_resp = Send-HPOVRequest $Alert.uri PUT $_AlertUpdateObject -Hostname $ApplianceConnection.Name
 		
 			$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Alert")
 
@@ -48557,7 +48723,7 @@ Export-ModuleMember -Function Remove-HPOVLicense
 #  Import-Module Processing
 #
 #Create HPOneView HKCU key
-If (-not(Test-Path "HKCU:\Software\Hewlett-Packard\HPOneView")) { New-Item "HKCU:\Software\Hewlett-Packard\HPOneView" -force | Write-Verbose }
+If (-not(Test-Path "HKCU:\Software\Hewlett-Packard\HPOneView")) { New-Item "HKCU:\Software\Hewlett-Packard\HPOneView" -force | Out-Null }
 
 
 #######################################################
@@ -48570,8 +48736,8 @@ $regkeyUser     = "HKCU:\Software\Hewlett-Packard\HPOneView"
 
 $UserUseMSDSC   = [bool](Get-ItemProperty -LiteralPath $regkeyUser -ea silentlycontinue).'UseMSDSC'
 
-Write-Verbose "$regkeyUser exists: $(Test-Path $regkeyUser)" -verbose:$verbose
-Write-Verbose "UseMSDSC Enabled: $($UserUseMSDSC)" -verbose:$verbose
+Write-Verbose "$regkeyUser exists: $(Test-Path $regkeyUser)" -verbose:$script:ModuleVerbose
+Write-Verbose "UseMSDSC Enabled: $($UserUseMSDSC)" -verbose:$script:ModuleVerbose
 
 #Override Write-Host for MSDSC
 if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
@@ -48601,7 +48767,7 @@ if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
 	    )
 	
 	    #Override default Write-Host...
-	    Write-Verbose $Object -verbose:$verbose
+	    Write-Verbose $Object -verbose:$script:ModuleVerbose
 	}
 
 	Function Get-Host 
@@ -48618,7 +48784,7 @@ if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
 
 # Import-Module Text
 write-host ""
-write-host "         Welcome to the HPE OneView POSH Library, v$($script:ModuleVersion.ToString())"
+write-host ("         Welcome to the HP OneView POSH Library, v{0}" -f $script:ModuleVersion.ToString())
 write-host "         -----------------------------------------------------"
 write-host ""
 write-host " To get a list of available CMDLETs in this library, type :  " -NoNewline

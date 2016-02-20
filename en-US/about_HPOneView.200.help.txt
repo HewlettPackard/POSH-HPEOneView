@@ -31,6 +31,14 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
+    Release 2.0.233.0
+     -- Fixed an issue with module not loading when -verbose was called with the Import-Module command.
+     -- Fixed New-HPOVNetwork where Bulk Networks were not being created due to 'invalid JSON' error 
+        from API.
+     -- [#62] Fixed Set-HPOVAlert that prevented an alert from being updated. 
+     -- Updated-Send-HPOVRequest to handle NULL Error Responses from the appliance better.
+     -- Updated-Send-HPOVRequest and Connect-HPOVMgmt to support Login Message Acknowledgement.
+
     Release 2.0.202.0
      -- Fixed New-HPOVUplinkSet where FibreChannel specific parameters was missing the -Resource
         parameter in the defined parameter set.
