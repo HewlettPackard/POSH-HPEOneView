@@ -2743,6 +2743,13 @@ Password to log into the appliance.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">password</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LoginAcknowledge</maml:name>
+					<maml:description>
+						<maml:para>When a Login Message has been configured and acknowledgement is Required, use this parameter to acknowledge it during the initial call.  Otherwise, if omitted, and a Login Banner acknowledgement is required, the caller will be prompted.  This prompt does not support the -Confirm parameter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LoginAcknowledge</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
@@ -2801,6 +2808,18 @@ Password to log into the appliance.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>LoginAcknowledge</maml:name>
+				<maml:description>
+					<maml:para>When a Login Message has been configured and acknowledgement is Required, use this parameter to acknowledge it during the initial call.  Otherwise, if omitted, and a Login Banner acknowledgement is required, the caller will be prompted.  This prompt does not support the -Confirm parameter.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">LoginAcknowledge</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>

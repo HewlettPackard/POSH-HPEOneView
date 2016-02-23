@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.233.0"
+[version]$script:ModuleVersion = "2.0.243.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -22537,7 +22537,7 @@ function New-HPOVStorageVolume
 
 								}
 								
-								$_sp = $StoragePool.PSObject.Clone()
+								$_sp = $StoragePool.PSObject.Copy()
 							
 							}
 
@@ -22657,7 +22657,7 @@ function New-HPOVStorageVolume
 
 								}
 
-								$_svt = $VolumeTemplate.PSObject.Clone()
+								$_svt = $VolumeTemplate.PSObject.Copy()
 							
 							}
 
@@ -22941,7 +22941,7 @@ function Add-HPOVStorageVolume
 					
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System Object provided: $($StorageSystem.name)"
 
-					$_ss = $StorageSystem.PSObject.Clone()
+					$_ss = $StorageSystem.PSObject.Copy()
 				
 				}
 
@@ -26707,7 +26707,7 @@ function New-HPOVNetwork
 					Try
 					{
 
-						$net = Send-HPOVRequest $objStatus.associatedResource.resourceUri -Hostname $_appliance
+						$net = Send-HPOVRequest $task.associatedResource.resourceUri -Hostname $_appliance
 
 					}
 			        
@@ -26746,7 +26746,7 @@ function New-HPOVNetwork
 
 			                if ($maximumBandwidth) { $ct.bandwidth.maximumBandwidth = $maximumBandwidth }
 
-			                Set-HPOVResource -resource $ct -Appliance $_appliance | Out-Null
+			                Send-HPOVRequest $ct.uri PUT $ct -Hostname $_appliance | Out-Null
 
 			            }
 
@@ -34128,7 +34128,7 @@ function New-HPOVUplinkSet
 					$_liInterconnects = $_resource.interconnectMap.interconnectMapEntries
 					
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Uplink Ports: $($UplinkPorts | out-string)"
-					$UplinkPorts = $UplinkPorts.Split(',')
+					$UplinkPorts = $UplinkPorts.Split(',') #This shouldn't be here.
 
 					#Loop through requested Uplink Ports
 					$port              = New-Object System.Collections.ArrayList
@@ -34137,13 +34137,11 @@ function New-HPOVUplinkSet
 					foreach ($_p in $UplinkPorts)
 					{
 
-						$rem = "bayBAY"
-						    
 						#Split string to get bay and port
 						$_p = $_p.Split(':')
 						    
 						#remove bay so we just have the ID
-						$bay = $_p[0].TrimStart($rem)
+						$bay = $_p[0].ToLower().TrimStart('bay') -replace " ",''
 						    
 						#Get faceplate portName
 						$uplinkPort = $_p[1]
@@ -34354,7 +34352,7 @@ function New-HPOVUplinkSet
 					$ligInterconnects = $_resource.interconnectMapTemplate.interconnectMapEntryTemplates
 					
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Uplink Ports: $($UplinkPorts | out-string)"
-					$UplinkPorts = $UplinkPorts.Split(',')
+					$UplinkPorts = $UplinkPorts.Split(',') #This shouldn't be here.
 
 					#Loop through requested Uplink Ports
 					$port              = New-Object System.Collections.ArrayList
@@ -34362,14 +34360,12 @@ function New-HPOVUplinkSet
 
 					foreach ($_p in $UplinkPorts)
 					{
-
-						$rem = "bayBAY"
 						    
 						#Split string to get bay and port
 						$_p = $_p.Split(':')
 						    
 						#remove bay so we just have the ID
-						$bay = $_p[0].TrimStart($rem)
+						$bay = $_p[0].ToLower().TrimStart('bay') -replace " ",''
 						    
 						#Get faceplate portName
 						$uplinkPort = $_p[1]

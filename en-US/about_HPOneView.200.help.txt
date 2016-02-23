@@ -31,6 +31,11 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
+    Release 2.0.243.0
+     -- [#68] Fixed regression issue with New-HPOVNetwork.
+     -- [#69] Fixed New-HPOVStorageVolume where wrong .Net Class Method was being used to copy source
+        object, resulting in API error.
+
     Release 2.0.233.0
      -- Fixed an issue with module not loading when -verbose was called with the Import-Module command.
      -- Fixed New-HPOVNetwork where Bulk Networks were not being created due to 'invalid JSON' error 
