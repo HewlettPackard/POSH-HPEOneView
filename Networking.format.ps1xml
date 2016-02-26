@@ -853,7 +853,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  $baseline = (Send-HPOVRequest "$($_.uri)/firmware" -Hostname $_.ApplianceConnection.Name).name
+                  $baseline = Send-HPOVRequest "$($_.uri)/firmware" -Hostname $_.ApplianceConnection.Name
                   if ($baseline.fwBaseline -eq 'UnDefined' -and $baseline.name -eq 'UnKnown') { $baseline.sppName = "Managed Manually" }
                   "{0}" -f $baseline.sppName
                 </ScriptBlock>
@@ -903,7 +903,7 @@
               <ListItem>
                 <Label>Firmware Baseline</Label>
                 <ScriptBlock>
-                  $baseline = (Send-HPOVRequest "$($_.uri)/firmware" -Hostname $_.ApplianceConnection.Name).name
+                  $baseline = Send-HPOVRequest "$($_.uri)/firmware" -Hostname $_.ApplianceConnection.Name
                   if ($baseline.fwBaseline -eq 'UnDefined' -and $baseline.name -eq 'UnKnown') { $baseline.sppName = "Managed Manually" }
                   "{0}" -f $baseline.sppName
                 </ScriptBlock>

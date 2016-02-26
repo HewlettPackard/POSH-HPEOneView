@@ -1,6 +1,74 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 	<ViewDefinitions>
+    <!--LoginMessage FL-->
+    <View>
+      <Name>LoginMessage</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.LoginMessage</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Message</Label>
+                <PropertyName>Message</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Acknowledge</Label>
+                <PropertyName>Acknowledgment</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--LoginMessage FT-->
+    <View>
+      <Name>LoginMessage</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.LoginMessage</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <!--<AutoSize/>-->
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Message</Label>
+            <Alignment>Left</Alignment>
+            <Width>25</Width>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Acknowledge</Label>
+            <Alignment>Right</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Message</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Acknowledgment</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--ApplianceConnection FT-->
     <View>
       <Name>ApplianceConnection</Name>
@@ -184,7 +252,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
     <!--Appliance.TaskResource FL-->
 		<View>
 			<Name>TaskResource</Name>
@@ -240,7 +307,6 @@
 				</ListEntries>
 			</ListControl>
 		</View>
-
     <!--Appliance.TaskResource FT-->
     <View>
       <Name>TaskResource</Name>
@@ -308,8 +374,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
-
     <!--APPLIANCE_LICENSE FL-->
 		<View>
 			<Name>License</Name>
@@ -652,9 +716,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
-
     <!--APPLIANCE_AUTHDIRECTORYGROUPS-->
     <View>
       <Name>AuthDirectoryGroup</Name>
@@ -754,7 +815,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
     <!--Appliance.AuditLogEntry FL-->
     <View>
       <Name>AuditLogEntry</Name>
@@ -802,8 +862,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
     <!--APPLIANCE_ALERTS-->
     <View>
       <Name>ApplianceAlert</Name>
@@ -1041,8 +1099,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
-
     <!--HPOneView.Appliance.Version.Extended FL-->
     <View>
       <Name>VersionExtended</Name>

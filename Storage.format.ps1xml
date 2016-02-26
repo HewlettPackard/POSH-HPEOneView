@@ -110,6 +110,10 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Snapshot Pool</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Used By</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -134,10 +138,18 @@
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri).name</ScriptBlock>
+                <ScriptBlock>(send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storagePoolUri).name</ScriptBlock>
+                <ScriptBlock>(send-hpovrequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+               <TableColumnItem>
+                <ScriptBlock>
+                if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
+                {
+                  (send-hpovrequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                }  
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
@@ -204,15 +216,24 @@
               <ListItem>
                 <Label>Stroage System</Label>
                 <ScriptBlock>
-                  (send-hpovrequest $_.storageSystemUri).name
+                  (send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Stroage Pool</Label>
+                <Label>Storage Pool</Label>
                 <ScriptBlock>
-                  (send-hpovrequest $_.storagePoolUri).name
+                  (send-hpovrequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
               </ListItem>
+              <ListItem>
+                <Label>Snapshot Pool</Label>
+                <ScriptBlock>
+                  if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
+                  {
+                    (send-hpovrequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                  }  
+                </ScriptBlock>
+              </ListItem>                
               <ListItem>
                 <Label>RAID</Label>
                 <PropertyName>raidLevel</PropertyName>
@@ -233,6 +254,95 @@
 
                   else { "No server profiles" }
                 </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--Storage.VolumeSnapshot FT-->
+    <View>
+      <Name>StorageVolumeSnapshot</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.VolumeSnapshot</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Parent Volume</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Capacity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f $_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(Send-HPOVRequest $_.storageVolumeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} ({1})" -f $_.state, $_.stateReason</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0:N2} GB' -f ($_.capacity / 1GB)</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.VolumeSnapshot FL-->
+    <View>
+      <Name>StorageVolumeSnapshot</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.VolumeSnapshot</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>"{0}" -f $_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Parent Volume</Label>
+                <ScriptBlock>(Send-HPOVRequest $_.storageVolumeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.state, $_.stateReason</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Capacity</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.capacity / 1GB)</ScriptBlock>
               </ListItem>
             </ListItems>
           </ListEntry>
@@ -537,7 +647,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Network</Label>
+            <Label>Networks</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -573,7 +683,7 @@
                 <PropertyName>principalSwitch</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>($_.publicAttributes | ? name -eq "NetworkName" ).value</ScriptBlock>
+                <ScriptBlock>$_.associatedNetworks.name -join ', '</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>zoningState</PropertyName>
@@ -632,8 +742,8 @@
                 <PropertyName>principalSwitch</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Network</Label>
-                <ScriptBlock>($_.publicAttributes | Where { $_.name -eq "NetworkName" }).value</ScriptBlock>
+                <Label>Networks</Label>
+                <ScriptBlock>$_.associatedNetworks.name -join ', '</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Zoned</Label>

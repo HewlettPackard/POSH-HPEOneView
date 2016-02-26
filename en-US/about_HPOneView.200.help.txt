@@ -31,6 +31,30 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
+
+    Release 2.0.279.0
+     -- [#70] Fixed Add-HPOVStorageSystem where unmanagedDomains object property was being set incorrectly
+        causing an API JSON error.
+     -- [#71] Fixed New-HPOVServerProfile where ephemeral volumes were not attaching correctly, causing API
+        JSON errors. 
+     -- [#75] Fixed Get-HPOVBaseline where FileName filter wasn't being applied correctly, resulting in all
+        results being returned to caller.
+     -- Fixed Get-HPOVLogicalInterconnect where filtering by Name wasn't implemented.
+     -- Fixed Remove-HPOVBaseline where pipeline object validation was incorrectly set.
+     -- [#76] Enhanced New-HPOVServerProfile and New-HPOVServerProfileTemplate to specify the different
+        baseline installation modes.
+     -- Added new -FirmwareMode parameter to New-HPOVServerProfile.
+     -- Added the following new Cmdlets:
+	 
+        * Get-HPOVStorageVolumeSnapshot
+        * New-HPOVStorageVolumeSnapshot
+        * Remove-HPOVStorageVolumeSnapshotv
+        * ConvertTo-HPOVStorageVolume
+        * Get-HPOVLoginMessage
+        * Set-HPOVLoginMessage
+
+     -- [#43] Updated Set-HPOVSanManager and Set-HPOVManagedSan to support Multiple Connections.
+
     Release 2.0.243.0
      -- [#68] Fixed regression issue with New-HPOVNetwork.
      -- [#69] Fixed New-HPOVStorageVolume where wrong .Net Class Method was being used to copy source
