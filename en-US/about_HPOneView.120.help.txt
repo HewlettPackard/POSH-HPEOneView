@@ -32,6 +32,9 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.310.0
+     -- [#80] Fixed issue with module manifest file where VersionInfo was null causing Import-Module to fail.
+
      Release 1.20.306.0
      -- Fixed an issue with module not loading when -verbose was called with the Import-Module command.
      -- Added Update-HPOVServer to allow a Server Administrator to refresh 1 or more server hardware
