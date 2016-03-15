@@ -6401,6 +6401,10 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>New-HPOVCustomBaseline</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVBaseline</maml:uri>
 			</maml:navigationLink>
@@ -9215,6 +9219,132 @@ VC FF Virt Prod
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVLogicalInterconnectGroup</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--GET-HPOVLOGINMESSAGE-->
+		<command:details>
+			<command:name>Get-HPOVLoginMessage</command:name>
+			<maml:description>
+				<maml:para>Get appliancce Login Message.</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVLoginMessage</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Retreive the current Login Message for the connected appliance(s).</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVLoginMessage</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None. You cannot pipe objects to this Cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.LoginMessage</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>
+ If successful, returns a resource.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLoginMessage
+Appliance   : hpov1.domain.com
+Message     : ************************************
+              *****        WARNING        ********
+              ************************************
+              This management appliance is a company owned asset and provided for the exclusive use of authorized personnel. Unauthorized use or
+              abuse of this system may lead to corrective action including termination, civil and/or criminal penalties.
+Acknowledge : True
+
+	
+Appliance   : hpov2.domain.com
+Message     : ************************************
+              *****        WARNING        ********
+              ************************************
+              This management appliance is a company owned asset and provided for the exclusive use of authorized personnel. Unauthorized use or
+              abuse of this system may lead to corrective action including termination, civil and/or criminal penalties.
+Acknowledge : False
+
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the Login Message from all connected appliances.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVLoginMessage</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVLoginMessage</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -18412,6 +18542,138 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--NEW-HPOVCUSTOMBASELINE-->
+		<command:details>
+			<command:name>New-HPOVCustomBaseline</command:name>
+			<maml:description>
+				<maml:para>
+New-HPOVCustomBaseline [-SourceBaseline] &lt;Object&gt; [-Hotfixes] &lt;array&gt; [-BaselineName] &lt;string&gt; -ApplianceConnection &lt;Object&gt; [&lt;CommonParameters&gt;]
+</maml:para>
+			</maml:description>
+			<command:verb>New</command:verb>
+			<command:noun>HPOVCustomBaseline</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para />
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>New-HPOVCustomBaseline</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="" pipelineInput="true (ByValue)" position="0">
+					<maml:name>SourceBaseline</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">SourceBaseline</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="" pipelineInput="false" position="1">
+					<maml:name>Hotfixes</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Hotfixes</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="" pipelineInput="false" position="2">
+					<maml:name>BaselineName</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">BaselineName</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="" pipelineInput="true (ByPropertyName)" position="Named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="" pipelineInput="true (ByPropertyName)" position="Named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="" pipelineInput="false" position="2">
+				<maml:name>BaselineName</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">BaselineName</command:parameterValue>
+				<dev:type>
+					<maml:name>string</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="" pipelineInput="false" position="1">
+				<maml:name>Hotfixes</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Hotfixes</command:parameterValue>
+				<dev:type>
+					<maml:name>array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="" pipelineInput="true (ByValue)" position="0">
+				<maml:name>SourceBaseline</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">SourceBaseline</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Object</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Object</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>
+ System.Object
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples />
+		<maml:relatedLinks />
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--NEW-HPOVENCLOSUREGROUP-->
 		<command:details>
 			<command:name>New-HPOVEnclosureGroup</command:name>
@@ -24501,25 +24763,25 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 		<command:details>
 			<command:name>New-HPOVServerProfileAttachVolume</command:name>
 			<maml:description>
-				<maml:para>Create volume attachment object for a server profile.</maml:para>
+				<maml:para>Create volume attachment for a server profile.</maml:para>
 			</maml:description>
 			<command:verb>New</command:verb>
 			<command:noun>HPOVServerProfileAttachVolume</command:noun>
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>A helper Cmdlet to assist with attaching Storage Volumes when creating (New-HPOVServerProfile) a server profile.  The returned resource will contain a volume storage PowerShell resource to attach to a Server Profile.</maml:para>
+			<maml:para>This Cmdlet will assist with creating a Storage Volume object to then attach to a new Server Profile being created (New-HPOVServerProfile), and attach either an existing Storage Volume (Get-HPOVStorageVolume) or new Ephemeral Volume to an existing Server Profile (Get-HPOVServerProfile).  If attempting to attach to an existing Server Profile, the HostOSType parameter is required, and will enable SAN Management within the Server Profile, if the Server Hardware resource supports the feature.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileAttachVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
@@ -24543,7 +24805,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24558,68 +24820,279 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileAttachVolume</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ServerProfile</maml:name>
+					<maml:description>
+						<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
-					<maml:name>Volume</maml:name>
-					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Volume</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Ephemeral Storage Volume resource name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StorageSystem</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Capacity</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>full</maml:name>
+					<maml:name>Full</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">full</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>permanent</maml:name>
+					<maml:name>Permanent</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">permanent</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>shared</maml:name>
+					<maml:name>LunIdType</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Aliases [-type]
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">shared</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunID</maml:name>
+					<maml:description>
+						<maml:para>The Host LUN ID numerical value that will be configured in the Volume export on the Storage System.  Accepted range: 0-254</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ProfileConnectionID</maml:name>
+					<maml:description>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>HostOStype</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-OS]
+        
+Specify the Host OS type, which will set the Host OS value when HP OneView creates the Host object on the Storage System.  This parameter is only necessary if the Server Profile object does not have SAN Management enabled.
+	
+Accepted values:
+        
+* CitrixXen = "Citrix Xen Server 5.x/6.x"
+* AIX       = "AIX"
+* IBMVIO    = "IBM VIO Server"
+* RHEL4     = "RHE Linux (Pre RHEL 5)"
+* RHEL3     = "RHE Linux (Pre RHEL 5)"
+* RHEL      = "RHE Linux (5.x, 6.x)"
+* RHEV      = "RHE Virtualization (5.x, 6.x)"
+* VMware    = "ESX 4.x/5.x"
+* Win2k3    = "Windows 2003"
+* Win2k8    = "Windows 2008/2008 R2"
+* Win2k12   = "Windows 2012 / WS2012 R2"
+* OpenVMS   = "OpenVMS"
+* Egenera   = "Egenera"
+* Exanet    = "Exanet"
+* Solaris9  = "Solaris 9/10"
+* Solaris10 = "Solaris 9/10"
+* Solaris11 = "Solaris 11"
+* ONTAP     = "NetApp/ONTAP"
+* OEL       = "OE Linux UEK (5.x, 6.x)"
+* HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv2 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv3 = "HP-UX (11i v3)"
+* SUSE      = "SuSE (10.x, 11.x)"
+* SUSE9     = "SuSE Linux (Pre SLES 10)"
+* Inform    = "InForm"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HostOStype</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>New-HPOVServerProfileAttachVolume</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ServerProfile</maml:name>
+					<maml:description>
+						<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>VolumeID</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-id]
+The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Volume</maml:name>
+					<maml:description>
+						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Volume</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunIdType</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-type]
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunID</maml:name>
+					<maml:description>
+						<maml:para>The Host LUN ID numerical value that will be configured in the Volume export on the Storage System.  Accepted range: 0-254</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ProfileConnectionID</maml:name>
+					<maml:description>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>HostOStype</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-OS]
+        
+Specify the Host OS type, which will set the Host OS value when HP OneView creates the Host object on the Storage System.  This parameter is only necessary if the Server Profile object does not have SAN Management enabled.
+	
+Accepted values:
+        
+* CitrixXen = "Citrix Xen Server 5.x/6.x"
+* AIX       = "AIX"
+* IBMVIO    = "IBM VIO Server"
+* RHEL4     = "RHE Linux (Pre RHEL 5)"
+* RHEL3     = "RHE Linux (Pre RHEL 5)"
+* RHEL      = "RHE Linux (5.x, 6.x)"
+* RHEV      = "RHE Virtualization (5.x, 6.x)"
+* VMware    = "ESX 4.x/5.x"
+* Win2k3    = "Windows 2003"
+* Win2k8    = "Windows 2008/2008 R2"
+* Win2k12   = "Windows 2012 / WS2012 R2"
+* OpenVMS   = "OpenVMS"
+* Egenera   = "Egenera"
+* Exanet    = "Exanet"
+* Solaris9  = "Solaris 9/10"
+* Solaris10 = "Solaris 9/10"
+* Solaris11 = "Solaris 11"
+* ONTAP     = "NetApp/ONTAP"
+* OEL       = "OE Linux UEK (5.x, 6.x)"
+* HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv2 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv3 = "HP-UX (11i v3)"
+* SUSE      = "SuSE (10.x, 11.x)"
+* SUSE9     = "SuSE Linux (Pre SLES 10)"
+* Inform    = "InForm"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HostOStype</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>New-HPOVServerProfileAttachVolume</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>VolumeID</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-id]
+The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>Ephemeral Storage Volume resource name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+					<maml:name>StoragePool</maml:name>
+					<maml:description>
+						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>StorageSystem</maml:name>
+					<maml:description>
+						<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Capacity</maml:name>
+					<maml:description>
+						<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Full</maml:name>
+					<maml:description>
+						<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Permanent</maml:name>
+					<maml:description>
+						<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
@@ -24643,7 +25116,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24657,69 +25130,55 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileAttachVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
-					<maml:name>Volume</maml:name>
-					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Volume</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Ephemeral Storage Volume resource name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StorageSystem</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Capacity</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>full</maml:name>
+					<maml:name>Full</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">full</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>permanent</maml:name>
+					<maml:name>Permanent</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">permanent</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>shared</maml:name>
-					<maml:description>
-						<maml:para />
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">shared</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
@@ -24736,7 +25195,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24750,13 +25209,13 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileAttachVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
@@ -24787,7 +25246,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24801,7 +25260,19 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ServerProfile</maml:name>
+				<maml:description>
+					<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>VolumeID</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-id]
@@ -24814,12 +25285,12 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				</dev:type>
 				<dev:defaultValue>1</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 				<maml:name>Volume</maml:name>
 				<maml:description>
 					<maml:para>The Volume Name, URI or Object to attach.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">Volume</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Volume</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -24829,7 +25300,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>Name</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Ephemeral Storage Volume resource name.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
 				<dev:type>
@@ -24838,10 +25309,10 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>StoragePool</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
 				<dev:type>
@@ -24853,7 +25324,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>StorageSystem</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				<dev:type>
@@ -24865,21 +25336,21 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>Capacity</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
 				<dev:type>
 					<maml:name>Int64</maml:name>
 					<maml:uri />
 				</dev:type>
-				<dev:defaultValue>0</dev:defaultValue>
+				<dev:defaultValue>10240</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>full</maml:name>
+				<maml:name>Full</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">full</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
@@ -24887,23 +25358,11 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>permanent</maml:name>
+				<maml:name>Permanent</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">permanent</command:parameterValue>
-				<dev:type>
-					<maml:name>SwitchParameter</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
-			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>shared</maml:name>
-				<maml:description>
-					<maml:para />
-				</maml:description>
-				<command:parameterValue required="false" variableLength="False">shared</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
@@ -24923,19 +25382,19 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				</dev:type>
 				<dev:defaultValue>Auto</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>LunID</maml:name>
 				<maml:description>
 					<maml:para>The Host LUN ID numerical value that will be configured in the Volume export on the Storage System.  Accepted range: 0-254</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">LunID</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">LunID</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>ProfileConnectionID</maml:name>
 				<maml:description>
 					<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
@@ -24948,6 +25407,48 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				<dev:defaultValue>0</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>HostOStype</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-OS]
+        
+Specify the Host OS type, which will set the Host OS value when HP OneView creates the Host object on the Storage System.  This parameter is only necessary if the Server Profile object does not have SAN Management enabled.
+	
+Accepted values:
+        
+* CitrixXen = "Citrix Xen Server 5.x/6.x"
+* AIX       = "AIX"
+* IBMVIO    = "IBM VIO Server"
+* RHEL4     = "RHE Linux (Pre RHEL 5)"
+* RHEL3     = "RHE Linux (Pre RHEL 5)"
+* RHEL      = "RHE Linux (5.x, 6.x)"
+* RHEV      = "RHE Virtualization (5.x, 6.x)"
+* VMware    = "ESX 4.x/5.x"
+* Win2k3    = "Windows 2003"
+* Win2k8    = "Windows 2008/2008 R2"
+* Win2k12   = "Windows 2012 / WS2012 R2"
+* OpenVMS   = "OpenVMS"
+* Egenera   = "Egenera"
+* Exanet    = "Exanet"
+* Solaris9  = "Solaris 9/10"
+* Solaris10 = "Solaris 9/10"
+* Solaris11 = "Solaris 11"
+* ONTAP     = "NetApp/ONTAP"
+* OEL       = "OE Linux UEK (5.x, 6.x)"
+* HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv2 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv3 = "HP-UX (11i v3)"
+* SUSE      = "SuSE (10.x, 11.x)"
+* SUSE9     = "SuSE Linux (Pre SLES 10)"
+* Inform    = "InForm"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HostOStype</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -24979,7 +25480,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</command:inputType>
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Storage.Volume [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
@@ -24991,6 +25492,19 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</command:inputType>
 		</command:inputTypes>
 		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPONeView.Appliance.AsyncTask [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>When attaching a one or more Storage Volumes to an existing Server Profile, an Appliance Async Task will be created.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
 			<command:returnValue>
 				<dev:type>
 					<maml:name>HPOneView.Profile.SanVolume [System.Management.Automation.PSCustomObject]</maml:name>
@@ -25129,10 +25643,30 @@ PS C:\&gt; $attachVolumes = @($volume1,$volume2)
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $attachVolume1 = Get-HPOVStoragePool CPG_R5_1 | New-HPOVServerProfileAttachVolume -volumeid 1 -name "PrivateVol1" -capacity 100
+				<dev:code>PS C:\&gt; $storagepool = Get-HPOVStoragePool HPNetworking_R1_FC
+PS C:\&gt; $sp = Get-HPOVServerProfile 'chef-web01'
+PS C:\&gt; New-HPOVServerProfileAttachVolume -ServerProfile $sp -Name 'Chef Web01 Vol 2' -StoragePool $storagepool -ApplianceConnection $sp.ApplianceConnection.Name | Wait-HPOVTaskComplete
+
 </dev:code>
 				<dev:remarks>
+					<dev:para>Attach a new 10Gb Ephemeral Volume to an existing Server Profile.</dev:para>
 					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $sp = Get-HPOVServerProfile 'chef-web01'
+</dev:code>
+				<dev:remarks>
+					<dev:para>PS C:\&gt; Get-HPOVStorageVolume 'My New Volume 3' | New-HPOVServerProfileAttachVolume -ServerProfile $sp -ApplianceConnection $sp.ApplianceConnection.Name | Wait-HPOVTaskComplete</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -30576,7 +31110,7 @@ The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
 
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
@@ -30624,7 +31158,7 @@ The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
 
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
@@ -30675,21 +31209,21 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>None.  You cannot pipe objects to this Cmdlet.</maml:name>
+					<maml:name>HPOneView.Appliance.Baseline [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
 					</maml:description>
 				</dev:type>
 				<maml:description>
-					<maml:para />
+					<maml:para>Source HPE OneView Baseline from Get-HPOVBaseline</maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
 		<command:returnValues>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
@@ -30748,6 +31282,10 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Restore-HPOVCustomBaseline</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVCustomBaseline</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -35919,9 +36457,7 @@ The source baseline and associated hotfixes must be present within the Baseline 
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
 
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
-
-Default Value: ${Global:ConnectSessions}</maml:para>
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
@@ -35933,9 +36469,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
 
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
-
-Default Value: ${Global:ConnectSessions}</maml:para>
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				<dev:type>
@@ -36004,6 +36538,10 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVBaseline</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVCustomBaseline</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -38140,6 +38678,637 @@ PS C:\&gt; Set-HPOVLdapGroupRole -d Domain1 -GroupName "MY Directory Group1" -ro
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--SET-HPOVLOGINMESSAGE-->
+		<command:details>
+			<command:name>Set-HPOVLoginMessage</command:name>
+			<maml:description>
+				<maml:para>Set appliancce Login Message.</maml:para>
+			</maml:description>
+			<command:verb>Set</command:verb>
+			<command:noun>HPOVLoginMessage</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Configure the Login Message for the connected appliance(s).  You can also set the Acknowledgement to be required.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVLoginMessage</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>Message</maml:name>
+					<maml:description>
+						<maml:para>The login message to set.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Message</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Acknowledgement</maml:name>
+					<maml:description>
+						<maml:para>Set to True if the login message should be acknowledged before authentication completes.  If set to True, the COnnect-HPOVMgmt Cmdlet will prompt the user to acknowledge the message, if -LoginAcknowledge is not provided in the Cmdlet parameters.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Acknowledgement</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>Message</maml:name>
+				<maml:description>
+					<maml:para>The login message to set.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Message</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>Acknowledgement</maml:name>
+				<maml:description>
+					<maml:para>Set to True if the login message should be acknowledged before authentication completes.  If set to True, the COnnect-HPOVMgmt Cmdlet will prompt the user to acknowledge the message, if -LoginAcknowledge is not provided in the Cmdlet parameters.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Acknowledgement</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None. You cannot pipe objects to this Cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.LoginMessage</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>
+ If successful, returns a resource.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Set-HPOVLoginMessage -Message '************************************
+&gt;&gt; *****        WARNING        ********
+&gt;&gt; ************************************
+&gt;&gt; Updated Message: This management appliance is a company owned asset and provided for the exclusive use of authorized personnel. Unauthorized use or
+&gt;&gt; abuse of this system may lead to corrective action including termination, civil and/or criminal penalties.'
+&gt;&gt; -Acknowledgement $true
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Set the Login Message from all connected appliances.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $Message = '************************************
+&gt;&gt; *****        WARNING        ********
+&gt;&gt; ************************************
+&gt;&gt; Updated Message: This management appliance is a company owned asset and provided for the exclusive use of authorized personnel. Unauthorized use or
+&gt;&gt; abuse of this system may lead to corrective action including termination, civil and/or criminal penalties.'
+&gt;&gt;
+PS C:\&gt; Set-HPOVLoginMessage -Message $Message -Acknowledgement $true -ApplianceConnection hpov.domain.com
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Set the Login Message from the specified appliance connection.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLoginMessage</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVLoginMessage</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--SET-HPOVMANAGEDSAN-->
+		<command:details>
+			<command:name>Set-HPOVManagedSan</command:name>
+			<maml:description>
+				<maml:para>Enable or Disable Automated SAN Zoning.</maml:para>
+			</maml:description>
+			<command:verb>Set</command:verb>
+			<command:noun>HPOVManagedSan</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet is used to Enable or Disable a Managed SAN resource on the appliance.  Disabling a Managed SAN will prevent the appliance from configuring FC Zones.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVManagedSan</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Resource</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>EnableAutomatedZoning</maml:name>
+					<maml:description>
+						<maml:para>Enable Automated Zoning for the specified Managed SAN.  When used, the default Zone Policy 'SingleInitiatorAllTargets' is set.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">EnableAutomatedZoning</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ZoningPolicy</maml:name>
+					<maml:description>
+						<maml:para>Policy setting that affects the way that zones are created. Allowed values:
+
+* SingleInitiatorAllTargets - Create one zone per initiator containing all targets connected to that initiator.
+* SingleInitiatorSingleStorageSystem - Similar to SingleInitiatorAllTargets except that separate zones are created for targets that reside on different storage systems.
+* SingleInitiatorSingleTarget - Create one zone per initiator/target pair.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ZoningPolicy</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>EnableAliasing</maml:name>
+					<maml:description>
+						<maml:para>Enable aliases to be created for initiators, targets and target groups based on the specified name formats</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">EnableAliasing</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>InitiatorNameFormat</maml:name>
+					<maml:description>
+						<maml:para>Format to use for initiator alias names. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}.
+
+Example: "initiator_{hostname}_{initiatorName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">InitiatorNameFormat</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>TargetGroupNameFormat</maml:name>
+					<maml:description>
+						<maml:para>Format to use for target group (ex. storage system port group) alias names. The following built-in variables can be used: {storageSystemName}, {targetGroupName}.
+
+Example: "TargetGroup_{storageSystemName}_{targetGroupName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">TargetGroupNameFormat</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>TargetNameFormat</maml:name>
+					<maml:description>
+						<maml:para>Format to use for target (ex. storage system port) alias names. The following built-in variables can be used: {storageSystemName}, {targetName}.
+
+Example: "Target_{storageSystemName}_{targetName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">TargetNameFormat</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ZoneNameFormat</maml:name>
+					<maml:description>
+						<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ZoneNameFormat</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVManagedSan</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Resource</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>EnableAutomatedZoning</maml:name>
+					<maml:description>
+						<maml:para>Enable Automated Zoning for the specified Managed SAN.  When used, the default Zone Policy 'SingleInitiatorAllTargets' is set.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">EnableAutomatedZoning</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ZoningPolicy</maml:name>
+					<maml:description>
+						<maml:para>Policy setting that affects the way that zones are created. Allowed values:
+
+* SingleInitiatorAllTargets - Create one zone per initiator containing all targets connected to that initiator.
+* SingleInitiatorSingleStorageSystem - Similar to SingleInitiatorAllTargets except that separate zones are created for targets that reside on different storage systems.
+* SingleInitiatorSingleTarget - Create one zone per initiator/target pair.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ZoningPolicy</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>DisableAliasing</maml:name>
+					<maml:description>
+						<maml:para>Disable aliases to be created for initiators, targets and target groups based on the specified name formats</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DisableAliasing</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVManagedSan</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Resource</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>DisableAutomatedZoning</maml:name>
+					<maml:description>
+						<maml:para>Disable Automated Zoning for the specified Managed SAN.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DisableAutomatedZoning</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ZoningPolicy</maml:name>
+					<maml:description>
+						<maml:para>Policy setting that affects the way that zones are created. Allowed values:
+
+* SingleInitiatorAllTargets - Create one zone per initiator containing all targets connected to that initiator.
+* SingleInitiatorSingleStorageSystem - Similar to SingleInitiatorAllTargets except that separate zones are created for targets that reside on different storage systems.
+* SingleInitiatorSingleTarget - Create one zone per initiator/target pair.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ZoningPolicy</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>Resource</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>EnableAutomatedZoning</maml:name>
+				<maml:description>
+					<maml:para>Enable Automated Zoning for the specified Managed SAN.  When used, the default Zone Policy 'SingleInitiatorAllTargets' is set.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">EnableAutomatedZoning</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>DisableAutomatedZoning</maml:name>
+				<maml:description>
+					<maml:para>Disable Automated Zoning for the specified Managed SAN.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DisableAutomatedZoning</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ZoningPolicy</maml:name>
+				<maml:description>
+					<maml:para>Policy setting that affects the way that zones are created. Allowed values:
+
+* SingleInitiatorAllTargets - Create one zone per initiator containing all targets connected to that initiator.
+* SingleInitiatorSingleStorageSystem - Similar to SingleInitiatorAllTargets except that separate zones are created for targets that reside on different storage systems.
+* SingleInitiatorSingleTarget - Create one zone per initiator/target pair.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ZoningPolicy</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>EnableAliasing</maml:name>
+				<maml:description>
+					<maml:para>Enable aliases to be created for initiators, targets and target groups based on the specified name formats</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">EnableAliasing</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>DisableAliasing</maml:name>
+				<maml:description>
+					<maml:para>Disable aliases to be created for initiators, targets and target groups based on the specified name formats</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DisableAliasing</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>InitiatorNameFormat</maml:name>
+				<maml:description>
+					<maml:para>Format to use for initiator alias names. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}.
+
+Example: "initiator_{hostname}_{initiatorName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">InitiatorNameFormat</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>TargetGroupNameFormat</maml:name>
+				<maml:description>
+					<maml:para>Format to use for target group (ex. storage system port group) alias names. The following built-in variables can be used: {storageSystemName}, {targetGroupName}.
+
+Example: "TargetGroup_{storageSystemName}_{targetGroupName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">TargetGroupNameFormat</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>TargetNameFormat</maml:name>
+				<maml:description>
+					<maml:para>Format to use for target (ex. storage system port) alias names. The following built-in variables can be used: {storageSystemName}, {targetName}.
+
+Example: "Target_{storageSystemName}_{targetName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">TargetNameFormat</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ZoneNameFormat</maml:name>
+				<maml:description>
+					<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ZoneNameFormat</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Storage.ManagedSan [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Single Resource</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Array(HPOneView.Storage.ManagedSan)</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Multiple Resources</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Storage.ManagedSan [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Single Updated Resource
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array(HPOneView.Storage.ManagedSan)</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Multiple Updated Resources
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Set-HPOVManagedSan Fabric_A -EnableAutomatedZoning -ApplianceConnection hpov.domain.com
+</dev:code>
+				<dev:remarks>
+					<dev:para>Enable Automated SAN Zoning for 'Fabric_A'</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVManagedSan Fabric_A -ApplianceConnection hpov.domain.com | Set-HPOVManagedSan -DisableAutomatedZoning
+</dev:code>
+				<dev:remarks>
+					<dev:para>Disable Automated SAN Zoning for 'Fabric_A'</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVManagedSan | Set-HPOVManagedSan -EnableAutomatedZoning -ZoningPolicy SingleInitiatorAllTargets
+</dev:code>
+				<dev:remarks>
+					<dev:para>Enable Automated SAN Zoning for all managed SAN Fabrics</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVManagedSan</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Update-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVManagedSan</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--SET-HPOVNETWORK-->
 		<command:details>
 			<command:name>Set-HPOVNetwork</command:name>
@@ -38997,6 +40166,427 @@ PS C:\&gt; Set-HPOVResource $profile
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVResource</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--SET-HPOVSANMANAGER-->
+		<command:details>
+			<command:name>Set-HPOVSanManager</command:name>
+			<maml:description>
+				<maml:para>Update SAN Manager configuration</maml:para>
+			</maml:description>
+			<command:verb>Set</command:verb>
+			<command:noun>HPOVSanManager</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Updates an existing SAN Manager configuration.  Can update the hostname/IP Address and credentials.  At least one optional parameter must be provided.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVSanManager</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Resource</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-name]
+Resource Object (from Get-HPOVSanManager) or Name of the SAN Manager to update.  If specifying a resource Name, the ApplianceConnection parameter is required.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Hostname</maml:name>
+					<maml:description>
+						<maml:para>Updated Hostname or IP Address of the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Hostname</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>Port</maml:name>
+					<maml:description>
+						<maml:para>Updated TCP Port of the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Port</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+					<maml:name>Username</maml:name>
+					<maml:description>
+						<maml:para>Updated Username used to authenticate and manage the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Username</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+					<maml:name>Password</maml:name>
+					<maml:description>
+						<maml:para>Updated Password used to authenticate and manage the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Password</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>UseSsl</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">UseSsl</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVSanManager</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Resource</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-name]
+Resource Object (from Get-HPOVSanManager) or Name of the SAN Manager to update.  If specifying a resource Name, the ApplianceConnection parameter is required.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Hostname</maml:name>
+					<maml:description>
+						<maml:para>Updated Hostname or IP Address of the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Hostname</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>Port</maml:name>
+					<maml:description>
+						<maml:para>Updated TCP Port of the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Port</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+					<maml:name>Username</maml:name>
+					<maml:description>
+						<maml:para>Updated Username used to authenticate and manage the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Username</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+					<maml:name>Password</maml:name>
+					<maml:description>
+						<maml:para>Updated Password used to authenticate and manage the SAN Manager.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Password</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SnmpUserName</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SnmpUserName</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SnmpAuthLevel</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SnmpAuthLevel</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SnmpAuthProtocol</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SnmpAuthProtocol</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SnmpAuthPassword</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SnmpAuthPassword</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SnmpPrivProtocol</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SnmpPrivProtocol</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SnmpPrivPassword</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SnmpPrivPassword</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>Resource</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-name]
+Resource Object (from Get-HPOVSanManager) or Name of the SAN Manager to update.  If specifying a resource Name, the ApplianceConnection parameter is required.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>Hostname</maml:name>
+				<maml:description>
+					<maml:para>Updated Hostname or IP Address of the SAN Manager.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Hostname</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+				<maml:name>Port</maml:name>
+				<maml:description>
+					<maml:para>Updated TCP Port of the SAN Manager.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Port</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>0</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+				<maml:name>Username</maml:name>
+				<maml:description>
+					<maml:para>Updated Username used to authenticate and manage the SAN Manager.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Username</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+				<maml:name>Password</maml:name>
+				<maml:description>
+					<maml:para>Updated Password used to authenticate and manage the SAN Manager.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Password</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SnmpUserName</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SnmpUserName</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SnmpAuthLevel</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SnmpAuthLevel</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>None</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SnmpAuthProtocol</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SnmpAuthProtocol</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SnmpAuthPassword</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SnmpAuthPassword</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SnmpPrivProtocol</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SnmpPrivProtocol</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SnmpPrivPassword</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SnmpPrivPassword</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>UseSsl</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">UseSsl</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Storage.SanManager [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>SAN Manager resource from Get-HPOVSanManager.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Update async task.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $task = Get-HPOVSanManager bna.domain.com -ApplianceConnection hpov.domain.com | Set-HPOVSanManager -hostname bna.newdomain.com | Wait-HPOVTaskComplete
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the SAN Manager using Get-HPOVSanManager, and pipling the resource in order to update the hostname value.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $task = Set-HPOVSanManager -name BNA.contoso.com -hostname bna.newdomain.com -ApplianceConnection hpov.domain.com | Wait-HPOVTaskComplete
+</dev:code>
+				<dev:remarks>
+					<dev:para>Update the existing Brocade Network Advisor SAN Manager's hostname with the new value.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $task = Set-HPOVSanManager -name BNA.contoso.com -username newadmin -password updatedpassword -ApplianceConnection hpov.domain.com | Wait-HPOVTaskComplete
+</dev:code>
+				<dev:remarks>
+					<dev:para>Update the existing Brocade Network Advisor SAN Manager's username and password.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVSanManager</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Wait-HPOVTaskComplete</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVSanManager</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>

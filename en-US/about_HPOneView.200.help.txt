@@ -32,6 +32,18 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.296.0
+     -- Added New-HPOVCustomBaseline Cmdlet to help create a new custom baseline from uploaded hotfixes.
+	 -- Enhanced New-HPOVServerProfileVolumeAttach to help attech Volumes or Ephemeral Volumes to a deployed
+        Server Profile resource.
+     -- Fixed Get-HPOVLogicalInterconnectGroup where Names that contain Wildcards would not process correctly.
+     -- Fixed Get-HPOVAddressPoolRange where each Pool would be duplicated in the results.
+     -- Fixed New-HPOVServerProfileTemplate where local storage config policy wouldn't apply correctly.
+     -- Fixed Update-HPOVLogicalInterconnect where error would be generated when trying to get parent LIG
+        resource name for confirmation prompt.
+     -- [#79] Fixed New-HPOVUplinkSet where LacpTimer parameter value was not being set within the object.
+     -- [#77] Fixed Invoke-HPOVVcmMigration where object creation would fail.
+
     Release 2.0.279.0
      -- [#70] Fixed Add-HPOVStorageSystem where unmanagedDomains object property was being set incorrectly
         causing an API JSON error.
