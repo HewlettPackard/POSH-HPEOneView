@@ -32,9 +32,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.300.0
+     -- [#81] Fixed Server Profile Template Local Storage configuration object, where unsupported properties 
+        were being used, causing API errors.
+     -- [#84] Fixed Wait-HPOVTaskComplete, which would cause an error when attempting to display task status.
+     -- [#43] Added multiple appliance connection support to the following CMDLETs:
+
+        * Remove-HPOVSanManager
+        * Show-HPOVPortStatistics
+        * Show-HPOVFirmwareReport
+
     Release 2.0.296.0
      -- Added New-HPOVCustomBaseline Cmdlet to help create a new custom baseline from uploaded hotfixes.
-	 -- Enhanced New-HPOVServerProfileVolumeAttach to help attech Volumes or Ephemeral Volumes to a deployed
+	 -- Enhanced New-HPOVServerProfileVolumeAttach to help attach Volumes or Ephemeral Volumes to a deployed
         Server Profile resource.
      -- Fixed Get-HPOVLogicalInterconnectGroup where Names that contain Wildcards would not process correctly.
      -- Fixed Get-HPOVAddressPoolRange where each Pool would be duplicated in the results.

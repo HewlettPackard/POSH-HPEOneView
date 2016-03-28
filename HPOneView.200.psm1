@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.296.0"
+[version]$script:ModuleVersion = "2.0.300.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2630,6 +2630,7 @@ function NewObject
 		[switch]$ServerProfileLocalStorageLogicalDrive,
 		[switch]$ServerProfileStorageVolume,
 		[switch]$ServerProfileTemplate,
+		[switch]$ServerProfileTemplateLocalStorage,
 		[switch]$SmtpConfig,
 		[switch]$StoragePath,
 		[switch]$StorageSystemCredentials,
@@ -3191,12 +3192,27 @@ function NewObject
 
 			} 
 
+			'ServerProfileTemplateLocalStorage'
+			{
+
+				Return [PSCustomObject]@{
+
+					slotNumber          = '0';
+					managed             = $true;
+					mode                = 'RAID'
+				    initialize          = $false;
+				    logicalDrives       = New-Object System.Collections.ArrayList
+
+				}
+
+			}
+
 			'ServerProfileLocalStorage'
 			{
 
 				Return [PSCustomObject]@{
 
-					slotNumber          = 0;
+					slotNumber          = '0';
 					importConfiguration = $false;
 					managed             = $true;
 					mode                = 'RAID'
@@ -3212,7 +3228,6 @@ function NewObject
 
 				Return [PSCustomObject]@{ 
 
-					driveNumber       = $null;
 					driveName         = '';
 				    bootable          = $false;
 				    raidLevel         = $null;
@@ -4354,7 +4369,7 @@ function NewObject
                 				            
 					};				            
 					category                    = "migratable-vc-domains";
-					type                        = "MigratableVcDomainV300"
+					type                        = "MigratableVcDomainV200"
 
                 }
 
@@ -5031,8 +5046,13 @@ function Send-HPOVRequest
 					if ($newBody.ApplianceConnection) { $newBody = $newBody | % { Select-Object -InputObject $_ -Property * -ExcludeProperty ApplianceConnection } }
 
                     #Create a new stream writer to write the json to the request stream.
-		    		$js = $newBody | ConvertTo-Json -Depth 99 -Compress #| write-verbose
+					if (-not($newBody -is [String]))
+					{
 
+						$js = $newBody | ConvertTo-Json -Depth 99 -Compress #| write-verbose
+
+					}
+		    		
 		    		#Needed to remove \r character that ConvertTo-JSON adds which /rest/logindirectories does not support for the directory server SSL certificate
                     if ($newBody.type -eq "LoginDomainConfigVersion2Dto") { $js = $js -replace "\\r",$null }
 
@@ -5791,6 +5811,7 @@ function ConvertTo-Object
  
 function Ping-HPOVAddress
 {
+
     # .ExternalHelp HPOneView.200.psm1-help.xml
     
     [CmdletBinding()]
@@ -6311,6 +6332,10 @@ function Connect-HPOVMgmt
         {
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending auth request"
+
+			$_LoginMessage = Send-HPOVRequest $ApplianceLoginDomainDetails -Hostname $Hostname
+
+			Write-Host ("{0}`n" -f $_LoginMessage.loginMessage.message)
             
             $resp = Send-HPOVRequest $loginSessionsUri POST $_authinfo -Hostname $Hostname
 
@@ -6332,10 +6357,6 @@ function Connect-HPOVMgmt
 					#Get LoginMessage from appliance.
 					Try
 					{
-
-						$_LoginMessage = Send-HPOVRequest $ApplianceLoginDomainDetails -Hostname $Hostname
-
-						Write-Host ("{0}" -f $_LoginMessage.loginMessage.message)
 
 						$caption = "Please Confirm";
 						$message = "Do you acknowledge the login message?";
@@ -12209,7 +12230,7 @@ Function New-HPOVBackup
 			Try
 			{
 
-				$_rep = Download-File $_backupFileUri $_Connection $Location
+				$_resp = Download-File $_backupFileUri $_Connection $Location
 
 				$_BackupFileStatusCollection.Add($_resp)
 
@@ -12647,7 +12668,7 @@ function Download-File
 			    
 			#Define buffer and buffer size
 			[int] $_bufferSize = (4096*1024)
-			[byte[]]$_buffer   = New-Object byte[] (4096*1024)
+			[byte[]]$_buffer   = New-Object byte[] ($_bufferSize)
 			[int] $_bytesRead  = 0
 
 			#This is used to keep track of the file upload progress.
@@ -12658,8 +12679,10 @@ function Download-File
 
 			$_fs = New-Object IO.FileStream ($saveLocation + "\" + $_fileName),'Create','Write','Read'
 
-			while (($_bytesRead = $_stream.Read($_buffer, 0, $_bufferSize)) -ne 0) 
+			do
 			{
+
+				$_bytesRead = $_stream.Read($_buffer, 0, $_bufferSize)
 
 			    #Write from buffer to file
 				$_byteCount = $_fs.Write($_buffer, 0, $_bytesRead);
@@ -12695,7 +12718,7 @@ function Download-File
 				
 				}
 
-			} #end while
+			} while ($_bytesRead -ne 0)
 
 			Write-Progress -activity "Downloading file $_fileName" -Completed
 
@@ -18792,334 +18815,528 @@ function Get-HPOVServerHardwareType
 
 }
 
-function Show-HPOVFirmwareReport {
+function Show-HPOVFirmwareReport 
+{
 
-    # .ExternalHelp HPOneView.200.psm1-help.xml
+	# .ExternalHelp HPOneView.200.psm1-help.xml
     
-    [CmdletBinding()]
-     
-    Param (
+	[CmdletBinding()]
+	Param 
+	(
 
-        [parameter(Mandatory = $true, ValueFromPipeline = $false)]
-        [validateSet("EG","Enclosure","Server","Interconnect")]
-        [String]$Resource,
+		[parameter(Mandatory, ValueFromPipeline, Position = 0)]
+		[validateNotNullorEmpty()]
+		[Object]$Resource,
 	
-	    [parameter(Mandatory = $false, ValueFromPipeline = $false)]
-        [String]$Name = $Null,
-	
-	    [parameter(Mandatory = $false, ValueFromPipeline = $True)]
-        [Object]$Baseline,
+		[parameter(Mandatory = $false, Position = 1)]
+		[validateNotNullorEmpty()]
+		[Object]$Baseline,
             
 		[parameter(Mandatory = $false)]
-        [Switch]$Export,
+		[Switch]$Export,
             
 		[parameter(Mandatory = $false)]
-        [String]$Location = (get-location).Path
+		[validateNotNullorEmpty()]
+		[String]$Location = (get-location).Path,
 
-     )
+		[parameter(ValueFromPipelineByPropertyName, Mandatory)]
+		[ValidateNotNullorEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection
+
+	)
 	
-    Begin { 
-    
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Validating user is authenticated"
+    Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
-        
-            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError "Show-HPOVFirmwareReport" -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance."
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-        }
+		if ($PSBoundParameters['Name'])
+		{
 
-        
+			Write-Warning 'The -Name parameter is now deprecated.  Please use the -Resource parameter to specify a resource object via the parameter or Pipeline.'
+
+		}
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		#Support ApplianceConnection property value via pipeline from Enclosure Object
+		if($PSboundParameters['ApplianceConnection'])
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		$_ResourceCollection       = New-OBject System.Collections.ArrayList
+		$_FirmwareReportCollection = New-OBject System.Collections.ArrayList
+
         #Test for location
-        if ($Export) {
+        if ($Export) 
+		{
         
-            if ( -not (Test-Path $Location)) {  
+            if ( -not (Test-Path $Location)) 
+			{  
 
-                $errorRecord = New-ErrorRecord InvalidOperationException LocationPathNotFound ObjectNotFound 'Show-HPOVFirmwareReport' -Message "The specified path $Location does not exist. Please verify it and try again."
+                $errorRecord = New-ErrorRecord InvalidOperationException LocationPathNotFound ObjectNotFound 'Location' -Message "The specified path $Location does not exist. Please verify it and try again."
                 $pscmdlet.ThrowTerminatingError($errorRecord)
             
             }
+
         }
     
     }
 
-    Process {	
+    Process 
+	{	
 
-        
-    
-        switch ($Resource) {
+		$_r = 1
 
-            "eg" {
+		#Add Resource to Collection, which can be accepted via the pipeline
+		ForEach ($_resource in $Resource)
+		{
 
-                if ($name) { [array]$egs = Get-HPOVEnclosureGroup $name }
-                else { [array]$egs = Get-HPOVEnclosureGroup }
+			if ($_resource -is [String])
+			{
 
-                #If no results were found, terminate.  Error reporting is handled by Get-HPOVEnclosureGroup
-                if ($egs) {
+				#Error that the Resource isn't an object
 
-                    $Collection = @()
+			}
 
-                    #Keep track of the number of Enclosure Groups
-                    $script:g = 0
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding '{0}' object to collection ({1}/{2})." -f $_resource.name, $_r, ($Resource | Measure-Object).Count | Write-Verbose 
 
-                    #Keep track of the number of Enclosures
-                    $script:e = 0
+			[void]$_ResourceCollection.Add($_resource)
 
-                    foreach ($eg in $egs) {
+			$_r++
 
-                        $script:g++
-
-                        #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                        if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Enclosure Firmware Information - Skipping Write-Progress display."  }
-                    
-                        else { Write-Progress -Id 1 -activity "Collecting Enclosure Group Firmware Information" -CurrentOperation "Processing `'$($eg.name)`': $g of $($egs.count) Enclosure Groups" -percentComplete (($g / $egs.count) * 100) }
-
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Enclosure Group to Enclosure associations, then getting found Enclosure Resources."
-                        [Array]$enclosures = (Send-HPOVRequest "/rest/index/associations?parentUri=$($eg.uri)&name=ENCLOSURE_GROUP_TO_ENCLOSURE").members  | % { Send-HPOVRequest $_.childUri }
-                        
-                        #Make sure the EG has associated Enclosures.
-                        if ($enclosures) {
-
-                            foreach ($enclosure in $enclosures) { 
-
-                                $script:e++
-
-                                #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Enclosure Firmware Information - Skipping Write-Progress display."  }
-                    
-                                else { Write-Progress -ParentId 1 -id 2 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Processing `'$($enclosure.name)`': $e of $($enclosures.count) Enclosure(s)" -percentComplete (($e / $enclosures.count) * 100) }
-
-                                $temp = Get-EnclosureFirmware $Enclosure $Baseline 1
-                                $temp | add-member -Type NoteProperty -Name eg -value $eg.name
-                                $Collection += $temp
-
-                            } #End Enclosures
-
-                        } #End Enclosure to EG check
-                        
-                        #Clear Child Write-Progress progress bars
-
-                        #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                        if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display."  }
-             
-                        else { Write-Progress -ParentId 1 -id 2 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Completed" -Completed }
-
-                    } #End EG
-                    
-                    #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Enclosure Group Firmware Information Skipping Write-Progress display."  }
-             
-                    else { Write-Progress -Id 1 -activity "Collecting Enclosure Group Firmware Information" -CurrentOperation "Completed" -Completed }
-
-                }
-
-            } #end eg switch
-
-            "enclosure" {
-
-	            if ($name) { [array]$enclosures = Get-HPOVEnclosure $name }
-		
-	            else { [array]$enclosures = Get-HPOVEnclosure}
-		    
-                $Collection = @()
-
-                #Keep track of the number of enclosures
-                $script:e = 0
-
-                foreach ($enclosure in $enclosures) {
-
-                    $script:e++
-
-                    #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Enclosure Firmware Information - Skipping Write-Progress display."  }
-                    
-                    else { Write-Progress -Id 1 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Processing `'$($enclosure.name)`': $e of $($enclosures.count) Enclosure(s)" -percentComplete (($e / $enclosures.count) * 100) }
-
-                    $Collection += Get-EnclosureFirmware $Enclosure $Baseline
-
-                } #End Enclosures Collection
-
-                #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display."  }
-                
-                else { Write-Progress -id 1 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Completed" -Completed }
-
-            } #End Enclosure switch
-
-            "server" { 
-
-                $Collection = @()
-            
-                #Keep track of the number of Servers
-                $script:s = 0
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Servers"
-                
-                if ($name) { [Array]$servers = Get-HPOVServer $Name }
-                else { [Array]$servers = Get-HPOVServer }
-
-                foreach ($server in $servers) {
-
-                    $script:s++
-                    
-                    #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Server Firmware Information - Skipping Write-Progress display."  }
-                     
-                    else { Write-Progress -id 1 -activity "Collecting Server Firmware Information" -CurrentOperation "Processing `'$($server.name)`': $s of $($servers.Count) Server(s)" -percentComplete (($s / $servers.Count) * 100) }
-
-                    $Collection += Get-ServerFirmware -server $server -baseline $baseline
-
-                } #End Server Collection
-                
-                #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Server Firmware Information - Skipping Write-Progress display."  }
-             
-                else { Write-Progress -id 1 -activity "Collecting Server Firmware Information" -CurrentOperation "Completed" -Completed }
-            
-            } #End Server switch
-
-            "interconnect" { 
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Interconnects"
-
-                if ($name) { [Array]$interconnects = Get-HPOVInterconnect -name $Name }
-                else { [Array]$interconnects = Get-HPOVInterconnect }
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found $($interconnects.Count) Interconnects"
-
-                $Collection = @()
-
-                $script:i = 0
-            
-                #Get Interconnect Information
-		        foreach ($interconnect in $interconnects) {
-
-                    $script:i++
-
-                    #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Interconnect Firmware Information - Skipping Write-Progress display."  }
-             
-                    else { Write-Progress -id 1 -activity "Collecting Interconnect Firmware Information" -CurrentOperation "Processing `'$($interconnect.name)`': $i of $($interconnects.Count) Interconnects" -percentComplete (($i / $interconnects.Count) * 100) }
-
-                    $Collection += Get-InterconnectFirmware $interconnect $Baseline
-
-                } #End Interconnects Collection
-            
-                #Handle the call from -Verbose so Write-Progress does not get borked on display.
-                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Interconnect Firmware Information - Skipping Write-Progress display."  }
-             
-                else { Write-Progress -id 1 -activity "Collecting Interconnect Firmware Information" -CurrentOperation "Completed" -Completed }
-            
-            } #End Interconnect switch
-
-        }
+		}
 
     }
 
-    End {
+    End 
+	{
+
+		$_P = 0
+
+		#Process the report generation here
+		ForEach ($_resource in $_ResourceCollection)
+		{
+
+			if (-not($PSBoundParameters['Verbose']) -or -not($VerbosePreference -eq 'Continue'))
+			{
+				
+				Write-Progress -id 1 -activity "Generate Firmware Report" -percentComplete (($_P / $_ResourceCollection.count) * 100)
+
+			}
+
+			switch ($_resource.category) 
+			{
+
+				"enclosure-groups"
+				{
+
+					$_P++
+
+					$_ProgressParams = @{
+
+						ID = 1;
+						Activity = "Generate Firmware Report";
+						CurrentOperation = ("Processing '{0}' Enclosure Group" -f $_resource.name);
+						PercentComplete = (($_P / $_ResourceCollection.count) * 100)
+
+					}
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{
+						
+						  "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Enclosure Firmware Information - {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+					}
+                    
+					else 
+					{ 
+
+						Write-Progress @_ProgressParams
+					
+					}
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Enclosure Group to Enclosure associations, then getting found Enclosure Resources."
+
+					[Array]$_LogicalEnclosures = (Send-HPOVRequest "/rest/index/associations?parentUri=$($_resource.uri)&name=ENCLOSURE_GROUP_TO_LOGICAL_ENCLOSURE" -Hostname $_resource.ApplianceConnection.Name).members  | % { Send-HPOVRequest $_.childUri -Hostname $_.ApplianceConnection.Name}
+                        
+					#Make sure the EG has associated Enclosures/LogicalEnclosures.
+					if ($_LogicalEnclosures) 
+					{
+
+						$_e = 0
+
+						$_TotalEnclosures = ($_LogicalEnclosures.enclosureUris | Measure-Object).Count
+
+						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Total number of Enclosures to process: {0}" -f $_TotalEnclosures | Write-Verbose 
+
+						foreach ($_le in $_LogicalEnclosures) 
+						{ 
+
+							#Loop through LE EnclosureUris
+							foreach ($_enclosure in $_le.enclosureUris)
+							{
+
+								#Get Enclosure Resource Object
+								Try
+								{
+
+									$_enclosure = Send-HPOVRequest $_enclosure -Hostname $_resource.ApplianceConnection.Name
+
+								}
+							
+								Catch
+								{
+
+									$PSCmdlet.ThrowTerminatingError($_)
+
+								}
+
+								$_e++
+
+								$_EnclParams = @{
+
+									ID               = 10;
+									ParentID         = 1;
+									Activity         = "Create Enclosure Firmware Report";
+									CurrentOperation = ("[{0}\{1}] Processing '{2}' Enclosure" -f $_e, $_TotalEnclosures, $_enclosure.name);
+									PercentComplete  = (($_e / $_TotalEnclosures) * 100)
+
+								}
+
+								#Handle the call from -Verbose so Write-Progress does not get borked on display.
+								if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+								{ 
+
+									"[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Enclosure Firmware Information: {0}" -f ($_EnclParams | Out-String) | Write-Verbose
+							
+								}
+                    
+								else 
+								{ 
+								
+									Write-Progress @_EnclParams
+							
+								}
+
+								Try
+								{
+
+									$_EnclosureReportCol = Get-EnclosureFirmware $_enclosure $Baseline 1
+
+									"[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Firmware Report return: {0}" -f ($_EnclosureReportCol | Out-String) | Write-Verbose
+
+									ForEach ($_item in $_EnclosureReportCol)
+									{
+
+										"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding {0} in {1} to  Enclosure Firmware collection" -f $_item.Component, $_item.Name | Write-Verbose
+										
+										$_item | add-member -Type NoteProperty -Name eg -value $_resource.name
+
+										[void]$_FirmwareReportCollection.Add($_item)
+
+									}
+
+								}
+							
+								Catch
+								{
+
+									$PSCmdlet.ThrowTerminatingError($_)
+
+								}
+
+							}						
+
+						}
+
+					}
+                        
+					#Clear Child Write-Progress progress bars
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display."  
+					
+					}
+             
+					else 
+					{ 
+						
+						Write-Progress -ParentId 1 -id 2 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Completed" -Completed 
+					
+					}
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Enclosure Group Firmware Information Skipping Write-Progress display."  
+					
+					}
+             
+					else 
+					{ 
+						
+						Write-Progress -Id 1 -activity "Collecting Enclosure Group Firmware Information" -CurrentOperation "Completed" -Completed 
+					
+					}
+
+				}
+
+				"enclosures" 
+				{
+
+					#Keep track of the number of resources
+					$_P++
+
+					$_ProgressParams = @{
+
+						ID = 1;
+						Activity = "Generate Firmware Report";
+						CurrentOperation = ("Processing '{0}' Enclosure" -f $_resource.name);
+						PercentComplete = (($_P / $_ResourceCollection.count) * 100)
+
+					}
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{
+						
+						  "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Enclosure Firmware Information - {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+					}
+                    
+					else 
+					{ 
+
+						Write-Progress @_ProgressParams
+					
+					}
+
+					Try
+					{
+
+						$_EnclosureReport = Get-EnclosureFirmware $_resource $Baseline 1
+
+						$_EnclosureReport | % {
+
+							[void]$_FirmwareReportCollection.Add($_)
+
+						}
+
+					}
+
+					Catch
+					{
+
+						Write-Progress -id 1 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Completed" -Completed 
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+					
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display."  
+					
+					}
+                
+					else 
+					{ 
+						
+						Write-Progress -id 1 -activity "Collecting Enclosure Firmware Information" -CurrentOperation "Completed" -Completed 
+					
+					}
+
+				}
+
+				"server-hardware" 
+				{ 
+
+					#Keep track of the number of resources
+					$_P++
+
+					$_ProgressParams = @{
+
+						ID = 1;
+						Activity = "Generate Firmware Report";
+						CurrentOperation = ("Processing '{0}' Server(s)" -f $_resource.name);
+						PercentComplete = (($_P / $_ResourceCollection.count) * 100)
+
+					}
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{
+						
+						  "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Server Firmware Information - {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+					}
+                    
+					else 
+					{ 
+
+						Write-Progress @_ProgressParams
+					
+					}
+
+					Try
+					{
+
+						$_ServerReport = Get-ServerFirmware $_resource $Baseline
+
+						$_ServerReport | % {
+
+							[void]$_FirmwareReportCollection.Add($_)
+
+						}
+
+					}
+
+					Catch
+					{
+
+						Write-Progress -id 1 -activity "Collecting Server Firmware Information" -CurrentOperation "Completed" -Completed 
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+					
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Server Firmware Information - Skipping Write-Progress display."  
+					
+					}
+                
+					else 
+					{ 
+						
+						Write-Progress -id 1 -activity "Collecting Server Firmware Information" -CurrentOperation "Completed" -Completed 
+					
+					}
+            
+				}
+
+				"interconnects" 
+				{ 
+
+					#Keep track of the number of resources
+					$_P++
+
+					$_ProgressParams = @{
+
+						ID = 1;
+						Activity = "Generate Firmware Report";
+						CurrentOperation = ("Processing '{0}' Interconnects(s)" -f $_resource.name);
+						PercentComplete = (($_P / $_ResourceCollection.count) * 100)
+
+					}
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{
+						
+						  "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Interconnect Firmware Information - {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+					}
+                    
+					else 
+					{ 
+
+						Write-Progress @_ProgressParams
+					
+					}
+
+					Try
+					{
+
+						$_InterconnectFirmwareReport = Get-InterconnectFirmware $_resource $Baseline
+
+						$_InterconnectFirmwareReport | % {
+
+							[void]$_FirmwareReportCollection.Add($_)
+
+						}
+
+					}
+
+					Catch
+					{
+
+						Write-Progress -id 1 -activity "Collecting Interconnect Firmware Information" -CurrentOperation "Completed" -Completed 
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+					
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting Interconnect Firmware Information - Skipping Write-Progress display."  
+					
+					}
+                
+					else 
+					{ 
+						
+						Write-Progress -id 1 -activity "Collecting Server Firmware Information" -CurrentOperation "Completed" -Completed 
+					
+					}
+           
+				}
+
+			}
+
+		}
 
         Write-Progress -Activity "Firmware collection report complete." -PercentComplete (100) -Status "Finished." -Completed
 
-        #Generate alternate report for Enclosure Groups
-        switch ($Resource) {
-        
-            "interconnect" {
+		if ($Export) 
+		{ 
 
-                #Export to CSV
-                if ($Export) { $collection | select-object EG, Name,Device,Component,Installed,Baseline,BaselinePolicy,Compliance | Export-Csv -Path $Location\interconnect_report_$(get-Date -uformat "%Y.%m.%d").csv -Encoding UTF8 -NoTypeInformation }
+			$_Location = '{0}\FirmwareReport_{1}.csv' -f $Location,[DateTime]::Now.ToUniversalTime().ToString('yyyy-MM-ddTHH.mm.ss.ff.fffZzzz').Replace(':','')
 
-                #Display Report
-                else {
-                
-                    $Table = @{Expression={$_.name};Label="Name"},
-                             @{Expression={$_.device};Label="Device";width=16},
-                             @{Expression={$_.installed};Label="Installed"},
-                             @{Expression={$_.Baseline};Label="Baseline"},
-                             @{Expression={$_.BaselinePolicy};Label="Baseline Policy"},
-                             @{Expression={$_.Compliance};Label="Compliance"}
+			$_FirmwareReportCollection | % { Export-Csv -InputObject $_ -Path $_Location -Append -NoTypeInformation -Encoding UTF8 }
+				
+		}
 
-                     $collection | Sort-Object name | format-table $Table -Wrap
+        #Display Report
+        else 
+		{
 
-                }
-
-                "Done: {0} interconnect(s) processed." -f $i
-
-            }
-
-            "server" {
-
-                #Export to CSV
-                if ($Export) { $collection | select-object Name,Device,Component,Installed,Baseline,BaselinePolicy,Compliance | Export-Csv -Path $Location\server_report_$(get-Date -uformat "%Y.%m.%d").csv -Encoding UTF8 -NoTypeInformation }
-
-                #Display Report
-                else {
-                
-                    $Table = @{Expression={$_.name};Label="Name"},
-                             @{Expression={$_.device};Label="Device"},
-                             @{Expression={$_.Component};Label="Component";width=10},
-                             @{Expression={$_.installed};Label="Installed"; width=14},
-                             @{Expression={$_.Baseline};Label="Baseline"; width=14},
-                             @{Expression={$_.BaselinePolicy};Label="Baseline Policy"},
-                             @{Expression={$_.Compliance};Label="Compliance"}
-
-                     $collection | Sort-Object name | format-table $Table -Wrap
-
-                }
-
-                "Done: {0} server(s) processed." -f $s
-
-            }
-
-            "enclosure" {
-
-
-                #Export to CSV
-                if ($Export) { $collection | select-object Name,Device,Component,Installed,Baseline,BaselinePolicy,Compliance | Export-Csv -Path $Location\enclosure_report_$(get-Date -uformat "%Y.%m.%d").csv -Encoding UTF8 -NoTypeInformation }
-
-                #Display Report
-                else {
-                
-                    $Table = @{Expression={$_.name};Label="Name"},
-                             @{Expression={$_.device};Label="Device";width=16},
-                             @{Expression={$_.Component};Label="Component"},
-                             @{Expression={$_.installed};Label="Installed"},
-                             @{Expression={$_.Baseline};Label="Baseline"},
-                             @{Expression={$_.BaselinePolicy};Label="Baseline Policy"},
-                             @{Expression={$_.Compliance};Label="Compliance"}
-
-                     $collection | Sort-Object name | format-table $Table -Wrap
-
-                }
-
-                write-host ""
-                "Done: {0} enclosure(s), {1} server(s), {2} interconnect(s) processed." -f $e, $s, $i
-
-            }
-            
-            "eg" {
-
-                #Export to CSV
-                if ($Export) { $collection | select-object Name,Device,Component,Installed,Baseline,BaselinePolicy,Compliance | Export-Csv -Path $Location\eg_report_$(get-Date -uformat "%Y.%m.%d").csv -Encoding UTF8 -NoTypeInformation }
-
-                #Display Report
-                else {
-                
-                    $Table = @{Expression={$_.eg};Label="EG"},
-                             @{Expression={$_.name};Label="Name"},
-                             @{Expression={$_.device};Label="Device";width=16},
-                             @{Expression={$_.Component};Label="Component"},
-                             @{Expression={$_.installed};Label="Installed"},
-                             @{Expression={$_.Baseline};Label="Baseline"},
-                             @{Expression={$_.BaselinePolicy};Label="Baseline Policy"},
-                             @{Expression={$_.Compliance};Label="Compliance"}
-
-                     $collection | Sort-Object name | format-table $Table -Wrap
-
-                }
-
-                "Done: {0} enclosure group(s), {1} enclosure(s), {2} server(s), {3} interconnect(s) processed." -f $g, $e, $s, $i
-
-            }
+            Return $_FirmwareReportCollection
 
         }
 
@@ -19127,17 +19344,34 @@ function Show-HPOVFirmwareReport {
 
 }
 
-function Get-EnclosureFirmware {
+function Get-EnclosureFirmware 
+{
 
     <#
         Internal-only function.
     #>
 
-    [CmdletBinding()]
-    Param (
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    Param 
+	(
     
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "Default", HelpMessage = "Enclosure resource object")]
-        [PsCustomObject]$EnclosureObject = $Null, 
+        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Enclosure resource object")]
+		[ValidateScript({
+			if ($_.category -ne 'enclosures') 
+			{ 
+				
+				Throw ("The resource object provided is not an Enclosure Resource.  Expected category 'enclosures', recieved '{0}' [{1}]." -f $_.category, $_.name)
+			}
+
+			else
+			{
+
+				$True
+
+			}
+		
+		})]
+        [PsCustomObject]$Enclosure = $Null, 
 
         [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null,
@@ -19147,42 +19381,62 @@ function Get-EnclosureFirmware {
         
     )
 
-
-    Begin {
+    Begin 
+	{
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
         #Reset private variables
-        $BaseLinePolicy = $Null
-        $enclosureReport = @()
+        $_BaseLinePolicy  = $Null
+        $_EnclosureReport = New-Object System.Collections.ArrayList
 
         #Keep track of the number of Servers
-        $script:s = 0
+        $_s = 0
 
         #Keep track of the number of Interconnects
-        $script:i = 0
+        $_i = 0
 		
         #Keep track of the number of OAs
-        $o = 0
+        $_o = 0
 
         #See if EnclosureObject was passed via Pipeline
-        if (-not $PSBoundParameters['EnclosureObject']) { $PipelineInput = $True }
+        if (-not $PSBoundParameters['Enclosure']) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
     }
 
-    Process {
+    Process 
+	{
         
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Object passed via pipeline: $($PipelineInput)"
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Enclosure firmware report for: '$($enclosureObject.name)'"
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Enclosure firmware report for: '$($Enclosure.name)'"
 
         #Use the Enclosure FwBaseline if it is set
-        if (($EnclosureObject.isFwManaged) -and ($Baseline -eq $Null)) { 
+        if (($Enclosure.isFwManaged) -and ($Baseline -eq $Null)) 
+		{ 
 
-            $BaseLinePolicy = Send-HPOVRequest $EnclosureObject.fwBaselineUri
-        
+			Try
+			{
+
+				$BaseLinePolicy = Send-HPOVRequest $Enclosure.fwBaselineUri -Hostname $Enclosure.ApplianceConnection.Name
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
         }
 
-        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq "firmware-drivers")) { 
+        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq "firmware-drivers")) 
+		{ 
         
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource passed."
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource name: $($Baseline.baselineShortName)"
@@ -19192,109 +19446,369 @@ function Get-EnclosureFirmware {
         }
         
         #Check to see if the wrong Object has been passed
-        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers")) { 
+        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers")) 
+		{ 
         
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Baseline resource passed. Generating error."
-            $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'GET-ENCLOSUREFIRMWARE' -Message "The wrong Baseline Object was passed.  Expected Category type `'firmware-drivers`', received `'$($Baseline.category)`' (Object Name: $($Baseline.name)"
+            $errorRecord = New-ErrorRecord InvalidOperationException InvalidBaselineResouce InvalidArgument 'Baseline' -TargetType 'PSObject' -Message "An invalid Baseline Object was passed.  Expected Category type 'firmware-drivers', received '$($Baseline.category)' (Object Name: $($Baseline.name)"
             $PsCmdLet.ThrowTerminatingError($errorRecord)
             
         }
         
-        elseif (($Baseline) -and ($Baseline -is [string]) -and ($Baseline.StartsWith(($script:fwDriversUri)))) { 
+        elseif (($Baseline) -and ($Baseline -is [string]) -and ($Baseline.StartsWith(($script:fwDriversUri)))) 
+		{ 
             
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline URI passed: $Baseline"
-            $BaseLinePolicy = Send-HPOVRequest $Baseline 
+
+			Try
+			{
+
+				$BaseLinePolicy = Send-HPOVRequest $Baseline -Hostname $Enclosure.ApplianceConnection.Name
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+            
         
         }
         
         #Check to see if the wrong URI has been passed
-        elseif (($Baseline) -and ($Baseline -is [string]) -and $Baseline.StartsWith("/rest/") -and ( ! $Baseline.StartsWith(("/rest/firmware-drivers/")))) { 
+        elseif (($Baseline) -and ($Baseline -is [string]) -and $Baseline.StartsWith("/rest/") -and ( ! $Baseline.StartsWith(("/rest/firmware-drivers/")))) 
+		{ 
         
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Baseline URI passed. Generating error."
-            $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'GET-ENCLOSUREFIRMWARE' -Message "The wrong Baseline URI was passed.  URI must start with '/rest/firmware-drivers/', received '$($Baseline)'"
+            $errorRecord = New-ErrorRecord InvalidOperationException InvalidBaselineValue InvalidArgument 'Baseline' -Message "The wrong Baseline URI was passed.  URI must start with '/rest/firmware-drivers/', received '$($Baseline)'"
             $PsCmdLet.ThrowTerminatingError($errorRecord)        
             
         }
         
-        elseif (($Baseline) -and ($Baseline -is [string])) { 
+        elseif (($Baseline) -and ($Baseline -is [string])) 
+		{ 
         
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline Name passed: $Baseline"
-            $BaseLinePolicy = Get-HPOVSppFile -name $Baseline 
+
+			Try
+			{
+
+				$BaseLinePolicy = Get-HPOVSppFile -name $Baseline 
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
             
         }
         
-        else { 
+        else 
+		{ 
         
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Baseline provided."
+
             $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
         
         }
 
         #Get OA Firmware Information
-		foreach ($oa in $EnclosureObject.oa) {
+		foreach ($_oa in $Enclosure.managerBays) 
+		{
+
+			$_o ++
+
+			$_ProgressParams = @{
+
+				id               = (2 + $ProgressID);
+				ParentId         = 1;
+				activity         = "Collecting Onboard Administrator Firmware Information";
+				CurrentOperation = ("[{0}/{1}] Processing '{2}'" -f $_o, $Enclosure.managerBays.count, $_oa.role);
+				percentComplete  = (($_o / $Enclosure.managerBays.count) * 100) 
+
+			}
 
             #Handle the call from -Verbose so Write-Progress does not get borked on display.
-            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Onboard Administrator Firmware Information - Skipping Write-Progress display."  }
+            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+			{ 
+				
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Onboard Administrator Firmware Information - Skipping Write-Progress display: {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+			
+			}
             
-            else { Write-Progress -id (2 + $ProgressID) -ParentId 1 -activity "Collecting Onboard Administrator Firmware Information" -CurrentOperation "Processing `'$($oa.role)`': $o of $($enclosure.oa.count) OAs" -percentComplete (($o / $EnclosureObject.oa.count) * 100) }
+            else 
+			{ 
+				
+				Write-Progress @_ProgressParams
+			
+			}
 
             #If OA is absent report it as such
-            if ($oa.role -eq "OaAbsent") { $enclosureReport += [pscustomobject]@{ Name = $EnclosureObject.name; Device = ($Enclosure.enclosureType.substring(0,($enclosure.enclosureType.length - 3))); Component = "OA Bay $($oa.bayNumber) Absent"; Installed = "N/A"; Baseline = "N/A" ; BaselinePolicy = "N/A"; Compliance = "N/A" } }
+            if ($_oa.role -eq "OaAbsent") 
+			{
+				
+				$_OAReport = [PSCustomObject]@{ 
+
+					ApplianceConnection = $_resource.ApplianceConnection.Name
+					Name                = $Enclosure.name; 
+					Device              = $Enclosure.enclosureType; 
+					Component           = "OA Bay $($_oa.bayNumber) Absent"; 
+					Installed           = "N/A"; Baseline = "N/A" ; 
+					BaselinePolicy      = "N/A"; 
+					Compliance          = "N/A" 
+
+				}
+			
+			}
 		    
-            else {
-                if ($BaseLinePolicy.baselineShortName -eq "No Policy Set") { $BaselineVer = "N/A" }
+            else 
+			{
 
-                else { $BaselineVer = ($BaseLinePolicy.fwComponents | where { $_.swKeyNameList -match "oa" }).componentVersion }
+                if ($BaseLinePolicy.baselineShortName -eq "No Policy Set") 
+				{ 
+					
+					$BaselineVer = "N/A" 
+					$Compliance  = "N/A" 
+				
+				}
 
-                if ($BaselineVer -eq "N/A") { $Compliance = "N/A" }
-                elseif (($oa.fwVersion -lt $BaselineVer) -or ($oa.fwVersion -lt $BaselineVer)) { $Compliance = "Not Compliant" } 
-                else { $Compliance = "Compliant" }
+                else 
+				{ 
+					
+					$_BaselineVersions = ($BaseLinePolicy.fwComponents | ? swKeyNameList -match "oa" ).componentVersion 
 
-		        $enclosureReport += [pscustomobject]@{ Name = $EnclosureObject.name; Device = ($Enclosure.enclosureType.substring(0,($enclosure.enclosureType.length - 3))); Component = "OA Bay $($oa.bayNumber) $($oa.role)"; Installed = $oa.fwVersion; Baseline = $BaselineVer ; BaselinePolicy = $BaseLinePolicy.baselineShortName; Compliance = $Compliance }
+					$_NewerVersion = $null
+
+					#Figure out which is the newest, and only display that if multiple ROM versions found
+					foreach ($_version in $_BaselineVersions)
+					{
+
+						if ($_NewerVersion)
+						{
+
+							if ($_version -gt $_NewerVersion)
+							{
+
+								$_NewerVersion = $_version
+							
+							}
+
+						}
+
+						else
+						{
+
+							if ($_version -ge $_oa.fwVersion)
+							{
+							
+								$_NewerVersion = $_version
+
+							}
+
+						}
+
+					}
+
+					$_BaselineVer = $_NewerVersion
+				
+				}
+
+                if ($_oa.fwVersion -ne $_BaselineVer)
+				{ 
+					
+					$Compliance = "Not Compliant" 
+				
+				}
+				 
+                else 
+				{ 
+					
+					$Compliance = "Compliant" 
+				
+				}
+
+				$_OAReport = [PSCustomObject]@{
+
+					ApplianceConnection = $_resource.ApplianceConnection.Name
+					Name                = $Enclosure.name; 
+					Device              = $Enclosure.enclosureType; 
+					Component           = "OA Bay $($_oa.bayNumber) $($_oa.role)"; 
+					Installed           = $_oa.fwVersion; 
+					Baseline            = $_BaselineVer ; 
+					BaselinePolicy      = $BaseLinePolicy.baselineShortName; 
+					Compliance          = $Compliance 
+					
+				}
+
             }
-		          
-            $o++
-		
-		} #End OA's
+
+			$_OAReport.PSObject.TypeNames.Insert(0,'HPOneView.FirmwareReport')
+
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding {0} in {1} to Enclosure Firmware collection" -f $_item.Component, $_item.Name | Write-Verbose
+
+			[void]$_EnclosureReport.Add($_OAReport)
+
+		} 
 
         #Get Server Resource Objects
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Server resources from the enclosure."
-        $servers = ($EnclosureObject.deviceBays | where { $_.devicePresence -eq "present" } | % { Send-HPOVRequest $_.deviceUri })
+		Try
 
-        foreach ($server in $servers) {
+		{
 
-            $script:s++
+			$_Servers = ($Enclosure.deviceBays | ? devicePresence -eq "present" | % { Send-HPOVRequest $_.deviceUri -Hostname $Enclosure.ApplianceConnection.Name })
+
+		}
+        
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+        foreach ($_server in $_Servers) 
+		{
+
+            $_s++
+
+			$_ProgressParams = @{
+
+				id               = (3 + $ProgressID);
+				ParentId         = 1;
+				activity         = "Collecting Server Firmware Information";
+				CurrentOperation = ("[{1}/{2}] Processing '{0}' Server" -f $_server.name, $_s, $_Servers.Count);
+				percentComplete  = (($_s / $_Servers.Count) * 100) 
+
+			}
 
             #Handle the call from -Verbose so Write-Progress does not get borked on display.
-            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Server Firmware Information - Skipping Write-Progress display."  }
+            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+			{
+				
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Server Firmware Information - Skipping Write-Progress display: {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+			
+			}
              
-            else { Write-Progress -id (3 + $ProgressID) -ParentId 1 -activity "Collecting Server Firmware Information" -CurrentOperation "Processing `'$($server.name)`': $s of $($servers.Count) Server(s)" -percentComplete (($s / $servers.Count) * 100) }
+            else 
+			{ 
+				
+				Write-Progress @_ProgressParams
+			
+			}
 
-            $enclosureReport += Get-ServerFirmware $server $Baseline
+			Try
+			{
 
-        } #end Servers Collection
+				$_ServerFirmwareReport = Get-ServerFirmware $_server $BaseLinePolicy 
+
+				ForEach ($_item in $_ServerFirmwareReport)
+				{
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding {0} in {1} to Enclosure Firmware collection" -f $_item.Component, $_item.Name | Write-Verbose
+
+					$_item.PSObject.TypeNames.Insert(0,'HPOneView.FirmwareReport')
+
+					[void]$_EnclosureReport.Add($_item)
+
+				}
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+        }
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Interconnect resources from the enclosure."
-        $interconnects = ($enclosure.interconnectBays | where { $_.interconnectUri -ne $Null } | % { Send-HPOVRequest $_.interconnectUri })
+
+		Try
+		{
+
+			$_Interconnects = ($Enclosure.interconnectBays | ? interconnectUri -ne $Null | % { Send-HPOVRequest $_.interconnectUri -Hostname $Enclosure.ApplianceConnection.Name })
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+        
 
         #Get Interconnect Information
-		foreach ($interconnect in $interconnects) {
+		foreach ($_interconnect in $_Interconnects) 
+		{
 
-            $script:i++
+            $_i++
+
+			$_ProgressParams = @{
+
+				id               = (4 + $ProgressID);
+				ParentId         = 1;
+				activity         = "Collecting Interconnect Firmware Information";
+				CurrentOperation = ("Processing {0}: {1} of {2} Interconnect(s)" -f $_interconnect.name, $_i, $_Interconnects.Count);
+				percentComplete  = (($_i / $_Interconnects.Count) * 100) 
+
+			}
 
             #Handle the call from -Verbose so Write-Progress does not get borked on display.
-            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Interconnect Firmware Information - Skipping Write-Progress display."  }
+            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+			{
+				
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Collecting Interconnect Firmware Information - Skipping Write-Progress display: {0}" -f ($_ProgressParams | Out-String) | Write-Verbose
+			
+			}
              
-            else { Write-Progress -id (4 + $ProgressID) -ParentId 1 -activity "Collecting Interconnect Firmware Information" -CurrentOperation "Processing `'$($interconnect.name)`': $i of $($interconnectS.Count) Interconnects" -percentComplete (($i / $interconnectS.Count) * 100) }
+            else 
+			{ 
+				
+				Write-Progress @_ProgressParams
+			
+			}
 
-            $enclosureReport += Get-InterconnectFirmware $interconnect $Baseline
+			Try
+			{
 
-        } #End Interconnects Collection
+				$_InterconnectReport = Get-InterconnectFirmware $_interconnect $BaseLinePolicy
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding {0} in {1} to Enclosure Firmware collection" -f $_InterconnectReport.Component, $_InterconnectReport.Name | Write-Verbose
+
+			$_InterconnectReport.PSObject.TypeNames.Insert(0,'HPOneView.FirmwareReport')
+
+			[void]$_EnclosureReport.Add($_InterconnectReport)
+
+        }
 
         #Handle the call from -Verbose so Write-Progress does not get borked on display.
-        if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting OA/Server/Interconnect Firmware Information - Skipping Write-Progress display."  }
+        if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+		{ 
+			
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Completed Collecting OA/Server/Interconnect Firmware Information - Skipping Write-Progress display."  
+		
+		}
          
-        else { 
+        else 
+		{ 
         
             Write-Progress -ParentId 1 -id (2 + $ProgressID) -activity "Collecting Onboard Administrator Firmware Information" -CurrentOperation "Completed" -Completed                    
             Write-Progress -ParentId 1 -id (3 + $ProgressID) -activity "Collecting Server Firmware Information" -CurrentOperation "Completed" -Completed
@@ -19304,26 +19818,28 @@ function Get-EnclosureFirmware {
 
     }
 
+    end 
+	{
 
-    end {
-
-        Return $enclosureReport
+        Return $_EnclosureReport
 
     }
 
 }
 
-function Get-ServerFirmware {
+function Get-ServerFirmware 
+{
 
     <#
         Internal-only function.
     #>
 
     [CmdletBinding()]
-    Param (
+    Param 
+	(
     
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "Default", HelpMessage = "Server resource object")]
-        [PsCustomObject]$serverObject, 
+        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Server resource object")]
+        [PsCustomObject]$Server, 
 
         [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null
@@ -19331,261 +19847,459 @@ function Get-ServerFirmware {
     )
 
 
-    Begin {
+    Begin 
+	{
 
         #See if serverObject was passed via Pipeline
         if (-not $PSBoundParameters['serverObject']) { $PipelineInput = $True }
         
-        $serverReport = @()
+        $_ServerReport = New-Object System.Collections.ArrayList
 
     }
 
-    Process {
+    Process 
+	{
         
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Object passed via pipeline: $($PipelineInput)"
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Server firmware report for: '$($server.name)'"
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Server Hardware Type"
-        #Check if the server hardware type allows firmware management
-        $sht = Send-HPOVRequest $server.serverHardwareTypeUri
 
-        if ($sht.capabilities -match "FirmwareUpdate") {
+        #Check if the server hardware type allows firmware management
+		Try
+		{
+
+			$_sht = Send-HPOVRequest $Server.serverHardwareTypeUri -Hostname $Server.ApplianceConnection.Name
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+        
+
+        if ($_sht.capabilities -match "FirmwareUpdate") 
+		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type supports firmware management."
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline value provided: '$Baseline'"
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] '$($Baseline | out-string)'"
+            "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline value provided: {0}" -f ($Baseline | Out-String) | Write-Verbose
 
             #If a bladeserver and that the caller hasn't specified a Baseline, Use the Enclosure FwBaseline if it is set
-            if (-not $Baseline) { 
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Baseline provided.  Checking Server Profile."
+            if (-not($Baseline))
+			{ 
 
                 #Check to see if there is a profile
-                if ($server.serverProfileUri) {
-                            
-                    $profile = Send-HPOVRequest $server.serverProfileUri
+                if ($Server.serverProfileUri) 
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Baseline provided.  Checking Server Profile."
+
+					Try
+					{
+
+						$_ServerProfile = Send-HPOVRequest $Server.serverProfileUri -Hostname $Server.ApplianceConnection.Name
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
 
                     #Then check if a Baseline is attached there
-                    if ($profile.firmware.manageFirmware) { 
+                    if ($_ServerProfile.firmware.manageFirmware) 
+					{ 
                     
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile has baseline attached. Getting baseline details."
-                        $BaselinePolicy = Send-HPOVRequest $profile.firmware.firmwareBaselineUri 
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile Baseline name: $($BaselinePolicy.name)"
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile Baseline name: $($BaselinePolicy.uri)"
-                    }
-                    
-                    #If firmware is not managed by the profile, check if the server is a BL and if Enclosure has a baseline assigned.
-                    elseif ($server.locationUri) {
-                    
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile does not have a baseline attached. Checking Enclosure."
-                        $Enclosure = Send-HPOVRequest $server.locationUri
 
-                        #Use the Enclosure FwBaseline if it is set
-                        if ($enclosure.isFwManaged) { 
-                        
-                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure has baseline attached. Getting baseline details."                
-                            $BaseLinePolicy = Send-HPOVRequest $enclosure.fwBaselineUri
-                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Baseline name: $($BaselinePolicy.name)"
-                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Baseline name: $($BaselinePolicy.uri)"
-                                
-                        }
+						Try
+						{
 
-                        else {
-                        
-                            write-verbose "[GETSERVERFIRMWARE] Enclosure does not have a baseline policy set."
-                            $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
+							$_BaselinePolicy = Send-HPOVRequest $_ServerProfile.firmware.firmwareBaselineUri -Hostname $Server.ApplianceConnection.Name
 
-                        }
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile Baseline name: $($_BaselinePolicy.name)"
+
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile Baseline name: $($_BaselinePolicy.uri)"
 
                     }
-                                    
-                    #If not, set $BaselinePolicy to No Policy Set
-                    else { 
                     
-                        if (-not $server.locationUri) { write-verbose "[GETSERVERFIRMWARE] Server is not a BL, so no Enclosure to check." }
-                        write-verbose "[GETSERVERFIRMWARE] Server Profile does not have a baseline attached."
-                        $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
+					#If not, set $BaselinePolicy to No Policy Set
+                    else 
+					{
                         
+                        write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Profile does not have a baseline attached."
+
+                        $_BaselinePolicy = [PsCustomObject]@{ 
+							
+							baselineShortName = "No Policy Set" 
+						
+						} 
+
                     }
 
                 }
 
-                else {
+                else 
+				{
 
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Server Profile assigned."
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Server Profile assigned, which does not have a baseline policy set."
 
-                    if ($server.locationUri) {
-                    
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Checking Enclosure for policy."
-                        $Enclosure = Send-HPOVRequest $server.locationUri
-
-                        #Use the Enclosure FwBaseline if it is set
-                        if ($enclosure.isFwManaged) { 
-
-                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure has baseline attached. Getting baseline details."                
-                            $BaseLinePolicy = Send-HPOVRequest $enclosure.fwBaselineUri
-                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Baseline name: $($BaselinePolicy.name)"
-                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Baseline name: $($BaselinePolicy.uri)"
-                                
-                        }
-
-                        else {
-                        
-                            write-verbose "[GETSERVERFIRMWARE] Enclosure does not have a baseline policy set."
-                            $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
-
-                        }
-
-                    }
-
-                    #If not, set $BaselinePolicy to No Policy Set
-                    else { 
-                    
-                        if (-not $server.locationUri) { write-verbose "[GETSERVERFIRMWARE] Server is not a BL, so no Enclosure to check." }
-                        write-verbose "[GETSERVERFIRMWARE] Server Profile does not have a baseline attached."
-                        $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
-                        
-                    }
+                    $_BaselinePolicy = [PsCustomObject]@{ 
+							
+						baselineShortName = "No Policy Set" 
+						
+					} 
 
                 }
                    
             }
 
-            elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq "firmware-drivers")) { 
+            elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq "firmware-drivers")) 
+			{ 
             
-                write-verbose "[GETSERVERFIRMWARE] Baseline resource passed."
-                write-verbose "[GETSERVERFIRMWARE] Baseline resource name: $($Baseline.baselineShortName)"
-                write-verbose "[GETSERVERFIRMWARE] Baseline resource uri: $($Baseline.uri)"
-                $BaseLinePolicy = $Baseline
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource passed."
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource name: $($Baseline.baselineShortName)"
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource uri: $($Baseline.uri)"
+
+                $_BaselinePolicy = $Baseline.PSObject.Copy()
                 
             }
 
             #Check to see if the wrong Object has been passed
-            elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers")) { 
+            elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers")) 
+			{ 
             
-                write-verbose "[GETSERVERFIRMWARE] Invalid Baseline resource passed. Generating error."
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Baseline resource passed. Generating error."
+
                 $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'getserverfirmware' -Message "The wrong Baseline Object was passed.  Expected Category type `'firmware-drivers`', received `'$($Baseline.category)`' (Object Name: $($Baseline.name)"
+
                 $PsCmdLet.ThrowTerminatingError($errorRecord)
                 
             }
 
-            elseif (($Baseline) -and ($Baseline -is [string]) -and ($Baseline.StartsWith(($script:fwDriversUri)))) { 
+            elseif (($Baseline) -and ($Baseline -is [string]) -and ($Baseline.StartsWith(($script:fwDriversUri)))) 
+			{ 
                 
-                write-verbose "[GETSERVERFIRMWARE] Baseline URI passed: $Baseline"
-                $BaseLinePolicy = Send-HPOVRequest $Baseline 
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline URI passed: $Baseline"
+
+				Try
+				{
+
+					$_BaseLinePolicy = Send-HPOVRequest $Baseline -Hostname $Server.ApplianceConnection.Name
+
+				}
+                
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
             
             }
 
             #Check to see if the wrong URI has been passed
-            elseif (($Baseline) -and ($Baseline -is [string]) -and $Baseline.StartsWith("/rest/") -and ( ! $Baseline.StartsWith(("/rest/firmware-drivers/")))) { 
+            elseif (($Baseline) -and ($Baseline -is [string]) -and $Baseline.StartsWith("/rest/") -and ( ! $Baseline.StartsWith(("/rest/firmware-drivers/")))) 
+			{ 
 
-                write-verbose "[GETSERVERFIRMWARE] Invalid Baseline URI passed. Generating error."
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Baseline URI passed. Generating error."
                 $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'getserverfirmware' -Message "The wrong Baseline URI was passed.  URI must start with '/rest/firmware-drivers/', received '$($Baseline)'"
                 $PsCmdLet.ThrowTerminatingError($errorRecord)        
                 
             }
 
-            elseif (($Baseline) -and ($Baseline -is [string])) { 
+            elseif (($Baseline) -and ($Baseline -is [string])) 
+			{ 
             
-                write-verbose "[GETSERVERFIRMWARE] Baseline Name passed: $Baseline"
-                $BaseLinePolicy = Get-HPOVSppFile -name $Baseline 
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline Name passed: $Baseline"
+
+				Try
+				{
+
+					$_BaseLinePolicy = Get-HPOVSppFile -name $Baseline -ApplianceConnection $Server.ApplianceConnection.Name
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+				
+				}
+                
                 
             }
 
-            else { 
+            else 
+			{ 
             
-                write-verbose "[GETSERVERFIRMWARE] No Baseline provided."
-                $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
+                write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Baseline provided."
+
+                $_BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
             
             }
 
-            write-verbose "[GETSERVERFIRMWARE] Processing Server ROM Information."
+            write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Server ROM Information."
 
             #Saving SystemROM Information
-            $serverRomVersion = ($server.romVersion -replace "/",".").SubString(4)
+            $_ServerRomVersion = ($Server.romVersion -replace "/",".").SubString(4)
 
             #Check Baseline Policy and set Compliance statement
-            if ($BaseLinePolicy.baselineShortName -eq "No Policy Set") { 
+            if ($_BaseLinePolicy.baselineShortName -eq "No Policy Set") 
+			{ 
                             
-                $BaselineVer = "N/A" 
-                $Compliance = "N/A"
+                $_BaselineVer = "N/A" 
+                $_Compliance  = "N/A"
                                     
             }
 
-            else { 
+            else 
+			{ 
                             
-                $BaselineVer = ($BaseLinePolicy.fwComponents | where { $_.swKeyNameList -match $server.romVersion.SubString(0,3) }).componentVersion
-                write-verbose "Found Baseline version: $($BaselineVer | out-string)"
-                if ($BaselineVer -is [Array]) { $BaselineVer = get-Date -format MM.dd.yyyy $BaselineVer[0] }
-                else { $BaselineVer = get-Date -format MM.dd.yyyy $BaselineVer }
+                $BaselineVer = ($_BaseLinePolicy.fwComponents | ? swKeyNameList -eq $Server.romVersion.SubString(0,3)).componentVersion
 
-                if ($BaselineVer -eq "N/A") { $Compliance = "N/A" }
-                elseif (($serverRomVersion -gt $BaseLineVer) -or ($serverRomVersion -lt $BaseLineVer)) { $Compliance = "Not Compliant" } 
-                else { $Compliance = "Compliant" } 
+                write-verbose "Found Baseline version(s): $($BaselineVer | out-string)"
+
+				$_NewerVersion = $null
+
+				#Figure out which is the newest, and only display that if multiple ROM versions found
+				foreach ($_version in $BaselineVer)
+				{
+
+					if ($_NewerVersion)
+					{
+
+						if ($_version -gt $_NewerVersion)
+						{
+
+							$_NewerVersion = $_version
+							
+						}
+
+					}
+
+					else
+					{
+
+						if ($_version -ge $_ServerRomVersion)
+						{
+							
+							$_NewerVersion = $_version
+
+						}
+
+					}
+
+				}
+
+				$_BaselineVer = $_NewerVersion
+
+                if ($_ServerRomVersion -ne $_BaselineVer) 
+				{ 
+					
+					$_Compliance = "Not Compliant" 
+				
+				} 
+                
+				else 
+				{ 
+					
+					$_Compliance = "Compliant" 
+				
+				}				
+				 
             }
 
-            $serverReport += [pscustomobject]@{ Name = $server.name; Device = $server.shortModel; Component = "ROM"; Installed = $serverRomVersion; Baseline = $BaselineVer ; BaselinePolicy = $BaseLinePolicy.baselineShortName; Compliance = $Compliance }
+            $_Report = [PSCustomObject]@{ 
+				
+				ApplianceConnection = $_resource.ApplianceConnection.Name
+				Name           = $Server.name; 
+				Device         = $Server.shortModel; 
+				Component      = "ROM"; 
+				Installed      = $_ServerRomVersion; 
+				Baseline       = $_BaselineVer ; 
+				BaselinePolicy = $_BaseLinePolicy.baselineShortName; 
+				Compliance     = $_Compliance 
+			
+			}
 
-            write-verbose "[GETSERVERFIRMWARE] Processing Server iLO Information."
+			[void]$_ServerReport.Add($_Report)
+
+            write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Server iLO Information."
 
             #Saving iLO Information
-            $mpFirmwareVersion = $server.mpFirmwareVersion.SubString(0,4)
+            $_MpFirmwareVersion = $Server.mpFirmwareVersion.SubString(0,4)
 
             #Check Baseline Policy and set Compliance statement
-            if ($BaseLinePolicy.baselineShortName -eq "No Policy Set") {
+            if ($_BaseLinePolicy.baselineShortName -eq "No Policy Set") 
+			{
                             
-                $BaselineVer = "N/A" 
-                $Compliance = "N/A"
+                $_BaselineVer = "N/A" 
+                $_Compliance = "N/A"
                                     
             }
 
-            else { 
+            else 
+			{ 
                             
-                $BaselineVer = ($BaseLinePolicy.fwComponents | where { $_.swKeyNameList -match $script:mpModelTable.($server.mpModel) }).componentVersion
+                $_BaselineVersions = ($_BaseLinePolicy.fwComponents | ? swKeyNameList -match $mpModelTable.($Server.mpModel)).componentVersion
 
-                if ($BaselineVer -is [Array]) { $BaselineVer = $BaselineVer[0] }
+				$_NewerVersion = $null
 
-                #Check iLO Version Compliance
-                if ($BaselineVer -eq "N/A") { $Compliance = "N/A" }
-                elseif (($mpFirmwareVersion -gt $BaseLineVer) -or ($mpFirmwareVersion -lt $BaseLineVer)) { $Compliance = "Not Compliant" } 
-                else { $Compliance = "Compliant" } 
+				#Figure out which is the newest, and only display that if multiple ROM versions found
+				foreach ($_version in $_BaselineVersions)
+				{
+
+					if ($_NewerVersion)
+					{
+
+						if ($_version -gt $_NewerVersion)
+						{
+
+							$_NewerVersion = $_version
+							
+						}
+
+					}
+
+					else
+					{
+
+						if ($_version -ge $_MpFirmwareVersion)
+						{
+							
+							$_NewerVersion = $_version
+
+						}
+
+					}
+
+				}
+
+				$_BaselineVer = $_NewerVersion
+
+                if ($_MpFirmwareVersion -ne $_BaselineVer) 
+				{ 
+					
+					$_Compliance = "Not Compliant" 
+				
+				} 
+
+                else 
+				{ 
+					
+					$_Compliance = "Compliant" 
+				
+				} 
                                 
             }
 
-            $serverReport += [pscustomobject]@{ Name = $server.name; Device = $server.shortModel; Component = "iLO"; Installed = $mpFirmwareVersion; Baseline = $BaselineVer ; BaselinePolicy = $BaseLinePolicy.baselineShortName; Compliance = $Compliance  }
+			$_Report = [PSCustomObject]@{ 
+				
+				ApplianceConnection = $_resource.ApplianceConnection.Name
+				Name           = $Server.name; 
+				Device         = $Server.shortModel; 
+				Component      = "iLO"; 
+				Installed      = $_MpFirmwareVersion; 
+				Baseline       = $_BaselineVer; 
+				BaselinePolicy = $_BaseLinePolicy.baselineShortName; 
+				Compliance     = $_Compliance 
+			
+			}
+
+			[void]$_ServerReport.Add($_Report)
+
+			if ($Server.intelligentProvisioningVersion)
+			{
+
+				#Report Intelligent Provisioning version
+				$_Report = [PSCustomObject]@{ 
+				
+					ApplianceConnection = $_resource.ApplianceConnection.Name
+					Name           = $Server.name; 
+					Device         = $Server.shortModel; 
+					Component      = "Intelligent Provisioning"; 
+					Installed      = $Server.intelligentProvisioningVersion; 
+					Baseline       = 'N/A'; 
+					BaselinePolicy = 'N/A'; 
+					Compliance     = 'N/A'
+			
+				}
+
+				[void]$_ServerReport.Add($_Report)
+
+			}
 
         }
 
         #Server firmware is unmanageable based on its Server Hardware Type
-        else { 
+        else 
+		{ 
             
-            write-verbose "[GETSERVERFIRMWARE] Server Hardware Type does not support firmware management."      
-            $serverReport += [pscustomobject]@{ Name = $server.name; Device = $server.shortModel; Component = "N/A"; Installed = "N/A"; Baseline = "N/A" ; BaselinePolicy = "Unmanageable" }
+            write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type does not support firmware management."      
+
+            [void]$_ServerReport.Add(
+
+				[PSCustomObject]@{ 
+
+					ApplianceConnection = $_resource.ApplianceConnection.Name
+					Name           = $Server.name; 
+					Device         = $Server.shortModel; 
+					Component      = "N/A"; 
+					Installed      = "N/A"; 
+					Baseline       = "N/A" ; 
+					BaselinePolicy = "Unmanageable" 
+				
+				}
+
+			)
 
         }
 
     }
 
+    end 
+	{
 
-    end {
+		$_ServerReport | % {
 
-        Return $serverReport
+			$_.PSObject.TypeNames.Insert(0,'HPOneView.FirmwareReport')
+
+		}
+
+        Return $_ServerReport
 
     }
 
 }
 
-function Get-InterconnectFirmware {
+function Get-InterconnectFirmware 
+{
 
     <#
         Internal-only function.
     #>
 
-    [CmdletBinding()]
-    Param (
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    Param 
+	(
     
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "Default", HelpMessage = "Interconnect resource object")]
-        [PsCustomObject]$interconnectObject, 
+        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Interconnect resource object")]
+        [PsCustomObject]$Interconnect, 
 
         [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null
@@ -19593,105 +20307,296 @@ function Get-InterconnectFirmware {
     )
 
 
-    Begin {
+    Begin 
+	{
 
-        $interconnectReport = @()
+        $_InterconnectReport = New-Object System.Collections.ArrayList
 
     }
 
-    Process {
+    Process 
+	{
         
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Interconnect firmware report for: '$($InterconnectObject.name)'"
+        "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Interconnect firmware report for: {0}" -f $Interconnect.name | Write-Verbose
+
+		$_InterconnectFirmwareVersion = $Interconnect.firmwareVersion
         
-        if (-not $Baseline) {
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline was not provided, checking Enclosure Firmware Baseline set."
-            $enclosure = send-hpovrequest $interconnect.enclosureUri
+        if (-not($Baseline))
+		{
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Firmware Baseline set: $($enclosure.isFwManaged )"
 
-            #Check if the Enclosure has a Firmware Baseline attached
-            if ($enclosure.isFwManaged -and $enclosure.fwBaselineUri){ 
-    
-                $baseline = Get-HPOVSppFile $enclosure.fwBaselineUri
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Firmware Baseline name: $($baseline.name )"
-            }
 
-            else { 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline was not provided, checking Logical Interconnect Firmware Baseline set."
+
+			Try
+			{
+
+				$_LogicalInterconnect = Send-HPOVRequest $Interconnect.logicalInterconnectUri -Hostname $Interconnect.ApplianceConnection.Name
+
+				$_LogicalInterconnectFirmware = Send-HPOVRequest ($_LogicalInterconnect.uri + '/firmware') -Hostname $Interconnect.ApplianceConnection.Name
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			if ($_LogicalInterconnectFirmware.sppUri.ToLower() -ne 'unknown')
+			{
+				
+				Try
+				{
+
+					$_BaseLinePolicy = Send-HPOVRequest $_LogicalInterconnectFirmware.sppUri -Hostname $Interconnect.ApplianceConnection.Name
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Interconenct Firmware Baseline name: {0}" -f $_BaseLinePolicy.name | Write-Verbose
+
+			}
+
+			Else
+			{
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline was not provided, checking Enclosure Firmware Baseline set."
+
+				Try
+				{
+
+					$_Enclosure = Send-HPOVRequest $Interconnect.enclosureUri -Hostname $Interconnect.ApplianceConnection.Name
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
             
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Baseline provided."
-                $BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Firmware Baseline set: {0}" -f $_Enclosure.isFwManaged | Write-Verbose 
+
+				#Check if the Enclosure has a Firmware Baseline attached
+				if ($_Enclosure.isFwManaged -and $_Enclosure.fwBaselineUri)
+				{ 
+
+					Try
+					{
+
+						$_BaseLinePolicy = Send-HPOVRequest $_Enclosure.fwBaselineUri -Hostname $Interconnect.ApplianceConnection.Name
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Firmware Baseline name: {0}" -f $_BaseLinePolicy.name | Write-Verbose
+
+				}
+
+				else 
+				{ 
             
-            }
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Baseline provided."
+
+					$_BaseLinePolicy = [PsCustomObject]@{ baselineShortName = "No Policy Set" } 
+            
+				}
+
+			}
+
         }
 
-        else {
+        else 
+		{
             
-            if (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq "firmware-drivers")) { 
+            if ($Baseline -is [PsCustomObject] -and ($Baseline.category -eq "firmware-drivers")) 
+			{ 
             
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource passed."
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource name: $($Baseline.baselineShortName)"
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource uri: $($Baseline.uri)"
-                $BaseLinePolicy = $Baseline
+                "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource name: {0}" -f $Baseline.baselineShortName | Write-Verbose 
+                "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline resource uri: {0}" -f $Baseline.uri | Write-Verbose 
+
+                $_BaseLinePolicy = $Baseline
                 
             }
 
             #Check to see if the wrong Object has been passed
-            elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers")) { 
+            elseif ($Baseline -is [PsCustomObject] -and ($Baseline.category -ne "firmware-drivers")) 
+			{ 
             
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Baseline resource passed. Generating error."
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'Get-InterconnectFirmware' -Message "The wrong Baseline Object was passed.  Expected Category type `'firmware-drivers`', received `'$($Baseline.category)`' (Object Name: $($Baseline.name)"
+                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'Baseline' -TargetType 'PSObject' -Message ("An invalid Baseline Object was passed.  Expected Category type 'firmware-drivers', received '{0}' (Object Name: {1})" -f $Baseline.category, $Baseline.name)
                 $PsCmdLet.ThrowTerminatingError($errorRecord)
                 
             }
 
-            elseif (($Baseline) -and ($Baseline -is [string]) -and ($Baseline.StartsWith(($script:fwDriversUri)))) { 
+            elseif ($Baseline -is [string] -and ($Baseline.StartsWith(($script:fwDriversUri)))) 
+			{ 
                 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline URI passed: $Baseline"
-                $BaseLinePolicy = Send-HPOVRequest $Baseline 
-            
+
+				Try
+				{
+
+					$_BaseLinePolicy = Send-HPOVRequest $Baseline -Hostname $Interconnect.ApplianceConnection.Name
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+  
             }
 
             #Check to see if the wrong URI has been passed
-            elseif (($Baseline) -and ($Baseline -is [string]) -and $Baseline.StartsWith("/rest/") -and ( ! $Baseline.StartsWith(("/rest/firmware-drivers/")))) { 
+            elseif (($Baseline -is [string]) -and $Baseline.StartsWith("/rest/") -and (-not($Baseline.StartsWith(("/rest/firmware-drivers/"))))) 
+			{ 
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid Baseline URI passed. Generating error."
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'Get-InterconnectFirmware' -Message "The wrong Baseline URI was passed.  URI must start with '/rest/firmware-drivers/', received '$($Baseline)'"
+
+                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentType InvalidArgument 'Baseline' -Message ("An invalid Baseline URI was passed.  URI must start with '/rest/firmware-drivers/', received '{0}'" -f $Baseline)
                 $PsCmdLet.ThrowTerminatingError($errorRecord)        
                 
             }
 
-            elseif (($Baseline) -and ($Baseline -is [string])) { 
+            elseif ($Baseline -is [string]) 
+			{ 
             
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Baseline Name passed: $Baseline"
-                $BaseLinePolicy = Get-HPOVSppFile -name $Baseline 
-                
+
+				Try
+				{
+
+					$_BaseLinePolicy = Get-HPOVSppFile -name $Baseline -Hostname $Interconnect.ApplianceConnection.Name
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
             }
 
-            else { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unknown baseline." }
+            else 
+			{ 
+				
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unknown baseline." 
+			
+			}
 
         }
 
-        if ($BaseLinePolicy.baselineShortName -eq "No Policy Set") { 
+        if ($_BaseLinePolicy.baselineShortName -eq "No Policy Set") 
+		{ 
         
-            $BaselineVer = "N/A"
-            $Compliance = "N/A"
+            $_BaselineVer = "N/A"
+            $_Compliance = "N/A"
 
         }
-        else { 
-        
-            $BaselineVer = ($BaseLinePolicy.fwComponents | where { $_.swKeyNameList -match "vceth" }).componentVersion
 
-            if (($InterconnectObject.firmwareVersion -lt $BaselineVer) -or ($InterconnectObject.firmwareVersion -lt $BaselineVer)) { $Compliance = "Not Compliant" } 
-            else { $Compliance = "Compliant" }
+        else 
+		{ 
 
+            $_BaselineVersions = ($_BaseLinePolicy.fwComponents | ? swKeyNameList -match "vceth").componentVersion
+
+			$_NewerVersion = $null
+
+			#Figure out which is the newest, and only display that if multiple ROM versions found
+			foreach ($_version in $_BaselineVersions)
+			{
+
+				if ($_NewerVersion)
+				{
+
+					if ($_version -gt $_NewerVersion)
+					{
+
+						$_NewerVersion = $_version
+							
+					}
+
+				}
+
+				else
+				{
+
+					if ($_version -ge $_InterconnectFirmwareVersion)
+					{
+							
+						$_NewerVersion = $_version
+
+					}
+
+				}
+
+			}
+
+			$_BaselineVer = $_NewerVersion
+
+            if ($_InterconnectFirmwareVersion -ne $_BaselineVer) 
+			{ 
+					
+				$_Compliance = "Not Compliant" 
+				
+			} 
+
+            else 
+			{ 
+					
+				$_Compliance = "Compliant" 
+				
+			} 
+                                
         }
-        
-        $interconnectReport = [pscustomobject]@{ Name = $InterconnectObject.name; Device = $InterconnectObject.model; Component = (Get-Culture).TextInfo.ToTitleCase($InterconnectObject.type) ; Installed = $InterconnectObject.firmwareVersion; Baseline = $BaselineVer ; BaselinePolicy = $BaseLinePolicy.baselineShortName; Compliance = $Compliance }
+
+		$_Report = [PSCustomObject]@{ 
+				
+			ApplianceConnection = $_resource.ApplianceConnection.Name;
+			Name           = $Interconnect.name; 
+			Device         = $Interconnect.model; 
+			Component      = 'Interconnect'; 
+			Installed      = $_InterconnectFirmwareVersion; 
+			Baseline       = $_BaselineVer; 
+			BaselinePolicy = $_BaseLinePolicy.baselineShortName; 
+			Compliance     = $_Compliance 
+			
+		}
+
+		[void]$_InterconnectReport.Add($_Report)
+
     }
 
-    end {
+    end 
+	{
 
-        Return $interconnectReport
+		$_InterconnectReport | % {
+
+			$_.PSObject.TypeNames.Insert(0,'HPOneView.FirmwareReport')
+
+		}
+
+        Return $_InterconnectReport
 
     }
 
@@ -27940,7 +28845,20 @@ function New-HPOVNetwork
 						$network.autoLoginRedistribution = $autoLoginRedistribution
 						$network.fabricType              = $fabricType
 						$network.connectionTemplateUri   = $null
-						$network.managedSanUri           = if ($ManagedSan) { (VerifyManagedSan $ManagedSan $_appliance) } else { $null }
+
+						Try
+						{
+
+							$network.managedSanUri  = if ($ManagedSan) { (VerifyManagedSan $ManagedSan $_appliance) } else { $null }
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
 
 					    #If maxbandiwdth value isn't specified, 10Gb is the default value, must change to 8Gb
 					    if ( $maximumBandwidth -eq 10000 ){ $maximumBandwidth = 8000 }
@@ -27957,7 +28875,20 @@ function New-HPOVNetwork
 						$network.name                  = $Name
 						$network.vlanId                = $vlanId
 						$network.connectionTemplateUri = $null
-						$network.managedSanUri         = if ($ManagedSan) { (VerifyManagedSan $ManagedSan $_appliance) } else { $null }
+						
+						Try
+						{
+
+							$network.managedSanUri = if ($ManagedSan) { (VerifyManagedSan $ManagedSan $_appliance) } else { $null }
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
 
 					}
 
@@ -36872,14 +37803,15 @@ function GetNetworkUris
 			}
 
 			#Update the error information
-			switch ($assignmentType) 
+			switch ($AssignmentType) 
 			{ 
 
 				"server" 
 				{
+
 					if (-not($server))
 					{
-						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'server' -Message "The -assignmentType parameter is set to 'server', but no server parameter was supplied."
+						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'Server' -Message "The -AssignmentType parameter is set to 'server', but no server parameter was supplied."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -36892,7 +37824,7 @@ function GetNetworkUris
 					if (-not($enclosureBay))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'server' -Message "The -assignmentType parameter is set to 'bay', but no bay parameter was supplied."
+						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'AssignmentType' -Message "The -AssignmentType parameter is set to 'bay', but no bay parameter was supplied."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -36900,7 +37832,7 @@ function GetNetworkUris
 					if (-not($enclosure))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'server' -Message "The -assignmentType parameter is set to 'server', but no server parameter was supplied."
+						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'AssignmentType' -Message "The -AssignmentType parameter is set to 'bay', but no Enclosure parameter was supplied."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -36908,7 +37840,7 @@ function GetNetworkUris
 					if (-not($ServerHardwareType))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'server' -Message "The -assignmentType parameter is set to 'server', but no server parameter was supplied."
+						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'AssignmentType' -Message "The -AssignmentType parameter is set to 'bay', but no ServerHardwareType parameter was supplied."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -36919,7 +37851,7 @@ function GetNetworkUris
 						if($enclosure -is [string] -and $enclosure.StartsWith("/rest"))
 						{
 
-							$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeObject InvalidArgument 'New-HPOVServerProfile' -Message "Enclosure as URI is not supported for multiple appliance connections."
+							$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeObject InvalidArgument 'Enclosure' -Message "Enclosure as URI is not supported for multiple appliance connections."
 	    	    			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 						}
@@ -36935,7 +37867,7 @@ function GetNetworkUris
 					if ((-not($PSBoundParameters['Template'])) -and (-not($PSBoundParameters['ServerHardwareType'])))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'ServerHardwareType' -Message "The -assignmentType parameter is set to 'unassigned', but no server hardware type was supplied."
+						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'ServerHardwareType' -Message "The -AssignmentType parameter is set to 'unassigned', but no server hardware type was supplied."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -36943,7 +37875,7 @@ function GetNetworkUris
 					if ($PSBoundParameters['Server'])
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'ServerHardwareType' -Message "The -assignmentType parameter is set to 'unassigned', and a Server object/name was provided. You cannot both assign and unassign a Server Profile."
+						$errorRecord = New-ErrorRecord HPOneview.ServerProfileResourceException InvalidArgument InvalidArgument 'ServerHardwareType' -Message "The -AssignmentType parameter is set to 'unassigned', and a Server object/name was provided. You cannot both assign and unassign a Server Profile."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -39877,7 +40809,7 @@ function New-HPOVServerProfileTemplate
             if (($LocalStorage) -and ($serverHardwareType.capabilities -match "ManageLocalStorage" )) 
 			{
                 
-				$_LocalStorageConfig = NewObject -ServerProfileLocalStorage
+				$_LocalStorageConfig = NewObject -ServerProfileTemplateLocalStorage
 
 				$_LocalStorageConfig.managed    = [bool]$LocalStorage
 
@@ -41551,7 +42483,19 @@ function Copy-HPOVServerProfile
 		    
 		    		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found attached volume ID $($attachVolume.id). Getting Volume properties."
 
-		    		$volume = Send-HPOVRequest $attachVolume.volumeUri -appliance $_Connection
+					Try
+					{
+
+						$volume = Send-HPOVRequest $attachVolume.volumeUri -appliance $_Connection
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
 
 		    		#Process shared volume
 		    		if ($volume.shareable) 
@@ -41574,7 +42518,20 @@ function Copy-HPOVServerProfile
 		    			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Checking for unique volume name."
 
 		    			#Get list of existing volumes from Index
-		    			$indexVolumes = Send-HPOVRequest ($indexUri + "?category=storage-volumes&count=-1&start=0&sort=name:asc") -appliance $_Connection
+		    			
+						Try
+						{
+							
+							$indexVolumes = Send-HPOVRequest ($indexUri + "?category=storage-volumes&count=-1&start=0&sort=name:asc") -appliance $_Connection
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
 
 		    			$regex = " \((([0-9]|[1-9][0-9]|[1-9][0-9][0-9])+)\)"
 
@@ -41712,9 +42669,8 @@ function Remove-HPOVServerProfile
 
         [parameter (Mandatory = $true,ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the profile(s) to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
-        [Alias("uri")]
-        [Alias("name")]
-        [System.Object]$profile = $null,
+        [Alias('uri','name','profile')]
+        [Object]$ServerProfile = $null,
 
         [parameter(Mandatory = $false)]
 		[Alias('Appliance')]
@@ -41728,33 +42684,36 @@ function Remove-HPOVServerProfile
    Begin 
    {
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
 		$Caller = (Get-PSCallStack)[1].Command
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 		
 		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		ForEach ($_Connection in $ApplianceConnection) 
 		{
 
-			Try {
+			Try 
+			{
 			
 				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] {
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
 
 				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch {
+			Catch 
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
@@ -41764,70 +42723,87 @@ function Remove-HPOVServerProfile
 
 		}
         
-        if($ApplianceConnection.count -gt 1){
-            # Check for appliance specific URI parameters and error if more than one appliance connection supplied
-            if (($profile -is [string]) -and ($profile.StartsWith($script:ServerProfilesUri))) {
+		if($ApplianceConnection.count -gt 1)
+		{
+
+			# Check for appliance specific URI parameters and error if more than one appliance connection supplied
+			if (($ServerProfile -is [string]) -and ($ServerProfile.StartsWith($script:ServerProfilesUri))) 
+			{
                     
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SourceName is a Server Profile URI: $($profile)"
-                $errorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'Remove-HPOVServerProfile' -Message "The input parameter 'profile' is a resource URI. For multiple appliance connections this is not supported."
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
-            }
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SourceName is a Server Profile URI: $($ServerProfile)"
+				$errorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'Remove-HPOVServerProfile' -Message "The input parameter 'profile' is a resource URI. For multiple appliance connections this is not supported."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+			}
 
-            if (($profile -is [array]) -and ($profile.getvalue(0).gettype() -is [string]) -and $profile -match '/rest/') {
+			if (($ServerProfile -is [array]) -and ($ServerProfile.getvalue(0).gettype() -is [string]) -and $ServerProfile -match '/rest/') 
+			{
                 
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Assign is a Server Profile URI: $($SourceName)"
-                $errorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'Remove-HPOVServerProfile' -Message "The input parameter 'profile' is a resource URI. For multiple appliance connections this is not supported."
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Assign is a Server Profile URI: $($SourceName)"
+				$errorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'Remove-HPOVServerProfile' -Message "The input parameter 'profile' is a resource URI. For multiple appliance connections this is not supported."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
             
-                }
+			}
 
-        }
+		}
 
         $taskCollection = New-Object System.Collections.ArrayList
         $thisConnection = $ApplianceConnection.name
+
     }
 
-    Process {
+    Process 
+	{
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile input type:  $($profile.gettype())"
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile input type:  $($ServerProfile.gettype())"
 
-        foreach ($prof in $profile) {
+        foreach ($prof in $ServerProfile) 
+		{
 
-            $profileNameOrUri = $null
+            $profileNameOrUri   = $null
             $profileDisplayName = $null
 
-            if ($prof -is [String]) {
+            if ($prof -is [String]) 
+			{
 
-                $profileNameOrUri = $prof
+                $profileNameOrUri   = $prof
                 $profileDisplayName = $prof
         	}
-            elseif ($prof -is [PSCustomObject] -and $prof.category -ieq 'server-profiles') {
+
+            elseif ($prof -is [PSCustomObject] -and $prof.category -ieq 'server-profiles') 
+			{
                 
-                $thisConnection = $prof.ApplianceConnection.name
-                $profileNameOrUri = $prof.uri
+                $thisConnection     = $prof.ApplianceConnection.name
+                $profileNameOrUri   = $prof.uri
                 $profileDisplayName = $prof.name
 
             }
 
-		    else {
+		    else 
+			{
 
                 $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Remove-HPOVServerProfile' -Message "Invalid profile parameter: $prof"
                 $pscmdlet.ThrowTerminatingError($errorRecord)
             }
 
-            if (!$profileNameOrUri) {
+            if (!$profileNameOrUri) 
+			{
                 $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Remove-HPOVServerProfile' -Message "Invalid profile parameter: $prof"
                 $pscmdlet.ThrowTerminatingError($errorRecord)
 
             }
-            elseif ($pscmdlet.ShouldProcess($thisConnection,"Remove profile $profileDisplayName from appliance?")){   
+
+            elseif ($pscmdlet.ShouldProcess($thisConnection,"Remove profile $profileDisplayName from appliance?"))
+			{   
                 
                 if ([bool]$force) { Remove-HPOVResource -nameOrUri $profileNameOrUri -force -appliance $thisConnection}
                 else { Remove-HPOVResource -nameOrUri $profileNameOrUri -appliance $thisConnection}
 
             }
+
 	    }
+
     }
+
 }
 
 function Get-HPOVServerProfileConnectionList 
@@ -43349,68 +44325,162 @@ function New-HPOVServerProfileAttachVolume
 # Index: 
 #
 
-function Search-HPOVIndex  {
+function Search-HPOVIndex  
+{
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
     [CmdLetBinding()]
-    Param (
-       [parameter (Mandatory = $false)]
-       [string]$search = $null,
+    Param 
+	(
 
-       [parameter (Mandatory = $false)]
-       [string]$category = $null,
+		[parameter (Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
+		[string]$search = $null,
 
-       [parameter (Mandatory = $false)]
-       [int]$count = 50,
+		[parameter (Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
+		[string]$category = $null,
 
-       [parameter (Mandatory = $false)]
-       [int]$start = 0
-    )
+		[parameter (Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
+		[int]$count = 50,
 
-    Begin {
+		[parameter (Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
+		[int]$start = 0,
 
-        if (-not($global:cimgmtSessionId)) {
-        
-            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError 'Search-HPOVIndex' -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance."
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+		[parameter(Mandatory = $false)]
+		[ValidateNotNullOrEmpty()]
+		[Alias('Appliance')]
+		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
 
-        }
+	)
+	
+	Begin 
+    {
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		
+		$c = 0
+
+		ForEach ($_Connection in $ApplianceConnection) 
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			$c++
+
+		}
+
+        #Initialize collection to hold multiple volume attachments objects
+        $_IndexSearchResults = New-Object System.Collections.ArrayList
 
     }
 
-    Process {
+    Process 
+	{
 
-        #"/rest/index/resources?category=fc-networks=&count=50&start=0&query=name:%22fabric%20a%22"
+        ForEach ($_connection in $ApplianceConnection)
+		{
 
-        $uri = $indexuri + '?start=' + $start.ToString() + '&count=' + $count.ToString()
-        
-        if ($search) { $uri = $uri + "&userQuery=" + $search }
-        
-        if ($category) { $uri = $uri + "&category=" + $category }
-        
-        $uri = $uri.Replace(" ", "%20")
-        
-        $r = Send-HPOVRequest $uri
-        
-        if ($r.count -eq 0) {
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Appliance Connection '{0}' (of {1})" -f $_connection.Name, $ApplianceConnection.count | Write-Verbose
 
-            $errorRecord = New-ErrorRecord InvalidOperationException NoIndexResults ObjectNotFound 'Search-HPOVIndex' -Message "No Index results found."
-            $pscmdlet.WriteError($errorRecord)
-        }
+			$uri = $indexuri + '?start=' + $start.ToString() + '&count=' + $count.ToString()
+        
+			if ($search) 
+			{ 
+				
+				$uri = $uri + "&userQuery=" + $search 
+			
+			}
+			
+			if ($category) 
+			{ 
+				
+				$uri = $uri + "&category=" + $category 
+			
+			}
+			
+			$uri = $uri.Replace(" ", "%20")
 
-        else {
-            #Set-DefaultDisplay $r.members -defProps 'name', 'category', 'attributes'
-            
-            $r.members
-            "Done. {0} index resource(s) found." -f $r.count | write-verbose
+			Try
+			{
 
-        }
+				$r = Send-HPOVRequest $uri -Hostname $_connection
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}		
+			
+			if ($r.count -eq 0 -and $PSBoundParameters['Search']) 
+			{
+
+			    $errorRecord = New-ErrorRecord InvalidOperationException NoIndexResults ObjectNotFound 'Search' -Message ("No Index results found for '{0}' on '{1}." -f $Search, $_connection.Name)
+			    $pscmdlet.WriteError($errorRecord)
+			}
+
+			else 
+			{
+			    
+			    $r.members | % {
+
+					$_.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.IndexResource')
+
+					[void]$_IndexSearchResults.Add($_)
+
+				}
+
+			}
+
+		}
+
     }
+
+	End
+	{
+
+		"Done. {0} index resource(s) found." -f $_IndexSearchResults.count | write-verbose
+
+		Return $_IndexSearchResults
+
+	}
 
 }
 
-function Search-HPOVAssociations {
+function Search-HPOVAssociations 
+{
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
@@ -43420,69 +44490,180 @@ function Search-HPOVAssociations {
 
 		[parameter (Mandatory = $false, Position = 0)]
 		[ValidateNotNullorEmpty()]
-		[string]$associationName = $null,
+		[string]$AssociationName,
 
-		[parameter (Mandatory = $false, Position = 1)]
-		[Alias('startObjUri')]
+		[parameter (Mandatory = $false, ValueFromPipeline, Position = 1)]
 		[ValidateNotNullorEmpty()]
-		[object]$Parent = $null,
+		[object]$Parent,
 
 		[parameter (Mandatory = $false, Position = 2)]
-		[Alias('endObjUri')]
 		[ValidateNotNullorEmpty()]
-		[object]$Child = $null,
+		[object]$Child,
 
 		[parameter (Mandatory = $false, Position = 3)]
 		[ValidateNotNullorEmpty()]
-		[int]$count = 50,
+		[int]$Count = 50,
 
 		[parameter (Mandatory = $false, Position = 4)]
 		[ValidateNotNullorEmpty()]
-		[int]$start = 0
+		[int]$Start = 0,
+
+		[parameter(Mandatory, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullOrEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection
 
     )    
 
-    Begin {
+    Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
-        
-            $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError 'Search-HPOVIndex' -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance."
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-        }
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		if ($PSBoundParameters['Parent'])
+		{
+
+			if (-not($Parent -is [PSCustomObject]))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Parent' -Message "The provided -Parent parameter value is not an Object.  Please correct the value."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			$ApplianceConnection = $Parent.ApplianceConnection
+
+		}
+
+		elseif ($PSBoundParameters['Child'])
+		{
+
+			if (-not($Child -is [PSCustomObject]))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Chuld' -Message "The provided -Child parameter value is not an Object.  Please correct the value."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			$ApplianceConnection = $Child.ApplianceConnection
+
+		}
+
+		if ($PSBoundParameters['ApplianceConnection'])
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+        #Initialize collection to hold multiple volume attachments objects
+        $_IndexSearchResults = New-Object System.Collections.ArrayList
 
     }
 
-    Process {
+    Process 
+	{
 
         $uri = $associationsUri + '?start=' + $start.ToString() + '&count=' + $count.ToString()
 
-        if ($PSBoundParameters['AssociationName']) { $uri = $uri + "&name=" + $associationName }
-        
-        if ($PSBoundParameters['Parent']) 
-		{
+        if ($PSBoundParameters['AssociationName']) 
+		{ 
+
+			$uri = $uri + "&name=" + $associationName 
 		
-			# // Figure out parameter value type
-				
-			$uri = $uri + "&parentUri=" + $Parent 
+		}
+        
+        if ($Parent) 
+		{
+
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Parent resource: {0}" -f ($Parent | Out-String) | Write-Verbose 
+
+			if (-not($Parent -is [PSCustomObject]))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Parent' -Message "The provided -Parent parameter value is not an Object.  Please correct the value."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+					
+			$uri = $uri + "&parentUri=" + $Parent.uri
 		
 		}
         
         if ($PSBoundParameters['Child']) 
 		{
-		
-			# // Figure out parameter value type
-				
-			$uri = $uri + "&childUri=" + $Child 
+
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Child resource: {0}" -f ($Child | Out-String) | Write-Verbose 
+
+			if (-not($Child -is [PSCustomObject]))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Child' -Message "The provided -Child parameter value is not an Object.  Please correct the value."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			$uri = $uri + "&childUri=" + $Child.uri
 		
 		}
         
         $uri = $uri.Replace(" ", "%20")
-        
-        $r = Send-HPOVRequest $uri -Start $start -Count $count
-        
-        return $r
+
+		Try
+		{
+
+			$r = Send-HPOVRequest $uri -Hostname $ApplianceConnection.Name
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+        $r.members | % {
+
+			[void]$_IndexSearchResults.Add($_)
+
+		}
+
     }
+	
+	end
+	{
+
+		Return $_IndexSearchResults
+
+	}
 
 }
 
@@ -44236,6 +45417,8 @@ function Wait-HPOVTaskComplete
 		while ($_taskCollection.Count -gt 0 -and $sw.Elapsed -lt $timeout)
 		{
 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing taskcollection."
+
 			if ($sw.Elapsed -gt $timeout) 
 			{
                 #Tear down Write-Progress
@@ -44245,7 +45428,7 @@ function Wait-HPOVTaskComplete
 				$FinishedTasksCollection
 
 				#UPDATE ERROR MESSAGE to state timeout waiting for tasks to complete
-                $errorRecord = New-ErrorRecord HPOneView.Appliance.TaskResourceException TaskWaitExceededTimeout OperationTimeout  'Wait-HPOVTaskComplet' -Message "The time-out period expired before waiting for task '$taskName' to start." #-verbos
+                $errorRecord = New-ErrorRecord HPOneView.Appliance.TaskResourceException TaskWaitExceededTimeout OperationTimeout  'Wait-HPOVTaskComplete' -Message "The time-out period expired before waiting for task '$taskName' to start." #-verbos
                 $PsCmdlet.ThrowTerminatingError($errorRecord)
 
             }
@@ -44257,7 +45440,9 @@ function Wait-HPOVTaskComplete
 				Try
 				{
 
-					$taskObj = Send-HPOVRequest $_task.uri -Hostname $_task.ApplianceConnection.Name
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting task object from API."  
+
+					$_taskObj = Send-HPOVRequest $_task.uri -Hostname $_task.ApplianceConnection.Name
 
 				}
 
@@ -44269,30 +45454,39 @@ function Wait-HPOVTaskComplete
 				}
 			
 				#Task is in a finished state
-				if ($script:taskFinishedStates -contains $taskObj.taskState)
+				if ($script:taskFinishedStates -contains $_taskObj.taskState)
 				{
 
-					#Remove task object from base arraylist
-					$ndx = [array]::IndexOf($TaskCollection, $_task)
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Task is finished, removing from collection."
+					  
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Task Collection size: {0}" -f $TaskCollection.count | Write-Verbose
 
-					[void]$TaskCollection.RemoveAt($ndx)
+					#Remove task object from base arraylist
+					#$ndx = [array]::IndexOf($_taskCollection, $_task)
+
+					[void]$TaskCollection.Remove($_task)
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Updated Task Collection size: {0}" -f $TaskCollection.count | Write-Verbose
 
 					#Add Task Object from API to return back to caller
-					[void]$FinishedTasksCollection.Add($taskObj)
+					[void]$FinishedTasksCollection.Add($_taskObj)
 
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($taskObj.name) [$($_task.ApplianceConnection.Name)$($_task.uri)] Task finished. "  
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_taskObj.name) [$($_taskObj.ApplianceConnection.Name)$($_taskObj.uri)] Task finished. "  
 					
 					}
 
 					else 
 					{
 					
-						Write-Progress -id $_task.id -activity "$($taskObj.name) ($($taskObj.associatedResource.resourceName))" -Completed
+						Write-Progress -id $_task.id -activity "$($_taskObj.name) ($($_taskObj.associatedResource.resourceName))" -Completed
 					
 					}
+
+					#Break out of ForEach loop to re-enumerate taskcollection
+					break
 
 				}
 
@@ -44303,12 +45497,13 @@ function Wait-HPOVTaskComplete
 				{ 
 					
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."  
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] CMDLET Task Track ID:$($_task.id)`nTask Object Name: $($taskObj.name)`nAssociated Resource Name: $($taskObj.associatedResource.resourceName)`nPrecent Complete: $($taskObj.percentComplete)"  
+					
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] CMDLET Task Track ID: {0}`nTask Object Name: {1}`nAssociated Resource Name: {2}`nPrecent Complete: {3}" -f $_task.id, $_taskObj.name,$_taskObj.associatedResource.resourceName,$_taskObj.percentComplete | Write-Verbose
 				
-					If ($taskObj.progressUpdates[-1].statusUpdate)
+					If ($_taskObj.progressUpdates[-1].statusUpdate)
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Child tasks - Child task: $($_task.id + 100) ParentId: $($_task.id) $($taskObj.progressUpdates[-1].statusUpdate) {$($taskObj.taskStatus)}"
+						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Child tasks - Child task: {0} ParentId: {1} {2} [{3}]" -f ($_task.id + 100), $_task.id, $_taskObj.progressUpdates[-1].statusUpdate, $_taskObj.taskStatus | Write-Verbose
 
 					}
 
@@ -44321,14 +45516,14 @@ function Wait-HPOVTaskComplete
 					# // Done?
 
 				    #Display the task status, and associated child tasks
-				    if ($taskObj.progressUpdates) 
+				    if ($_taskObj.progressUpdates) 
 					{ 
 
 				        #Child task is executing, display reported status
-				        If ($taskObj.progressUpdates[-1].statusUpdate) 
+				        If ($_taskObj.progressUpdates[-1].statusUpdate) 
 						{
 
-				            Write-Progress -id ($_task.id + 100) -ParentId $_task.id -activity "$($taskObj.name) ($($taskObj.associatedResource.resourceName))" -status $taskObj.progressUpdates[-1].statusUpdate -percentComplete $taskObj.computedPercentComplete
+				            Write-Progress -id ($_task.id + 100) -ParentId $_task.id -activity "$($_taskObj.name) ($($_taskObj.associatedResource.resourceName))" -status $_taskObj.progressUpdates[-1].statusUpdate -percentComplete $_taskObj.computedPercentComplete
 				        
 						}
 
@@ -44336,38 +45531,38 @@ function Wait-HPOVTaskComplete
 				        else 
 						{
 				         
-				            if ($taskObject.taskStatus)
+				            if ($_taskObj.taskStatus)
 							{
 
-								$progressStatus = $taskObject.taskStatus
+								$progressStatus = $_taskObj.taskStatus
 
 							}
 							
 							else
 							{
 
-								$progressStatus = $taskObject.taskState
+								$progressStatus = $_taskObj.taskState
 
 							}
 
-							Write-Progress -activity "$($taskObj.name) ($($taskObj.associatedResource.resourceName))" -status $progressStatus -percentComplete $taskObj.percentComplete
+							Write-Progress -activity "$($_taskObj.name) ($($_taskObj.associatedResource.resourceName))" -status $progressStatus -percentComplete $_taskObj.percentComplete
 				        
 						}
 
 				    }
 
 				    #Just display the task status, as it has no child tasks
-				    elseif ($taskObj.taskStatus) 
+				    elseif ($_taskObj.taskStatus) 
 					{
 						
-						Write-Progress -activity $taskObj.name -status $taskObj.taskStatus -percentComplete $taskObj.percentComplete 
+						Write-Progress -activity $_taskObj.name -status $_taskObj.taskStatus -percentComplete $_taskObj.percentComplete 
 					
 					}
 				    
 					else 
 					{
 						
-						Write-Progress -activity $taskObj.name -status $taskObj.taskState -percentComplete $taskObj.percentComplete 
+						Write-Progress -activity $_taskObj.name -status $_taskObj.taskState -percentComplete $_taskObj.percentComplete 
 					
 					}
 
@@ -50652,7 +51847,7 @@ Export-ModuleMember -Function Get-HPOVEnclosureGroup
 Export-ModuleMember -Function New-HPOVEnclosureGroup
 Export-ModuleMember -Function Remove-HPOVEnclosureGroup
 Export-ModuleMember -Function Get-HPOVServerHardwareType -Alias Get-HPOVServerHardwareTypes
-#Export-ModuleMember -Function Show-HPOVFirmwareReport // TODO
+Export-ModuleMember -Function Show-HPOVFirmwareReport
 Export-ModuleMember -Function Invoke-HPOVVcmMigration
 
 #Storage Systems
@@ -50671,7 +51866,7 @@ Export-ModuleMember -Function Set-HPOVStorageVolumeTemplatePolicy
 Export-ModuleMember -Function Get-HPOVStorageVolume
 Export-ModuleMember -Function New-HPOVStorageVolume
 Export-ModuleMember -Function Add-HPOVStorageVolume
-#Export-ModuleMember -Function Set-HPOVStorageVolume #// TODO
+Export-ModuleMember -Function Set-HPOVStorageVolume
 Export-ModuleMember -Function Remove-HPOVStorageVolume
 Export-ModuleMember -Function Get-HPOVStorageVolumeSnapshot
 Export-ModuleMember -Function New-HPOVStorageVolumeSnapShot
@@ -50740,14 +51935,13 @@ Export-ModuleMember -Function ConvertTo-HPOVServerProfileTemplate
 Export-ModuleMember -Function New-HPOVServerProfileLogicalDisk 
     
 #Index:
-#Export-ModuleMember -Function Search-HPOVIndex // TODO
-#Export-ModuleMember -Function Search-HPOVAssociations // TODO
+Export-ModuleMember -Function Search-HPOVIndex
+Export-ModuleMember -Function Search-HPOVAssociations
 
 #Tasks:
 Export-ModuleMember -Function Get-HPOVTask
 Export-ModuleMember -Function Wait-HPOVTaskStart -alias Wait-HPOVTaskAccepted
 Export-ModuleMember -Function Wait-HPOVTaskComplete
-#Export-ModuleMember -Function Wait-HPOVTaskAccepted
 
 #Security:
 Export-ModuleMember -Function Get-HPOVUser
@@ -50886,7 +52080,8 @@ Write-host "  • Online documentation at https://github.com/HewlettPackard/POSH
 Write-host "  • Online Issues Tracker at https://github.com/HewlettPackard/POSH-HPOneView/issues"
 write-host ""
 write-host " (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP "
-if ((Get-Host).UI.RawUI.MaxWindowSize.width -lt 150) {
+if ((Get-Host).UI.RawUI.MaxWindowSize.width -lt 150) 
+{
     write-host ""
     write-host " Note: Set your PowerShell console width to 150 to properly view report output. (Current Max Width: $((Get-Host).UI.RawUI.MaxWindowSize.width))" -ForegroundColor Green
 }

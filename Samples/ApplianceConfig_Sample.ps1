@@ -417,14 +417,14 @@ if (-not (get-module HPOneview.200))
 		$DAFabricB = Get-HPOVNetwork -name "3PAR SAN DA B"    
 
 		# Create Ethernet Uplink Sets
-		$CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1 A" -Type "Ethernet" -Networks $aNetworks -nativeEthNetwork "VLAN 1-A" -UplinkPorts "BAY1:X5","BAY1:X6" -EthMode "Auto" | Wait-HPOVTaskComplete
-		$CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1 B" -Type "Ethernet" -Networks $bNetworks -nativeEthNetwork "VLAN 1-B" -UplinkPorts "BAY2:X5","BAY2:X6" -EthMode "Auto" | Wait-HPOVTaskComplete
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1 A" -Type "Ethernet" -Networks $aNetworks -nativeEthNetwork "VLAN 1-A" -UplinkPorts "BAY1:X5","BAY1:X6" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1 B" -Type "Ethernet" -Networks $bNetworks -nativeEthNetwork "VLAN 1-B" -UplinkPorts "BAY2:X5","BAY2:X6" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
     
 		# FC Uplink Sets
-		$CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X2" | Wait-HPOVTaskComplete
-		$CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X2" | Wait-HPOVTaskComplete
-		$CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN DA A"     -Type "FibreChannel" -Networks $DAFabricA -UplinkPorts "BAY1:X1" | Wait-HPOVTaskComplete
-		$CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN DA B"     -Type "FibreChannel" -Networks $DAFabricB -UplinkPorts "BAY2:X1" | Wait-HPOVTaskComplete
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN DA A"     -Type "FibreChannel" -Networks $DAFabricA -UplinkPorts "BAY1:X1" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN DA B"     -Type "FibreChannel" -Networks $DAFabricB -UplinkPorts "BAY2:X1" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
 	}
 
