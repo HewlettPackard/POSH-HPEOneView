@@ -32,6 +32,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.310.0
+     -- [#88] Fixed Invoke-HPOVVcmMigration where wrong API object type value was merged.
+     -- [#86] Fixed New-HPOVServerProfileTemplate to check for available networks based on the requested connections.
+     -- [#85] Fixed Add-HPOVStorageSystem where providing a Storage System Name would cause a lookup failure.
+     -- Fixed Add-HPOVStorageSystem PortGroup parameter which would cause invalid JSON errors.
+     -- Fixed Add-HPOVStoragePool where the StoragePool resource was not properly being handled if it were a 
+        resource name.
+     -- Fixed New-HPOVStorageVolume where the StoragePool resource was not properly being handled if it were a 
+        resource name. 
+     -- Fixed internal Cmdlet documentation bug.
+     -- Updated New-HPOVServerProfile to check for available networks based on the requested connections.
+     -- Added Update-HPOVServerProfile to assist with updating Server Profiles with the parent template.
+
     Release 2.0.300.0
      -- [#81] Fixed Server Profile Template Local Storage configuration object, where unsupported properties 
         were being used, causing API errors.
