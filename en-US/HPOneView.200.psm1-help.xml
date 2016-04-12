@@ -3669,6 +3669,10 @@ Use the Get-HPOVServerProfile Cmdlet and pipe to Copy-HPOVServerProfile, where t
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Update-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>New-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -11832,6 +11836,10 @@ test 3                 False             False Unassigned    Normal
 		<maml:relatedLinks>
 			<maml:navigationLink>
 				<maml:linkText>New-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Update-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -24472,6 +24480,10 @@ PS C:\&gt; $jsonProfiles | foreach-object { New-HPOVServerProfile -import -file 
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Update-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Copy-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -34571,6 +34583,10 @@ PS C:\&gt; Remove-HPOVServerProfile $profile -confirm:$false
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Update-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>New-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -36928,6 +36944,18 @@ In order for an Administrator to change the status of an Alert, the Administrato
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Notes</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVAlert</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Cleared</maml:name>
 					<maml:description>
@@ -36947,27 +36975,6 @@ Specify one HPOneView.Appliance.Connection object or Name property value.</maml:
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Set-HPOVAlert</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
-					<maml:name>Alert</maml:name>
-					<maml:description>
-						<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Alert</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
-					<maml:name>AssignToUser</maml:name>
-					<maml:description>
-						<maml:para />
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">AssignToUser</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
-					<maml:name>Notes</maml:name>
-					<maml:description>
-						<maml:para>Notes of the action for the alert.</maml:para>
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Notes</command:parameterValue>
-				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Active</maml:name>
 					<maml:description>
@@ -45055,6 +45062,245 @@ Specify one HPOneView.Appliance.Connection object or Name property value.</maml:
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--UPDATE-HPOVSERVERPROFILE-->
+		<command:details>
+			<command:name>Update-HPOVServerProfile</command:name>
+			<maml:description>
+				<maml:para>Update Server Profile from Template</maml:para>
+			</maml:description>
+			<command:verb>Update</command:verb>
+			<command:noun>HPOVServerProfile</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet will perform the 'Update from Server Profile Template' operation on 1 or more Server Profile resources.  If a Server Profile is already in a 'Compliant' state, then no action will be taken.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Update-HPOVServerProfile</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>ServerProfile</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Profile]
+The Name or Resource Object of the specific Server Profile to update.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="2">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Async</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+				<maml:name>ServerProfile</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Profile]
+The Name or Resource Object of the specific Server Profile to update.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="2">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Async</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Single Server Profile</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Multiple Server Profiles</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.Task {System.Management.Automation.PSCustomObject}</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Async update task.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array&lt;HPOneView.Appliance.Task&gt;</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Multiple Async update tasks.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile 'My Profile 1' | Update-HPOVServerProfile
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get all storage system resource objects managed by the appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile | Update-HPOVStoraHPOVServerProfilegeSystem
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get all Server Profile resources and perform the Update from Server Profile Template action.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Copy-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Update-HPOVServerProfile</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--UPDATE-HPOVSTORAGESYSTEM-->
 		<command:details>
 			<command:name>Update-HPOVStorageSystem</command:name>
@@ -45075,19 +45321,16 @@ Specify one HPOneView.Appliance.Connection object or Name property value.</maml:
 					<maml:name>StorageSystem</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Name]
-The Name, URI or Resource Object of the specific Storage System to update/refresh.</maml:para>
+The Name or Resource Object of the specific Storage System to update/refresh.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				</command:parameter>
-			</command:syntaxItem>
-			<command:syntaxItem>
-				<maml:name>Update-HPOVStorageSystem</maml:name>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>SerialNumber</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="2">
+					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
-						<maml:para>The Serial Number of the specific Storage System to update/refresh.</maml:para>
+						<maml:para />
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">SerialNumber</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
@@ -45096,7 +45339,7 @@ The Name, URI or Resource Object of the specific Storage System to update/refres
 				<maml:name>StorageSystem</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Name]
-The Name, URI or Resource Object of the specific Storage System to update/refresh.</maml:para>
+The Name or Resource Object of the specific Storage System to update/refresh.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				<dev:type>
@@ -45105,14 +45348,14 @@ The Name, URI or Resource Object of the specific Storage System to update/refres
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
-				<maml:name>SerialNumber</maml:name>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="2">
+				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
-					<maml:para>The Serial Number of the specific Storage System to update/refresh.</maml:para>
+					<maml:para />
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">SerialNumber</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
 				<dev:type>
-					<maml:name>String</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />

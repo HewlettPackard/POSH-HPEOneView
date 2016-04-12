@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.310.0"
+[version]$script:ModuleVersion = "2.0.312.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -38988,12 +38988,12 @@ function GetNetworkUris
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
 
 					#Get avaialble Networks based on the EG and SHT
-					$uri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+					$_uri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
 
 					Try
 					{
 
-						$_AvailableNetworkResources = Send-HPOVRequest $uri -Hostname $_Connection.Name
+						$_AvailableNetworkResources = Send-HPOVRequest $_uri -Hostname $_Connection.Name
 
 					}
 
@@ -40803,12 +40803,12 @@ function New-HPOVServerProfileTemplate
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
 
 				#Get avaialble Networks based on the EG and SHT
-				$uri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+				$_uri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
 
 				Try
 				{
 
-					$_AvailableNetworkResources = Send-HPOVRequest $uri -Hostname $_Connection.Name
+					$_AvailableNetworkResources = Send-HPOVRequest $_uri -Hostname $_Connection.Name
 
 				}
 

@@ -32,6 +32,9 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.312.0
+     -- [#90] Fixed New-HPOVServerProfile and New-HPOVServer
+
     Release 2.0.310.0
      -- [#88] Fixed Invoke-HPOVVcmMigration where wrong API object type value was merged.
      -- [#86] Fixed New-HPOVServerProfileTemplate to check for available networks based on the requested connections.
