@@ -19146,25 +19146,25 @@ PS C:\&gt; New-HPOVProfileAssign -Profile $sp -Server 'Encl1, Bay 10' | Wait-HPO
 		<command:details>
 			<command:name>New-HPOVProfileAttachVolume</command:name>
 			<maml:description>
-				<maml:para>Create volume attachment object for a server profile.</maml:para>
+				<maml:para>Create volume attachment for a server profile.</maml:para>
 			</maml:description>
 			<command:verb>New</command:verb>
 			<command:noun>HPOVProfileAttachVolume</command:noun>
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>A helper CMDLET to assist with attaching Storage Volumes when creating (New-HPOVProfile) a server profile.  The returned resource will contain a volume storage PowerShell resource to attach to a Server Profile.</maml:para>
+			<maml:para>This Cmdlet will assist with creating a Storage Volume object to then attach to a new Server Profile being created (New-HPOVServerProfile), and attach either an existing Storage Volume (Get-HPOVStorageVolume) or new Ephemeral Volume to an existing Server Profile (Get-HPOVServerProfile).  If attempting to attach to an existing Server Profile, the HostOSType parameter is required, and will enable SAN Management within the Server Profile, if the Server Hardware resource supports the feature.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<command:syntaxItem>
 				<maml:name>New-HPOVProfileAttachVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
@@ -19177,82 +19177,299 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					<maml:name>LunIdType</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-type]
-Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ProfileConnectionID</maml:name>
 					<maml:description>
-						<maml:para>Optional. The Server Profile Connection ID.  If value is not provided, the New-HPOVProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVProfileAttachVolume</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ServerProfile</maml:name>
+					<maml:description>
+						<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
-					<maml:name>Volume</maml:name>
-					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Volume</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Ephemeral Storage Volume resource name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StorageSystem</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Capacity</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>full</maml:name>
+					<maml:name>Full</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">full</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>permanent</maml:name>
+					<maml:name>Permanent</maml:name>
+					<maml:description>
+						<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunIdType</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-type]
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunID</maml:name>
+					<maml:description>
+						<maml:para>The Host LUN ID numerical value that will be configured in the Volume export on the Storage System.  Accepted range: 0-254</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ProfileConnectionID</maml:name>
+					<maml:description>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>HostOStype</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-OS]
+        
+Specify the Host OS type, which will set the Host OS value when HP OneView creates the Host object on the Storage System.  This parameter is only necessary if the Server Profile object does not have SAN Management enabled.
+	
+Accepted values:
+        
+* CitrixXen = "Citrix Xen Server 5.x/6.x"
+* AIX       = "AIX"
+* IBMVIO    = "IBM VIO Server"
+* RHEL4     = "RHE Linux (Pre RHEL 5)"
+* RHEL3     = "RHE Linux (Pre RHEL 5)"
+* RHEL      = "RHE Linux (5.x, 6.x)"
+* RHEV      = "RHE Virtualization (5.x, 6.x)"
+* VMware    = "ESX 4.x/5.x"
+* Win2k3    = "Windows 2003"
+* Win2k8    = "Windows 2008/2008 R2"
+* Win2k12   = "Windows 2012 / WS2012 R2"
+* OpenVMS   = "OpenVMS"
+* Egenera   = "Egenera"
+* Exanet    = "Exanet"
+* Solaris9  = "Solaris 9/10"
+* Solaris10 = "Solaris 9/10"
+* Solaris11 = "Solaris 11"
+* ONTAP     = "NetApp/ONTAP"
+* OEL       = "OE Linux UEK (5.x, 6.x)"
+* HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv2 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv3 = "HP-UX (11i v3)"
+* SUSE      = "SuSE (10.x, 11.x)"
+* SUSE9     = "SuSE Linux (Pre SLES 10)"
+* Inform    = "InForm"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HostOStype</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para />
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">permanent</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>New-HPOVProfileAttachVolume</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ServerProfile</maml:name>
+					<maml:description>
+						<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>VolumeID</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-id]
+The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Volume</maml:name>
+					<maml:description>
+						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Volume</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunIdType</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-type]
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>LunID</maml:name>
+					<maml:description>
+						<maml:para>The Host LUN ID numerical value that will be configured in the Volume export on the Storage System.  Accepted range: 0-254</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">LunID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ProfileConnectionID</maml:name>
+					<maml:description>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>HostOStype</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-OS]
+        
+Specify the Host OS type, which will set the Host OS value when HP OneView creates the Host object on the Storage System.  This parameter is only necessary if the Server Profile object does not have SAN Management enabled.
+	
+Accepted values:
+        
+* CitrixXen = "Citrix Xen Server 5.x/6.x"
+* AIX       = "AIX"
+* IBMVIO    = "IBM VIO Server"
+* RHEL4     = "RHE Linux (Pre RHEL 5)"
+* RHEL3     = "RHE Linux (Pre RHEL 5)"
+* RHEL      = "RHE Linux (5.x, 6.x)"
+* RHEV      = "RHE Virtualization (5.x, 6.x)"
+* VMware    = "ESX 4.x/5.x"
+* Win2k3    = "Windows 2003"
+* Win2k8    = "Windows 2008/2008 R2"
+* Win2k12   = "Windows 2012 / WS2012 R2"
+* OpenVMS   = "OpenVMS"
+* Egenera   = "Egenera"
+* Exanet    = "Exanet"
+* Solaris9  = "Solaris 9/10"
+* Solaris10 = "Solaris 9/10"
+* Solaris11 = "Solaris 11"
+* ONTAP     = "NetApp/ONTAP"
+* OEL       = "OE Linux UEK (5.x, 6.x)"
+* HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv2 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv3 = "HP-UX (11i v3)"
+* SUSE      = "SuSE (10.x, 11.x)"
+* SUSE9     = "SuSE Linux (Pre SLES 10)"
+* Inform    = "InForm"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HostOStype</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>New-HPOVProfileAttachVolume</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>VolumeID</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-id]
+The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>Ephemeral Storage Volume resource name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+					<maml:name>StoragePool</maml:name>
+					<maml:description>
+						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>StorageSystem</maml:name>
+					<maml:description>
+						<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Capacity</maml:name>
+					<maml:description>
+						<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Full</maml:name>
+					<maml:description>
+						<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Permanent</maml:name>
+					<maml:description>
+						<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-type]
-Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">LunIdType</command:parameterValue>
 				</command:parameter>
@@ -19266,95 +19483,102 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ProfileConnectionID</maml:name>
 					<maml:description>
-						<maml:para>Optional. The Server Profile Connection ID.  If value is not provided, the New-HPOVProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVProfileAttachVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
-					<maml:name>Volume</maml:name>
-					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Volume</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Ephemeral Storage Volume resource name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StorageSystem</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Capacity</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>full</maml:name>
+					<maml:name>Full</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">full</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>permanent</maml:name>
+					<maml:name>Permanent</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">permanent</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-type]
-Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ProfileConnectionID</maml:name>
 					<maml:description>
-						<maml:para>Optional. The Server Profile Connection ID.  If value is not provided, the New-HPOVProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVProfileAttachVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-id]
 The numeric identifier for this volume.  Does not pertain to exported LUN ID value on array.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">VolumeID</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">VolumeID</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
@@ -19367,7 +19591,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					<maml:name>LunIdType</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-type]
-Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">LunIdType</command:parameterValue>
 				</command:parameter>
@@ -19381,14 +19605,33 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ProfileConnectionID</maml:name>
 					<maml:description>
-						<maml:para>Optional. The Server Profile Connection ID.  If value is not provided, the New-HPOVProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+						<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="1">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ServerProfile</maml:name>
+				<maml:description>
+					<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>VolumeID</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-id]
@@ -19401,12 +19644,12 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				</dev:type>
 				<dev:defaultValue>1</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 				<maml:name>Volume</maml:name>
 				<maml:description>
 					<maml:para>The Volume Name, URI or Object to attach.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">Volume</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Volume</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -19416,7 +19659,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>Name</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Ephemeral Storage Volume resource name.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Name</command:parameterValue>
 				<dev:type>
@@ -19428,7 +19671,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>StoragePool</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">StoragePool</command:parameterValue>
 				<dev:type>
@@ -19440,7 +19683,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>StorageSystem</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>If provided a StoragePool Resource Name, you must provide the StorageSystem name value if there are multiple Storage Pool resources with the same name.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">StorageSystem</command:parameterValue>
 				<dev:type>
@@ -19452,21 +19695,21 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>Capacity</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The requested Ephemeral Volume storage capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Capacity</command:parameterValue>
 				<dev:type>
 					<maml:name>Int64</maml:name>
 					<maml:uri />
 				</dev:type>
-				<dev:defaultValue>0</dev:defaultValue>
+				<dev:defaultValue>10240</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>full</maml:name>
+				<maml:name>Full</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Specify if the Ephemeral Volume provisioning type should be Thick. Default is Thin Volume.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">full</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Full</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
@@ -19474,11 +19717,11 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-				<maml:name>permanent</maml:name>
+				<maml:name>Permanent</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Specify if the Ephemeral Volume should be permanent.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">permanent</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Permanent</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
@@ -19489,7 +19732,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				<maml:name>LunIdType</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-type]
-Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
+ Specify Auto or Manual for the LUN ID assignment type.  If Manual, use the -LunID parameter and provide a numerical value.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">LunIdType</command:parameterValue>
 				<dev:type>
@@ -19498,22 +19741,22 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 				</dev:type>
 				<dev:defaultValue>Auto</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>LunID</maml:name>
 				<maml:description>
 					<maml:para>The Host LUN ID numerical value that will be configured in the Volume export on the Storage System.  Accepted range: 0-254</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">LunID</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">LunID</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="5">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>ProfileConnectionID</maml:name>
 				<maml:description>
-					<maml:para>Optional. The Server Profile Connection ID.  If value is not provided, the New-HPOVProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
+					<maml:para>The Server Profile Connection ID.  If value is not provided, the New-HPOVServerProfile will attempt to detect the FC connection that will map to the Volume.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">ProfileConnectionID</command:parameterValue>
 				<dev:type>
@@ -19521,6 +19764,60 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>HostOStype</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-OS]
+        
+Specify the Host OS type, which will set the Host OS value when HP OneView creates the Host object on the Storage System.  This parameter is only necessary if the Server Profile object does not have SAN Management enabled.
+	
+Accepted values:
+        
+* CitrixXen = "Citrix Xen Server 5.x/6.x"
+* AIX       = "AIX"
+* IBMVIO    = "IBM VIO Server"
+* RHEL4     = "RHE Linux (Pre RHEL 5)"
+* RHEL3     = "RHE Linux (Pre RHEL 5)"
+* RHEL      = "RHE Linux (5.x, 6.x)"
+* RHEV      = "RHE Virtualization (5.x, 6.x)"
+* VMware    = "ESX 4.x/5.x"
+* Win2k3    = "Windows 2003"
+* Win2k8    = "Windows 2008/2008 R2"
+* Win2k12   = "Windows 2012 / WS2012 R2"
+* OpenVMS   = "OpenVMS"
+* Egenera   = "Egenera"
+* Exanet    = "Exanet"
+* Solaris9  = "Solaris 9/10"
+* Solaris10 = "Solaris 9/10"
+* Solaris11 = "Solaris 11"
+* ONTAP     = "NetApp/ONTAP"
+* OEL       = "OE Linux UEK (5.x, 6.x)"
+* HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv2 = "HP-UX (11i v1, 11i v2)"
+* HPUX11iv3 = "HP-UX (11i v3)"
+* SUSE      = "SuSE (10.x, 11.x)"
+* SUSE9     = "SuSE Linux (Pre SLES 10)"
+* Inform    = "InForm"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HostOStype</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -19538,7 +19835,7 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 			</command:inputType>
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Storage.Volume [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para>Storage Volume Resource object</maml:para>
@@ -19550,6 +19847,18 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 			</command:inputType>
 		</command:inputTypes>
 		<command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPONeView.Appliance.AsyncTask [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para>When attaching a one or more Storage Volumes to an existing Server Profile, an Appliance Async Task will be created.</maml:para>
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
 			<command:returnValue>
 				<dev:type>
 					<maml:name>HPOneView.Profile.SanVolume [System.Management.Automation.PSCustomObject]</maml:name>
@@ -19589,7 +19898,7 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 				<dev:code>PS C:\&gt; $attachVolume = Get-HPOVStorageVolume Volume1 | New-HPOVProfileAttachVolume -volumeid 1
 </dev:code>
 				<dev:remarks>
-					<dev:para>Get the 'Volume1' Storage Volume via the Get-HPOVStorageVolume cmdlet, and pipe the resource object to the Get-HPOVProfileAttachVolume cmdlet.</dev:para>
+					<dev:para>Get the 'Volume1' Storage Volume via the Get-HPOVStorageVolume Cmdlet, and pipe the resource object to the Get-HPOVServerProfileAttachVolume Cmdlet.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19606,7 +19915,7 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 				<dev:code>PS C:\&gt; $attachVolume = Get-HPOVStorageVolume Volume1 | New-HPOVProfileAttachVolume -volumeid 1 -lunidtype manual -lunid 1
 </dev:code>
 				<dev:remarks>
-					<dev:para>Get the 'Volume1' Storage Volume via the Get-HPOVStorageVolume cmdlet, and pipe the resource object to the Get-HPOVProfileAttachVolume cmdlet, providing a manual Host LUN ID.</dev:para>
+					<dev:para>Get the 'Volume1' Storage Volume via the Get-HPOVStorageVolume Cmdlet, and pipe the resource object to the Get-HPOVServerProfileAttachVolume Cmdlet, providing a manual Host LUN ID.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19623,7 +19932,7 @@ Optional.  Specify Auto or Manual for the LUN ID assignment type.  If Manual, us
 				<dev:code>PS C:\&gt; $attachVolume = New-HPOVStorageVolume Volume1 | Get-HPOVProfileAttachVolume -volumeid 1 -lunidtype manual -lunid 1 -evenpathdisabled
 </dev:code>
 				<dev:remarks>
-					<dev:para>Get the 'Volume1' Storage Volume via the Get-HPOVStorageVolume cmdlet, and pipe the resource object to the Get-HPOVProfileAttachVolume cmdlet, providing a manual Host LUN ID and disabling FC Even Path.</dev:para>
+					<dev:para>Get the 'Volume1' Storage Volume via the Get-HPOVStorageVolume Cmdlet, and pipe the resource object to the Get-HPOVServerProfileAttachVolume Cmdlet, providing a manual Host LUN ID and disabling FC Even Path.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19643,7 +19952,7 @@ PS C:\&gt; $attachVolumes = @($volume1,$volume2)
 
 </dev:code>
 				<dev:remarks>
-					<dev:para>Get the 'Volume1' and 'SharedVolume1' Storage Volumes via the Get-HPOVStorageVolume cmdlet, and pipe the resource objects to the Get-HPOVProfileAttachVolume cmdlet, saving to $attachVolumes array.</dev:para>
+					<dev:para>Get the 'Volume1' and 'SharedVolume1' Storage Volumes via the Get-HPOVStorageVolume Cmdlet, and pipe the resource objects to the Get-HPOVServerProfileAttachVolume Cmdlet, saving to $attachVolumes array.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19657,10 +19966,13 @@ PS C:\&gt; $attachVolumes = @($volume1,$volume2)
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $attachVolume1 = Get-HPOVStoragePool CPG_R5_1 | New-HPOVProfileAttachVolume -volumeid 1 -name "PrivateVol1" -capacity 100
+				<dev:code>PS C:\&gt; $storagepool = Get-HPOVStoragePool HPNetworking_R1_FC
+PS C:\&gt; $sp = Get-HPOVProfile 'chef-web01'
+PS C:\&gt; New-HPOVProfileAttachVolume -ServerProfile $sp -Name 'Chef Web01 Vol 2' -StoragePool $storagepool | Wait-HPOVTaskComplete
+
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create an Ephemeral Private Volume from 'CPG_R5_1' Storage Pool, of 100GB in size.</dev:para>
+					<dev:para>Attach a new 10Gb Ephemeral Volume to an existing Server Profile.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19674,10 +19986,10 @@ PS C:\&gt; $attachVolumes = @($volume1,$volume2)
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $attachVolume1 = Get-HPOVStoragePool CPG_R5_1 | New-HPOVProfileAttachVolume -volumeid 1 -name "PrivateVol1" -capacity 100 -permanent
+				<dev:code>PS C:\&gt; $sp = Get-HPOVProfile 'chef-web01'
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create a non-Ephemeral, Private Volume from 'CPG_R5_1' Storage Pool, of 100GB in size.</dev:para>
+					<dev:para>PS C:\&gt; Get-HPOVStorageVolume 'My New Volume 3' | New-HPOVProfileAttachVolume -ServerProfile $sp | Wait-HPOVTaskComplete</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>

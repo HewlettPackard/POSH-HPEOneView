@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[Version]$script:ModuleVersion = "1.20.310.0"
+[Version]$script:ModuleVersion = "1.20.344.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" } ).position.text -match "-verbose"
 
@@ -20509,104 +20509,163 @@ function New-HPOVProfileConnection {
 
 }
 
-function New-HPOVProfileAttachVolume {
+function New-HPOVProfileAttachVolume 
+{
 
     # .ExternalHelp HPOneView.120.psm1-help.xml
 	
 	[CmdLetBinding(DefaultParameterSetName = "Default")]
-    Param (
+    Param 
+    (
 
-        [parameter(Position = 0, Mandatory = $true, ParameterSetName = "Default")]
-        [parameter(Position = 0, Mandatory = $True, ParameterSetName = "ManualLunIdType")]
-        [parameter(Position = 0, Mandatory = $True, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Position = 0, Mandatory = $True, ParameterSetName = "DynamicVolAttachManual")]
+		[parameter(Mandatory, ParameterSetName = "ServerProfileObject")]
+		[parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[ValidateNotNullOrEmpty()]
+		[Object]$ServerProfile,
+		
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [parameter(Mandatory = $False, ParameterSetName = "Default")]
+        [parameter(Mandatory = $False, ParameterSetName = "ManualLunIdType")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('id')]
         [int]$VolumeID = 1,
 
-        [parameter(Position = 1,Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "Default")]
-        [parameter(Position = 1,Mandatory = $True, ValueFromPipeline = $True, ParameterSetName = "ManualLunIdType")]
+		[parameter(Mandatory, ParameterSetName = "ServerProfileObject")]
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
+        [parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ManualLunIdType")]
 		[ValidateNotNullOrEmpty()]
-        [object]$Volume = $Null,
+        [Object]$Volume,
 
-        [parameter(Mandatory = $true, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $true, ParameterSetName = "DynamicVolAttachManual")]
+		[parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
+		[ValidateNotNullOrEmpty()]
         [object]$Name,
 
-        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $true, ValueFromPipeline = $True, ParameterSetName = "DynamicVolAttachManual")]
+		[parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [parameter(Mandatory, ValueFromPipeline = $True, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory, ValueFromPipeline = $True, ParameterSetName = "DynamicVolAttachManual")]
+		[ValidateNotNullOrEmpty()]
         [object]$StoragePool,
 
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[ValidateNotNullOrEmpty()]
         [object]$StorageSystem,
 
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[ValidateNotNullOrEmpty()]
         [int64]$Capacity,
 
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
-        [switch]$full,
+        [switch]$Full,
 
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
         [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
-        [switch]$permanent,
+        [switch]$Permanent,
 
-		[parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
-        [switch]$shared,
-
-        [parameter(Mandatory = $False,ParameterSetName = "Default")]
-        [parameter(Mandatory = $True,ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $False,ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $True,ParameterSetName = "DynamicVolAttachManual")]
-        [ValidateNotNullOrEmpty()]
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [parameter(Mandatory = $False, ParameterSetName = "Default")]
+        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]
+        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $True, ParameterSetName = "DynamicVolAttachManual")]
 	    [ValidateSet("Auto","Manual", IgnoreCase=$true)]
 		[Alias('type')]
         [string]$LunIdType = "Auto",
 
-        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $True, ParameterSetName = "DynamicVolAttachManual")]		
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [parameter(Mandatory, ParameterSetName = "ManualLunIdType")]
+        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]		
         [ValidateRange(0,254)]
         [int]$LunID,
 
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "ManualLunIdType")]
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "DynamicVolAttachManual")]
+		[parameter(Mandatory = $false, ParameterSetName = "ServerProfileObject")]
+		[parameter(Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [parameter(Mandatory = $false, ParameterSetName = "ManualLunIdType")]
+        [parameter(Mandatory = $false, ParameterSetName = "DynamicVolAttachAuto")]
+        [parameter(Mandatory = $false, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateRange(1,32)]
-        [int]$ProfileConnectionID
+        [int]$ProfileConnectionID,
+
+		[parameter(Mandatory = $false, ParameterSetName = "ServerProfileObject")]
+		[parameter(Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform')]
+        [Alias('OS')]
+        [string]$HostOStype
 
 	)
 	
-	Begin {
+	Begin 
+	{
 
-        if (-not($global:cimgmtSessionId)) {
+        if (-not($global:cimgmtSessionId)) 
+		{
         
             $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession AuthenticationError 'New-HPOVProfileAttachVolume' -Message "No valid session ID found.  Please use Connect-HPOVMgmt to connect and authenticate to an appliance." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
+
         }
 		
-		Write-Verbose -message ("ParameterSet: " + $PsCmdLet.ParameterSetName)
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
-        if ($LunIdType -eq "Manual" -and -not $PSBoundParameters.ContainsKey("LunId")) { 
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		If (-not($ServerProfile) -and -not($Volume))
+		{
+
+			$PipelineInput = $True
+
+		}
+
+        if ($LunIdType -eq "Manual" -and -not $PSBoundParameters.ContainsKey("LunId")) 
+		{ 
         
             $errorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'New-HPOVProfileAttachVolume' -Message "'Manual' LunIdType was specified, but no LUN ID value was provided.  Please include the -LunId parameter or a value in the parameters position and try again." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
         }
 
-        if ($LunIdType -eq "Auto" -and $PSBoundParameters.ContainsKey("LunId")) { 
+        if ($LunIdType -eq "Auto" -and $PSBoundParameters.ContainsKey("LunId")) 
+		{ 
         
             $errorRecord = New-ErrorRecord ArgumentException ParametersSpecifiedCollision InvalidArgument 'New-HPOVProfileAttachVolume' -Message "'Auto' LunIdType was specified and a specific LUN ID were provided.  Please either specify -LunIdType 'Manual' or omit the -LunId parameter and try again." #-verbose
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
         }
 
+		if ($PSBoundParameters['ServerProfile'])
+		{
+
+			if ($ServerProfile.GetType().Name -ne 'PSCustomObject')
+			{
+
+				$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException UnsupportedServerHardwareResource InvalidArgument 'ServerProfile' -TargetType $ServerProfile.GetType().Name -Message ("The provided Server Profile {0} is not an Object.  Please provide a Server Profile object." -f $ServerProfile)
+		    	$pscmdlet.ThrowTerminatingError($errorRecord)  
+
+			}
+
+		}
+
+		$_volumeAttachments = New-Object System.Collections.ArrayList
+
     }
 
-	Process {
+	Process 
+	{
 
         $volumeAttachment = [PsCustomObject]@{
         
@@ -20619,150 +20678,677 @@ function New-HPOVProfileAttachVolume {
 
         }
         
-        if ($PSBoundParameters['volume']) {
+        if ($PSBoundParameters['volume']) 
+        {
 
-            if ($volume -is [String] -and -not $volume.StartsWith($script:storageVolumeUri)) {
-                
+            if ($volume -is [String] -and (-not($volume.StartsWith($script:storageVolumeUri)))) 
+            {
+                    
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Volume Name was provided."
+
                 $tmpVolumeName = $volume
-                $volume = Get-HPOVStorageVolume $volume
 
-                if (! $volume) {
+                Try
+                {
+                    
+                    $volume = Get-HPOVStorageVolume $volume
 
-                    $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeResourceNotFound ObjectNotFound 'New-HPOVProfileAttachVolume' -Message "Storage Volume name '$tmpVolumeName' was not found. Check the name and try again." #-verbose
+                }
+
+                Catch
+                {
+
+                    $PSCmdlet.ThrowTerminatingError($_)
+
+                }
+
+                if (-not($volume))
+                {
+
+                    $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeResourceNotFound ObjectNotFound 'volume' -Message "Storage Volume name '$tmpVolumeName' was not found. Check the name and try again."
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                 }
-                		
+                    		
             }
 
-            elseif ($volume -is [String] -and $volume.StartsWith($script:storageVolumeUri)) {
+            elseif ($volume -is [String] -and $volume.StartsWith($script:storageVolumeUri)) 
+            {
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Volume URI was provided."
+                    
                 $tmpVolumeUri = $volume
-                $volume = Send-HPOVRequest $volume
+                    
+                Try 
+                {
 
-                if ($volume.errorCode -and [int]$volume.statusCode -eq 404) {
+                    $volume = Send-HPOVRequest $volume
 
-                    $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeResourceNotFound ObjectNotFound 'New-HPOVProfileAttachVolume' -Message "Storage Volume URI '$tmpVolumeUri' was not found. Check the value and try again." #-verbose
+                }
+
+                catch
+                {
+
+                    $PSCmdlet.ThrowTerminatingError($_)
+
+                }
+
+                if ($volume.errorCode -and [int]$volume.statusCode -eq 404) 
+                {
+
+                    $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeResourceNotFound ObjectNotFound 'New-HPOVServerProfileAttachVolume' -Message "Storage Volume URI '$tmpVolumeUri' was not found. Check the value and try again."
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                 }
-                elseif ($volume.errorCode) {
 
-                    $errorRecord = New-ErrorRecord InvalidOperationException $volume.errorCode InvalidResult 'New-HPOVProfileAttachVolume' -Message $volume.message #-verbose
+                elseif ($volume.errorCode) 
+                {
+
+                    $errorRecord = New-ErrorRecord InvalidOperationException $volume.errorCode InvalidResult 'New-HPOVServerProfileAttachVolume' -Message $volume.message
                     $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                 }
 
             }
 
-            elseif ($volume -is [String]) {
+            else
+            {
 
                 #Volume parameter value is not valid, generate error.
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'New-HPOVProfileAttachVolume' -Message "The Volume parameter contains an invalid value.  Please check it and try again." #-verbose
+                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Volume' -TargetType $Volume.Gettype().Name -Message "The Volume parameter contains an invalid value.  Please check it and try again."
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
             
             }
 
-            $volumeAttachment.volumeUri = $volume.uri
-            $volumeAttachment.volumeStoragePoolUri = $volume.storagePoolUri
+            $volumeAttachment.volumeUri              = $volume.uri
+            $volumeAttachment.volumeStoragePoolUri   = $volume.storagePoolUri
             $volumeAttachment.volumeStorageSystemUri = $volume.storageSystemUri
+
+            #Needs to be part of the
+            if ($LunIdType -eq "Manual") 
+            { 
+        
+                #$volumeAttachment | Add-Member -type NoteProperty -Name "lun" -value $LunID 
+                $volumeAttachment.lun = $LunID 
+            
+            }
 
         }
 
         #Ephmeral Volume Support
-        elseif ($PSBoundParameters['StoragePool']) {
+        elseif ($PSBoundParameters['StoragePool']) 
+        {
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating dynamic volume attach object."
-
-            switch ($StoragePool.GetType().Name) {
-
-                "String" { 
                 
-                    if ($StoragePool.StartsWith($script:storagePoolUri)) {
-                    
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Pool URI provided: $StoragePool"
-                        $sp = Send-HPOVRequest $StoragePool
-                    
-                     }
-                     elseif ($StoragePool.StartsWith("/rest/")) {
-                     
-                        #Invalid URI, so error
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid StoragePool URI provided: $StoragePool"
+            $volumeAttachment = [PsCustomObject]@{
+            
+				id                             = 1;
+				lun                            = $null;
+				lunType                        = 'Auto';
+				volumeStoragePoolUri           = $null;
+				volumeStorageSystemUri         = $null;
+				volumeName                     = $null;
+				volumeProvisionType            = 'Thin';
+				volumeProvisionedCapacityBytes = '10737418240';
+				permanent                      = $true;
+				volumeShareable                = $false;
+				storagePaths                   = New-Object System.Collections.ArrayList
 
-                        $errorRecord = New-ErrorRecord ArgumentException InvalidStoragePoolURI InvalidArgument 'New-HPOVProfileAttachVolume' -Message "The provided URI value for the -StoragePool parameter '$StroagePool' is invalid.  The StoragePool URI must begin with /rest/storage-pools.  Please check the value and try again." #-verbose
-                        $PSCmdlet.ThrowTerminatingError($errorRecord)
+			}
 
-                     }
-                     else {
-                     
-                        if ($StorageSystem) {
-                            
-                            #If both storagepool and storagesystem were provided, look that up first
-                            $sp = Get-HPOVStoragePool -poolName $StoragePool -storageSystem $StorageSystem
+            $volumeAttachment.volumeStoragePoolUri           = $sp.uri
+            $volumeAttachment.volumeStorageSystemUri         = $sp.storageSystemUri
+            $volumeAttachment.volumeName                     = $Name
+            $volumeAttachment.volumeProvisionType            = if ($PSBoundParameters['full']) { "Thick" } else { "Thin" }
+            $volumeAttachment.volumeProvisionedCapacityBytes = if ($PSBoundParameters['Capacity']) { [string]([int64]$Capacity * 1GB) } else { $volumeAttachment.volumeProvisionedCapacityBytes }
+
+            switch ($StoragePool.GetType().Name) 
+            {
+
+                "String" 
+                { 
+                    
+                    if ($StoragePool.StartsWith($script:storagePoolUri)) 
+                    {
                         
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Pool URI provided: $StoragePool"
+
+                        Try
+                        {
+                                
+                            $sp = Send-HPOVRequest $StoragePool
+
                         }
-                        else {
 
+                        Catch
+                        {
+
+                            $PSCmdlet.ThrowTerminatingError($_)
+
+                        }
+                        
+                    }
+
+                    elseif ($StoragePool.StartsWith("/rest/")) 
+                    {
+                         
+						#Invalid URI, so error
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid StoragePool URI provided: $StoragePool"
+
+						$errorRecord = New-ErrorRecord ArgumentException InvalidStoragePoolURI InvalidArgument 'New-HPOVServerProfileAttachVolume' -Message "The provided URI value for the -StoragePool parameter '$StroagePool' is invalid.  The StoragePool URI must begin with /rest/storage-pools.  Please check the value and try again."
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                    }
+
+                    else 
+                    {
+                         
+                        if ($StorageSystem) 
+                        {
+                                
                             #If both storagepool and storagesystem were provided, look that up first
-                            $sp = Get-HPOVStoragePool -poolName $StoragePool
 
-                            if ($sp -and $sp.count -gt 1) {
+                            Try
+                            {
+                                
+                                $sp = Get-HPOVStoragePool -poolName $StoragePool -storageSystem $StorageSystem
+
+                            }
+
+                            Catch
+                            {
+
+                                $PSCmdlet.ThrowTerminatingError($_)
+
+                            }
+                            
+                        }
+
+                        else 
+                        {
+
+                            Try
+                            {
+
+                                #If both storagepool and storagesystem were provided, look that up first
+                                $sp = Get-HPOVStoragePool -poolName $StoragePool
+
+                            }
+
+                            Catch
+                            {
+
+                                $PSCmdlet.ThrowTerminatingError($_)
+
+                            }
+
+                            if ($sp -and $sp.count -gt 1) 
+							{
 
                                 #Generate Error that StoragePool name is not unique and must supply the StorageSystem as well.
                                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] {$($sp.count)} StoragePool resource found"
 
-                                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException MultipleStoragePoolsFound InvalidResult 'New-HPOVProfileAttachVolume' -Message "Multiple StoragePool resources found with the name '$StoragePool'.  Please use the -StorageSystem parameter to specify the Storage System the Storage Pool is to be used." #-verbose
+                                $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException MultipleStoragePoolsFound InvalidResult 'New-HPOVServerProfileAttachVolume' -Message "Multiple StoragePool resources found with the name '$StoragePool'.  Please use the -StorageSystem parameter to specify the Storage System the Storage Pool is to be used."
                                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                             }
 
                         }
-                    
+                        
                     }
-                
+                    
                 }
-                "PSCustomObject" { 
-                
-                    #Validate the object
-                    if ($StoragePool.category -eq 'storage-pools') { $sp = $StoragePool }
-                    else {
 
-                        $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidStoragePoolCategory InvalidArgument 'New-HPOVProfileAttachVolume' -Message "Invalid -StoragePool parameter value.  Expected Resource Category 'storage-pools', received '$($VolumeTemplate.category)'." #-verbose
+                "PSCustomObject" 
+                { 
+                    
+                    #Validate the object
+                    if ($StoragePool.category -eq 'storage-pools') 
+					{ 
+							
+						$sp = $StoragePool 
+						
+					}
+
+                    else 
+                    {
+
+                        $errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidStoragePoolCategory InvalidArgument 'New-HPOVServerProfileAttachVolume' -Message "Invalid -StoragePool parameter value.  Expected Resource Category 'storage-pools', received '$($VolumeTemplate.category)'."
                         $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                     }              
-                
+                    
                 }
 
             }
 
-            $volumeAttachment.volumeStoragePoolUri = $sp.uri
-            $volumeAttachment.volumeStorageSystemUri = $sp.storageSystemUri
-            $volumeAttachment | Add-Member -NotePropertyName volumeName -NotePropertyValue $Name
-            $volumeAttachment | Add-Member -NotePropertyName volumeProvisionedCapacityBytes -NotePropertyValue ([string]([int64]$Capacity * 1GB)) #value must be type [String]
-            $volumeAttachment | Add-Member -NotePropertyName volumeProvisionType -NotePropertyValue $(if ($full.IsPresent) { "Thick" } else { "Thin" } )
-            
-			if($shared.IsPresent -and -not ($permanent.IsPresent)) {
-		
-				$errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidVolumePermanentAndShareState InvalidArgument 'shared' -Message "Unable to create a shared epehemeral storage volume.  Please either remove the -shared switch, or include the -permanent switch to properly create a volume." #-verbose
+            $volumeAttachment.volumeStoragePoolUri   = $sp.uri
+            $volumeAttachment.volumeStorageSystemUri = $sp.storageSystemUri           
+                
+		    if($shared.IsPresent -and (-not($permanent.IsPresent))) 
+            {
+		    
+		    	$errorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException InvalidVolumePermanentAndShareState InvalidArgument 'shared' -Message "Unable to create a shared epehemeral storage volume.  Please either remove the -shared switch, or include the -permanent switch to properly create a volume."
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
-			}
+		    }
 
-			$volumeAttachment | Add-Member -NotePropertyName permanent -NotePropertyValue $permanent.IsPresent
-            $volumeAttachment | Add-Member -NotePropertyName volumeShareable -NotePropertyValue $shared.IsPresent
+            $volumeAttachment.permanent = [bool]$PSBoundParameters['permanent']
 
         }
 
-        if ($LunIdType -eq "Manual") { $volumeAttachment | Add-Member -type NoteProperty -Name "lun" -value $LunID }
+		if (-not($PSBoundParameters['VolumeID']))
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No VolumeID value provided.  Getting next volume id value."
+
+			$id = 1
+
+			$Found = $false
+
+			While (-not($Found))
+			{
+
+				if ($ServerProfile.sanStorage.volumeAttachments.volumeId -notcontains $id)
+				{
+
+					$VolumeID = $id
+
+					$Found = $true
+
+				}
+
+				$id++
+
+			}
+
+		}
+
+		$volumeAttachment.id = $VolumeID
+
+        if ($LunIdType -ne 'Auto')
+		{
+
+			$volumeAttachment.lunType = $LunIdType
+			$volumeAttachment.lun     = $LunID
+
+		}
+
+        [void]$_volumeAttachments.Add($volumeAttachment)
 
 	}
 
-    end {
+    end 
+	{
 
-        return $volumeAttachment
+        if ($PSBoundParameters['ServerProfile'])
+		{
+
+			#Validate Server Profile and Server Hardware resource supports StRM operations
+			Try
+			{
+
+				$_ServerResource = Send-HPOVRequest $ServerProfile.serverHardwareUri
+
+				if (-not($_ServerResource.model -match 'BL'))
+				{
+					
+					$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException UnsupportedServerHardwareResource InvalidArgument 'ServerProfile' -TargetType 'PSObject' -Message ("The provided Server Profile {0} is not assigned to a supported Server Hardware Resource, {1}.  Only BL Gen 8 or newer are supported." -f $ServerProfile.name, $_ServerResource.model)
+		    		$pscmdlet.ThrowTerminatingError($errorRecord)  
+
+				}
+
+				#Validate Server Profile has SanStorage already set.
+				if (-not($ServerProfile.sanStorage.manageSanStorage))
+				{
+
+					#Generate Error that HostOSType is required
+					if (-not($PSBoundParameters['HostOsType']))
+					{
+
+						$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException MissingHostOSTypeParameterValue InvalidArgument -Message "The -HostOSType parmater is required when the Server Profile is not already configured for managing SAN Storage.  Please specify the HostOSType parameter in your call."
+		    			$pscmdlet.ThrowTerminatingError($errorRecord)  
+
+					}
+
+					$ServerProfile.sanStorage = [PSCustomObject]@{
+                        
+						hostOSType        = $ProfileSanManageOSType.($HostOsType);
+						manageSanStorage  = $true;
+						volumeAttachments = New-Object System.Collections.ArrayList
+                    
+					}
+
+				}
+
+				#Rebuild VolumeAttachments property to be an ArrayList
+				elseif ($ServerProfile.sanStorage.manageSanStorage -and $ServerProfile.sanStorage.volumeAttachments)
+				{
+
+					$_ExistingVols = $ServerProfile.sanStorage.volumeAttachments.Clone()
+					
+					$ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
+
+					$_ExistingVols | % {
+
+						[void]$ServerProfile.sanStorage.volumeAttachments.Add($_)
+
+					}
+
+				}
+
+				else
+				{
+
+					$ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
+
+				}
+
+				$_EnclosureGroup = Send-HPOVRequest $ServerProfile.enclosureGroupUri
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of available storage systems"
+
+            #Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
+			Try
+			{
+
+				$_AvailStorageSystems = (Send-HPOVRequest ($ProfileAvailStorageSystemsUri + "?enclosureGroupUri=$($serverProfile.enclosureGroupUri)&serverHardwareTypeUri=$($_ServerResource.serverHardwareTypeuri)")).members
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+            "[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage Systems: {0}" -f ($_AvailStorageSystems | fl | out-string) | Write-Verbose
+
+            #Error on no available storage systems
+            if (-not ($_AvailStorageSystems)) 
+			{
+
+                $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoAvailableStorageSystems ObjectNotFound 'SANStorage' -Message ("No available storage systems found for '{0}' Server Hardware and '{1}' Enclosure Group.  Please verify an available Storage System exists, and has connectivity to the destination server or Enclosure Group." -f $_ServerResource.name, ((Send-HPOVRequest $ServerProfile.enclosureGroupUri).name))
+		    	$pscmdlet.ThrowTerminatingError($errorRecord)  
+
+            }
+                    
+            "[$($MyInvocation.InvocationName.ToString().ToUpper())] Volumes to process {0}" -f ($_volumeAttachments | fl | out-string) | Write-Verbose 
+                    
+            $i = 0
+                    
+            #Process volumes being passed
+            foreach ($_volume in $_volumeAttachments) 
+			{  
+
+                #If the storage paths array is null, process connections to add mapping
+                if (-not ($_volume.storagePaths)) 
+				{
+
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Paths value is Null. Building connection mapping."
+
+                    #Static Volume, must have volumeUri attribute present to be valid
+                    if ($_volume.volumeUri) 
+					{
+
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of attachable volumes"
+
+                        #Get list of attachable Volumes (i.e. they are not assigned private or are shareable volumes)
+						Try
+						{
+
+							$_AttachableVolumes = (Send-HPOVRequest $AttachableVolumesUri).members
+
+							#Get storage volume name for reporting purposes
+							$_VolumeName = (Send-HPOVRequest $_volume.volumeUri).name
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+                        "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Volume ID: {0}" -f $_volume.id  | Write-Verbose 
+                        "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking to see if volume '{0} ({1})' is attachable" -f $_volume.volumeUri,$_VolumeName |Write-Verbose 
+                    						   
+                        #validate volume is attachable
+                        $_AttachableVolFound = $_AttachableVolumes | ? uri -eq $_volume.volumeUri
+
+                        #If it is available, continue processing
+                        if ($_AttachableVolFound) 
+						{
+                    
+                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] '$($_AttachableVolFound.uri) ($($_AttachableVolFound.name))' volume is attachable"
+                    
+                            #validate the volume that is available, is also avialable to the server hardware type and enclosure group
+                            $_VolumeToStorageSystem = $_AvailStorageSystems | ? storageSystemUri -eq $_AttachableVolFound.storageSystemUri
+                    
+                            #If available, process the volume networks
+                            if ($_VolumeToStorageSystem) 
+							{ 
+                                    
+                                #Check to make sure profile connections exist.
+                                if ($ServerProfile.connections -and $ServerProfile.connections.functionType -contains "FibreChannel") 
+								{
+
+                                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
+                                        
+                                    #loop through profile connections
+                                    $found = 0
+
+                                    foreach ($_volConnection in $_AttachableVolFound.availableNetworks) 
+									{
+
+                                        #write-verbose "Looking for $volConnection"
+                                        $profileConnection = $ServerProfile.connections | ? networkUri -eq $_volConnection
+
+                                        if ($profileConnection) 
+										{
+
+                                            #Keep track of the connections found for error reporting later
+                                            $found++
+
+                                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Mapping connection ID '$($profileConnection.id)' -> volume ID '$($_volumeAttachments[$i].id)'"
+                                                
+                                            $_StoragePath = [PSCustomObject]@{
+
+												storageTargetType = "Auto";
+												storageTargets = New-Object System.Collections.ArrayList;
+												connectionId = 1;
+												isEnabled = $true
+
+											}
+
+											$_StoragePath.connectionId = $profileConnection.id
+											$_StoragePath.isEnabled = $True
+
+											[void]$_volume.storagePaths.Add($_StoragePath)
+
+                                        }
+
+                                    }
+
+                                    if (-not ($found)) 
+									{
+
+                                        #Generate non-terminating error and continue
+                                        $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVServerProfile' -Message "Unable to find a Profile Connection that will map to '$($volumeName)'. Creating server profile resource without Volume Connection Mapping." 
+ 
+                                        $PSCmdlet.WriteError($errorRecord)
+
+                                    }
+                                        
+                                }
+
+                                #Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
+                                else 
+								{
+
+                                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnections ObjectNotFound 'New-HPOVServerProfile' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVServerProfileConnection helper cmdlet to create 1 or more connections and try again." 
+                                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                                }
+                    
+                            }
+                    
+                            #If not, then error
+                            elseif (-not($_VolumeToStorageSystem)) 
+							{ 
+                                
+                                $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeDoesNotExistOnStorageArray ObjectNotFound 'ServerProfile' -TargetType 'PSObject' -Message ("'{0}' Volume is not available on the '{1}' storage system." -f $_VolumeName, $_VolumeToStorageSystem.storageSystemName)
+                                $PSCmdlet.ThrowTerminatingError($errorRecord)                      
+                                
+                            }
+                    
+                        }
+                    
+                        elseif (-not ($_AttachableVolFound)) 
+						{ 
+                            
+                            $errorRecord = New-ErrorRecord InvalidOperationException StorageVolumeUnavailableForAttach ResourceUnavailable 'ServerProfile' -TargetType 'PSObject'  -Message ("'{0}' Volume is not available to be attached to the profile. Please check the volume and try again." -f $_VolumeName)
+                            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                        }
+
+                    }
+
+                    #Ephemeral volume support
+                    elseif (-not ($_volume.volumeUri) -and $_volume.volumeStoragePoolUri -and $_volume.volumeStorageSystemUri) 
+					{
+
+                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No volumeUri, ephemeral volume request."
+
+                        #Check to make sure profile connections exist.
+                        if ($ServerProfile.connections -and $ServerProfile.connections.functionType -contains "FibreChannel") 
+						{
+
+                            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
+
+                            #Process available storage system and available FC networks
+                            $_StorageSystemVolCreate = $_AvailStorageSystems | ? storageSystemUri -eq $_volume.volumeStorageSystemUri
+
+                            if ($_StorageSystemVolCreate) 
+							{
+                                        
+								"[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage System targets: {0}" -f ($storageSystemVolCreate.storageSystemUri -join ", ") | Write-Verbose 
+                                        
+								#loop through profile connections
+                                $found = 0
+
+                                foreach ($_storageSystemNetworks in $_StorageSystemVolCreate.availableNetworks) 
+								{
+
+                                    $_ProfileConnection = $ServerProfile.connections | ? networkUri -eq $_storageSystemNetworks.uri
+
+                                    if ($_ProfileConnection) 
+									{
+
+                                        #Keep track of the connections found for error reporting later
+                                        $found++
+
+                                        "[$($MyInvocation.InvocationName.ToString().ToUpper())] Mapping connection ID '{0}' -> volume ID '{1}'" -f $_ProfileConnection.id, $_volumeAttachments[$i].id | Write-Verbose
+                                                
+										$_StoragePath = [PSCustomObject]@{
+
+											storageTargetType = "Auto";
+											storageTargets = New-Object System.Collections.ArrayList;
+											connectionId = 1;
+											isEnabled = $true
+
+										}
+
+										$_StoragePath.connectionId = $_ProfileConnection.id
+										$_StoragePath.isEnabled    = $True
+
+                                        [void]$_volume.storagePaths.Add($_StoragePath)
+
+                                    }
+
+                                }
+
+                                if (-not($found))
+								{
+
+                                    #Generate non-terminating error and continue
+                                    $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVServerProfile' -Message "Unable to find a Profile Connection that will map to '$($_volume.id)'. Creating server profile resource without Volume Connection Mapping." 
+
+                                    $PSCmdlet.WriteError($errorRecord)
+
+                                    
+                                }
+
+                            }
+
+                            else 
+							{
+
+                                $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException StorageSystemNotFound ObjectNotFound 'Volume' -TargetType 'PSObject' -Message "The provided Storage System URI '$($_volume.volumeStorageSystemUri)' for the ephemeral volume '$($_volume.name)' was not found as an available storage system." 
+                                $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                            }
+                                        
+                        }
+
+                        #Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
+                        else 
+						{
+
+                            $errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnections ObjectNotFound 'ServerProfile' -TargetType 'PSObject' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVServerProfileConnection helper cmdlet to create 1 or more connections and try again." 
+                            $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                        }
+
+                    }
+ 
+                }
+
+				[void]$ServerProfile.sanStorage.volumeAttachments.Add($_volume)
+
+                $i++
+
+            }
+
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Server Profile with new Storage Volume Attachments: {0}" -f $ServerProfile.name | Write-Verbose 
+
+			Try
+			{
+
+				$_Task = Send-HPOVRequest $ServerProfile.uri PUT $ServerProfile
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+			
+			Return $_Task
+
+        }
+		
+		else
+		{
+
+			return $_volumeAttachments
+
+		}
+
     }
 
 }

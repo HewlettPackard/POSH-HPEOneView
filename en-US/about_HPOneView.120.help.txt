@@ -32,6 +32,10 @@ SHORT DESCRIPTION
 
 WHAT'S NEW 
 
+     Release 1.20.344.0
+     -- [#83] Backported New-HPOVServerProfileAttachVolume in the 2.00 library to New-HPOVProfileAttachVolume
+        to support attaching a Storage Volume to an existing Server Profile.
+
      Release 1.20.310.0
      -- [#80] Fixed issue with module manifest file where VersionInfo was null causing Import-Module to fail.
 
