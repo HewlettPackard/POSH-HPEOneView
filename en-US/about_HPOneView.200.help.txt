@@ -32,8 +32,12 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.339.0
+     -- [#91] Fixed New-HPOVServerProfile where connections were not being added.
+     -- Added Get-HPOVIloSso to help generate iLO SSO auth URL.
+
     Release 2.0.312.0
-     -- [#90] Fixed New-HPOVServerProfile and New-HPOVServer
+     -- [#90] Fixed New-HPOVServerProfile and New-HPOVServerProfileTemplate
 
     Release 2.0.310.0
      -- [#88] Fixed Invoke-HPOVVcmMigration where wrong API object type value was merged.

@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.312.0"
+[version]$script:ModuleVersion = "2.0.339.1"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -1732,6 +1732,30 @@ namespace HPOneView
 
     }
 
+	public class SnmpTrapDestination : Exception
+    {
+
+        public SnmpTrapDestination() : base() { }
+        public SnmpTrapDestination(string message) : base(message) { }
+        public SnmpTrapDestination(string message, Exception e) : base(message, e) { }
+
+        private string strExtraInfo;
+        public string ExtraErrorInfo
+        {
+            get
+            {
+                return strExtraInfo;
+            }
+
+            set
+            {
+                strExtraInfo = value;
+            }
+
+        }
+
+    }
+
     public class NetworkResourceException : Exception
     {
 
@@ -2434,6 +2458,10 @@ $script:wwnLongAddressPattern                = @('^([0-9a-f]{2}:){15}([0-9a-f]{2
 	Tunnel   = 'Tunnel'
 
 }
+[Array]$Script:SnmpEneTrapCategoryEnums                   = @('Other', 'PortStatus', 'PortThresholds')
+[Array]$Script:SnmpFcTrapCategoryEnums                    = @('Other', 'PortStatus')
+[Array]$Script:SnmpVcmTrapCategoryEnums                   = @('Legacy')
+[Array]$Script:SnmpTrapSeverityEnums                      = @('Critical', 'Info', 'Major', 'Minor', 'Normal', 'Unknown', 'Warning')
 #------------------------------------
 #  Profile Management
 #------------------------------------
@@ -2626,6 +2654,8 @@ function NewObject
 		[switch]$ServerProfileTemplate,
 		[switch]$ServerProfileTemplateLocalStorage,
 		[switch]$SmtpConfig,
+		[switch]$SnmpConfig,
+		[switch]$SnmpTrapDestination,
 		[switch]$StoragePath,
 		[switch]$StorageSystemCredentials,
 		[switch]$StorageSystemManagedPort,
@@ -2659,6 +2689,40 @@ function NewObject
 
 		switch($PSBoundParameters.Keys)
 		{
+
+			'SnmpConfig'
+			{
+
+				Return [PSCustomObject]@{
+
+					type              = 'snmp-configuration'
+					readCommunity     = 'public';
+					enabled           = $true;
+					systemContact     = $null;
+					snmpAccess        = New-Object System.Collections.ArrayList;
+					trapDestinations  = New-Object System.Collections.ArrayList
+
+				}
+			
+			}
+
+
+			'SnmpTrapDestination'
+			{
+
+				Return [PSCustomObject]@{
+
+					trapDestination    = $null;
+					communityString    = $null;
+					trapFormat         = $null;
+					trapSeverities     = New-Object System.Collections.ArrayList;
+					vcmTrapCategories  = New-Object System.Collections.ArrayList;
+					enetTrapCategories = New-Object System.Collections.ArrayList;
+					fcTrapCategories   = New-Object System.Collections.ArrayList;
+
+				}
+
+			}
 
 			'PatchOperation'
 			{
@@ -14135,6 +14199,143 @@ function Get-HPOVServer
 
 }
 
+function Get-HPOVIloSso
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    Param 
+	(
+
+        [parameter(ValueFromPipeline, Mandatory, HelpMessage = "Provide a Server resource object.", Position = 0, ParameterSetName = 'Default')]
+        [ValidateNotNullOrEmpty()]
+        [Object]$Server = $Null,
+
+		[parameter(ValueFromPipeline, Mandatory = $false, ParameterSetName = 'Default')]
+		[Switch]$RemoteConsoleOnly
+
+    )
+
+	Begin 
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		if (-not($PSBoundParameters['Server']))
+		{
+
+			$PipelineInput = $true
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($Server -is [PSCustomObject]) -or (-not($Server.ApplianceConnection)))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'Server' -TargetType 'PSObject' -Message "The specified 'Server' is not an object or is missing the 'ApplianceConnection' property.  Please correct this value and try again."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+	
+					$ApplianceConnection = Test-HPOVAuth $Server.ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $Server.ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		$colStatus = New-Object System.Collections.ArrayList
+
+    }
+
+    Process 
+	{
+
+		if (-not($PipelineInput) -and (-not($Server -is [PSCustomObject])))
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.ServerResourceException InvalidServerObject InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The specified 'Server' is not an object.  Please correct this value and try again."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		if ($PSBoundParameters['RemoteConsoleOnly'])
+		{
+
+			$_uri = $Server.uri + '/remoteConsoleUrl'
+
+		}
+
+		else
+		{
+
+			$_uri = $Server.uri + '/iloSsoUrl'
+
+		}
+		
+
+        Write-Verbose ("[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing {0}" -f $Server.name)
+
+		Try
+		{
+		
+			$_ssoresp = Send-HPOVRequest $_uri -Hostname $Server.ApplianceConnection.Name
+		
+		}
+        
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding resp to collection."
+
+		[void]$colStatus.Add($_ssoresp)
+       
+    }
+
+    end 
+	{
+        
+        Return $colStatus
+
+    }
+
+}
+
 function Add-HPOVServer 
 {
     
@@ -20596,6 +20797,12 @@ function Get-InterconnectFirmware
         Return $_InterconnectReport
 
     }
+
+}
+
+function Show-HPOVUtilization
+{
+
 
 }
 
@@ -34759,7 +34966,7 @@ function New-HPOVLogicalInterconnectGroup
 	    [bool]$EnablePauseFloodProtection = $True,
 		
 		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable SNMP Settings", Position = 8)]
-	    [hashtable]$SNMP = $null,
+	    [Object]$SNMP = $null,
 
 		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Array of Network Objects, Names or URIs", Position = 9)]
 		[Array]$InternalNetworks,
@@ -34880,6 +35087,7 @@ function New-HPOVLogicalInterconnectGroup
 			    $lig = NewObject -Lig 
 
 				$lig.name                                         = $Name
+				$lig.snmpConfiguration                            = $Snmp
 				$lig.ethernetSettings.enableIgmpSnooping          = $EnableIgmpSnooping
 				$lig.ethernetSettings.igmpIdleTimeoutInterval     = $IgmpIdleTimeoutInterval
 				$lig.ethernetSettings.enableFastMacCacheFailover  = $EnableFastMacCacheFailover
@@ -34919,15 +35127,7 @@ function New-HPOVLogicalInterconnectGroup
 					NewObject -QosConfiguration 
 				
 				}				
-
-			    #Make sure the snmpConfiguration type property is set, as the caller might not know about this.
-			    if ($lig.snmpConfiguration) 
-				{ 
-					
-					$lig.snmpConfiguration.type = "snmp-configuration" 
-				
-				}
-			
+							
 			    #Fill in missing bay locations from the input value if needed.
 			    $Secondary = @{ 1 = $null; 2 = $null; 3 = $null; 4 = $null; 5 = $null; 6 = $null; 7 = $null; 8 = $null }
 
@@ -35232,6 +35432,300 @@ function New-HPOVLogicalInterconnectGroup
         Return $LigTasks
 
     }
+
+}
+
+function New-HPOVSnmpConfigration
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    param 
+	(
+
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = 'Provide the Read Community value')]
+        [ValidateNotNullOrEmpty()]
+        [String]$ReadCommunity,
+        
+        [Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default", HelpMessage = 'Provide the System Contact name value')]
+        [ValidateNotNullOrEmpty()]
+		[String]$Contact,
+
+        [Parameter(Position = 2, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Provide an Array of Allowed IP Addresses (e.g. 192.168.1.10/32) or Subnet (192.168.1.0/24).")]
+        [ValidateNotNullOrEmpty()]
+		[Array]$AccessList,
+		
+		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Provide an array of TrapDestinations. Can be generated from New-HPOVSnmpTrapDestination")]
+        [ValidateNotNullOrEmpty()]
+	    [Array]$TrapDestinations
+
+    )
+
+	Begin
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		$_SnmpConfigrationCol = New-Object System.Collections.ArrayList
+
+	}
+
+	Process
+	{
+
+		$_SnmpConfig = NewObject -SnmpConfig
+
+		switch ($PSBoundParameters.keys)
+		{
+
+			'ReadCommunity'
+			{
+
+				$_SnmpConfig.readCommunity = $ReadCommunity
+
+			}
+
+			'Contact'
+			{
+
+				$_SnmpConfig.systemContact = $Contact
+			
+			}
+
+			'AccessList'
+			{
+			
+				ForEach ($_entry in $AccessList)
+				{
+
+					[void]$_SnmpConfig.snmpAccess.Add($_entry)
+
+				}
+			
+			}
+
+			'TrapDestinations'
+			{
+			
+
+				ForEach ($_entry in $TrapDestinations)
+				{
+
+					[void]$_SnmpConfig.trapDestinations.Add($_entry)
+
+				}
+
+			}
+
+		}
+
+
+		$_SnmpConfig.PSObject.TypeNames.Insert(0,'HPOneView.Networking.SnmpConfiguration')
+
+		[void]$_SnmpConfigrationCol.Add($_SnmpConfig)
+
+	}
+
+	End
+	{
+
+		Return $_SnmpConfigrationCol
+
+	}
+
+}
+
+function New-HPOVSnmpTrapDestination
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding(DefaultParameterSetName = "Default")]
+    param 
+	(
+
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default')]
+        [ValidateNotNullOrEmpty()]
+        [String]$Destination,
+        
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default")]
+        [ValidateNotNullOrEmpty()]
+		[String]$Community = 'public',
+
+        [Parameter(Position = 2, Mandatory = $False, ParameterSetName = "Default")]
+        [ValidateNotNullOrEmpty()]
+		[ValidateSet('SNMPv1', 'SNMPv2', IgnoreCase = $False)]
+		[String]$SnmpFormat = 'SNMPv1',
+		
+		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+	    [Array]$TrapSeverities,
+
+		[Parameter(Position = 4, Mandatory = $False, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Array]$VCMTrapCategories,
+
+		[Parameter(Position = 5, Mandatory = $False, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Array]$EnetTrapCategories,
+
+		[Parameter(Position = 6, Mandatory = $False, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Array]$FCTrapCategories
+
+    )
+
+	Begin
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		$_TrapDestinationCol = New-Object System.Collections.ArrayList
+
+	}
+
+	Process
+	{
+
+		$_TrapDestination = NewObject -SnmpTrapDestination
+
+		$_TrapDestination.trapDestination    = $Destination
+		$_TrapDestination.communityString    = $Community
+		$_TrapDestination.trapFormat         = $SnmpFormat
+
+		switch ($PSBoundParameters.keys)
+		{
+
+			'TrapSeverities'
+			{
+
+				ForEach ($_severity in $TrapSeverities)
+				{
+					
+					#Throw error
+					if ($SnmpTrapSeverityEnums -notcontains $_severity)
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneView.SnmpTrapDestination InvalidTrapSeverity InvalidArgument 'TrapSeverities' -Message ("The provided SNMP Trap Severity {0} is unsupported.  Please check the value, making sure it is one of these values: {1}." -f $_severity, ([System.String]::Join(", ", $SnmpTrapSeverityEnums)))
+
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+					}
+
+					$_severity = $_severity.substring(0,1).ToUpper() + $_severity.substring(1).tolower()
+					
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing {0} Trap Severity." -f $_severity  | Write-Verbose 
+					
+					[void]$_TrapDestination.trapSeverities.Add($_severity)
+
+				}
+
+			}
+
+			'VCMTrapCategories'
+			{
+			
+				ForEach ($_category in $VCMTrapCategories)
+				{
+					
+					#Throw error
+					if ($SnmpVcmTrapCategoryEnums -notcontains $_category)
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneView.SnmpTrapDestination InvalidVcmTrapCategory InvalidArgument 'VCMTrapCategories' -Message ("The provided VCM Trap Category {0} is unsupported.  Please check the value, making sure it is one of these values: {1}." -f $_category, ([System.String]::Join(", ", $SnmpVcmTrapCategoryEnums)))
+
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+					}
+
+					$_category = $_category.substring(0,1).ToUpper() + $_category.substring(1).tolower()
+					
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing {0} VCM Trap Category." -f $_category  | Write-Verbose 
+
+					[void]$_TrapDestination.vcmTrapCategories.Add($_category)
+
+				}
+			
+			}
+
+			'EnetTrapCategories'
+			{
+			
+				ForEach ($_category in $EnetTrapCategories)
+				{
+					
+					#Throw error
+					if ($SnmpEneTrapCategoryEnums -notcontains $_category)
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneView.SnmpTrapDestination InvalidEnetTrapCategory InvalidArgument 'EnetTrapCategories' -Message ("The provided Ethernet Trap Category {0} is unsupported.  Please check the value, making sure it is one of these values: {1}." -f $_category, ([System.String]::Join(", ", $SnmpEneTrapCategoryEnums)))
+
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+					}
+
+					if ($_category.StartsWith('port'))
+					{
+
+						$_category = $_category.substring(0,1).ToUpper() + $_category.substring(1,3).tolower() + $_category.substring(4,1).ToUpper() + $_category.substring(6).tolower()
+
+					}
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing {0} Enet Trap Category." -f $_category  | Write-Verbose 
+
+					[void]$_TrapDestination.enetTrapCategories.Add($_category)
+
+				}
+			
+			}
+
+			'FCTrapCategories'
+			{
+			
+				ForEach ($_category in $FCTrapCategories)
+				{
+
+					#Throw error
+					if ($SnmpFcTrapCategoryEnums -notcontains $_category)
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneView.SnmpTrapDestination InvalidFcTrapCategory InvalidArgument 'FCTrapCategories' -Message ("The provided FC Trap Category {0} is unsupported.  Please check the value, making sure it is one of these values: {1}." -f $_category, ([System.String]::Join(", ", $SnmpFcTrapCategoryEnums)))
+
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+					}
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing {0} FC Trap Category." -f $_category  | Write-Verbose 
+					
+					[void]$_TrapDestination.fcTrapCategories.Add($_category)
+
+				}
+			
+			}
+
+		}
+
+		$_TrapDestination.PSObject.TypeNames.Insert(0,'HPOneView.Networking.SnmpTrapDestination')
+
+		[void]$_TrapDestinationCol.Add($_TrapDestination)
+
+	}
+
+	End
+	{
+
+		Return $_TrapDestinationCol
+
+	}
 
 }
 
@@ -38988,12 +39482,12 @@ function GetNetworkUris
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
 
 					#Get avaialble Networks based on the EG and SHT
-					$_uri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+					$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
 
 					Try
 					{
 
-						$_AvailableNetworkResources = Send-HPOVRequest $_uri -Hostname $_Connection.Name
+						$_AvailableNetworkResources = Send-HPOVRequest $_AvailableNetworksUri -Hostname $_Connection.Name
 
 					}
 
@@ -39101,7 +39595,7 @@ function GetNetworkUris
 
 						}
 					
-						[void]$_spt.connections.Add($c)
+						[void]$serverProfile.connections.Add($c)
 			    
 					}
 			
@@ -40803,12 +41297,12 @@ function New-HPOVServerProfileTemplate
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
 
 				#Get avaialble Networks based on the EG and SHT
-				$_uri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+				$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
 
 				Try
 				{
 
-					$_AvailableNetworkResources = Send-HPOVRequest $_uri -Hostname $_Connection.Name
+					$_AvailableNetworkResources = Send-HPOVRequest $_AvailableNetworksUri -Hostname $_Connection.Name
 
 				}
 
@@ -52075,14 +52569,12 @@ set-alias Get-HPOVServerHardwareTypes Get-HPOVServerHardwareType
 set-alias New-HPOVStorageSystem Add-HPOVStorageSystem
 set-alias New-HPOVSanManager Add-HPOVSanManager
 set-alias New-HPOVStoragePool Add-HPOVStoragePool
-#set-alias New-HPOVPowerDevice Add-HPOVPowerDevice 
 set-alias Set-HPOVRole Set-HPOVUserRole
 set-alias Get-HPOVSppFile Get-HPOVBaseline
 set-alias Add-HPOVSppFile Add-HPOVBaseline
 set-alias New-HPOVLdap New-HPOVLdapDirectory
 set-alias Remove-HPOVLdap Remove-HPOVLdapDirectory
 set-alias Get-HPOVProfile Get-HPOVServerProfile
-
 set-alias New-HPOVProfile New-HPOVServerProfile
 set-alias Get-HPOVProfileAssign New-HPOVServerProfileAssign
 set-alias Copy-HPOVProfile Copy-HPOVServerProfile
@@ -52090,11 +52582,12 @@ set-alias Remove-HPOVProfile Remove-HPOVServerProfile
 set-alias Get-HPOVProfileConnectionList Get-HPOVServerProfileConnectionList
 set-alias New-HPOVProfileConnection New-HPOVServerProfileConnection
 set-alias New-HPOVProfileAttachVolume New-HPOVServerProfileAttachVolume
+set-alias sr Send-HPOVRequest
 
 #######################################################
 #  Export the public functions from this module
 #  Generic suport functions:
-Export-ModuleMember -Function Send-HPOVRequest
+Export-ModuleMember -Function Send-HPOVRequest -Alias sr
 Export-ModuleMember -Function Connect-HPOVMgmt
 Export-ModuleMember -Function Disconnect-HPOVMgmt
 Export-ModuleMember -Function Ping-HPOVAddress
@@ -52162,6 +52655,7 @@ Export-ModuleMember -Function Remove-HPOVEnclosureGroup
 Export-ModuleMember -Function Get-HPOVServerHardwareType -Alias Get-HPOVServerHardwareTypes
 Export-ModuleMember -Function Show-HPOVFirmwareReport
 Export-ModuleMember -Function Invoke-HPOVVcmMigration
+Export-ModuleMember -Function Get-HPOVIloSso
 
 #Storage Systems
 Export-ModuleMember -Function Get-HPOVStorageSystem
@@ -52230,6 +52724,8 @@ Export-ModuleMember -Function New-HPOVUplinkSet
 Export-ModuleMember -Function Get-HPOVAddressPool
 Export-ModuleMember -Function Get-HPOVAddressPoolRange
 Export-ModuleMember -Function New-HPOVAddressRange
+Export-ModuleMember -Function New-HPOVSnmpTrapDestination
+Export-ModuleMember -Function New-HPOVSnmpConfigration
         
 #Server Profiles:
 Export-ModuleMember -Function Get-HPOVServerProfile -Alias Get-HPOVProfile
