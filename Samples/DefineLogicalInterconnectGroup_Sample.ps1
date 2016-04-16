@@ -2,9 +2,9 @@
 # DefineLogicalInterconnectGroup_Sample.ps1
 # - Example script for creating Logical Interconnect Groups.
 #
-#   VERSION 1.0
+#   VERSION 2.0
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,22 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+Import-Module HPOneView.200
 
 # First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+if (-not ($global:ConnectionSessions)) { Connect-HPOVMgmt }
 
 $LIGName = "MyLIG" 
 $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
-$SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Network Admin"; snmpAccess = @("192.168.1.2/32","10.1.1.0/24");trapDestinations = @(@{trapDestination="myhost.local";communityString="MyTr@p2";trapFormat="SNMPv1";trapSeverities=@("Critical", "Major", "Minor", "Warning", "Normal", "Info", "Unknown");fcTrapCategories=@("PortStatus", "Other")})}
+$Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
+$Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
+$SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.150/22' -TrapDestinations $Dest1,$Dest2
+$CreatedLig = New-HPOVLogicalInterconnectGroup -name $LIGName -bays $bays -snmp $SnmpConfig | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
-$task = new-HPOVlogicalinterconnectgroup -name $LIGName -bays $bays -snmp $snmp
-$task = Wait-HPOVTaskComplete $task.uri -timeout (New-TimeSpan -Minutes 10)
-$newLigUri = $task.associatedResource.resourceUri
+Write-Host "New LIG Object: " $CreatedLig
 
-Write-Host "New LIG URI: " $newLigUri
+# Create Ethernet Uplink Set
+$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1" -Type "Ethernet" -Networks "red","blue","green" -nativeEthNetwork "red" -UplinkPorts "BAY1:X5","BAY2:X5" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
-#Create Ethernet Uplink Sets on this LIG
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "LUT1" -usType "Ethernet" -usNetworks "red","blue","green" -usNativeEthNetwork "red" -usUplinkPorts "BAY1:X5","BAY2:X5" -usEthMode "Auto"
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "Fabric A" -usType "FibreChannel" -usNetworks "Production Fabric A" -usUplinkPorts "BAY1:X1","BAY1:X2"
-$newUT = New-HPOVUplinkSet -ligName $LIGName -usName "Fabric B" -usType "FibreChannel" -usNetworks "Production Fabric B" -usUplinkPorts "BAY2:X1","BAY2:X2"
+# Create FC Uplink Set
+$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Fabric A" -Type "FibreChannel" -Networks "Production Fabric A" -UplinkPorts "BAY1:X1","BAY1:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Fabric B" -Type "FibreChannel" -Networks "Production Fabric A" -UplinkPorts "BAY2:X1","BAY2:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup

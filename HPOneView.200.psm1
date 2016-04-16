@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.339.1"
+[version]$script:ModuleVersion = "2.0.340.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2706,7 +2706,6 @@ function NewObject
 			
 			}
 
-
 			'SnmpTrapDestination'
 			{
 
@@ -3653,7 +3652,6 @@ function NewObject
 
 				Return [PSCustomObject]@{
 					
-					enclosureIndex              = 1;
 					interconnectBay             = 1; 
 					logicalInterconnectGroupUri = $null
 				
@@ -5084,7 +5082,7 @@ function Send-HPOVRequest
                     }
 
                     #Remove any found ApplianceConnection property(ies) to not generate REST API Error
-                    elseif (($method -eq "PUT" -or $method -eq "PATCH") -and ($body.ApplianceConnection))
+                    if (($method -eq "PUT" -or $method -eq "PATCH") -and ($body.ApplianceConnection))
                     {
 
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP Method is $method. Removing 'ApplianceConnection' NoteProperty from object(s)."
@@ -35435,7 +35433,7 @@ function New-HPOVLogicalInterconnectGroup
 
 }
 
-function New-HPOVSnmpConfigration
+function New-HPOVSnmpConfiguration
 {
 
 	# .ExternalHelp HPOneView.200.psm1-help.xml
@@ -50444,172 +50442,77 @@ function Get-HPOVAlert
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource provided via pipeline."
 
-			#Input object is a Server Profile resource, get special alerts URI
-			if ($Resource.category -eq "server-profiles") 
-			{
-        
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Input object is a Server Profile. Getting special URI for alert messages."
-            
-				Try
-				{
+			$uri = $alertsUri + "?start=0&count=-1"
 
-					$_serverAlerts = Send-HPOVRequest ($resource.uri + "/messages") -Hostname $Resource.ApplianceConnection.Name
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
+			#Generate Error, unsupported pipeline input
+			if ($resource -is [String]) 
+			{ 
+					
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 				
-
-				foreach ($_alert in $_serverAlerts) 
-				{
-
-					switch ($_alert | select * -ExcludeProperty etag,type | get-member -MemberType NoteProperty | select -expandproperty Name) {
-
-						"connections" 
-						{ 
-							
-							if ($alert.connections.count -gt 0) 
-							{ 
-								
-								$_alert.connections | % { 
-									
-									$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
-
-									[void]$_Alerts.members.Add($_.messages)
-								
-								}
-
-							} 
-						
-						}
-
-						"serverHardware" 
-						{ 
-							
-							if ($alert.serverHardware.count -gt 0) 
-							{
-
-								$_alert.serverHardware | % { 
-									
-									$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
-
-									[void]$_Alerts.members.Add($_.messages)
-								
-								}
-							
-							} 
-						
-						}
-						
-						"firmwareStatus" 
-						{ 
-							
-							if ($alert.firmwareStatus.count -gt 0) 
-							{ 
-								
-								$_alert.firmwareStatus | % { 
-									
-									$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
-
-									[void]$_Alerts.members.Add($_.messages)
-								
-								}
-							
-							} 
-						
-						}
-                
-					}
-
-				}
-
-				$_Alerts.count = $_Alerts.members.count
-        
 			}
 
-			else 
+			elseif ($resource -is [PsCustomObject]) 
+			{ 
+					
+				$uri += "&filter=resourceUri=`'$($resource.uri)`'" 
+				
+			}
+            
+			if ($severity) 
+			{ 
+					
+				$uri += "&filter=severity='$severity'" 
+				
+			}
+            
+			if ($healthCategory) 
+			{
+					
+					$uri += "&filter=healthCategory='$healthCategory'" 
+				
+			}
+            
+			if ($AssignedToUser) 
+			{ 
+					
+				$uri += "&filter=assignedTOuter='$AssignedToUser'" 
+				
+			}
+            
+			if ($alertState) 
+			{ 
+					
+				$alertState = $alertState.ToLower(); 
+
+				$alertState = $alertState.substring(0,1).ToUpper()+$alertState.substring(1).tolower(); 
+
+				$uri += "&filter=alertState=`'$alertState`'" 
+				
+			}
+
+			Try
 			{
 
-				$uri = $alertsUri + "?start=0&count=-1"
-
-				#Generate Error, unsupported pipeline input
-				if ($resource -is [String]) 
-				{ 
-					
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-				
-				}
-
-				elseif ($resource -is [PsCustomObject]) 
-				{ 
-					
-					$uri += "&filter=resourceUri=`'$($resource.uri)`'" 
-				
-				}
-            
-				if ($severity) 
-				{ 
-					
-					$uri += "&filter=severity='$severity'" 
-				
-				}
-            
-				if ($healthCategory) 
-				{
-					
-					 $uri += "&filter=healthCategory='$healthCategory'" 
-				
-				}
-            
-				if ($AssignedToUser) 
-				{ 
-					
-					$uri += "&filter=assignedTOuter='$AssignedToUser'" 
-				
-				}
-            
-				if ($alertState) 
-				{ 
-					
-					$alertState = $alertState.ToLower(); 
-
-					$alertState = $alertState.substring(0,1).ToUpper()+$alertState.substring(1).tolower(); 
-
-					$uri += "&filter=alertState=`'$alertState`'" 
-				
-				}
-
-				Try
-				{
-
-					$_ResourceAlerts = Send-HPOVRequest $uri -Hostname $Resource.ApplianceConnection.Name
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-        
-				$_ResourceAlerts.members | % { 
-					
-					$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
-
-					[void]$_Alerts.members.Add($_.messages)
-				
-				
-				}
+				$_ResourceAlerts = Send-HPOVRequest $uri -Hostname $Resource.ApplianceConnection.Name
 
 			}
 
-			[void]$_AlertResources.Add($_Alerts)
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+        
+			$_ResourceAlerts.members | % { 
+					
+				$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
+
+				[void]$_AlertResources.Add($_)
+				
+				
+			}
 
 		}
 
@@ -50736,6 +50639,8 @@ function Set-HPOVAlert
 	(
 
         [parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
+		[parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Cleared')]
+		[parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Active')]
         [ValidateNotNullOrEmpty()]
 		[alias('alertUri')]
         [Object]$Alert,
@@ -52725,7 +52630,7 @@ Export-ModuleMember -Function Get-HPOVAddressPool
 Export-ModuleMember -Function Get-HPOVAddressPoolRange
 Export-ModuleMember -Function New-HPOVAddressRange
 Export-ModuleMember -Function New-HPOVSnmpTrapDestination
-Export-ModuleMember -Function New-HPOVSnmpConfigration
+Export-ModuleMember -Function New-HPOVSnmpConfiguration
         
 #Server Profiles:
 Export-ModuleMember -Function Get-HPOVServerProfile -Alias Get-HPOVProfile

@@ -404,7 +404,11 @@ if (-not (get-module HPOneview.200))
 
 		$LigName = "VC FF Virt Prod"
 
-		$CreatedLig = New-HPOVLogicalInterconnectGroup -Name $LigName -bays @{1 = "FlexFabric";2 = "FlexFabric"} -EnableIgmpSnooping $True -InternalNetworks 'VMMigration Network' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
+		$Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
+		$SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.150/22' -TrapDestinations $Dest1,$Dest2
+
+		$CreatedLig = New-HPOVLogicalInterconnectGroup -Name $LigName -bays @{1 = "FlexFabric";2 = "FlexFabric"} -EnableIgmpSnooping $True -InternalNetworks 'VMMigration Network' -SNMP $SnmpConfig | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
 		# Create an active/active network config
 		$aNetworks = Get-HPOVNetwork *-A

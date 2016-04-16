@@ -32,8 +32,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
-    Release 2.0.339.0
+    Release 2.0.340.0
+     -- [#95] Fixed Send-HPOVRequest which caused issues with PUT requests, and not removing
+        ApplianceConnection property from object.
+     -- Fixed New-HPOVEnclosureGroup where an invalid object property was being passed.
+     -- [#94] Fixed Set-HPOVAlert where Pipeline objects were not being handled correctly.
+     -- [#93] Fixed Get-HPOVAlert where Pipeline objects were not being handled correctly.
+
+    Release 2.0.339.1
      -- [#91] Fixed New-HPOVServerProfile where connections were not being added.
+     -- [#92] Fixed New-HPOVLogicalInterconnectGroup where specified SNMP settings were
+        never being passed to the API.
+     -- [#92] Added New-HPOVSnmpConfigration and New-HPOVSnmpTrapDestination Cmdlets to help
+        create the SNMP configuration necessary for New-HPOVLogicalInterconnectGroup.
      -- Added Get-HPOVIloSso to help generate iLO SSO auth URL.
 
     Release 2.0.312.0

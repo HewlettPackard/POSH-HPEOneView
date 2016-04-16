@@ -18893,7 +18893,7 @@ New-HPOVCustomBaseline [-SourceBaseline] &lt;Object&gt; [-Hotfixes] &lt;array&gt
 					<maml:description>
 						<maml:para>Aliases [-logicalInterconnectGroupUri, -logicalInterConnectGroup]
 
-An Enclosure Group can reference mulptiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
+An Enclosure Group can reference multiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
 
 To specify a specific Logical Interconnect Group(s) for one or more Interconnect Bays, use a Hashtable, with the Bay ID as the Key, and Logical Interconnect Group Name, URI or Object as the Value.  Example:
 
@@ -18972,7 +18972,7 @@ Specify the HPOneView.Appliance.Connection object(s) or Name property value(s). 
 				<maml:description>
 					<maml:para>Aliases [-logicalInterconnectGroupUri, -logicalInterConnectGroup]
 
-An Enclosure Group can reference mulptiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
+An Enclosure Group can reference multiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
 
 To specify a specific Logical Interconnect Group(s) for one or more Interconnect Bays, use a Hashtable, with the Bay ID as the Key, and Logical Interconnect Group Name, URI or Object as the Value.  Example:
 
@@ -20333,7 +20333,7 @@ Default value: Enabled</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="9">
 					<maml:name>SNMP</maml:name>
 					<maml:description>
-						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfigration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
+						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SNMP</command:parameterValue>
 				</command:parameter>
@@ -20547,7 +20547,7 @@ Default value: Enabled</maml:para>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="9">
 				<maml:name>SNMP</maml:name>
 				<maml:description>
-					<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfigration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
+					<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SNMP</command:parameterValue>
 				<dev:type>
@@ -20659,7 +20659,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
 PS C:\&gt; $Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22' -TrapDestinations $Dest1,$Dest2
+PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22' -TrapDestinations $Dest1,$Dest2
 PS C:\&gt; $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
 PS C:\&gt; New-HPOVLogicalInterconnectGroup "FlexFabric Production 1" -bays $Bays -snmp $SnmpConfig
 
@@ -21936,7 +21936,7 @@ PS C:\&gt; New-HPOVNetworkSet -name "Production Networks" -Networks $networks -U
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22
+				<dev:code>PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22
 PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -SNMP $SnmpConfig
 
 </dev:code>
@@ -28752,6 +28752,168 @@ PS C:\&gt; $jsonProfiles | foreach-object { New-HPOVServerProfileTemplate -impor
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--NEW-HPOVSNMPCONFIGURATION-->
+		<command:details>
+			<command:name>New-HPOVSnmpConfiguration</command:name>
+			<maml:description>
+				<maml:para>Create SNMP LIG Configuration Object</maml:para>
+			</maml:description>
+			<command:verb>New</command:verb>
+			<command:noun>HPOVSnmpConfiguration</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>This helper Cmdlet provides the capability to create a new SNMP Configuration object for a Logical Interconnect Group or Logical Interconnect resources.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>New-HPOVSnmpConfiguration</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>ReadCommunity</maml:name>
+					<maml:description>
+						<maml:para>The SNMP Read Community String to set.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ReadCommunity</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>Contact</maml:name>
+					<maml:description>
+						<maml:para>SNMP Contact Name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Contact</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>AccessList</maml:name>
+					<maml:description>
+						<maml:para>A collection [System.Array] of IP Addresses or Subnets.  You must include the Subnet Mask Bit value.  E.g. 10.44.120.9/32 or 172.20.148.0/22</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">AccessList</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+					<maml:name>TrapDestinations</maml:name>
+					<maml:description>
+						<maml:para>A collection [System.Array] of SNMMP Trap Destinations.  Use New-HPOVTrapDestination Cmdlet to create the object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">TrapDestinations</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>ReadCommunity</maml:name>
+				<maml:description>
+					<maml:para>The SNMP Read Community String to set.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">ReadCommunity</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>Contact</maml:name>
+				<maml:description>
+					<maml:para>SNMP Contact Name.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Contact</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+				<maml:name>AccessList</maml:name>
+				<maml:description>
+					<maml:para>A collection [System.Array] of IP Addresses or Subnets.  You must include the Subnet Mask Bit value.  E.g. 10.44.120.9/32 or 172.20.148.0/22</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">AccessList</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="4">
+				<maml:name>TrapDestinations</maml:name>
+				<maml:description>
+					<maml:para>A collection [System.Array] of SNMMP Trap Destinations.  Use New-HPOVTrapDestination Cmdlet to create the object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">TrapDestinations</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this Cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Networking.SnmpConfiguration [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>SNMP Configuration object for a Logical Interconnect Group or Logical Interconnect resource.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22
+PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -enableIgmpSnooping $True -igmpIdleTimeoutInterval 300 -LoopProtect $True -QosConfig $QosConfig
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a new QOS Configuration object,and use the created object to add to a new Logical Interconnect Group.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVSnmpTrapDestination</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLogicalInterconnectGroup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVSnmpConfiguration</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--NEW-HPOVSNMPTRAPDESTINATION-->
 		<command:details>
 			<command:name>New-HPOVSnmpTrapDestination</command:name>
@@ -28982,7 +29144,7 @@ PS C:\&gt; $jsonProfiles | foreach-object { New-HPOVServerProfileTemplate -impor
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
 PS C:\&gt; $Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22 -TrapDestinations $Dest1,$Dest2
+PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22 -TrapDestinations $Dest1,$Dest2
 PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -SNMP $SnmpConfig
 
 </dev:code>
