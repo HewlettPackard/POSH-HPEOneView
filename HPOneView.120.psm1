@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[Version]$script:ModuleVersion = "1.20.344.0"
+[Version]$script:ModuleVersion = "1.20.350.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" } ).position.text -match "-verbose"
 
@@ -6712,7 +6712,7 @@ function Set-HPOVServerPower {
 function Update-HPOVServer
 {
 
-	# .ExternalHelp HPOneView.200.psm1-help.xml
+	# .ExternalHelp HPOneView.120.psm1-help.xml
 
     [CmdLetBinding()]
     Param 
@@ -25027,6 +25027,7 @@ Export-ModuleMember -Function Get-HPOVServer
 Export-ModuleMember -Function Add-HPOVServer -alias New-HPOVServer
 Export-ModuleMember -Function Set-HPOVServerPower
 Export-ModuleMember -Function Remove-HPOVServer
+Export-ModuleMember -Function Update-HPOVServer
 Export-ModuleMember -Function Get-HPOVEnclosure
 Export-ModuleMember -Function Update-HPOVEnclosure
 Export-ModuleMember -Function Add-HPOVEnclosure -Alias New-HPOVEnclosure
