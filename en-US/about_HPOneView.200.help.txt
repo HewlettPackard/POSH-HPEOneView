@@ -32,6 +32,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.368.0
+     -- [#96] Updated Get-HPOVLicense to return License objects instead of the Summary view.
+     -- [#100] Fixed regression with Server Profile Volume Attach object which was missing the lun property.
+     -- [#99] Fixed regression with New-HPOVServerProfile and New-HPOVServerProfileTemplate where
+        SAN Storage Volume objects would retain the ApplianceConnection Property, resulting
+        in an API error.
+     -- [#102] Fixed New-HPOVStorageVolume where StorageSystem parameter validation was using multiple methods
+        causing a lookup issue when using StoragePool String value.
+     -- [#103] Fixed Add-HPOVStorageVolume where API call was using wrong positional parameters.
+     -- [#101] Implemented a more robust method of removing the ApplianceConnection from objects
+        prior to submitting to the appliance API.
+     -- [#87] Added Show-HPOVUtilization Cmdlet to report Enclosure or Server Utilization data objects.
+
     Release 2.0.340.0
      -- [#95] Fixed Send-HPOVRequest which caused issues with PUT requests, and not removing
         ApplianceConnection property from object.

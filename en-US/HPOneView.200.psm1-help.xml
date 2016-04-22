@@ -8559,9 +8559,16 @@ My Directory Group1               domain1                                 {Stora
 					<command:parameterValue required="false" variableLength="False">State</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Summary</maml:name>
+					<maml:description>
+						<maml:para>Display a condensed summary view of the installed or required licenses.  This does not return a License object that can be used with Remove-HPOVLicense.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Summary</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Report</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Generate a report of installed or required licenses, their type and assigned Nodes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Report</command:parameterValue>
 				</command:parameter>
@@ -8604,9 +8611,21 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>Summary</maml:name>
+				<maml:description>
+					<maml:para>Display a condensed summary view of the installed or required licenses.  This does not return a License object that can be used with Remove-HPOVLicense.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Summary</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>Report</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Generate a report of installed or required licenses, their type and assigned Nodes.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Report</command:parameterValue>
 				<dev:type>
@@ -8668,13 +8687,33 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 					<maml:para />
 				</maml:introduction>
 				<dev:code>PS C:\&gt; Get-HPOVLicense
-License Name         Available        Consumed        Total   Unlicensed
-------------         ---------        --------        -----   ----------
-HPE OneView Advanced         16              16           32            0
+Product           : HP OneView Advanced
+AvailableCapacity : 1
+ConsumedCapacity  : 0
+TotalCapacity     : 1
+UnlicensedCount   : 0
+
+Product           : HP OneView Advanced
+AvailableCapacity : 1
+ConsumedCapacity  : 0
+TotalCapacity     : 1
+UnlicensedCount   : 0
+
+Product           : HP OneView Advanced
+AvailableCapacity : 16
+ConsumedCapacity  : 16
+TotalCapacity     : 32
+UnlicensedCount   : 0
+
+Product           : HP OneView Advanced w/o iLO
+AvailableCapacity : 9
+ConsumedCapacity  : 7
+TotalCapacity     : 16
+UnlicensedCount   : 0
 
 </dev:code>
 				<dev:remarks>
-					<dev:para>Get a summary report of licenses</dev:para>
+					<dev:para>Retrieve all installed license objects on the connected appliance(s).</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -17271,7 +17310,7 @@ The migration report will be executed and the result saved to the file "c:\VCM-M
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>profile</maml:name>
 					<maml:description>
-						<maml:para>A server profile name, URI, or resource object</maml:para>
+						<maml:para />
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">profile</command:parameterValue>
 				</command:parameter>
@@ -17314,7 +17353,7 @@ The migration report will be executed and the result saved to the file "c:\VCM-M
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>profile</maml:name>
 				<maml:description>
-					<maml:para>A server profile name, URI, or resource object</maml:para>
+					<maml:para />
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">profile</command:parameterValue>
 				<dev:type>
@@ -17363,29 +17402,41 @@ The migration report will be executed and the result saved to the file "c:\VCM-M
 		<command:inputTypes>
 			<command:inputType>
 				<dev:type>
-					<maml:name>A PSCustom object representing a server profile template resource retrieved from the HPE OneView appliance</maml:name>
+					<maml:name>HPOneView.ServerProfile [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
 					</maml:description>
 				</dev:type>
 				<maml:description>
-					<maml:para />
+					<maml:para>A PSCustom object representing a server profile template resource retrieved from the HPE OneView appliance</maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
 		<command:returnValues>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>An HPE OneView task resource object or collection of task resource objects</maml:name>
+					<maml:name>System.Collections.ArrayList&lt;HPOneView.Appliance.AsyncTask&gt;</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
 					</maml:description>
 				</dev:type>
 				<maml:description>
-					<maml:para>
- An HPE OneView task resource object or collection of task resource objects
+					<maml:para>Collection of task resource objects.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AsyncTask [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>An HPE OneView task resource object.
 </maml:para>
 				</maml:description>
 			</command:returnValue>
@@ -24703,11 +24754,12 @@ PS C:\&gt; $jsonProfiles | foreach-object { New-HPOVServerProfile -import -file 
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileAssign</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
-					<maml:name>Profile</maml:name>
+					<maml:name>ServerProfile</maml:name>
 					<maml:description>
-						<maml:para>The name or object of the server profile resource to modify assignment.</maml:para>
+						<maml:para>Aliases [-Profile]
+The name or object of the server profile resource to modify assignment.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Profile</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="2">
 					<maml:name>Server</maml:name>
@@ -24729,11 +24781,12 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileAssign</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
-					<maml:name>Profile</maml:name>
+					<maml:name>ServerProfile</maml:name>
 					<maml:description>
-						<maml:para>The name or object of the server profile resource to modify assignment.</maml:para>
+						<maml:para>Aliases [-Profile]
+The name or object of the server profile resource to modify assignment.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Profile</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Unassigned</maml:name>
@@ -24755,11 +24808,12 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 		</command:syntax>
 		<command:parameters>
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
-				<maml:name>Profile</maml:name>
+				<maml:name>ServerProfile</maml:name>
 				<maml:description>
-					<maml:para>The name or object of the server profile resource to modify assignment.</maml:para>
+					<maml:para>Aliases [-Profile]
+The name or object of the server profile resource to modify assignment.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Profile</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">ServerProfile</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -25662,7 +25716,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		<command:returnValues>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>HPONeView.Appliance.AsyncTask [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:name>HPOneView.Appliance.AsyncTask [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
@@ -32951,41 +33005,6 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
-			<command:syntaxItem>
-				<maml:name>Remove-HPOVLicense</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
-					<maml:name>Resource</maml:name>
-					<maml:description>
-						<maml:para />
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Resource</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="2">
-					<maml:name>ApplianceConnection</maml:name>
-					<maml:description>
-						<maml:para>Aliases [-Appliance]
-
-Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
-
-Default Value: ${Global:ConnectSessions}</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>WhatIf</maml:name>
-					<maml:description>
-						<maml:para />
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">WhatIf</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>Confirm</maml:name>
-					<maml:description>
-						<maml:para />
-					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Confirm</command:parameterValue>
-				</command:parameter>
-			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
@@ -33058,7 +33077,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		<command:returnValues>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>System.String</maml:name>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
 					<maml:uri />
 					<maml:description>
 						<maml:para />
@@ -34954,8 +34973,11 @@ The server profile object(s), name(s) or URI(s) to be removed.</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-appliance]
-The name of the appliance or list of appliances to execute the command against.</maml:para>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
@@ -35001,8 +35023,11 @@ The server profile object(s), name(s) or URI(s) to be removed.</maml:para>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-appliance]
-The name of the appliance or list of appliances to execute the command against.</maml:para>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">ApplianceConnection</command:parameterValue>
 				<dev:type>
@@ -37516,32 +37541,22 @@ In order for an Administrator to change the status of an Alert, the Administrato
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
 
-Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
-				</command:parameter>
-			</command:syntaxItem>
-			<command:syntaxItem>
-				<maml:name>Set-HPOVAlert</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
-					<maml:name>Cleared</maml:name>
-					<maml:description>
-						<maml:para>Change the alert to 'Cleared' status.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Cleared</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
-					<maml:name>ApplianceConnection</maml:name>
-					<maml:description>
-						<maml:para>Aliases [-Appliance]
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
 
-Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Set-HPOVAlert</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Alert</maml:name>
+					<maml:description>
+						<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Alert</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>Active</maml:name>
 					<maml:description>
@@ -37554,7 +37569,37 @@ Specify one HPOneView.Appliance.Connection object or Name property value.</maml:
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
 
-Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVAlert</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="1">
+					<maml:name>Alert</maml:name>
+					<maml:description>
+						<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Alert</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>Cleared</maml:name>
+					<maml:description>
+						<maml:para>Change the alert to 'Cleared' status.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Cleared</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByPropertyName)" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
 				</command:parameter>
@@ -37626,7 +37671,9 @@ Specify one HPOneView.Appliance.Connection object or Name property value.</maml:
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
 
-Specify one HPOneView.Appliance.Connection object or Name property value.</maml:para>
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">ApplianceConnection</command:parameterValue>
 				<dev:type>
