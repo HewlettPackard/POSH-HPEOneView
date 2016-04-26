@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.404.0
+     -- [#104] Fixed Remove-ApplianceConnection Cmdlet where it was handling nested IEnumerable objects incorrectly
+        causing JSON API errors.
+     -- Added Start-HPOVLibraryTrace and Stop-HPOVLibraryTrace Cmdlets to help generating and collecting
+        verbose Cmdlet output.
+
     Release 2.0.368.0
      -- [#96] Updated Get-HPOVLicense to return License objects instead of the Summary view.
      -- [#100] Fixed regression with Server Profile Volume Attach object which was missing the lun property.

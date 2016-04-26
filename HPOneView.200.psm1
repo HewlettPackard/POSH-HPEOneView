@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.368.0"
+[version]$script:ModuleVersion = "2.0.404.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2267,6 +2267,7 @@ $script:FSRead                      = [System.IO.FileAccess]::Read
 [String]$script:MaxXAPIVersion      = "200"
 [String]$script:applMinVersion      = "200"
 [String]$script:repository          = "https://api.github.com/repos/HewlettPackard/POSH-HPOneView/releases"
+[bool]$Global:VerboseTrace          = $False
 
 #------------------------------------
 # Appliance Configuration
@@ -4971,10 +4972,46 @@ function Send-HPOVRequest
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] BEGIN"
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+		if ($uri -eq $LoginSessionsUri -and $Method -eq 'POST')
+		{
+
+			$_Params = @{}
+
+			$PSBoundParameters.GetEnumerator() | % {
+
+				if ($_.key -eq 'body')
+				{
+
+					$_Params.Add($_.Key,$PSBoundParameters.($_.Key).PSObject.Copy())
+
+
+				}
+
+				else
+				{
+
+					$_Params.Add($_.Key,$_.Value)
+
+				}
+
+			}
+
+			$_Params.body.password = '[*****REDACTED******]'
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($_Params | out-string)"
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		}
+        
 
 		#Support getting the Appliance Connection Name from the object being passed within the body param
-		if ($PSBoundParameters['body'] -and $body.ApplianceConnection -and (-not($body -is [Array]) -and (-not($body -is [System.Collections.ArrayList]))))
+		if ($PSBoundParameters['body'] -and $body.ApplianceConnection -and $body -isnot [System.Collections.IEnumerable]) #(-not($body -is [Array]) -and (-not($body -is [System.Collections.ArrayList]))))
 		{
 
 			$Hostname = $body.ApplianceConnection.Name
@@ -5185,7 +5222,20 @@ function Send-HPOVRequest
 					
 					}
 
-		            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Body: $($js)"
+					if ($uri -eq $LoginSessionsUri -and $Method -eq 'POST')
+					{
+
+						'[{0}] Request Body: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), (ConvertTo-Json -InputObject $_Params.body -Depth 99 -Compress) | Write-Verbose 
+						
+					
+					}
+
+					else
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Body: $($js)"
+
+					}
 
                     #Send the messege
 		            $stream = New-Object IO.StreamWriter $req.GetRequestStream()
@@ -5202,7 +5252,21 @@ function Send-HPOVRequest
                 foreach ($h in $req.Headers) 
 				{ 
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Header $($i+1): $($h) = $($req.Headers[$i])"
+					#Remove Auth Token info from Headers
+					if ($h -eq 'auth')
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Header $($i+1): $($h) = [*****REDACTED******]"
+
+					}
+
+					else
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Request Header $($i+1): $($h) = $($req.Headers[$i])"
+
+					}
+
                     $i++ 
 
 				}
@@ -5220,7 +5284,20 @@ function Send-HPOVRequest
                     foreach ($h in $LastWebResponse.Headers) 
 					{ 
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Header $($i+1): $($h) = $($LastWebResponse.Headers[$i])"
+						#Remove Auth Token info from Headers
+						if ($h -eq 'auth')
+						{
+
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Header $($i+1): $($h) = [*****REDACTED******]"
+
+						}
+
+						else
+						{
+
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response Header $($i+1): $($h) = $($LastWebResponse.Headers[$i])"
+
+						}
 						
 						$i++ 
 					
@@ -5246,7 +5323,23 @@ function Send-HPOVRequest
 					else
 					{
 
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: {0}" -f ($resp | fl * -force | out-string) | Write-Verbose 
+						if ($resp.sessionId)
+						{
+
+							$_resp = $resp.PSObject.Copy()
+
+							$_resp.sessionId = '[*****REDACTED******]'
+
+							"[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: {0}" -f ($_resp | fl * -force | out-string) | Write-Verbose 
+
+						}
+
+						else
+						{
+
+							"[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: {0}" -f ($resp | fl * -force | out-string) | Write-Verbose 
+
+						}
 
 					}
                     
@@ -5866,6 +5959,7 @@ function Remove-ApplianceConnection
         {
 
             Write-Verbose 'InputObject is IEnumerable'
+
             $Collection = New-Object System.Collections.ArrayList
 
             foreach ($object in $InputObject) 
@@ -5877,11 +5971,11 @@ function Remove-ApplianceConnection
                 
             }
 
-            $Collection
+            Return $Collection
 
         }
 
-        elseif ($InputObject -is [psobject])
+        elseif ($InputObject -is [PSCustomObject])
         {
 
             Write-Verbose 'InputObject is [PSCustomObject]. Copying...'
@@ -5910,33 +6004,38 @@ function Remove-ApplianceConnection
                     $_ClonedObject.($property.Name) = $_SubCollection
 
                 }
+
+				else
+				{
+
+					if ($property.Name -eq 'ApplianceConnection')
+					{
                 
-                if ($property.Name -eq 'ApplianceConnection')
-                {
-                
-                    Write-Verbose 'Found ApplianceConnection prop, removing'
+						Write-Verbose 'Found ApplianceConnection prop, removing'
 
-                    $_ClonedObject.PSObject.Properties.Remove($property.Name)
+						$_ClonedObject.PSObject.Properties.Remove($property.Name)
 
-                }
+					}
 
-                elseif ($InputObject.($property.Name) -is [PSCustomObject])
-                {
+					elseif ($InputObject.($property.Name) -is [PSCustomObject])
+					{
 
-                    $_ClonedObject.($property.Name) = Remove-ApplianceConnection $InputObject.($property.Name)
+						$_ClonedObject.($property.Name) = Remove-ApplianceConnection $InputObject.($property.Name)
 
-                }
-            
+					}
+
+				}
+
             }
 
-            $_ClonedObject
+            Return $_ClonedObject
 
         }
 
         else
         {
 
-            $InputObject
+            Return $InputObject
         
         }
     
@@ -6404,7 +6503,18 @@ function Connect-HPOVMgmt
     Begin 
 	{
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+		#Clone PSBoundParameters
+        $_Params = @{}
+        
+        $PSBoundParameters.GetEnumerator() | % {
+
+            $_Params.Add($_.Key,$_.Value)
+
+        }
+
+        $_Params['password'] = '[*****REDACTED******]'
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($_Params | out-string)"
 
 		#Check if user provided AuthLoginDomain and see if AuthProvider is set in registry (format 'AuthProvider#{ApplianceName}')
 		if (-not($PSboundParameters['AuthLoginDomain']))
@@ -6697,13 +6807,17 @@ function Connect-HPOVMgmt
     end 
     {
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Response: $($resp | out-string)"
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Response recieved. Processing final connection object."
 
         #If a sessionID is returned, then the user has authenticated
         if ($resp.sessionID) 
         {
+
+			$_RedactedResp = $resp.PSObject.Copy()
+
+			$_RedactedResp.sessionId = '[*****REDACTED******]'
             
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Session token received: $($resp.sessionID)"
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Session received: $($_RedactedResp | Out-String)"
             
 			(${Global:ConnectedSessions} | ? { $_.Name -EQ $Hostname } ).SessionID = $resp.sessionID
     
@@ -7429,24 +7543,6 @@ function Remove-HPOVResource
 
 }
 
-function Set-DefaultDisplay ($resources, [string[]]$defProps) 
-{
-<#
-     .DESCRIPTION 
-     Handy internal utility function to set default display properties
-#>
-    $defDisplayProps = New-Object -TypeName System.Management.Automation.PSPropertySet -ArgumentList DefaultDisplayPropertySet, $defProps
-    $PSStandardMembers = [System.Management.Automation.PSMemberInfo[]]$defDisplayProps 
-
-    ForEach ($resource in $resources) 
-	{
-
-        Add-Member -InputObject $resource -MemberType MemberSet -Name PSStandardMembers -Value $PSStandardMembers -Force
-
-    }
-
-}
-
 function ConvertFrom-HTML 
 {
 
@@ -7516,6 +7612,163 @@ function ConvertFrom-HTML
 
 }
 
+function Start-HPOVLibraryTrace
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+	[CmdletBinding()]
+    Param
+	(
+    
+        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Specify path location where the verbose trace will be saved.")]
+        [String]$Location = (pwd).path
+    
+    )
+
+    Begin 
+    {
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caller: $Caller"
+
+		if ($host.name -match 'ISE')
+		{
+
+			Write-Warning 'Library Verbose Trace is not currently not supported in the Windows PowerShell ISE.  Please run your script and this Cmdlet from a PowerShell console.'
+
+			Return
+
+		}
+
+		if ($Script:VerboseTrace)
+		{
+
+			Write-Warning 'Library Verbose Trace already running.  To start a new Library Trace, please use Stop-HPOVLibraryTrace to save the existing trace.'
+
+			Return
+
+		}
+
+		else
+		{
+
+			$Script:VerboseTrace = $True
+
+		}
+
+	}
+
+	Process
+	{
+
+		Try
+		{
+
+			'[{0}] Setting all HPOV Cmdlets to Verbose defaults.' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			$PSDefaultParameterValues['*-hpov*:Verbose'] = $true
+
+			$_TranscriptFile = $Location + '\' + (get-date -uformat %y%m%d%H%M) + '_HPOV_transcript.trace'
+
+			'[{0}] Generating new trace file: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_TranscriptFile | Write-Verbose
+			
+			Start-Transcript $_TranscriptFile | Out-Null
+
+		}
+
+		catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+	}
+
+	end
+	{
+
+		'[{0}] Transcript logging started.' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+
+}
+
+function Stop-HPOVLibraryTrace
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+	[CmdletBinding()]
+    Param
+	()
+
+    Begin 
+    {
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caller: $Caller"
+
+		if ($host.name -match 'ISE')
+		{
+
+			Write-Warning 'Library Verbose Trace is not currently not supported in the Windows PowerShell ISE.  Please run your script and this Cmdlet from a PowerShell console.'
+
+			Return
+
+		}
+
+		if (-not($Script:VerboseTrace))
+		{
+
+			Write-Warning 'Library Verbose Trace is not running.  To start a new Library Trace, please use Start-HPOVLibraryTrace to begin a new library trace session.'
+
+			Return
+
+		}
+
+		else
+		{
+
+			$Script:VerboseTrace = $False
+
+		}
+
+	}
+
+	Process
+	{
+
+		Try
+		{
+
+			'[{0}] Stopping all HPOV Cmdlets Verbose defaults.' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			$PSDefaultParameterValues['*-hpov*:Verbose'] = $false
+
+			Stop-Transcript
+
+		}
+
+		catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+	}
+
+	end
+	{
+
+
+	}
+
+}
 
 #######################################################
 # Appliance Configuration: 
@@ -42314,7 +42567,8 @@ function New-HPOVServerProfileTemplate
 
             }
 
-		    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile: $($_spt | out-string)"
+		    "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile JSON Object: {0}" -f ($_spt | ConvertTo-Json -depth 99) | Write-Verbose
+
 			Try
 			{
 
@@ -44551,7 +44805,7 @@ function New-HPOVServerProfileLogicalDisk
 		$_LogicalDisk.driveName         = $Name
 		$_LogicalDisk.bootable          = [bool]$Bootable
 		$_LogicalDisk.raidLevel         = $RAID.ToUpper()
-		$_LogicalDisk.numPhysicalDrives = $NumberofDrives
+		$_LogicalDisk.numPhysicalDrives = $NumberofDrives.ToString()
 		$_LogicalDisk.driveTechnology   = $LogicalDiskTypeEnum[$DriveType]
 
 		"[$($MyInvocation.InvocationName.ToString().ToUpper())] Created Logical Disk object: {0}" -f ($DriveType | fl *) | Write-Verbose
@@ -52861,6 +53115,8 @@ Export-ModuleMember -Function Set-HPOVRemoteSyslog
 Export-ModuleMember -Function Enable-HPOVMSDSC
 Export-ModuleMember -Function Disable-HPOVMSDSC
 Export-ModuleMember -Function Remove-ApplianceConnection
+Export-ModuleMember -Function Start-HPOVLibraryTrace
+Export-ModuleMember -Function Stop-HPOVLibraryTrace
 
 #Appliance Configuration:
 Export-ModuleMember -Function Get-HPOVApplianceCertificateStatus
