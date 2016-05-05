@@ -32,6 +32,14 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.414.0
+     -- [#106] Fixed New-HPOVServerProfileTemplate where FC Bootable Connections would cause an Async task
+        failure due to missing property at the Connection.
+     -- Fixed an inadvertant debug statement in New-HPOVServerProfile preventing the Server Profile from being
+        created.
+     -- [#108] Fixed Add-HPOVEnclosure where an invalid LicenseType and Firmware Policy were being set in the Enclosure
+        resource object.
+
     Release 2.0.404.0
      -- [#104] Fixed Remove-ApplianceConnection Cmdlet where it was handling nested IEnumerable objects incorrectly
         causing JSON API errors.

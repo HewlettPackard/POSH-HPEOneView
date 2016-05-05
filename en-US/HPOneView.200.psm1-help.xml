@@ -28082,7 +28082,7 @@ The Server Hardware Type reource the Server Profile will be bound to.  Required 
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">ServerHardwareType</command:parameterValue>
 				<dev:type>
-					<maml:name>Array</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />

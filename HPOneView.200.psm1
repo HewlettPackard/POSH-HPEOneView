@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.404.0"
+[version]$script:ModuleVersion = "2.0.414.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2580,8 +2580,8 @@ $script:WhiteListedURIs = @(
     $applUpdateMonitor,
     $ApplianceXApiVersionUri,
     "/ui-js/pages/",
-    $applEulaStatus,
-    $applEulaSave,
+    $ApplianceEulaStatusUri,
+    $ApplianceEulaSaveUri,
     ($usersUri + "/changePassword"),
     "/startstop/rest/component?fields=status",
 	$ApplianceStartProgressUri,
@@ -3361,12 +3361,12 @@ function NewObject
                     hostname             = $null;
                     username             = $null;
                     password             = $null;
-                    licensingIntent      = 'OneVeiw';
+                    licensingIntent      = 'OneView';
 					force                = $false;
                     enclosureGroupUri    = $null;
                     firmwareBaselineUri  = $null;
                     forceInstallFirmware = $false;
-                    updateFirmwareOn     = "EnclosureOnly";
+                    updateFirmwareOn     = $null;
 					state                = $null
                 
 				}
@@ -5008,7 +5008,6 @@ function Send-HPOVRequest
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
 		}
-        
 
 		#Support getting the Appliance Connection Name from the object being passed within the body param
 		if ($PSBoundParameters['body'] -and $body.ApplianceConnection -and $body -isnot [System.Collections.IEnumerable]) #(-not($body -is [Array]) -and (-not($body -is [System.Collections.ArrayList]))))
@@ -9827,7 +9826,7 @@ function Get-HPOVEulaStatus
 		Try
 		{
 
-			$_eulastatus = Send-HPOVRequest $applEulaStatus -Hostname $_ApplianceConnection.Name
+			$_eulastatus = Send-HPOVRequest $ApplianceEulaStatusUri -Hostname $_ApplianceConnection.Name
 
 		}
 
@@ -10045,7 +10044,7 @@ function Get-HPOVApplianceNetworkConfig
 			Try
 			{
 			
-				$_appliancenetconfig = Send-HPOVRequest $ApplianceConfigUri -Hostname $_connection.Name
+				$_appliancenetconfig = Send-HPOVRequest $ApplianceNetworkConfigUri -Hostname $_connection.Name
 
 			}
 
@@ -15932,6 +15931,7 @@ function New-HPOVEnclosureGroup
 	(
 
         [parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = "Enter a name for the new enclosure group.")]
+		[parameter(Position = 0, Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Enter a name for the new enclosure group.")]
         [ValidateNotNullOrEmpty()]
         [string]$Name = $Null,
          
@@ -15947,11 +15947,22 @@ function New-HPOVEnclosureGroup
         [parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Default')]
         [string]$ConfigurationScript = $null,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName)]
+		[parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
+		[switch]$DiscoverFromEnclosure,
+
+		[parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator admin username.")]
+		[String]$Username,
+
+		[parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide the Onboard Administrator admin password.")]
+		[String]$Password,
+
+		[parameter(Mandatory, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
+		[parameter(Mandatory, ParameterSetName = "importFile")]
+		[parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = $null,
 
-		[parameter(Mandatory = $true, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
+		[parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
 		[string]$ImportFile
 
@@ -16599,7 +16610,17 @@ function Add-HPOVEnclosure
         $_import.username = $username
         $_import.password = $password
 
-        if (-not([bool]$Monitored))
+		If ((-not($Monitored) -and $LicensingIntent -eq 'OneViewStandard') -or ($Monitored))
+		{
+
+			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Building Monitored Enclosure request"
+
+            $_import.licensingIntent = "OneViewStandard"
+            $_import.state           = "Monitored"
+
+        }
+
+        elseif (-not($Monitored))
 		{
 
 			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Building Managed Enclosure request"
@@ -16680,8 +16701,7 @@ function Add-HPOVEnclosure
 
 			}
             			
-
-            $_import.licensingIntent      = $licensingIntent
+            $_import.licensingIntent      = $LicensingIntent
             $_import.enclosureGroupUri    = $_enclosuregroup.uri
             $_import.forceInstallFirmware = [bool]$forceInstallFirmware
             $_import.updateFirmwareOn     = "EnclosureOnly" 
@@ -16689,123 +16709,113 @@ function Add-HPOVEnclosure
             if ($baseline) 
 			{
 					
-					write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline is to be configured"
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline is to be configured"
 					
-					switch ($baseline.Gettype().Name) 
+				switch ($baseline.Gettype().Name) 
+				{
+
+					"String" 
 					{
-
-						"String" 
+							
+						if ($baseline.StartsWith($script:fwDriversUri)) 
 						{
-							
-							if ($baseline.StartsWith($script:fwDriversUri)) 
-							{
 								
-								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline URI Provided '$Basline'"
+							write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline URI Provided '$Basline'"
 								
-								Try
-								{
-
-									$fwBaseLine = Send-HPOVRequest $baseline -Hostname $ApplianceConnection.Name
-
-								}
-								
-								Catch
-								{
-
-									$PSCmdlet.ThrowTerminatingError($_)
-
-								}
-						
-							
-							}
-							
-							elseif ((-not ($baseline.StartsWith($script:fwDriversUri)) -and ($baseline.StartsWith('/rest/')))) 
+							Try
 							{
 
-								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Invalid Firmware Baseline URI Provided '$Basline'"
-								
-								$errorRecord = New-ErrorRecord HPOneView.BaselineResourceException InavlideBaselineUri InvalidArgument 'Baseline' -Message "The Basline URI '$baseline' provided does not begin with '$script:fwDriversUri'.  Please correct the value and try again."
-								$PSCmdlet.ThrowTerminatingError($errorRecord)
-							
-							}
+								$fwBaseLine = Send-HPOVRequest $baseline -Hostname $ApplianceConnection.Name
 
-							else 
+							}
+								
+							Catch
 							{
 
-								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline Name Provided '$Basline'"
-								
-								if ($baseline -match ".iso") 
-								{
+								$PSCmdlet.ThrowTerminatingError($_)
 
-									write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Getting Baseline based on isoFileName."
-									
-									$fwBaseLine = Get-HPOVBaseline -isoFileName $baseline -ApplianceConnection $ApplianceConnection
-								
-								}
-
-								else 
-								{
-
-									write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Getting Baseline based on Baseline Name."
-									
-									$fwBaseLine = Get-HPOVBaseline -SppName $baseline -ApplianceConnection $ApplianceConnection
-								
-								}
 							}
-
-							$_import.firmwareBaselineUri = $fwBaseLine.uri
 						
 						}
-						"PSCustomObject" 
+							
+						elseif ((-not ($baseline.StartsWith($script:fwDriversUri)) -and ($baseline.StartsWith('/rest/')))) 
 						{
 
-							if ($baseline.category -eq "firmware-drivers" -and $baseline.ApplianceConnection.Name -eq $ApplianceConnection.Name) 
+							write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Invalid Firmware Baseline URI Provided '$Basline'"
+								
+							$errorRecord = New-ErrorRecord HPOneView.BaselineResourceException InavlideBaselineUri InvalidArgument 'Baseline' -Message "The Basline URI '$baseline' provided does not begin with '$script:fwDriversUri'.  Please correct the value and try again."
+							$PSCmdlet.ThrowTerminatingError($errorRecord)
+							
+						}
+
+						else 
+						{
+
+							write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline Name Provided '$Basline'"
+								
+							if ($baseline -match ".iso") 
 							{
 
-								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline Object Provided: $($Basline | Out-String)"
+								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Getting Baseline based on isoFileName."
+									
+								$fwBaseLine = Get-HPOVBaseline -isoFileName $baseline -ApplianceConnection $ApplianceConnection
 								
-								$import.firmwareBaselineUri = $Basline.uri	
-
 							}
 
 							else 
 							{
 
-								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Invalid Firmware Baseline Object Provided: $($Basline | Out-String)"
-
-								if ($baseline.category -ne "firmware-drivers" -and $baseline.ApplianceConnection.Name -eq $ApplianceConnection.Name) 
-								{
-
-									$errorRecord = New-ErrorRecord HPOneView.BaselineResourceException InvalideBaselineObject InvalidArgument 'Baseline' -TargetType 'PSObject' -Message "The Basline Category '$($baseline.category)' provided does not match the required value 'firmware-drivers'.  Please correct the value and try again."
-
-								}
+								write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Getting Baseline based on Baseline Name."
+									
+								$fwBaseLine = Get-HPOVBaseline -SppName $baseline -ApplianceConnection $ApplianceConnection
 								
-								elseif ($baseline.category -eq "firmware-drivers" -and $baseline.ApplianceConnection.Name -ne $ApplianceConnection.Name) 
-								{
+							}
 
-									$errorRecord = New-ErrorRecord HPOneView.BaselineResourceException InvalidBaselineOrigin InvalidArgument 'Baseline' -TargetType 'PSObject' -Message "The Basline '$($baseline.name)' provided does not originate from the same ApplianceConnection you have specified.  Please correct the value and try again."
+						}
 
-								}
+						$_import.firmwareBaselineUri = $fwBaseLine.uri
+						
+					}
+					"PSCustomObject" 
+					{
+
+						if ($baseline.category -eq "firmware-drivers" -and $baseline.ApplianceConnection.Name -eq $ApplianceConnection.Name) 
+						{
+
+							write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Firmware Baseline Object Provided: $($Basline | Out-String)"
 								
-								$PSCmdlet.ThrowTerminatingError($errorRecord)
+							$import.firmwareBaselineUri = $Basline.uri	
+
+						}
+
+						else 
+						{
+
+							write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Invalid Firmware Baseline Object Provided: $($Basline | Out-String)"
+
+							if ($baseline.category -ne "firmware-drivers" -and $baseline.ApplianceConnection.Name -eq $ApplianceConnection.Name) 
+							{
+
+								$errorRecord = New-ErrorRecord HPOneView.BaselineResourceException InvalideBaselineObject InvalidArgument 'Baseline' -TargetType 'PSObject' -Message "The Basline Category '$($baseline.category)' provided does not match the required value 'firmware-drivers'.  Please correct the value and try again."
 
 							}
+								
+							elseif ($baseline.category -eq "firmware-drivers" -and $baseline.ApplianceConnection.Name -ne $ApplianceConnection.Name) 
+							{
+
+								$errorRecord = New-ErrorRecord HPOneView.BaselineResourceException InvalidBaselineOrigin InvalidArgument 'Baseline' -TargetType 'PSObject' -Message "The Basline '$($baseline.name)' provided does not originate from the same ApplianceConnection you have specified.  Please correct the value and try again."
+
+							}
+								
+							$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 						}
 
 					}
 
-                }       
+				}
 
-        }
-
-        else 
-		{
-
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Building Monitored Enclosure request"
-
-            $_import.licensingIntent = "OneViewStandard"
-            $_import.state           = "Monitored"
+            }       
 
         }
 
@@ -32019,7 +32029,12 @@ function Set-HPOVNetworkSet
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($Networks.count) network resources"
 
-                [array]::sort($Networks)
+				if ($Networks -is [System.Collections.IEnumerable])
+				{
+
+					[array]::sort($Networks)
+
+				}
 
                 $i = 1
 
@@ -32112,8 +32127,6 @@ function Set-HPOVNetworkSet
 
     	    if ($PSBoundParameters["UntaggedNetwork"])
 			{
-
-
 
 				switch ($UntaggedNetwork.GetType().Name)
 				{
@@ -40760,8 +40773,6 @@ function GetNetworkUris
 
 		        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile: $($serverProfile | out-string)"
 
-				Return $serverProfile
-
 				Try
 				{
 
@@ -41340,7 +41351,7 @@ function New-HPOVServerProfileTemplate
         [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 5)]
         [ValidateNotNullOrEmpty()]
 		[Alias('sht')]
-        [array]$ServerHardwareType = $null,
+        [Object]$ServerHardwareType = $null,
 
         [parameter(Mandatory = $false, ParameterSetName = "Default")]
         [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
@@ -41732,7 +41743,7 @@ function New-HPOVServerProfileTemplate
 		    }
 		    		
 		    #Else the EG object is passed
-		    elseif (($EnclosureGroup -is [Object]) -and ($EnclosureGroup.category -eq "enclosure-groups")) 
+		    elseif (($EnclosureGroup -is [PSObject]) -and ($EnclosureGroup.category -eq "enclosure-groups")) 
 			{ 
                 #Retrieve only EG from this appliance connection
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group object provided"
@@ -41765,12 +41776,12 @@ function New-HPOVServerProfileTemplate
             if ($ServerHardwareType.model -match "DL") 
 			{
 
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type is a DL, setting 'macType', 'wwnType', 'serialNumberType', 'affinity' and 'hideUnusedFlexNics' to Null."
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type is a DL, setting 'macType', 'wwnType', 'serialNumberType', 'affinity' and 'hideUnusedFlexNics' to supported values."
 
-                $_spt.macType            = $Null
-                $_spt.wwnType            = $Null
-                $_spt.serialNumberType   = $Null
-                $_spt.hideUnusedFlexNics = $Null
+                $_spt.macType            = 'Physical'
+                $_spt.wwnType            = 'Physical'
+                $_spt.serialNumberType   = 'Physical'
+                $_spt.hideUnusedFlexNics = $true
                 $_spt.affinity           = $Null
 
             }
@@ -41891,7 +41902,7 @@ function New-HPOVServerProfileTemplate
 			}
 
 			#Exmamine the profile connections parameter and pull only those connections for this appliance connection
-			If ($connections -and (-not($serverHardwareType.model -match "DL")))
+			If ($Connections -and (-not($serverHardwareType.model -match "DL")))
 			{
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
@@ -41913,7 +41924,9 @@ function New-HPOVServerProfileTemplate
 
 				}
 
-				ForEach($c in $connections)
+				$_c = 0
+
+				ForEach($c in $Connections)
 				{
 
 					$Message = $null
@@ -41962,13 +41975,13 @@ function New-HPOVServerProfileTemplate
 
 						}
 
-						'fc-networks'
+						{'fc-networks','fcoe-networks' -contains $_}
 						{
 						
 							if (-not($_AvailableNetworkResources.fcNetworks | ? uri -eq $c.networkUri))
 							{
 
-								$Message = "The FC network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
+								$Message = "The FC/FCoE network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
 
 							}
 						
@@ -41979,25 +41992,20 @@ function New-HPOVServerProfileTemplate
 
 							}
 
-						}
-
-						'fcoe-networks'
-						{
-						
-							if (-not($_AvailableNetworkResources.fcNetworks | ? uri -eq $c.networkUri))
+							if ($c.boot.priority -ne 'NotBootable')
 							{
 
-								$Message = "The FCoE network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
+								$Connections[$_c] | Add-Member -NotePropertyName specifyBootTarget -NotePropertyValue $true
 
 							}
-						
+
 							else
 							{
 
-								"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
+								$Connections[$_c] | Add-Member -NotePropertyName specifyBootTarget -NotePropertyValue $false
 
 							}
-						
+
 						}
 
 					}
