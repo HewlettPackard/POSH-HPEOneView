@@ -32,11 +32,25 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.430.0
+     -- Added Get-HPOVRemoteSyslog and Set-HPOVRemoteSyslog Cmdlets.
+     -- Fixed New-HPOVServerProfileTemplate where FirmwareMode was not being set.
+     -- [#110] Fixed New-HPOVServerProfileTemplate and New-HPOVServerProfile to handle SAN Volume Attachments in 
+        a more consistent manner.
+     -- [#112] Fixed Add-HPOVSanManager where adding HPN or Cisco support SAN Manager elements would fail
+        due to improper API use.
+     -- [#113] Fixed New-HPOVNetwork adding the missing Parameter options for creating FCoE networks.
+     -- [#114] Fixed New-HPOVServerProfileAttachVolume to perform validation based on the Server Hardware Type instead 
+        of Server Hardware, which supports Unassigned Server Profile resources.
+     -- [#115] Enhanced New-HPOVServerProfile, New-HPOVServerProfileTemplate and New-HPOVServerProfileAttachVolume
+        to handle Storage Volume ID if -VolumeID is not provided. (Note: this is not the LUN ID of the volume.)
+
     Release 2.0.414.0
      -- [#106] Fixed New-HPOVServerProfileTemplate where FC Bootable Connections would cause an Async task
         failure due to missing property at the Connection.
      -- Fixed an inadvertant debug statement in New-HPOVServerProfile preventing the Server Profile from being
         created.
+     -- [#107] Fixed New-HPOVServerProfileTemplate where a missing proprety caused an API error with provided Connections.
      -- [#108] Fixed Add-HPOVEnclosure where an invalid LicenseType and Firmware Policy were being set in the Enclosure
         resource object.
 

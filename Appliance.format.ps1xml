@@ -1,6 +1,84 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 	<ViewDefinitions>
+    <!--RemoteSyslog FT-->
+    <View>
+      <Name>RemoteSyslog</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.RemoteSyslog</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Destination</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>remoteSyslogDestination</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>remoteSyslogPort</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enabled</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--RemoteSyslog FL-->
+    <View>
+      <Name>RemoteSyslog</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.RemoteSyslog</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Destination</Label>
+                <PropertyName>remoteSyslogDestination</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Port</Label>
+                <PropertyName>remoteSyslogPort</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enabled</Label>
+                <PropertyName>enabled</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
     <!--IndexResource FT-->
     <View>
       <Name>IndexResource</Name>
