@@ -59,7 +59,7 @@ param
     [ValidateNotNullorEmpty()]
 	[Array]$IPv4DnsServers,
 
-	[Parameter(Position = 6, Mandatory, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+	[Parameter(Position = 6, Mandatory = $False, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
     [ValidateNotNullorEmpty()]
 	[Array]$IPv4NtpServer
 
@@ -167,8 +167,7 @@ if (-not (get-module HPOneview.200))
         domainName      = "domain.local";
         searchDomains   = "domain.local";
         ipV4nameServers = $IPv4DnsServers;
-        ipV6nameServers = @();
-        ntpServers      = $IPv4NtpServer
+        ipV6nameServers = @()
 
     }
 
@@ -205,6 +204,25 @@ if (-not (get-module HPOneview.200))
 	
 	}
 
+	if ($PSBoundParameters['IPv4NtpServer'])
+	{
+
+		Try
+		{
+
+			Set-HPOVApplianceDateTime -NTPServers $IPv4NtpServer -ApplianceConnection $Hostname | Wait-HPOVTaskComplete
+
+		}
+    
+		Catch
+		{
+
+			$PSCMdlet.ThrowTerminatingError($_)
+
+		}
+
+	}
+	
     Write-Host "Completed appliance networking configuration"
 
     $template = "WebServer" # must always use concatenated name format

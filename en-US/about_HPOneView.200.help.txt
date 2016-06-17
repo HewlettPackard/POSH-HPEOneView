@@ -32,6 +32,13 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.435.1
+     -- [#118] Fixed New-HPOVQOSConfig, where QOS Config object was improperly being created.
+     -- Added Set-HPOVApplianceDateTime Cmdlet, as NTPServers is deprecated in Set-HPOVApplianceNetworkConfig.
+     -- Enhanced New-HPOVServerProfileAttachVolume to support attaching multiple volumes to a single Server Profile.
+     -- Added X-API-Version support for 2.00.07 Patch, which updated API version from 200 to 201.
+     -- Updated New-HPOVLogicalInterconnectGroup to add Enchanced LLDP support for 2.00.07 or newer appliances.
+
     Release 2.0.430.0
      -- Added Get-HPOVRemoteSyslog and Set-HPOVRemoteSyslog Cmdlets.
      -- Fixed New-HPOVServerProfileTemplate where FirmwareMode was not being set.

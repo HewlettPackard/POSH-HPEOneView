@@ -20734,7 +20734,7 @@ PS C:\&gt; GC C:\licenses.txt | New-HPOVlicense -ApplianceConnection MyAppliance
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="2">
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="2">
 					<maml:name>Bays</maml:name>
 					<maml:description>
 						<maml:para>A [System.Collections.Hashtable] value of each Interconnect Bay.  Accepted values are:
@@ -20749,7 +20749,7 @@ PS C:\&gt; GC C:\licenses.txt | New-HPOVlicense -ApplianceConnection MyAppliance
 		
 E.g. @{1 = "Flex10";2 = "Flex10";3 = "FlexFabric";4 = "Flexfabric";5 = "";6 = "";7 = "";8 = "";}</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Hashtable</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Hashtable</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
 					<maml:name>EnableIgmpSnooping</maml:name>
@@ -20846,7 +20846,7 @@ Default value: Enabled</maml:para>
 					<maml:description>
 						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Hashtable</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="10">
 					<maml:name>InternalNetworks</maml:name>
@@ -20862,6 +20862,24 @@ Default value: Enabled</maml:para>
 A collection of QOS configurations that are created using the New-HPOVQosConfig helper Cmdlet.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>EnableLLDPTagging</maml:name>
+					<maml:description>
+						<maml:para>When enabled, tagged LLDP frames are transmitted over downlink ports to server hardware. The management IP address of the interconnect in the lowest numbered bay location in the logical interconnect will be advertised as the LLDP management address TLV.
+
+This parameter is only available for 2.00.07 or newer appliances.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>EnableEnhancedLLDPTLV</maml:name>
+					<maml:description>
+						<maml:para>When enabled, the enclosure name and serial number are encapsulated in the Chassis ID TLV LLDPDU transmitted by interconnect uplink ports.
+
+This parameter is only available for 2.00.07 or newer appliances.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ApplianceConnection</maml:name>
@@ -20913,7 +20931,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="2">
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="2">
 				<maml:name>Bays</maml:name>
 				<maml:description>
 					<maml:para>A [System.Collections.Hashtable] value of each Interconnect Bay.  Accepted values are:
@@ -20928,7 +20946,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		
 E.g. @{1 = "Flex10";2 = "Flex10";3 = "FlexFabric";4 = "Flexfabric";5 = "";6 = "";7 = "";8 = "";}</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Hashtable</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Hashtable</command:parameterValue>
 				<dev:type>
 					<maml:name>Hashtable</maml:name>
 					<maml:uri />
@@ -21060,9 +21078,9 @@ Default value: Enabled</maml:para>
 				<maml:description>
 					<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">Hashtable</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name>Hashtable</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -21091,6 +21109,34 @@ A collection of QOS configurations that are created using the New-HPOVQosConfig 
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>EnableLLDPTagging</maml:name>
+				<maml:description>
+					<maml:para>When enabled, tagged LLDP frames are transmitted over downlink ports to server hardware. The management IP address of the interconnect in the lowest numbered bay location in the logical interconnect will be advertised as the LLDP management address TLV.
+
+This parameter is only available for 2.00.07 or newer appliances.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>EnableEnhancedLLDPTLV</maml:name>
+				<maml:description>
+					<maml:para>When enabled, the enclosure name and serial number are encapsulated in the Chassis ID TLV LLDPDU transmitted by interconnect uplink ports.
+
+This parameter is only available for 2.00.07 or newer appliances.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>ApplianceConnection</maml:name>
@@ -21204,6 +21250,23 @@ PS C:\&gt; New-HPOVLogicalInterconnectGroup "FlexFabric Production 1" -bays $Bay
 			</command:example>
 			<command:example>
 				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -enableIgmpSnooping $True -igmpIdleTimeoutInterval 300 -LoopProtect $True -EnableLLDPTagging $true -EnableEnhancedLLDPTLV $true
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a Logical Interconnect Group with VC Flex10/10D in Bays 1 and 2, FlexFabric modules in Bays 3 and 4, Enable IGMP Snooping, IGMP Idle timeout, LoopProtect and enable Enhanced LLDP support.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -22497,12 +22560,12 @@ PS C:\&gt; New-HPOVNetworkSet -name "Production Networks" -Networks $networks -U
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22
-PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -SNMP $SnmpConfig
+				<dev:code>PS C:\&gt; $QosConfig = New-HPOVQosConfig CustomWithFCoE DSCP DOT1P_AND_DSCP $TrafficClassifiers
+PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -enableIgmpSnooping $True -igmpIdleTimeoutInterval 300 -LoopProtect $True -QosConfig $QosConfig
 
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create a new SNMP Configuration object, and use the created object to add to a new Logical Interconnect Group.</dev:para>
+					<dev:para>Create a new QOS Configuration object,and use the created object to add to a new Logical Interconnect Group.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -25515,12 +25578,12 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
 					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
+						<maml:para>A collection of 1 or more Storage Volume resource objects.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
@@ -25539,7 +25602,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -25566,7 +25629,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
 						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
@@ -25662,7 +25725,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -25682,12 +25745,12 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
 					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
+						<maml:para>A collection of 1 or more Storage Volume resource objects.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
@@ -25750,7 +25813,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -25770,7 +25833,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
 						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
@@ -25829,7 +25892,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -25849,7 +25912,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>StoragePool</maml:name>
 					<maml:description>
 						<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
@@ -25901,7 +25964,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -25914,12 +25977,12 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 					<maml:name>Volume</maml:name>
 					<maml:description>
-						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
+						<maml:para>A collection of 1 or more Storage Volume resource objects.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>LunIdType</maml:name>
@@ -25945,7 +26008,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
@@ -25975,14 +26038,14 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				</dev:type>
 				<dev:defaultValue>1</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
 				<maml:name>Volume</maml:name>
 				<maml:description>
-					<maml:para>The Volume Name, URI or Object to attach.</maml:para>
+					<maml:para>A collection of 1 or more Storage Volume resource objects.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				<dev:type>
-					<maml:name>Object</maml:name>
+					<maml:name>Array</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -25999,7 +26062,7 @@ The numeric identifier for this volume.  Does not pertain to exported LUN ID val
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="true (ByValue)" position="named">
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
 				<maml:name>StoragePool</maml:name>
 				<maml:description>
 					<maml:para>The Storage Resource Pool object to provision the Ephemeral Volume from.</maml:para>
@@ -26135,12 +26198,12 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name>Array</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
-				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+				<dev:defaultValue />
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -38747,6 +38810,251 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
+		<!--SET-HPOVAPPLIANCEDATETIME-->
+		<command:details>
+			<command:name>Set-HPOVApplianceDateTime</command:name>
+			<maml:description>
+				<maml:para>Update Appliance Date/Time Configuration.</maml:para>
+			</maml:description>
+			<command:verb>Set</command:verb>
+			<command:noun>HPOVApplianceDateTime</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Update the appliance Date and Time configuration, including Locale, NTP Servers, and NTP Polling.
+
+Using the -SyncWithHost parameter will set the NTPServers property to null.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVApplianceDateTime</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>SyncWithHost</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>Locale</maml:name>
+					<maml:description>
+						<maml:para>Provide the appliance Localization.  Allowed values are:
+
+* en_US
+* zh_CN
+* ja_JP
+
+Default is 'en_US'.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Set-HPOVApplianceDateTime</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+					<maml:name>NTPServers</maml:name>
+					<maml:description>
+						<maml:para>If not syncing with Hypervisor host, specify the NTP Servers the appliance will poll for time.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+					<maml:name>PollingInterval</maml:name>
+					<maml:description>
+						<maml:para>Specify the NTP Client Polling Interval, in Seconds.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+					<maml:name>Locale</maml:name>
+					<maml:description>
+						<maml:para>Provide the appliance Localization.  Allowed values are:
+
+* en_US
+* zh_CN
+* ja_JP
+
+Default is 'en_US'.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>SyncWithHost</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" variableLength="False" globbing="false" pipelineInput="false" position="1">
+				<maml:name>NTPServers</maml:name>
+				<maml:description>
+					<maml:para>If not syncing with Hypervisor host, specify the NTP Servers the appliance will poll for time.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="2">
+				<maml:name>PollingInterval</maml:name>
+				<maml:description>
+					<maml:para>Specify the NTP Client Polling Interval, in Seconds.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>0</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="3">
+				<maml:name>Locale</maml:name>
+				<maml:description>
+					<maml:para>Provide the appliance Localization.  Allowed values are:
+
+* en_US
+* zh_CN
+* ja_JP
+
+Default is 'en_US'.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectSessions}</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+					<maml:description>
+						<maml:para />
+					</maml:description>
+				</dev:type>
+				<maml:description>
+					<maml:para>Date/Time object.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Set-HPOVApplianceDateTime -NTPServers 10.52.100.1,10.52.99.1
+Time                     Time Zone NTP Servers              NTP Polling
+----                     --------- -----------              -----------
+2015-10-03T23:05:39.844Z UTC       {10.52.100.1,10.52.99.1} 
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Specify the NTP Servers the appliance will use.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Set-HPOVApplianceDateTime -SyncWithHost
+Time                     Time Zone NTP Servers NTP Polling
+----                     --------- ----------- -----------
+2015-10-03T23:05:39.844Z UTC       {}
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>This example passes in updated values to set for the appliance networking configuration.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVApplianceNetworkConfig</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10" xmlns:MSHelp="http://msdn.microsoft.com/mshelp">
 		<!--SET-HPOVAPPLIANCEGLOBALSETTING-->
 		<command:details>
 			<command:name>Set-HPOVApplianceGlobalSetting</command:name>
@@ -39535,6 +39843,10 @@ Specify the HPOneView.Appliance.Connection object or Name property value.</maml:
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Get-HPOVApplianceDateTime</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVApplianceDateTime</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 		</maml:relatedLinks>

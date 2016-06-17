@@ -758,6 +758,10 @@
           <ListEntry>
             <ListItems>
               <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
                 <Label>Name</Label>
                 <PropertyName>name</PropertyName>
               </ListItem>
@@ -783,6 +787,64 @@
               <ListItem>
                 <Label>Port Monitoring</Label>
                 <PropertyName>portMonitor</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Fast MAC cache failover</Label>
+                <ScriptBlock>$_.ethernetSettings.enableFastMacCacheFailover</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>MAC refresh interval</Label>
+                <ScriptBlock>$_.ethernetSettings.macRefreshInterval</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>IGMP Snooping</Label>
+                <ScriptBlock>$_.ethernetSettings.enableIgmpSnooping</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>IGMP Idle Timeout Interval</Label>
+                <ScriptBlock>$_.ethernetSettings.igmpIdleTimeoutInterval</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Loop protection</Label>
+                <ScriptBlock>$_.ethernetSettings.enableNetworkLoopProtection</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Pause flood protection</Label>
+                <ScriptBlock>$_.ethernetSettings.enablePauseFloodProtection</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>LLDP tagging</Label>
+                <ScriptBlock>
+                  if($_.ethernetSettings.enableTaggedLldp -eq $false)
+                  {
+                  $_.ethernetSettings.enableTaggedLldp
+                  }
+                  elseif (-not($_.ethernetSettings.enableTaggedLldp))
+                  {
+                  'N/A'
+                  }
+                  else
+                  {
+                  $_.ethernetSettings.enableTaggedLldp
+                  }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>LLDP enhanced TLV</Label>
+                <ScriptBlock>
+                  if($_.ethernetSettings.enableRichTLV -eq $false)
+                  {
+                  $_.ethernetSettings.enableRichTLV
+                  }
+                  elseif (-not($_.ethernetSettings.enableRichTLV))
+                  {
+                  'N/A'
+                  }
+                  else
+                  {
+                  $_.ethernetSettings.enableRichTLV
+                  }
+                </ScriptBlock>
               </ListItem>
             </ListItems>
           </ListEntry>
