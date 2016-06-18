@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.435.1"
+[version]$script:ModuleVersion = "2.0.436.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -5149,23 +5149,36 @@ function Send-HPOVRequest
             if ($ApplianceHost -is [String] -and (${Global:ConnectedSessions} | ? Name -eq $ApplianceHost )) 
             {
 
-                $ApplianceHost = ${Global:ConnectedSessions} | ? { $_.Name -eq $ApplianceHost }
+				"[{0}] Filtering for Connection Object via String: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ApplianceHost | Write-Verbose
+
+                $ApplianceHost = ${Global:ConnectedSessions} | ? Name -eq $ApplianceHost
 
             }
 
             elseif ($ApplianceHost -is [String])
             {
 
+				"[{0}] Basic ApplianceHost for unauth requests: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ApplianceHost | Write-Verbose
+
                 [PSCustomObject]$ApplianceHost = @{Name = $ApplianceHost}
 
             }
+
+			elseif ($ApplianceHost -isnot [HPOneView.Appliance.Connection] -and $ApplianceHost.Name)
+			{
+
+				"[{0}] Filtering for Connection Object via PSObject: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($ApplianceHost | Out-String) | Write-Verbose
+
+				$ApplianceHost = ${Global:ConnectedSessions} | ? Name -eq $ApplianceHost.Name
+
+			}
 
             "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '{0}' appliance connection request. {1} of {2}" -f $ApplianceHost.Name,$c,$Hostname.count | Write-Verbose 
 
             #Need to check for authenticated session when the URI passed is not value of $script:loginSessionsUri
             "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested URI '{0}' to '{1}'" -f $uri, ($ApplianceHost.Name -join ',') | Write-Verbose 
 
-            if ($script:WhiteListedURIs -contains $uri) 
+            if ($WhiteListedURIs -contains $uri) 
             {
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] We have reached the URI Whitelist condition block. Unauth request allowed for '$uri'."
@@ -37262,37 +37275,50 @@ function Remove-HPOVLogicalInterconnectGroup
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try {
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] {
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch {
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['Resource'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['Resource'])) { $PipelineInput = $True }
+		Else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			$c = 0
+
+			ForEach ($_Connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+	
+					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+		
+		}	
 
 		$_taskcollection = New-Object System.Collections.ArrayList
 		$_ligcollection = New-Object System.Collections.ArrayList
@@ -37327,7 +37353,7 @@ function Remove-HPOVLogicalInterconnectGroup
 			else
 			{
 
-				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument "Network:$($Resource.Name)" -TargetType PSObject -Message "The LIG resource is not an expected category type [$($Resource.category)].  Allowed resource category type is 'logical-interconnect-groups'.  Please check the object provided and try again."
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument "LIG:$($Resource.Name)" -TargetType PSObject -Message "The LIG resource is not an expected category type [$($Resource.category)].  Allowed resource category type is 'logical-interconnect-groups'.  Please check the object provided and try again."
                 $PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -37447,7 +37473,7 @@ function Remove-HPOVLogicalInterconnectGroup
 
 					}
 
-					$_resp = Send-HPOVRequest $Resource.Uri DELETE -Hostname $Resource.ApplianceConnection.Name
+					$_resp = Send-HPOVRequest $_lig.Uri DELETE -Hostname $Resource.ApplianceConnection.Name
 
 					[void]$_taskcollection.Add($_resp)
 

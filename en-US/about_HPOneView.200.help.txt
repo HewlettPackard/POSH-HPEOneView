@@ -32,6 +32,10 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.436.0
+     -- [#119] Fixed issue with Send-HPOVRequest were Connection lookup would not look for the connection properly
+        causing an HPOneView.Appliance.AuthSessionException exception.
+
     Release 2.0.435.1
      -- [#118] Fixed New-HPOVQOSConfig, where QOS Config object was improperly being created.
      -- Added Set-HPOVApplianceDateTime Cmdlet, as NTPServers is deprecated in Set-HPOVApplianceNetworkConfig.

@@ -342,8 +342,8 @@ if (-not (get-module HPOneview.200))
     New-HPOVUser Sarah -fullName "Sarah Server Admin" -password hpinvent -roles "Server administrator"
     New-HPOVUser Sandy -fullName "Sandy SAN Admin"    -password hpinvent -roles "Storage administrator"
     New-HPOVUser Rheid -fullName "Rheid Read-Only"	  -password hpinvent -roles "Read only"
-    New-HPOVUser Bob   -fullName "Bob Backup"	      -password hpinvent -roles "Backup Administrator"
-    New-HPOVUser admin -fullName "admin"              -password hpinvent -roles "Infrastructure Administrator"
+    New-HPOVUser Bob   -fullName "Bob Backup"	      -password hpinvent -roles "Backup administrator"
+    New-HPOVUser admin -fullName "admin"              -password hpinvent -roles "Infrastructure administrator"
 
 #endregion 
 
