@@ -269,6 +269,10 @@
             <Label>AuthLoginDomain</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Default Connection</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -284,6 +288,9 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>AuthLoginDomain</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Default</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -316,11 +323,15 @@
                 <Label>AuthLoginDomain</Label>
                 <PropertyName>AuthLoginDomain</PropertyName>
               </ListItem>
+              <ListItem>
+                <Label>Default Connection</Label>
+                <PropertyName>Default</PropertyName>
+              </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View> 
+    </View>
     <!--APPLIANCE_SMTPALERTS-->
 		<View>
 			<Name>SmtpConfigurationObject</Name>
@@ -618,6 +629,10 @@
 			<TableControl>
         <AutoSize/>
 				<TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
 					<TableColumnHeader>
 						<Label>Name</Label>
 						<Alignment>Left</Alignment>
@@ -646,6 +661,9 @@
 				<TableRowEntries>
 					<TableRowEntry>
 						<TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
 							<TableColumnItem>
 								<PropertyName>userName</PropertyName>
 							</TableColumnItem>
@@ -1744,9 +1762,18 @@
         <TypeName>HPOneView.Appliance.ApplianceServerDateTime</TypeName>
       </ViewSelectedBy>
       <TableControl>
+        <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Time</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Locale</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1767,7 +1794,13 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>dateTime</PropertyName>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0}' -f (Get-Date $_.dateTime)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>locale</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>timezone</PropertyName>
@@ -1794,12 +1827,28 @@
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>ApplianceNetworks</Label>
-                <PropertyName>applianceNetworks</PropertyName>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>ServerCertificate</Label>
-                <PropertyName>serverCertificate</PropertyName>
+                <Label>Time</Label>
+                <ScriptBlock>'{0}' -f (Get-Date $_.dateTime)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Locale</Label>
+                <PropertyName>locale</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Timezone</Label>
+                <PropertyName>timezone</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>NTP Servers</Label>
+                <PropertyName>ntpServers</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Polling Interval</Label>
+                <PropertyName>pollingInterval</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>

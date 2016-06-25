@@ -34,6 +34,9 @@ GLBOAL CONNECTION TRACKING OBJECT
        authenticate user.
     -- SSLChecked - library specific property to handle SSL certificate
        verification.
+    -- Default - used to define which connection is the 'default' for Cmdlet
+       processing. Use the Set-HPOVApplianceDefaultConnection Cmdlet to modify 
+       this value.
     
     After successfully authenticating to an appliance, the
     HPOneView.Appliance.Connection object is added to the global session
@@ -61,10 +64,10 @@ HOW TO USE CONNECTION IN CMDLETS
 	PS C:\> $Connection2 = Connect-HPOVMgmt hpov2.domain.com administrator MyPassw0rd
 	PS C:\> $ConnectedSessions
 	
-	ConnectionID Name             UserName      AuthLoginDomain
-	------------ ----             --------      ---------------
-	1            hpov1.domain.com Administrator LOCAL
-	2            hpov2.domain.com Administrator LOCAL
+	ConnectionID Name             UserName      AuthLoginDomain Default
+	------------ ----             --------      --------------- -------
+	1            hpov1.domain.com Administrator LOCAL           True
+	2            hpov2.domain.com Administrator LOCAL           False
 	
 	PS C:\> Get-HPOVNetwork -ApplianceConnection $Connection1
     ...
@@ -76,29 +79,57 @@ HOW TO USE CONNECTION IN CMDLETS
 	PS C:\> $Connection2 = Connect-HPOVMgmt hpov2.domain.com administrator MyPassw0rd
 	PS C:\> $ConnectedSessions
 	
-	ConnectionID Name             UserName      AuthLoginDomain
-	------------ ----             --------      ---------------
-	1            hpov1.domain.com Administrator LOCAL
-	2            hpov2.domain.com Administrator LOCAL
+	ConnectionID Name             UserName      AuthLoginDomain Default
+	------------ ----             --------      --------------- -------
+	1            hpov1.domain.com Administrator LOCAL           True
+	2            hpov2.domain.com Administrator LOCAL           False
 	
 	PS C:\> Get-HPOVNetwork -ApplianceConnection hpov1.domain.com
 	...
 
+SETTING DEFAULT APPLIANCE CONNECTION
+
+    When authenticating to your first appliance, the 'Default' property is automatically
+    set to True.  Additional Appliance Connections are candidates to set as your new
+    default appliance connection.  To do this, use the Set-HPOVApplianceDefaultConnection
+    Cmdlet.	You will specify either an HPOneView.Appliance.Connection object (either from
+    ${Global:ConnectedSessions} or the saved object returned from Connect-HPOVMgmt) or
+    connection Name.
+    
+    This example shows how to modify your default appliance connection after successfully
+    authenticating to them:
+	
+	PS C:\> $Connection1 = Connect-HPOVMgmt hpov1.domain.com administrator MyPassw0rd
+	PS C:\> $Connection2 = Connect-HPOVMgmt hpov2.domain.com administrator MyPassw0rd
+	PS C:\> $ConnectedSessions
+	
+	ConnectionID Name             UserName      AuthLoginDomain Default
+	------------ ----             --------      --------------- -------
+	1            hpov1.domain.com Administrator LOCAL           True
+	2            hpov2.domain.com Administrator LOCAL           False
+	
+	PS C:\> $Connection2 | Set-HPOVApplianceDefaultConnection
+
+	ConnectionID Name             UserName      AuthLoginDomain Default
+	------------ ----             --------      --------------- -------
+	1            hpov1.domain.com Administrator LOCAL           False
+	2            hpov2.domain.com Administrator LOCAL           True
+
 CUSTOM NOTEPROPERTY VALUE IN OBJECTS
 
     When using the various CMDLETs, the returned resource object(s) will contain a custom 
-	NoteProperty, called ApplianceConnection:
+    NoteProperty, called ApplianceConnection:
 
 	-----------------------
 	| ApplianceConnection |
 	-----------------------
-			|
-			|   ----------------------
-			|---| [int] ConnectionID |
-			|   ----------------------
-			|   -----------------
-			|---| [string] Name |
-			|   -----------------
+		|
+		|   ----------------------
+		|---| [int] ConnectionID |
+		|   ----------------------
+		|   -----------------
+		|---| [string] Name |
+		|   -----------------
 
     The 'ConnectionID' and 'Name' sub-properties reference the Appliance Connection
     contained within ${Global:ConnectedSessions}.  These are used to identify resources

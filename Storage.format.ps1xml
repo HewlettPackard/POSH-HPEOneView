@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <ViewDefinitions>
+    <!--Storage.San.Endpoint FT-->
+    <View>
+      <Name>Endpoint</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.San.Endpoint</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Port Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Online</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SAN Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Zone Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>wwn</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>isOnline</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>sanName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>zoneName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--Profile.SanVolume FT-->
     <View>
       <Name>sanvolumes</Name>

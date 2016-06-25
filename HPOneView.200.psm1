@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.436.0"
+[version]$script:ModuleVersion = "2.0.474.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -959,8 +959,10 @@ namespace HPOneView
             private string _sessionId = null;
             private string _userName = null;
             private string _authLoginDomain = null;
-			private int _maxApiVersion = 0;
             private bool _sslChecked = false;
+			private string _applianceType = null;
+			private int _maxApiVersion = 0;
+			private bool _default = false;
 
             public int ConnectionId
             {
@@ -1000,17 +1002,35 @@ namespace HPOneView
                 set { _authLoginDomain = value; }
             }
 
-			public int MaxApiVersion
-            {
-                get { return _maxApiVersion; }
-                set { _maxApiVersion = value; }
-            }
+			public string ApplianceType
+			{
+
+				get { return _applianceType; }
+				set { _applianceType = value; }
+
+			}
 
             public bool SslChecked
             {
 
                 get { return _sslChecked; }
                 set { _sslChecked = value; }
+
+            }
+
+			public int MaxAPIVersion
+			{
+
+				get { return _maxApiVersion; }
+                set { _maxApiVersion = value; }
+
+			}
+
+			public bool Default
+            {
+
+                get { return _default; }
+                set { _default = value; }
 
             }
 
@@ -1279,6 +1299,35 @@ namespace HPOneView
                     strExtraInfo = value;
                 }
             }
+        }
+
+		public class PasswordMismatchException : Exception
+        {
+
+            public PasswordMismatchException() : base() { }
+            public PasswordMismatchException(string message) : base(message) { }
+            public PasswordMismatchException(string message, Exception e) : base(message, e) { }
+
+            private string strExtraInfo;
+            public string ExtraErrorInfo
+            {
+
+                get
+                {
+
+                    return strExtraInfo;
+
+                }
+
+                set
+                {
+
+                    strExtraInfo = value;
+
+                }
+
+            }
+
         }
 
         public class PasswordChangeRequired : Exception
@@ -4674,14 +4723,14 @@ function New-ErrorRecord
     [CmdletBinding()]
     param(
 
-        [Parameter(Mandatory = $true, Position = 0)]
+        [Parameter(Mandatory, Position = 0)]
         [System.String]$Exception,
 
-        [Parameter(Mandatory = $true, Position = 1)]
+        [Parameter(Mandatory, Position = 1)]
         [Alias('ID')]
         [System.String]$ErrorId,
 
-        [Parameter(Mandatory = $true, Position = 2)]
+        [Parameter(Mandatory, Position = 2)]
         [Alias('Category')]
         [ValidateSet('AuthenticationError','ConnectionError','NotSpecified', 'OpenError', 'CloseError', 'DeviceError',
             'DeadlockDetected', 'InvalidArgument', 'InvalidData', 'InvalidOperation',
@@ -4692,7 +4741,7 @@ function New-ErrorRecord
                                 'FromStdErr', 'SecurityError')]
         [System.Management.Automation.ErrorCategory]$ErrorCategory,
 
-        [Parameter(Mandatory = $true, Position = 3)]
+        [Parameter(Mandatory, Position = 3)]
         [System.Object]$TargetObject,
 
         [Parameter()]
@@ -4839,15 +4888,15 @@ function RestClient
     Param 
 	(
 
-        [parameter(Mandatory = $False, Position = 0)]
+        [Parameter(Mandatory = $False, Position = 0)]
         [ValidateScript({if ("GET","POST","DELETE","PATCH","PUT" -match $_) {$true} else { Throw "'$_' is not a valid Method.  Only GET, POST, DELETE, PATCH, or PUT are allowed." }})]
         [string]$method = "GET",
 
-        [parameter(Mandatory, Position = 1, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
+        [Parameter(Mandatory, Position = 1, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
         [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
         [string]$uri,
 
-        [parameter(Mandatory, Position = 2)]
+        [Parameter(Mandatory, Position = 2)]
         [ValidateNotNullorEmpty()]
         [string]$Appliance = $Null
 
@@ -5036,26 +5085,26 @@ function Send-HPOVRequest
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
         [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
         [string]$uri,
 
-        [parameter(Position = 1, Mandatory = $false)]
+        [Parameter(Position = 1, Mandatory = $false)]
         [string]$method = "GET",
         
-        [parameter(Position = 2, Mandatory = $false)]
+        [Parameter(Position = 2, Mandatory = $false)]
         [object]$body = $null,
 
-        [parameter(Position = 3, Mandatory = $false)]
+        [Parameter(Position = 3, Mandatory = $false)]
         [int]$start = 0,
 
-        [parameter(Position = 4, Mandatory = $false)]
+        [Parameter(Position = 4, Mandatory = $false)]
         [int]$count = 0,
 
-        [parameter(Position = 5, Mandatory = $false)]
+        [Parameter(Position = 5, Mandatory = $false)]
         [hashtable]$addHeader,
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
 		[Alias('Appliance','ApplianceConnection')]
         [Object]$Hostname = ${Global:ConnectedSessions}
 
@@ -6155,7 +6204,7 @@ function ConvertTo-Object
     Param 
 	(
 
-         [parameter(Position = 0, Mandatory)]
+         [Parameter(Position = 0, Mandatory)]
          [ValidateNotNullOrEmpty()]
          [System.Collections.ArrayList]$Objects
 
@@ -6245,21 +6294,21 @@ function Ping-HPOVAddress
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Device FQDN or IP Address to PING from the HP OneView Appliance.")]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Device FQDN or IP Address to PING from the HP OneView Appliance.")]
 		[ValidateNotNullOrEmpty()]
 		[string]$Address,
 
-		[parameter(Position = 1, Mandatory = $False, HelpMessage = "Number of packets to send.")]
+		[Parameter(Position = 1, Mandatory = $False, HelpMessage = "Number of packets to send.")]
 		[ValidateNotNullOrEmpty()]
 		[int]$Packets = 5,
 
-		[parameter(Mandatory = $False, HelpMessage = "Run as Async")]
+		[Parameter(Mandatory = $False, HelpMessage = "Run as Async")]
 		[switch]$Async,
 
-		[parameter(Position = 2, Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -6280,51 +6329,76 @@ function Ping-HPOVAddress
 		
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if  (($ApplianceConnection | Measure-Object).Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message 'This CMDLET requires athentication.  Please log into a valid appliance using Connect-HPOVMgmt, and then try the call again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
 		else
 		{
 
-			$c = 0
-		
-			ForEach ($_Connection in $ApplianceConnection) 
+			Try 
 			{
-		
-				Try 
-				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-		
-				}
-		
-				Catch [HPOneview.Appliance.AuthSessionException] 
-				{
-		
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
-		
-				}
-		
-				Catch 
-				{
-		
-					$PSCmdlet.ThrowTerminatingError($_)
-		
-				}
-		
-				$c++
-		
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
 			}
 
-		}
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}	
 
 		$_TaskCollection = New-Object System.Collections.ArrayList
 
@@ -6396,7 +6470,7 @@ function Wait-HPOVApplianceStart
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
 		[Alias('Appliance')] 
 		[ValidateNotNullOrEmpty()]
 		[string]$Hostname = $null
@@ -6580,27 +6654,27 @@ function Connect-HPOVMgmt
     Param
 	(
 
-		[parameter(Mandatory, HelpMessage = "Enter the appliance DNS name or IP", Position = 0)]
+		[Parameter(Mandatory, HelpMessage = "Enter the appliance DNS name or IP", Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[alias('Appliance')]
 		[string]$Hostname,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the authentication domain", Position = 3)]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the authentication domain", Position = 3)]
 		[ValidateNotNullOrEmpty()]
 		[alias('authProvider')]
 		[string]$AuthLoginDomain = 'LOCAL',
 
-		[parameter(Mandatory, HelpMessage = "Enter the user name", Position = 1)]
+		[Parameter(Mandatory, HelpMessage = "Enter the user name", Position = 1)]
 		[ValidateNotNullOrEmpty()]
 		[alias("u",'user')]
 		[string]$UserName,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the password:", Position = 2)]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the password:", Position = 2)]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
 		[String]$password,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[switch]$LoginAcknowledge 
 
     )
@@ -6706,6 +6780,7 @@ function Connect-HPOVMgmt
             $ApplianceConnection.Name            = $Hostname
             $ApplianceConnection.UserName        = $UserName
             $ApplianceConnection.AuthLoginDomain = $AuthLoginDomain
+			$ApplianceConnection.Default         = if ($ApplianceConnection.ConnectionId -eq 1 -and (-not(${Global:ConnectedSessions} | ? Default))) { $True }
 
             [void] ${Global:ConnectedSessions}.Add($ApplianceConnection)
 
@@ -7026,7 +7101,7 @@ function Disconnect-HPOVMgmt
     Param
 	(
     
-        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
 		[Alias('Appliance','ApplianceSession')]
         [Object]$Hostname = ${Global:ConnectedSessions}
     
@@ -7140,6 +7215,132 @@ function Disconnect-HPOVMgmt
 
 }
 
+function Set-HPOVApplianceDefaultConnection
+{
+
+	# .ExternalHelp HPOneView.300.psm1-help.xml
+
+	[CmdletBinding()]
+    Param
+	(
+
+		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Provide the HPOneView.Appliance.Connection object or the HPOneView.Appliance.Connection.Name value of the connection object you wish to set as the default.", Position = 0)]
+		[ValidateNotNullOrEmpty()]
+		[alias('Appliance')]
+		[Object]$Connection
+
+	)
+
+	begin
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		#Check to see if there is only a single connection in the global tracker
+		If (${Global:ConnectedSessions}.Count -eq 1)
+		{
+
+			Write-Warning 'There is only a single Appliance Connection.  This Cmdlet only supports multiple Appliance Connections.'
+
+			if (-not($Global:ConnectedSessions[0].Default))
+			{
+
+				'Appliance Connection "{0}" was not found to be the default connection.  Setting as default.' -f ${Global:ConnectedSessions}[0].Name | Write-Warning 
+
+				$Global:ConnectedSessions[0].Default = $True
+
+			}
+			
+			Break
+
+		}
+
+		if ($Connection -is [System.String])
+		{
+
+			"[{0}] Connection Name provided.  Looking in Global connection tracker variable." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			Try
+			{
+
+				$Connection = ${Global:ConnectedSessions} | ? Name -eq $Connection
+
+			}
+
+			Catch [System.Management.Automation.ValidationMetadataException]
+			{
+
+				"[{0}] Connection was not found.  Looking for matching name in Global connection tracker variable." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				Try
+				{
+
+					$Connection = ${Global:ConnectedSessions} | ? Name -Match $Connection
+
+				}
+				
+				Catch
+				{
+
+					$_Message = "Unable to find an appliance connection with the provided Connection Name, {0}.  Please provide the Connection Object or validate the Name and try again." -f $Connection
+					$errorRecord = New-ErrorRecord InvalidOperationException ApplianceConnectionNotFound ObjectNotFound 'Connection' -Message $_Message
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+			
+		}
+
+		if ($Connection -isnot [HPOneView.Appliance.Connection])
+		{
+
+			$_Message = "An invalid connection argument value type was provided, {0}.  Please provide either a [String] or [HPOneView.Appliance.Connection] object." -f $Connection
+			$errorRecord = New-ErrorRecord InvalidOperationException InvalidConnectionParameterValue InvalidArgument 'Connection' -TargetType $Connection.GetType().Name -Message $_Message
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+	}
+
+	Process
+	{
+
+		#Check for existing Default Connection
+		if (${Global:ConnectedSessions} | ? Default)
+		{
+
+			#Unset it
+			(${Global:ConnectedSessions} | ? Default).Default = $false
+
+		}
+
+		"[{0}] Setting {1} as the new default Appliance Connection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $Connection.Name | Write-Verbose
+
+		(${Global:ConnectedSessions} | ? Name -eq $Connection.Name).Default = $true
+
+	}
+
+	end
+	{
+
+		Return ${Global:ConnectedSessions}
+
+	}
+
+}
+
 function Test-HPOVAuth
 {
 
@@ -7147,7 +7348,7 @@ function Test-HPOVAuth
     Param
 	(
     
-        [parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
         [Object]$Appliance
     
     )
@@ -7295,16 +7496,18 @@ function New-HPOVResource
     Param
     (
 
-		[parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the URI string of the resource type to be created")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the URI string of the resource type to be created")]
 		[ValidateNotNullOrEmpty()]
 		[string] $uri,
 
-		[parameter(Position = 1, Mandatory = $true, HelpMessage = "Enter the resource object definition")]
+		[Parameter(Position = 1, Mandatory, HelpMessage = "Enter the resource object definition")]
 		[ValidateNotNullOrEmpty()]
 		[object] $resource,
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
-        [Object]$ApplianceConnection = $null
+		[Parameter(Mandatory = $False, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [ValidateNotNullorEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -7319,25 +7522,74 @@ function New-HPOVResource
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		Try 
-		{
-		
-			$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-		}
-
-		Catch [HPOneview.Appliance.AuthSessionException] 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		Catch 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
 
@@ -7383,16 +7635,18 @@ function Set-HPOVResource
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the resource object that has been modifed")]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline = $true, HelpMessage = "Enter the resource object that has been modifed")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateScript({$_.Uri})]
 		[object]$resource,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[string]$force = $false,
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
-        [Object]$ApplianceConnection = $null
+		[Parameter(Mandatory = $False, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [ValidateNotNullorEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -7407,26 +7661,74 @@ function Set-HPOVResource
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		Try 
-		{
-		
-			$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-		}
-
-		Catch [HPOneview.Appliance.AuthSessionException] 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-
-		Catch 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
 
@@ -7477,17 +7779,18 @@ function Remove-HPOVResource
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Provide the Object, Name or URI of the resource object to delete/remove.")]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline = $true, HelpMessage = "Provide the Object, Name or URI of the resource object to delete/remove.")]
 		[ValidateNotNullorEmpty()]
 		[Alias("ro",'nameOruri','uri','name')]
 		[object]$Resource,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[switch]$force,
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the hostname or object of the appliance connection")]
+		[Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or object of the appliance connection")]
 		[ValidateNotNullorEmpty()]
-		[Object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -7502,25 +7805,74 @@ function Remove-HPOVResource
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		Try 
-		{
-		
-			$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-		}
-
-		Catch [HPOneview.Appliance.AuthSessionException] 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		Catch 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
 
@@ -7682,7 +8034,7 @@ function ConvertFrom-HTML
     param
 	(
 
-        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $True)]
+        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory)]
         [ValidateNotNullOrEmpty()]
         [System.String] $html,
 
@@ -7753,7 +8105,7 @@ function Start-HPOVLibraryTrace
     Param
 	(
     
-        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Specify path location where the verbose trace will be saved.")]
+        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Specify path location where the verbose trace will be saved.")]
         [String]$Location = (pwd).path
     
     )
@@ -7942,9 +8294,10 @@ Function Get-HPOVApplianceCertificateStatus
 	Param 
 	(
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
     
@@ -7958,23 +8311,65 @@ Function Get-HPOVApplianceCertificateStatus
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -7985,8 +8380,6 @@ Function Get-HPOVApplianceCertificateStatus
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -8043,12 +8436,12 @@ Function New-HPOVApplianceSelfSignedCertificate
 	Param 
 	(
 
-		[parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 0)]
+		[Parameter(Mandatory, ParameterSetName = 'Default', Position = 0)]
         [Alias('C')]
         [ValidateNotNullOrEmpty()]
         [string]$Country,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 1)]
+        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 1)]
         [Alias('ST','Province')]
 		[ValidateNotNullOrEmpty()]	
 		[string]$State,
@@ -8058,57 +8451,57 @@ Function New-HPOVApplianceSelfSignedCertificate
 		[ValidateNotNullOrEmpty()]
 		[string]$City,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 3)]
+        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 3)]
         [Alias('O')]
 		[ValidateNotNullOrEmpty()]
 		[string]$Organization,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 4)]
+        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 4)]
         [Alias('CN')]
 		[ValidateNotNullOrEmpty()]
 		[string]$CommonName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
 		[Alias('OU')]	
 		[ValidateNotNullOrEmpty()]
         [string]$OrganizationalUnit,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
 		[Alias('SAN')]	
 		[ValidateNotNullOrEmpty()]
         [string]$AlternativeName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
 		[Alias('Contact')]	
 		[ValidateNotNullOrEmpty()]
         [string]$ContactName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
 		[ValidateNotNullOrEmpty()]
         [string]$Email,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
 		[Alias('Sur')]	
 		[ValidateNotNullOrEmpty()]
         [string]$Surname,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
 		[Alias('Giv')]	
 		[ValidateNotNullOrEmpty()]
         [string]$GivenName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
 		[ValidateNotNullOrEmpty()]
         [string]$Initials,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
 		[ValidateNotNullOrEmpty()]
         [string]$DNQualifier,
 
-		[parameter(Mandatory)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -8122,20 +8515,48 @@ Function New-HPOVApplianceSelfSignedCertificate
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -8144,7 +8565,7 @@ Function New-HPOVApplianceSelfSignedCertificate
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -8152,7 +8573,7 @@ Function New-HPOVApplianceSelfSignedCertificate
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -8258,12 +8679,12 @@ Function New-HPOVApplianceCsr
 	Param 
 	(
 
-		[parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 0)]
+		[Parameter(Mandatory, ParameterSetName = 'Default', Position = 0)]
         [Alias('C')]
         [ValidateNotNullOrEmpty()]
         [string]$Country,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 1)]
+        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 1)]
         [Alias('ST','Province')]
 		[ValidateNotNullOrEmpty()]	
 		[string]$State,
@@ -8273,65 +8694,65 @@ Function New-HPOVApplianceCsr
 		[ValidateNotNullOrEmpty()]
 		[string]$City,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 3)]
+        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 3)]
         [Alias('O')]
 		[ValidateNotNullOrEmpty()]
 		[string]$Organization,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 4)]
+        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 4)]
         [Alias('CN')]
 		[ValidateNotNullOrEmpty()]
 		[string]$CommonName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
 		[Alias('OU')]	
 		[ValidateNotNullOrEmpty()]
         [string]$OrganizationalUnit,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
 		[Alias('SAN')]	
 		[ValidateNotNullOrEmpty()]
         [string]$AlternativeName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
 		[Alias('Contact')]	
 		[ValidateNotNullOrEmpty()]
         [string]$ContactName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
 		[ValidateNotNullOrEmpty()]
         [string]$Email,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
 		[Alias('Sur')]	
 		[ValidateNotNullOrEmpty()]
         [string]$Surname,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
 		[Alias('Giv')]	
 		[ValidateNotNullOrEmpty()]
         [string]$GivenName,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
 		[ValidateNotNullOrEmpty()]
         [string]$Initials,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
 		[ValidateNotNullOrEmpty()]
         [string]$DNQualifier,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 13)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 13)]
         [string]$ChallengePassword,
 
-        [parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 14)]
+        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 14)]
 		[Alias('UN')]	
 		[ValidateNotNullOrEmpty()]
         [string]$UnstructuredName,
 
-		[parameter(Mandatory)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -8345,20 +8766,48 @@ Function New-HPOVApplianceCsr
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -8367,7 +8816,7 @@ Function New-HPOVApplianceCsr
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -8375,7 +8824,7 @@ Function New-HPOVApplianceCsr
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -8484,15 +8933,15 @@ Function Install-HPOVApplianceCertificate
 	Param 
 	(
 
-		[parameter(Mandatory = $true, ParameterSetName = 'Default', Position = 0, ValueFromPipeline = $true)]
+		[Parameter(Mandatory, ParameterSetName = 'Default', Position = 0, ValueFromPipeline = $true)]
         [Alias('PrivateKey')]
 		[ValidateNotNullOrEmpty()]
         [Object]$Certificate,
 
-		[parameter(Mandatory)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -8506,20 +8955,48 @@ Function Install-HPOVApplianceCertificate
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -8528,7 +9005,7 @@ Function Install-HPOVApplianceCertificate
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -8536,7 +9013,7 @@ Function Install-HPOVApplianceCertificate
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -8606,9 +9083,10 @@ function Get-HPOVPendingUpdate
 	Param 
 	(
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -8623,30 +9101,64 @@ function Get-HPOVPendingUpdate
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -8657,8 +9169,6 @@ function Get-HPOVPendingUpdate
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -8722,14 +9232,14 @@ function Install-HPOVUpdate
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $true, ParameterSetName = 'Update')]
-        [parameter(Position = 0, Mandatory = $true, ParameterSetName = 'Stage')]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = 'Update')]
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Stage')]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
         [string]$File,
         
         [Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'Update')]
-        [parameter(Position = 0, Mandatory = $false, ParameterSetName = 'StageInstall')]
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = 'StageInstall')]
         [string]$Eula,
 
         [Parameter(Mandatory = $false, ParameterSetName = 'Update')]
@@ -8737,21 +9247,22 @@ function Install-HPOVUpdate
         [Parameter(Mandatory = $false, ParameterSetName = 'List')]
         [switch]$DisplayReleaseNotes,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'Stage')]
+        [Parameter(Mandatory, ParameterSetName = 'Stage')]
         [switch]$Stage,
 
-        [parameter(Mandatory = $true, ParameterSetName = 'StageInstall')]
+        [Parameter(Mandatory, ParameterSetName = 'StageInstall')]
         [switch]$InstallNow,
         
-        [parameter(Mandatory = $true, ParameterSetName = 'List')]
+        [Parameter(Mandatory, ParameterSetName = 'List')]
         [Alias('list')]
         [switch]$ListPending,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Update")]
-		[parameter(Mandatory = $false, ParameterSetName = "Stage")]
-		[parameter(Mandatory = $false, ParameterSetName = "List")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Update")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Stage")]
+		[Parameter(Mandatory = $false, ParameterSetName = "List")]
 		[ValidateNotNullorEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -8765,23 +9276,65 @@ function Install-HPOVUpdate
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -8792,8 +9345,6 @@ function Install-HPOVUpdate
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -9132,7 +9683,7 @@ function Invoke-Upgrade
 	Param 
 	(
 
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[ValidateNotNullorEmpty()]
 		[Object]$PendingUpdate
 
@@ -9320,9 +9871,10 @@ function Remove-HPOVPendingUpdate
 	Param 
 	(
 	
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -9335,32 +9887,66 @@ function Remove-HPOVPendingUpdate
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		if  ($ApplianceConnection.Count -eq 0)
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
 		
-		ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -9372,9 +9958,7 @@ function Remove-HPOVPendingUpdate
 
 			}
 
-			$c++
-
-		}
+		}	
 
 		$_ColStatus = New-Object System.Collections.ArrayList
     
@@ -9472,17 +10056,17 @@ function Get-HPOVVersion
 	Param
 	(
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
         [switch]$ApplianceVer,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'CheckOnlineOnly')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'CheckOnlineOnly')]
         [switch]$CheckOnline,
 
-		[parameter(Position = 0, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Position = 0, Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
-		[Alias('appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 	
@@ -9507,22 +10091,66 @@ function Get-HPOVVersion
 		elseif ($PSBoundParameters['ApplianceVer'])
 		{
 
-			$c = 0
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			ForEach ($_Connection in $ApplianceConnection) 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+			
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -9533,10 +10161,8 @@ function Get-HPOVVersion
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
-
-			}
+			
+			}	
 
 		}
 
@@ -9747,9 +10373,10 @@ function Get-HPOVHealthStatus
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $false)]
-		[Alias('appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Parameter(Position = 0, Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -9764,30 +10391,64 @@ function Get-HPOVHealthStatus
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -9799,9 +10460,7 @@ function Get-HPOVHealthStatus
 
 			}
 
-			$c++
-
-		}
+		}	
 
 		$_HealthStatusCollection = New-Object System.Collections.ArrayList
 
@@ -9857,10 +10516,10 @@ function Get-HPOVXApiVersion
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $false)]
+		[Parameter(Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
-		[Alias('appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -9873,35 +10532,78 @@ function Get-HPOVXApiVersion
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		$_Connections = New-Object System.Collections.ArrayList
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		ForEach ($_connection in $ApplianceConnection)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			switch ($_connection.GetType().Name)
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
 			{
 
-				'Connection' 
+				Try 
 				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing HPOneView.Appliance.Connection: $($_Connection.Name)"
-				
-					[void]$_Connections.Add($_connection.Name)
-				
 				}
 
-				'String'
+				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing: $_Connection"
-
-					[void]$_Connections.Add($_connection)
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
 
 			}
 
 		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}	
 
 		$_XAPICollection = New-Object System.Collections.ArrayList
 
@@ -9910,7 +10612,7 @@ function Get-HPOVXApiVersion
     Process 
 	{
 
-		ForEach ($_connection in $_Connections)
+		ForEach ($_connection in $ApplianceConnection)
 		{
 
 			Try
@@ -9927,7 +10629,11 @@ function Get-HPOVXApiVersion
 
 			}
 
-			$_XAPIVersion | % { $_.PSObject.TypeNames.insert(0,'HPOneView.Appliance.XAPIVersion') }
+			$_XAPIVersion | % { 
+				
+				$_.PSObject.TypeNames.insert(0,'HPOneView.Appliance.XAPIVersion') 
+			
+			}
 
 			[void]$_XAPICollection.Add($_XAPIVersion)
         
@@ -9953,7 +10659,7 @@ function Get-HPOVEulaStatus
     Param
     (
 
-		[parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
         [ValidateNotNullOrEmpty()]
 		[string]$Appliance = $null
 
@@ -10049,11 +10755,11 @@ function Set-HPOVEulaStatus
     Param
     (
 
-		[parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
         [ValidateNotNullOrEmpty()]
-		[string]$Appliance = $null,
+		[string]$Appliance,
 
-        [parameter(Position = 1, Mandatory, HelpMessage = "Set to 'yes' to allow HP support access to the appliance, otherwise set to 'no'.")]
+        [Parameter(Position = 1, Mandatory, HelpMessage = "Set to 'yes' to allow HP support access to the appliance, otherwise set to 'no'.")]
         [ValidateNotNullOrEmpty()]
 		[ValidateSet('Yes', 'No')]
         [string]$SupportAccess
@@ -10151,14 +10857,15 @@ function Get-HPOVApplianceNetworkConfig
     Param 
 	(
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [alias("x", "export", 'exportFile')]
         [ValidateScript({split-path $_ | Test-Path})]
         [String]$Location,
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -10173,30 +10880,64 @@ function Get-HPOVApplianceNetworkConfig
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -10207,8 +10948,6 @@ function Get-HPOVApplianceNetworkConfig
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -10297,9 +11036,10 @@ function Get-HPOVApplianceDateTime
     Param 
 	(
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -10313,23 +11053,65 @@ function Get-HPOVApplianceDateTime
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -10341,9 +11123,7 @@ function Get-HPOVApplianceDateTime
 
 			}
 
-			$c++
-
-		}
+		}	
 
 		$_ApplianceDateTimeCol = New-Object System.Collections.ArrayList
         
@@ -10398,29 +11178,29 @@ function Set-HPOVApplianceDateTime
     Param 
 	(
 
-		[parameter(Mandatory, ParameterSetName = 'SyncHost')]
+		[Parameter(Mandatory, ParameterSetName = 'SyncHost')]
 		[Switch]$SyncWithHost,
 
-		[parameter(Position = 0, Mandatory, ParameterSetName = 'NTPServers')]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = 'NTPServers')]
 		[Array]$NTPServers,
 
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = 'NTPServers')]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'NTPServers')]
 		[Int]$PollingInterval,
 
-		[parameter(Position = 2, Mandatory = $False, ParameterSetName = 'SyncHost')]
-		[parameter(Position = 2, Mandatory = $False, ParameterSetName = 'NTPServers')]
+		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = 'SyncHost')]
+		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = 'NTPServers')]
 		[validateSet('en_US','zh_CN','ja_JP')]
 		[String]$Locale,
 
-		[parameter(Position = 3, Mandatory = $False, ParameterSetName = 'SyncHost')]
-		[parameter(Position = 3, Mandatory = $False, ParameterSetName = 'NTPServers')]
+		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = 'SyncHost')]
+		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = 'NTPServers')]
 		[String]$TimeZone = 'UTC',
 		
-		[parameter(Mandatory = $False, ParameterSetName = 'SyncHost')]
-		[parameter(Mandatory = $False, ParameterSetName = 'NTPServers')]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $False, ParameterSetName = 'SyncHost')]
+		[Parameter(Mandatory = $False, ParameterSetName = 'NTPServers')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -10434,47 +11214,77 @@ function Set-HPOVApplianceDateTime
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+		
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+		}
+		
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+		
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+		
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+		
+				}
+		
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+		
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+				}
+		
+				Catch 
+				{
+		
+					$PSCmdlet.ThrowTerminatingError($_)
+		
+				}
+		
+				$c++
+		
+			}
+		
+		}
+		
+		else
+		{
+		
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+		
 			}
-
+		
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+		
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
 			}
-
+		
 			Catch 
 			{
-
+		
 				$PSCmdlet.ThrowTerminatingError($_)
-
+		
 			}
-
-			if ($ApplianceConnection[$c].ApplianceType -eq 'Composer' -and $PSBoundParameters['SyncWithHost'])
-			{
-
-				'The connection Applinace {0} is a Synergy Composer, which does not support the -SyncWithHost parameter option.' -f $ApplianceConnection[$c].Name
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidDateTimeConfiguration InvalidArgument 'SyncWithHost' -TargetType '' -Message $Message
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			$c++
-
-		}
+		
+		}	
 
 		$_ApplianceDateTimeCol = New-Object System.Collections.ArrayList
         
@@ -10608,88 +11418,89 @@ function Set-HPOVApplianceNetworkConfig
 	Param 
 	(
         
-		[parameter(Position = 0, mandatory=$true, ParameterSetName="secondary")]
+		[Parameter(Position = 0, mandatory=$true, ParameterSetName="secondary")]
         [ValidateScript({$_ -ne "eth0"})]
 		[string]$Device,
 
-        [parameter(Position = 1, mandatory=$true, ParameterSetName="secondary")]
+        [Parameter(Position = 1, mandatory=$true, ParameterSetName="secondary")]
         [ValidateSet("Management", "Deployment")]
 		[string]$InterfaceName,
 
-		[parameter(Position = 0,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 2,mandatory=$true, ParameterSetName="secondary")]
+		[Parameter(Position = 0,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 2,mandatory=$true, ParameterSetName="secondary")]
 		[string]$Hostname = $null,
 
-		[parameter(Position = 1,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 3,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 1,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 3,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv4Type = $null,
 
-		[parameter(Position = 2,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 4,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 2,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 4,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv4Addr = $null,
 
-		[parameter(Position = 3,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 5,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 3,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 5,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv4Subnet = $null,
 
-		[parameter(Position = 4,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 6,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 4,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 6,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv4Gateway = $null,
 
-		[parameter(Position = 5,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 7,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 5,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 7,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv6Type = $null,
 
-		[parameter(Position = 6,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 8,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 6,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 8,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv6Addr = $null,
 
-		[parameter(Position = 7,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 9,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 7,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 9,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$ipv6Subnet = $null,
 
-		[parameter(Position = 8,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 10,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 8,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 10,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$Ipv6Gateway = $null,
 
-		[parameter(mandatory=$false, ParameterSetName="primary")]
-        [parameter(mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Mandatory = $false, ParameterSetName="secondary")]
         [alias('overrideDhcpDns')]
 		[switch]$OverrideIpv4DhcpDns,
 
-		[parameter(mandatory=$false, ParameterSetName="primary")]
-        [parameter(mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Mandatory = $false, ParameterSetName="secondary")]
 		[switch]$OverrideIpv6DhcpDns,
 
-		[parameter(Position = 9,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 11,mandatory=$false, ParameterSetName="secondary")]
-		[string]$DomainName = $null,
+		[Parameter(Position = 9,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 11,Mandatory = $false, ParameterSetName="secondary")]
+		[string]$DomainName,
 
-		[parameter(Position = 10,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 12,mandatory=$false, ParameterSetName="secondary")]
-		[Array]$SearchDomains = @(),
+		[Parameter(Position = 10,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 12,Mandatory = $false, ParameterSetName="secondary")]
+		[Array]$SearchDomains,
 
-		[parameter(Position = 11,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 13,mandatory=$false, ParameterSetName="secondary")]
+		[Parameter(Position = 11,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 13,Mandatory = $false, ParameterSetName="secondary")]
         [alias('nameServers')]
-		[Array]$IpV4nameServers = @(),
+		[Array]$IpV4nameServers,
 
-		[parameter(Position = 12,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 14,mandatory=$false, ParameterSetName="secondary")]
-		[Array]$IpV6nameServers = @(),
+		[Parameter(Position = 12,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 14,Mandatory = $false, ParameterSetName="secondary")]
+		[Array]$IpV6nameServers,
 
-		[parameter(Position = 13,mandatory=$false, ParameterSetName="primary")]
-        [parameter(Position = 15,mandatory=$false, ParameterSetName="secondary")]
-        [Array]$NtpServers = @(),
+		[Parameter(Position = 13,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter(Position = 15,Mandatory = $false, ParameterSetName="secondary")]
+        [Array]$NtpServers,
 
-        [parameter(mandatory=$true, ParameterSetName="importFile", HelpMessage="Enter the full path and file name for the input file.")]
+        [Parameter(Mandatory, ParameterSetName="importFile", HelpMessage="Enter the full path and file name for the input file.")]
         [alias("i", "import")]
         [ValidateScript({Test-Path $_})]
         [Object]$importFile,
 
-		[parameter(Mandatory = $true)]
+		[Parameter(Mandatory)]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -10711,47 +11522,75 @@ function Set-HPOVApplianceNetworkConfig
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+		
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
 		}
-
-		elseif  ($ApplianceConnection.Count -gt 1)
+		
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+		
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+		
+				}
+		
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+		
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+				}
+		
+				Catch 
+				{
+		
+					$PSCmdlet.ThrowTerminatingError($_)
+		
+				}
+		
+				$c++
+		
+			}
+		
 		}
-
+		
 		else
 		{
-
+		
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
+		
 			}
-
+		
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+		
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
 			}
-
+		
 			Catch 
 			{
-
+		
 				$PSCmdlet.ThrowTerminatingError($_)
-
+		
 			}
-
+		
 		}
 
 		$colStatus = New-Object System.Collections.ArrayList
@@ -11294,9 +12133,10 @@ function Get-HPOVSnmpReadCommunity
 	Param 
 	(
 	
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -11311,43 +12151,75 @@ function Get-HPOVSnmpReadCommunity
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+		
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
 		}
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
-
+		
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+		
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+		
+				}
+		
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+		
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+		
+				}
+		
+				Catch 
+				{
+		
+					$PSCmdlet.ThrowTerminatingError($_)
+		
+				}
+		
+				$c++
+		
+			}
+		
+		}
+		
+		else
+		{
+		
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+		
 			}
-
+		
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+		
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
+		
 			}
-
+		
 			Catch 
 			{
-
+		
 				$PSCmdlet.ThrowTerminatingError($_)
-
+		
 			}
-
-			$c++
-
+		
 		}
 
 		$_ApplianceSnmpConfigCollection = New-Object System.Collections.ArrayList
@@ -11403,12 +12275,13 @@ function Set-HPOVSnmpReadCommunity
 	Param 
 	(
 
-		[parameter(Position= 0, Mandatory)]
-		[string]$name = $null,
+		[Parameter(Position= 0, Mandatory)]
+		[string]$Name,
 			
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -11423,30 +12296,64 @@ function Set-HPOVSnmpReadCommunity
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -11458,9 +12365,7 @@ function Set-HPOVSnmpReadCommunity
 
 			}
 
-			$c++
-
-		}
+		}	
 
 		$_ApplianceSnmpConfigCollection = New-Object System.Collections.ArrayList
 
@@ -11518,12 +12423,13 @@ function Get-HPOVApplianceGlobalSetting
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $false)]
-		[string]$name = $null,
+		[Parameter(Position = 0, Mandatory = $false)]
+		[string]$Name,
 			
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -11538,30 +12444,64 @@ function Get-HPOVApplianceGlobalSetting
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -11572,8 +12512,6 @@ function Get-HPOVApplianceGlobalSetting
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -11638,18 +12576,19 @@ function Set-HPOVApplianceGlobalSetting
 	Param
 	(
 
-		[parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Pipeline')]
 		[string]$Object,
 
-		[parameter(Position = 0, Mandatory, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Default')]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Default')]
 		[string]$Name,
 
-        [parameter(Position = 1, Mandatory = $true, HelpMessage = "Enter the new value for the global parameter", ParameterSetName = 'Default')]
+        [Parameter(Position = 1, Mandatory, HelpMessage = "Enter the new value for the global parameter", ParameterSetName = 'Default')]
         [string]$Value,
 
-		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -11669,24 +12608,68 @@ function Set-HPOVApplianceGlobalSetting
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+		elseif (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -11697,8 +12680,6 @@ function Set-HPOVApplianceGlobalSetting
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -11813,26 +12794,28 @@ function Get-HPOVBaseline
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $false, ParameterSetName = "ISOFileName")]
+		[Parameter(Position = 0, Mandatory = $false, ParameterSetName = "ISOFileName")]
         [ValidateNotNullOrEmpty()]
         [Alias('isoFileName')]
 		[string]$FileName,
 
-		[parameter(position = 0, Mandatory = $false, ParameterSetName = "SppName")]
+		[Parameter(position = 0, Mandatory = $false, ParameterSetName = "SppName")]
 		[Alias('name')]
         [string]$SppName,
 
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "SppName")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "SppName")]
         [ValidateNotNullOrEmpty()]
 		[string]$Version,
 
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "HotFixesOnly")]
+		[Parameter(Mandatory = $false, ParameterSetName = "HotFixesOnly")]
 		[switch]$HotfixesOnly,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, ParameterSetName = "HotFixesOnly")]
+		[Parameter(Mandatory = $false, ParameterSetName = "SppName")]
+		[Parameter(Mandatory = $false, ParameterSetName = "ISOFileName")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -11847,30 +12830,64 @@ function Get-HPOVBaseline
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -11881,8 +12898,6 @@ function Get-HPOVBaseline
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -12021,17 +13036,18 @@ function Add-HPOVBaseline
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the path and file name to the SPP iso file.")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the path and file name to the SPP iso file.")]
         [ValidateScript({Test-Path $_})]
 		[Alias('sppFile')]
 		[string]$File,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[switch]$Async,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -12046,30 +13062,64 @@ function Add-HPOVBaseline
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -12080,8 +13130,6 @@ function Add-HPOVBaseline
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -12145,19 +13193,20 @@ function New-HPOVCustomBaseline
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
         [ValidateNotNullorEmpty()]
 		[Object]$SourceBaseline,
 
-		[parameter(Position = 1, Mandatory)]
+		[Parameter(Position = 1, Mandatory)]
 		[Array]$Hotfixes,
 
-		[parameter(Position = 2, Mandatory)]
+		[Parameter(Position = 2, Mandatory)]
 		[String]$BaselineName,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -12182,25 +13231,74 @@ function New-HPOVCustomBaseline
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
-			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -12326,9 +13424,10 @@ function Restore-HPOVCustomBaseline
 	param 
 	(
 	
-		[parameter(Mandatory = $False, position = 0)]
+		[Parameter(Mandatory = $false, Position = 0)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectionSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -12343,30 +13442,64 @@ function Restore-HPOVCustomBaseline
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -12377,8 +13510,6 @@ function Restore-HPOVCustomBaseline
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -12491,14 +13622,15 @@ function Remove-HPOVBaseline
 	param
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Baseline name", Position = 0, ParameterSetName = "default")]
+		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Baseline name", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias("b")]
 		[Object]$Baseline,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -12511,40 +13643,90 @@ function Remove-HPOVBaseline
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['Baseline']))
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		else
 		{
 
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			$c++
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
 
 		}
-
-		if (-not($PSBoundParameters['Baseline'])) { $PipelineInput = $True }
 
 		$_TaskCollection     = New-Object System.Collections.ArrayList
 		$_BaselineCollection = New-Object System.Collections.ArrayList
@@ -12683,25 +13865,26 @@ function New-HPOVSupportDump
     Param 
 	(
 
-        [parameter(Mandatory = $false,ValueFromPipeline = $false, ParameterSetName = "values", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
-		[parameter(Mandatory = $false,ValueFromPipeline = $false, ParameterSetName = "Object", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
+        [Parameter(Mandatory = $false,ParameterSetName = "values", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
+		[Parameter(Mandatory = $false,ParameterSetName = "Object", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
         [Alias("save")]
         [string]$Location = (get-location).Path,
 
-        [parameter(Mandatory = $true,ValueFromPipeline = $false, ParameterSetName = "values", HelpMessage = "Specify the Type of Support Dump (appliance | li) you wish to generate.", Position = 1)]
+        [Parameter(Mandatory,ParameterSetName = "values", HelpMessage = "Specify the Type of Support Dump (appliance | li) you wish to generate.", Position = 1)]
         [ValidateSet("Appliance","LI")]
         [string]$Type = $null,
 
-		[parameter(Mandatory = $false,ValueFromPipeline = $false, ParameterSetName = "values", HelpMessage = "Specfy to encrypt the Appliance Support Dump.")]
+		[Parameter(Mandatory = $false,ParameterSetName = "values", HelpMessage = "Specfy to encrypt the Appliance Support Dump.")]
 		[switch]$Encrypted,
 
-		[parameter(Mandatory = $true,ValueFromPipeline = $true, ParameterSetName = "Object", HelpMessage = "Specify the Logical Interconnect URI the Support Dump will be generated for.", Position = 3)]
+		[Parameter(Mandatory,ValueFromPipeline = $true, ParameterSetName = "Object", HelpMessage = "Specify the Logical Interconnect URI the Support Dump will be generated for.", Position = 3)]
         [Alias('liobject','li','name')]
         [object]$LogicalInterconnect,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Object")]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -12714,44 +13897,89 @@ function New-HPOVSupportDump
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
-		}
-
         if (-not($PSBoundParameters["LogicalInterconnect"]) -and $PSCmdlet.ParameterSetName -eq "Object") 
 		{ 
 			
 			$PipelineInput = $true 
 		
+		}
+
+		ELSE
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
 		}
 		
 		#Validate the path exists.  If not, create it.
@@ -12996,14 +14224,15 @@ Function New-HPOVBackup
     Param 
 	(
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the appliance backup file.",Position=0)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the appliance backup file.",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("save")]
         [string]$Location = (get-location).Path,
 			
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -13018,30 +14247,64 @@ Function New-HPOVBackup
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -13052,8 +14315,6 @@ Function New-HPOVBackup
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -13157,15 +14418,15 @@ Function New-HPOVRestore
 	Param 
 	(
 
-		[parameter(Mandatory, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the file to restore.", Position = 0)]
+		[Parameter(Mandatory, ParameterSetName = "default", HelpMessage = "Specify the file to restore.", Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[Alias("File")]
 		[string]$FileName = $null,
 
-		[parameter(Mandatory = $false)]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
     
@@ -13180,30 +14441,64 @@ Function New-HPOVRestore
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -13214,8 +14509,6 @@ Function New-HPOVRestore
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -13390,15 +14683,15 @@ function Download-File
     Param 
 	(
 
-		[parameter(Mandatory, HelpMessage = "Specify the URI of the object to download.", Position = 0)]
+		[Parameter(Mandatory, HelpMessage = "Specify the URI of the object to download.", Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[string]$uri,
 		
-		[parameter(Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 1)]
+		[Parameter(Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 1)]
 		[ValidateNotNullorEmpty()]
 		[object]$ApplianceConnection = $null,
 
-		[parameter(Mandatory, HelpMessage = "Specify the location where to save the file to.", Position = 2)]
+		[Parameter(Mandatory, HelpMessage = "Specify the location where to save the file to.", Position = 2)]
 		[Alias("save")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SaveLocation
@@ -13707,17 +15000,17 @@ function Upload-File
 	Param 
 	(
 
-        [parameter(Mandatory, HelpMessage = "Specify the upload URI.", Position = 0)]
+        [Parameter(Mandatory, HelpMessage = "Specify the upload URI.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('u')]
         [string]$uri,
 
-		[parameter(Mandatory, HelpMessage = "Enter the path and file name to upload.", Position = 1)]
+		[Parameter(Mandatory, HelpMessage = "Enter the path and file name to upload.", Position = 1)]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
 		[string]$File,
 		
-		[parameter(Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 2)]
+		[Parameter(Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 2)]
 		[Alias('Hostname')]
 		[ValidateNotNullorEmpty()]
 		[object]$ApplianceConnection = $null
@@ -13961,7 +15254,7 @@ function Upload-File
             $reader       = New-Object System.IO.StreamReader($uploadResponseStream)
 			$responseJson = $reader.ReadToEnd()
 
-            $uploadResponse = CconvertFrom-Json $responseJson
+            $uploadResponse = ConvertFrom-Json $responseJson
 
             $uploadResponseStream.Close()
 
@@ -14046,24 +15339,25 @@ function Get-HPOVScmbCertificates
 	Param
 	(
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
-	    [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "convert", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
+	    [Parameter(Mandatory = $false, ParameterSetName = "convert", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("save")]
         [string]$Location = ($pwd).path,
 
-        [parameter(Mandatory = $false , ParameterSetName = "convert", HelpMessage = "Convert rabbitmq_readonly client certificate to PFX format.")]
+        [Parameter(Mandatory = $false , ParameterSetName = "convert", HelpMessage = "Convert rabbitmq_readonly client certificate to PFX format.")]
         [ValidateNotNullOrEmpty()]
         [Alias("pfx")]
         [switch]$ConvertToPFx,
 	    
-		[parameter(Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "convert", HelpMessage = "Password for PFX file")]
+		[Parameter(Mandatory, ValueFromPipeline = $true, ParameterSetName = "convert", HelpMessage = "Password for PFX file")]
         [ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 	
@@ -14085,22 +15379,64 @@ function Get-HPOVScmbCertificates
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -14111,8 +15447,6 @@ function Get-HPOVScmbCertificates
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 		
@@ -14284,235 +15618,6 @@ function Get-HPOVScmbCertificates
 
 }
 
-function Show-HPOVSSLCertificate {
-
-    # .ExternalHelp HPOneView.200.psm1-help.xml
-
-    [CmdletBinding()]
-    param
-	( 
-    
-        [parameter(Mandatory = $True)]
-        [Object]$Appliance = $Null
-    
-    )
-
-    Begin { 
-    
-        if (-not($Appliance)) {
-
-            $errorRecord = New-ErrorRecord ArgumentNullException InvalidArgumentValue InvalidArgument 'Show-HPOVSslCertificate' -Message "You are not connected to an appliance.  Please specify the -appliance parameter and provide the appliance FQDN, Hostname or IP Address."
-            $pscmdlet.ThrowTerminatingError($errorRecord)
-
-        }
-    
-    }
-
-    Process {
-
-        $Chain      = $Null
-        $Status     = $Null
-        $Cert       = $Null
-        $certObject = $Null
-
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Checking '$Appliance' appliance SSL Certificate"
-
-        $ConnectString = "https://$Appliance"
-
-        $WebRequest = [System.Net.HttpWebRequest]::Create($ConnectString)
-
-        #Attempt connection to appliance.
-        try { $Response = $WebRequest.GetResponse() }
-		catch [System.Net.WebException] { 
-
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] [System.Net.WebException] code block."
-            
-            if ($_.Exception.Status -match "TrustFailure") { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate failed trust validation." }
-            
-			elseif ($_.Exception -match "The remote name could not be resolved") {
-                
-                $errorRecord = New-ErrorRecord System.Net.WebException ApplianceNotResponding ObjectNotFound 'Show-HPOVSslCertificate' -Message "Unable to resolve hostname '$Appliance'.  Please check the name and try again."
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-            }
-
-			elseif ($_.Exception.Message -contains "Unable to connect to the remote server") {
-
-                $errorRecord = New-ErrorRecord System.Net.WebException ApplianceNotResponding ConnectionError 'Show-HPOVSslCertificate' -Message "Unable to connect to '$Appliance' due to timeout or remote system didn't respond to the connection request."
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-            }
-
-            else {
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Other error caught."
-
-				$errorRecord = New-ErrorRecord System.Net.WebException WebExceptionInvalidResult InvalidResult 'Show-HPOVSslCertificate' -Message $_.Exception.Message
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
-
-            }
-        
-        }
-
-		catch {
-
-			write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Non-Specific CATCH block."
-
-			$errorRecord = New-ErrorRecord System.Net.WebException WebExceptionInvalidResult InvalidResult 'Show-HPOVSslCertificate' -Message $_.Exception.Message
-            $PSCmdlet.ThrowTerminatingError($errorRecord)
-        }
-        
-        #Close the response connection, as it is no longer needed, and will cause problems if left open.
-        if ($response) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Closing response connection"; $Response.Close() }
-
-        if ($WebRequest.ServicePoint.Certificate -ne $null) {
-
-            $Cert = [Security.Cryptography.X509Certificates.X509Certificate2]$WebRequest.ServicePoint.Certificate.Handle
-
-            try { $SAN = ($Cert.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", " }
-            catch { $SAN = $null }
-
-            $chain = New-Object Security.Cryptography.X509Certificates.X509Chain 
-
-            [void]$chain.ChainPolicy.ApplicationPolicy.Add("1.3.6.1.5.5.7.3.1")
-            $Status = $chain.Build($Cert)
-
-            $certObject = [HPOneView.PKI.SslCertificate] @{
-
-                OriginalUri             = $ConnectString;
-                #ReturnedUri             = $Response.ResponseUri;
-                Certificate             = $WebRequest.ServicePoint.Certificate;
-                Issuer                  = $WebRequest.ServicePoint.Certificate.Issuer;
-                Subject                 = $WebRequest.ServicePoint.Certificate.Subject;
-                SubjectAlternativeNames = $SAN;
-                CertificateIsValid      = $Status;
-                ErrorInformation        = if ($chain.ChainStatus) { $chain.ChainStatus | ForEach-Object { $_.Status.ToString() } } else { $Null }
-
-            }
-
-            #If the certificate is NOT valid, display it and warn user
-            if ((-not($certObject.CertificateIsValid)) -and ($certObject.ErrorInformation -contains "UntrustedRoot")) { 
-        
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert Root is NOT trusted"
-
-                #Display the certificate output in Yellow
-                $originalFGColor = [System.Console]::ForegroundColor
-                [System.Console]::ForegroundColor = [System.ConsoleColor]::Yellow
-            
-                #Display certificate details
-                $certObject | Out-Host
-
-                #Restore the console ForegroundColor
-                [System.Console]::ForegroundColor = [System.ConsoleColor]::$originalFGColor
-
-                Write-Warning "The appliance SSL Certificate is UNTRUSTED.  Us0e the Import-HPOVSSLCertificate to import the appliance Self-Signed certificate to your user accounts local Trusted Root Certification Authorities store to not display this warning when you first connect to your appliance."
-				Write-Host ""
-
-                #Value will be False, in String format, not Bool
-                $ignore = $True
-            
-            }
-
-			#If Cert IS valid, but cannot validate with Root CA, can validate with Subordinate CA and unable to validate revocation, display warning
-			elseif ((-not ($certObject.CertificateIsValid)) -and ($certObject.ErrorInformation -contains "PartialChain" -and $certObject.ErrorInformation -contains "RevocationStatusUnknown" -and $certObject.ErrorInformation -contains "OfflineRevocation")) { 
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert is NOT trusted and unable to validate CRL."
-
-                #Display the certificate output in Yellow
-                $originalFGColor = [System.Console]::ForegroundColor
-
-                [System.Console]::ForegroundColor = [System.ConsoleColor]::Yellow
-
-                #Display certificate details
-                $certObject | Out-Host
-
-                #Restore the console ForegroundColor
-                [System.Console]::ForegroundColor = [System.ConsoleColor]::$originalFGColor
-
-                Write-Warning "The appliance SSL Certificate is UNTRUSTED.  This system does not trust the CA issuer, and is unable to verify the Certificate Authorities Revocation List (CRL) or the Revocation List Destination (CLD) is not contained within the certificate."
-				Write-Host ""
-                
-				#Value will be False, in String format, not Bool
-                $ignore = $True
-
-            }
-
-			#If Cert IS valid, but cannot validate with Root CA and unable to validate revocation, display warning
-			elseif ((-not ($certObject.CertificateIsValid)) -and ($certObject.ErrorInformation -contains "RevocationStatusUnknown" -and $certObject.ErrorInformation -contains "OfflineRevocation")) { 
-                
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert is NOT trusted and unable to  validate CRL."
-                
-				#Display the certificate output in Yellow
-                $originalFGColor = [System.Console]::ForegroundColor
-                [System.Console]::ForegroundColor = [System.ConsoleColor]::Yellow
-                
-				#Display certificate details
-                $certObject | Out-Host
-                
-				#Restore the console ForegroundColor
-                [System.Console]::ForegroundColor = [System.ConsoleColor]::$originalFGColor
-                
-				Write-Warning "The appliance SSL Certificate is UNTRUSTED.  This system is unable to verify the Certificate Authorities Revocation List (CRL) or the Revocation List Destination (CLD) is not contained within the certificate.  If you are using an Enterprise Certificate Authority (i.e. Windows Server CA), please make sure the CRL is published as part of the issued certificate (CRL is an Extension that needs to be enabled prior to issuing certificates)."
-				Write-Host ""
-                
-				#Value will be False, in String format, not Bool
-                
-				$ignore = $True
-            
-			}
-			
-			#Cert is valid
-            elseif ($certObject.CertificateIsValid) {
-                
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cert is trusted"
-
-                if ($VerbosePreference -eq "Continue") {
-
-                    #Display the certificate output in Green
-                    $originalFGColor = [System.Console]::ForegroundColor
-                    [System.Console]::ForegroundColor = [System.ConsoleColor]::Green
-            
-                    #Display certificate details
-                    $certObject | Out-Host
-
-                    #Restore the console ForegroundColor
-                    [System.Console]::ForegroundColor = [System.ConsoleColor]::$originalFGColor
-
-                }
-
-                $ignore = $True
-            }
-
-			#Remaining Invalid cases like appliance hostname/IP does not match Common Name (CN) or Subject Alternative Name (SAN)
-            else {
-
-				$certObject | Out-Host
-	            $ignore = $False
-                #Write-Error $Error[-1] -ErrorAction Stop
-            }
-            
-            $chain.Reset()
-
-        } 
-        
-        else {
-        
-            Write-Error $Error[-1] -ErrorAction Stop
-        
-        }
-    
-        $certObject = $Null
-        $WebRequest = $Null
-    }
-
-    End {
-
-        $ignore
-
-    }
-
-}
-
 function Import-HPOVSslCertificate 
 {
 
@@ -14523,9 +15628,10 @@ function Import-HPOVSslCertificate
     Param 
 	(
 	
-		[parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -14546,19 +15652,33 @@ function Import-HPOVSslCertificate
 	{
 
 		ForEach ($_Connection in $ApplianceConnection)
-		{
+		{			
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Appliance '$($_Connection.Name)' (of $($ApplianceConnection.Count))"
+			if ($_Connection -is [HPOneView.Appliance.Connection])
+			{
 
-			$_ConnectString = "https://$_Connection"
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Appliance '$($_Connection.Name)' (of $($ApplianceConnection.Count))"
+
+				$_ConnectString = 'https://{0}' -f $_Connection.Name
+
+			}
+			
+			else
+			{
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Appliance '$($_Connection)' (of $($ApplianceConnection.Count))"
+
+				$_ConnectString = 'https://{0}' -f $_Connection
+
+			}
         
-			$WebRequest = [Net.WebRequest]::Create($_ConnectString)
-
 			try 
 			{
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting response"
-				
+			
+				$WebRequest = [Net.WebRequest]::Create($_ConnectString)
+					
 				$Response = $WebRequest.GetResponse()
 			
 			}
@@ -14645,9 +15765,10 @@ function Restart-HPOVAppliance
     Param 
 	(
 	
-		[parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -14660,38 +15781,88 @@ function Restart-HPOVAppliance
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		if (-not($PSBoundParameters['ApplianceConnection'])) { $PipelineInput = $True }
+		if (-not($PSBoundParameters['ApplianceConnection'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		else
 		{
 
-			Try 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			$c++
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
 
 		}
 		
@@ -14779,9 +15950,10 @@ function Stop-HPOVAppliance
     Param 
 	(
 	
-		[parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -14794,55 +15966,97 @@ function Stop-HPOVAppliance
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		if (-not $PSBoundParameters['ApplianceConnection']) { $PipelineInput = $True }
+		if (-not $PSBoundParameters['ApplianceConnection']) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		else
 		{
 
-			Try 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			$c++
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
 
 		}
-		
+
 		$TaskCollection = New-Object System.Collections.ArrayList
 
     }
 
     Process 
 	{
-
-		if  ($ApplianceConnection.Count -eq 0)
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
 
 		ForEach ($_Connection in $ApplianceConnection)
 		{
@@ -14918,16 +16132,16 @@ function Get-HPOVServer
 	Param 
 	(
 		
-        [parameter(Position = 0, Mandatory = $false, ParameterSetName = "Default")]
-		[string]$Name = $null,
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Default")]
+		[string]$Name,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
         [switch]$NoProfile,
 
-        [parameter(Mandatory = $false)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -14942,30 +16156,64 @@ function Get-HPOVServer
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -14976,8 +16224,6 @@ function Get-HPOVServer
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -15003,7 +16249,6 @@ function Get-HPOVServer
             }
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
-
 
 			Try
 			{
@@ -15047,7 +16292,7 @@ function Get-HPOVServer
 		{
 				
             $errorRecord = New-ErrorRecord HPOneView.ServerHardwareResourceException ServerHardwareResourceNotFound ObjectNotFound 'Name' -Message "Server '$Name' not found. Please check the name again, and try again."
-            $pscmdlet.ThrowTerminatingError($errorRecord)
+            $pscmdlet.WriteError($errorRecord)
 
 		}
 
@@ -15068,11 +16313,11 @@ function Get-HPOVIloSso
     Param 
 	(
 
-        [parameter(ValueFromPipeline, Mandatory, HelpMessage = "Provide a Server resource object.", Position = 0, ParameterSetName = 'Default')]
+        [Parameter(ValueFromPipeline, Mandatory, HelpMessage = "Provide a Server resource object.", Position = 0, ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
-        [Object]$Server = $Null,
+        [Object]$Server,
 
-		[parameter(ValueFromPipeline, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(ValueFromPipeline, Mandatory = $false, ParameterSetName = 'Default')]
 		[Switch]$RemoteConsoleOnly
 
     )
@@ -15205,32 +16450,33 @@ function Add-HPOVServer
     Param 
 	(
 
-        [parameter(ValueFromPipeline = $True, Mandatory = $true, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Monitored")]
-        [parameter(ValueFromPipeline = $True, Mandatory = $true, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Managed")]
+        [Parameter(ValueFromPipeline = $True, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Monitored")]
+        [Parameter(ValueFromPipeline = $True, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname = $Null,
          
-        [parameter(Mandatory = $true, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Monitored")]
-        [parameter(Mandatory = $true, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Managed")]
+        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Monitored")]
+        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [string]$Username = $Null,
 
-        [parameter(Mandatory = $true, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Monitored")]
-        [parameter(Mandatory = $true, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Managed")]
+        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Monitored")]
+        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-        [parameter(Mandatory = $true, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position = 3, ParameterSetName = "Managed")]
+        [Parameter(Mandatory, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position = 3, ParameterSetName = "Managed")]
         [ValidateSet("OneView", "OneViewNoiLO")]
         [string]$LicensingIntent = $NULL,
 
-        [parameter(Mandatory = $true, ParameterSetName = "Monitored")]
+        [Parameter(Mandatory, ParameterSetName = "Monitored")]
         [switch]$Monitored,
 
-		[parameter(Mandatory = $true, ParameterSetName = "Monitored")]
-		[parameter(Mandatory = $true, ParameterSetName = "Managed")]
+		[Parameter(Mandatory, ParameterSetName = "Monitored")]
+		[Parameter(Mandatory, ParameterSetName = "Managed")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -15245,19 +16491,47 @@ function Add-HPOVServer
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -15266,7 +16540,7 @@ function Add-HPOVServer
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -15274,7 +16548,7 @@ function Add-HPOVServer
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -15477,17 +16751,19 @@ function Remove-HPOVServer
     Param 
     (
     
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Enter the rackmount server to be removed.", Position = 0)]
+        [parameter (Mandatory, ValueFromPipeline = $true, HelpMessage = "Enter the rackmount server to be removed.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$Server,
 
-		[parameter(Mandatory = $false)] 
-		[switch]$force,
+		[Parameter(Mandatory = $false)] 
+		[switch]$Force,
 
-		[parameter(Mandatory = $true, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
 	
     )
 
@@ -15507,27 +16783,69 @@ function Remove-HPOVServer
 
 		}
 
-		if (-not($PipelineInput))
+		else
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-			$c = 0
-		
-			ForEach ($_Connection in $ApplianceConnection) 
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -15535,24 +16853,8 @@ function Remove-HPOVServer
 				Catch 
 				{
 
-					$PSCmdlet.ThrowTerminatingError($_.Exception)
+					$PSCmdlet.ThrowTerminatingError($_)
 
-				}
-
-				$c++
-
-			}
-
-			#Check for URI parameters with multiple appliance connections
-			if($ApplianceConnection.Count -gt 1)
-			{
-
-				if (($Server -is [String] -and ($Server.StartsWith($ServerHardwareUri))) -or ($Server -is [Array] -and ($Server | % { $_.startswith($ServerHardwareUri) }))) 
-				{
-                    
-					$errorRecord = New-ErrorRecord HPOneView.ServerResourceException InvalidArgumentValue InvalidArgument 'Server' -Message "The Server parameter as URI is unsupported with multiple appliance connections.  Please check the -Server parameter value and try again."
-					$PSCmdLet.ThrowTerminatingError($errorRecord)
-            
 				}
 
 			}
@@ -15690,27 +16992,30 @@ function Set-HPOVServerPower
     Param 
     (
     
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0)]
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0)]
         [ValidateNotNullOrEmpty()]
         [alias("name","uri","serverUri")]
         [object]$Server,
 
-        [parameter(Mandatory = $false, position = 1)]
+        [Parameter(Mandatory = $false, position = 1)]
         [ValidateSet("On", "Off")]
-        [string]$powerState = "On",
+        [string]$PowerState = "On",
 
-        [parameter(Mandatory = $false, position = 2)]
+        [Parameter(Mandatory = $false, position = 2)]
         [ValidateSet("PressAndHold", "MomentaryPress", "ColdBoot", "Reset")]
-        [string]$powerControl = "MomentaryPress",
+        [string]$PowerControl = "MomentaryPress",
 
-        [parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
     )
 
     Begin 
     {
+
+		Write-Warning 'Please note this Cmdlet is being deprecated for in favor of Start-HPOVServer, Stop-HPOVServer and Restart-HPOVServer Cmdlets.  Please update your scripts accordingly.'
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
 
@@ -15725,46 +17030,79 @@ function Set-HPOVServerPower
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and (-not($PipelineInput)))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif (($ApplianceConnection | Measure-Object).Count -gt 1 -and (-not($PipelineInput)))
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -15950,6 +17288,877 @@ function Set-HPOVServerPower
 
 }
 
+function Start-HPOVServer
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding()]
+    Param 
+    (
+    
+        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Provide the Server resource object.", position = 0)]
+        [ValidateNotNullOrEmpty()]
+        [object]$Server,
+
+		[parameter(Mandatory = $false)]
+		[switch]$Async,
+
+        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullOrEmpty()]
+		[Alias('Appliance')]
+		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+    
+    )
+
+    Begin 
+    {
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		if (-not($PSBoundParameters['Server']))
+		{
+
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		$_PowerControl = 'MomentaryPress'
+		$_PowerState   = 'On'
+
+		$_ServerPowerControlCol = New-Object System.Collections.ArrayList
+
+    }
+    
+    Process 
+	{
+
+        #Checking if the input is PSCustomObject, and the category type is server-profiles, which could be passed via pipeline input
+        if (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-hardware")) 
+		{
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Device object: $($server.name)"
+
+            $_uri = $server.uri
+        
+        }
+
+        #Checking if the input is PSCustomObject, and the category type is server-hardware, which would be passed via pipeline input
+        elseif (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-profiles") -and ($server.serverHardwareUri)) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Profile object: $($server.name)"
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting server hardware device assigned to Server Profile."
+
+            $_uri = $server.serverHardwareUri
+        
+        }
+
+        else 
+		{
+
+			if (-not($server.serverHardwareUri))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException ServerProfileUnassigned InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The Server Profile '$($Server.name)' is unassigned.  This cmdlet only supports Server Profiles that are assigned to Server Hardware resources. Please check the input object and try again."
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			else
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The parameter 'Server' value is invalid.  Please validate the 'Server' parameter value you passed and try again."
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}            
+
+        }
+
+        #Validate the server power state and lock
+		Try
+		{
+
+			$_serverObj = Send-HPOVRequest $_uri -appliance $ApplianceConnection.Name
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+        
+		#Need to add confirm prompt here.
+        if (($_serverObj.powerState -ine $_PowerState -and (-not($_serverObj.powerLock)))) 
+		{
+		
+			"[{0}] Set Server '{1}' to desired Power State '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_serverObj.name, $_PowerState | Write-Verbose
+       
+			$_uri = $_serverObj.uri + "/powerState"
+	    	    
+			$body = [pscustomobject]@{
+			
+				powerState   = $_PowerState;
+				powerControl = $_PowerControl
+			
+			}
+	    
+			Try
+			{
+
+				$_resp = Send-HPOVRequest $_uri PUT $body -Hostname $_serverObj.ApplianceConnection.Name
+				
+				if (-not($PSBoundParameters['Async']))
+				{
+
+					$_resp = Wait-HPOVTaskComplete $_resp
+
+				}
+
+			}
+	    
+			Catch
+			{
+	    
+	    		$PSCmdlet.ThrowTerminatingError($_)
+		
+			}
+
+			[void]$_ServerPowerControlCol.Add($_resp)
+						
+	    }
+	
+        else 
+		{ 
+        
+			$_Message = $null
+
+            if ($serverPowerState.powerState -ieq $_PowerState) 
+			{
+				
+				 $_Message = "Requested Power State '{0}' is the same value as the current Server Power State '{0}'.  "  -f $_PowerState
+			
+			}
+
+            if ($serverPowerState.powerLock) 
+			{ 
+				
+				$_Message += "Server is currently under Power Lock."  
+			
+			}
+
+            if ($errorMessage) 
+			{ 
+			
+				$_ErrorRecord = New-ErrorRecord HPOneView.InvalidServerPowerControlException InvalidServerPowerControlOpertion InvalidOperation 'Server' -TargetType 'PSObject' $_Message
+				$PSCmdlet.WriteError($_ErrorRecord)
+			
+			}
+	    
+        }
+	
+    }
+
+	End
+	{
+
+		Return $_ServerPowerControlCol
+
+	}
+
+}
+
+function Stop-HPOVServer
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High', DefaultParameterSetName = 'Default')]
+    Param 
+    (
+    
+        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Default')]
+		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Force')]
+        [ValidateNotNullOrEmpty()]
+        [object]$Server,
+		
+		[parameter(Mandatory, ParameterSetName = 'Force')]
+		[switch]$Force,
+
+		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[parameter(Mandatory = $false, ParameterSetName = 'Force')]
+		[switch]$Async,
+
+        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Force')]
+		[ValidateNotNullOrEmpty()]
+		[Alias('Appliance')]
+		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+    
+    )
+
+    Begin 
+    {
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		if (-not($PSBoundParameters['Server']))
+		{
+
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		$_PowerControl = if ($PSBoundParameters['Force'])
+		{
+
+			 'PressAndHold'
+
+		}
+
+		else
+		{
+
+			'MomentaryPress'
+
+		}
+		
+		$_PowerState   = 'Off'
+
+		$_ServerPowerControlCol = New-Object System.Collections.ArrayList
+
+    }
+    
+    Process 
+	{
+
+        #Checking if the input is PSCustomObject, and the category type is server-profiles, which could be passed via pipeline input
+        if (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-hardware")) 
+		{
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Device object: $($server.name)"
+
+            $_uri = $server.uri
+        
+        }
+
+        #Checking if the input is PSCustomObject, and the category type is server-hardware, which would be passed via pipeline input
+        elseif (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-profiles") -and ($server.serverHardwareUri)) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Profile object: $($server.name)"
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting server hardware device assigned to Server Profile."
+
+            $_uri = $server.serverHardwareUri
+        
+        }
+
+        else 
+		{
+
+			if (-not($server.serverHardwareUri))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException ServerProfileUnassigned InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The Server Profile '$($Server.name)' is unassigned.  This cmdlet only supports Server Profiles that are assigned to Server Hardware resources. Please check the input object and try again."
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			else
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The parameter 'Server' value is invalid.  Please validate the 'Server' parameter value you passed and try again."
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}            
+
+        }
+
+        #Validate the server power state and lock
+		Try
+		{
+
+			$_serverObj = Send-HPOVRequest $_uri -appliance $ApplianceConnection.Name
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+        
+		#Need to add confirm prompt here.
+        if (($_serverObj.powerState -ine $_PowerState -and (-not($_serverObj.powerLock)))) 
+		{
+		
+			if ($PSCmdlet.ShouldProcess($_serverObj.name,'Poweroff server resource'))
+			{
+
+				"[{0}] Set Server '{1}' to desired Power State '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_serverObj.name, $_PowerState | Write-Verbose
+       
+				$_uri = $_serverObj.uri + "/powerState"
+	    	    
+				$body = [pscustomobject]@{
+			
+					powerState   = $_PowerState;
+					powerControl = $_PowerControl
+			
+				}
+	    
+				Try
+				{
+
+					$_resp = Send-HPOVRequest $_uri PUT $body -Hostname $_serverObj.ApplianceConnection.Name
+
+					if (-not($PSBoundParameters['Async']))
+					{
+
+						$_resp = Wait-HPOVTaskComplete $_resp
+
+					}
+		
+				}
+	    
+				Catch
+				{
+	    
+	    			$PSCmdlet.ThrowTerminatingError($_)
+		
+				}
+
+				[void]$_ServerPowerControlCol.Add($_resp)
+
+			}
+
+			elseif ($PSBoundParameters['WhatIf'])
+			{
+
+				"[{0}] -WhatIf scenario." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			}
+
+			else
+			{
+
+				"[{0}] User cancelled oepration by choosing No." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			}
+						
+	    }
+	
+        else 
+		{ 
+        
+			$_Message = $null
+
+            if ($serverPowerState.powerState -ieq $_PowerState) 
+			{
+				
+				 $_Message = "Requested Power State '{0}' is the same value as the current Server Power State '{0}'.  "  -f $_PowerState
+			
+			}
+
+            if ($serverPowerState.powerLock) 
+			{ 
+				
+				$_Message += "Server is currently under Power Lock."  
+			
+			}
+
+            if ($errorMessage) 
+			{ 
+			
+				$_ErrorRecord = New-ErrorRecord HPOneView.InvalidServerPowerControlException InvalidServerPowerControlOpertion InvalidOperation 'Server' -TargetType 'PSObject' $_Message
+				$PSCmdlet.WriteError($_ErrorRecord)
+			
+			}
+	    
+        }
+	
+    }
+
+	End
+	{
+
+		Return $_ServerPowerControlCol
+
+	}
+
+}
+
+function Restart-HPOVServer
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding(SupportsShouldProcess = $True, ConfirmImpact = 'High', DefaultParameterSetName = 'Default')]
+    Param 
+    (
+    
+        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Default')]
+		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'ColdBoot')]
+        [ValidateNotNullOrEmpty()]
+        [object]$Server,
+		
+		[parameter(Mandatory, ParameterSetName = 'ColdBoot')]
+		[switch]$ColdBoot,
+
+		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[parameter(Mandatory = $false, ParameterSetName = 'ColdBoot')]
+		[switch]$Async,
+		
+        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'ColdBoot')]
+		[ValidateNotNullOrEmpty()]
+		[Alias('Appliance')]
+		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+    
+    )
+
+    Begin 
+    {
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		if (-not($PSBoundParameters['Server']))
+		{
+
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		$_PowerControl = if ($PSBoundParameters['ColdBoot'])
+		{
+
+			 'ColdBoot'
+
+		}
+
+		else
+		{
+
+			'Reset'
+
+		}
+		
+		$_PowerState   = 'On'
+
+		$_ServerPowerControlCol = New-Object System.Collections.ArrayList
+
+    }
+    
+    Process 
+	{
+
+        #Checking if the input is PSCustomObject, and the category type is server-profiles, which could be passed via pipeline input
+        if (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-hardware")) 
+		{
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Device object: $($server.name)"
+
+            $_uri = $server.uri
+        
+        }
+
+        #Checking if the input is PSCustomObject, and the category type is server-hardware, which would be passed via pipeline input
+        elseif (($server -is [System.Management.Automation.PSCustomObject]) -and ($server.category -ieq "server-profiles") -and ($server.serverHardwareUri)) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server is a Server Profile object: $($server.name)"
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting server hardware device assigned to Server Profile."
+
+            $_uri = $server.serverHardwareUri
+        
+        }
+
+        else 
+		{
+
+			if (-not($server.serverHardwareUri))
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException ServerProfileUnassigned InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The Server Profile '$($Server.name)' is unassigned.  This cmdlet only supports Server Profiles that are assigned to Server Hardware resources. Please check the input object and try again."
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			else
+			{
+
+				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Server' -TargetType $Server.GetType().Name -Message "The parameter 'Server' value is invalid.  Please validate the 'Server' parameter value you passed and try again."
+				$pscmdlet.ThrowTerminatingError($errorRecord)
+
+			}            
+
+        }
+
+        #Validate the server power state and lock
+		Try
+		{
+
+			$_serverObj = Send-HPOVRequest $_uri -appliance $ApplianceConnection.Name
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+        
+		#Need to add confirm prompt here.
+        if (($_serverObj.powerState -ine 'Off' -and (-not($_serverObj.powerLock)))) 
+		{
+		
+			if ($PSCmdlet.ShouldProcess($_serverObj.name,'Restart server resource'))
+			{
+
+				"[{0}] Set Server '{1}' to desired Power State '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_serverObj.name, $_PowerState | Write-Verbose
+       
+				$_uri = $_serverObj.uri + "/powerState"
+	    	    
+				$body = [pscustomobject]@{
+			
+					powerState   = $_PowerState;
+					powerControl = $_PowerControl
+			
+				}
+	    
+				Try
+				{
+
+					$_resp = Send-HPOVRequest $_uri PUT $body -Hostname $_serverObj.ApplianceConnection.Name
+					
+					if (-not($PSBoundParameters['Async']))
+					{
+
+						$_resp = Wait-HPOVTaskComplete $_resp
+
+					}
+
+				}
+	    
+				Catch
+				{
+	    
+	    			$PSCmdlet.ThrowTerminatingError($_)
+		
+				}
+
+				[void]$_ServerPowerControlCol.Add($_resp)
+
+			}
+
+			elseif ($PSBoundParameters['WhatIf'])
+			{
+
+				"[{0}] -WhatIf scenario." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			}
+
+			else
+			{
+
+				"[{0}] User cancelled oepration by choosing No." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			}
+						
+	    }
+	
+        else 
+		{ 
+        
+			$_Message = $null
+
+            if ($serverPowerState.powerState -ieq $_PowerState) 
+			{
+				
+				 $_Message = "Requested Power State '{0}' is the same value as the current Server Power State '{0}'.  "  -f $_PowerState
+			
+			}
+
+            if ($serverPowerState.powerLock) 
+			{ 
+				
+				$_Message += "Server is currently under Power Lock."  
+			
+			}
+
+            if ($errorMessage) 
+			{ 
+			
+				$_ErrorRecord = New-ErrorRecord HPOneView.InvalidServerPowerControlException InvalidServerPowerControlOpertion InvalidOperation 'Server' -TargetType 'PSObject' $_Message
+				$PSCmdlet.WriteError($_ErrorRecord)
+			
+			}
+	    
+        }
+	
+    }
+
+	End
+	{
+
+		Return $_ServerPowerControlCol
+
+	}
+
+}
+
 function Update-HPOVServer
 {
 
@@ -15964,9 +18173,10 @@ function Update-HPOVServer
         [Alias("name")]
         [object]$Server,
 
-		[parameter(Mandatory = $true, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
     )
 
@@ -15988,54 +18198,87 @@ function Update-HPOVServer
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and (-not($PipelineInput)))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif (($ApplianceConnection | Measure-Object).Count -gt 1 -and (-not($PipelineInput)))
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+			
 		}
 
 		$_ServerRefreshCol = New-Object System.Collections.ArrayList
 
-    }
+	}	
     
     Process 
 	{
@@ -16181,14 +18424,14 @@ function Get-HPOVEnclosureGroup
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $false)]
+        [Parameter(Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
         [parameter (Mandatory = $false)]
         [alias("x", "export")]
@@ -16207,31 +18450,65 @@ function Get-HPOVEnclosureGroup
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		if  ($ApplianceConnection.Count -eq 0)
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -16242,8 +18519,6 @@ function Get-HPOVEnclosureGroup
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -16366,39 +18641,40 @@ function New-HPOVEnclosureGroup
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = "Enter a name for the new enclosure group.")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Enter a name for the new enclosure group.")]
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = "Enter a name for the new enclosure group.")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Enter a name for the new enclosure group.")]
         [ValidateNotNullOrEmpty()]
         [string]$Name = $Null,
          
-        [parameter(Position = 1, Mandatory, ValueFromPipeline, ParameterSetName = 'Default', HelpMessage = "Enter the Object or URI or Array of Objects or URIs of the Logical Interconnect Group to associate with the Enclosure Group.")]
+        [Parameter(Position = 1, Mandatory, ValueFromPipeline, ParameterSetName = 'Default', HelpMessage = "Enter the Object or URI or Array of Objects or URIs of the Logical Interconnect Group to associate with the Enclosure Group.")]
         [ValidateNotNullOrEmpty()]
         [alias('logicalInterconnectGroupUri','logicalInterconnectGroup')]
         [object]$LogicalInterconnectGroupMapping = $Null,
 
-        [parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Default')]
+        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateSet('RedundantPowerFeed','RedundantPowerSupply', IgnoreCase = $false)]
         [string]$PowerRedundantMode = "RedundantPowerFeed",
 
-        [parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Default')]
+        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Default')]
         [string]$ConfigurationScript = $null,
 
-		[parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
+		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[switch]$DiscoverFromEnclosure,
 
-		[parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator admin username.")]
+		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator admin username.")]
 		[String]$Username,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide the Onboard Administrator admin password.")]
+		[Parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide the Onboard Administrator admin password.")]
 		[String]$Password,
 
-		[parameter(Mandatory, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
-		[parameter(Mandatory, ParameterSetName = "importFile")]
-		[parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
+		[Parameter(Mandatory, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory, ParameterSetName = "importFile")]
+		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null,
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
+		[Parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
 		[string]$ImportFile
 
@@ -16415,25 +18691,74 @@ function New-HPOVEnclosureGroup
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		Try 
-		{
-	
-			$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-		}
-
-		Catch [HPOneview.Appliance.AuthSessionException] 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		Catch 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
 
@@ -16684,12 +19009,12 @@ function Remove-HPOVEnclosureGroup
         [Alias("uri", "name", "EnclosureGroup")]
         [object]$Resource,
 
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $null,
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$Force
 
     )
@@ -16703,40 +19028,90 @@ function Remove-HPOVEnclosureGroup
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
+		if (-not($PSBoundParameters['Enclosure'])) 
+		{ 
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+			$PipelineInput = $True 
+		
+		}
 
-			}
+		else
+		{
+			
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			$c++
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
 
 		}
-
-		if (-not($PSBoundParameters['Enclosure'])) { $PipelineInput = $True }
 
 		$_TaskCollection           = New-Object System.Collections.ArrayList
 		$_EnclosureGroupCollection = New-OBject System.Collections.ArrayList
@@ -16930,49 +19305,50 @@ function Add-HPOVEnclosure
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Monitored")]
-        [parameter(Position = 0, Mandatory = $true, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Managed")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Monitored")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("oa")]
         [string]$Hostname,
          
-        [parameter(position = 1, Mandatory = $true, HelpMessage = "Enter the enclosure group name with which to associate the new enclosure.", ParameterSetName = "Managed")]
+        [Parameter(position = 1, Mandatory, HelpMessage = "Enter the enclosure group name with which to associate the new enclosure.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("eg",'EnclGroupName')]
         [object]$EnclosureGroup,
 
-        [parameter(position = 1,Mandatory = $true, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Monitored")]
-        [parameter(position = 2,Mandatory = $true, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Managed")]
+        [Parameter(position = 1,Mandatory, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Monitored")]
+        [Parameter(position = 2,Mandatory, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("u", "user")]
         [string]$Username,
 
-        [parameter(position = 2,Mandatory = $true, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Monitored")]
-        [parameter(position = 3,Mandatory = $true, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Managed")]
+        [Parameter(position = 2,Mandatory, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Monitored")]
+        [Parameter(position = 3,Mandatory, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("p", "pw")]
         [string]$Password,
 
-        [parameter(position = 4,Mandatory = $true, HelpMessage = "Enter licensing intent for servers in this enclosure (OneView, OneViewNoiLO, or OneViewStandard).", ParameterSetName = "Managed")]
+        [Parameter(position = 4,Mandatory, HelpMessage = "Enter licensing intent for servers in this enclosure (OneView, OneViewNoiLO, or OneViewStandard).", ParameterSetName = "Managed")]
         [ValidateSet('OneView', 'OneViewNoiLO', 'OneViewStandard', IgnoreCase = $False)]
         [Alias("license", "l")]
         [string]$LicensingIntent,
 
-        [parameter(position = 5, Mandatory = $false, ParameterSetName = "Managed")]
+        [Parameter(position = 5, Mandatory = $false, ParameterSetName = "Managed")]
         [Alias("fwIso","fwBaselineIsoFilename")]
         [object]$Baseline = $NULL,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Managed")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Managed")]
         [alias('forceFw','forceInstall')]
         [switch]$ForceInstallFirmware,
 
-        [parameter(Mandatory = $true, ParameterSetName = "Monitored")]
+        [Parameter(Mandatory, ParameterSetName = "Monitored")]
         [switch]$Monitored,
 
-		[parameter(Mandatory = $true, ParameterSetName = "Monitored")]
-		[parameter(Mandatory = $true, ParameterSetName = "Managed")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Monitored")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Managed")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -16987,19 +19363,47 @@ function Add-HPOVEnclosure
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -17008,7 +19412,7 @@ function Add-HPOVEnclosure
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -17016,7 +19420,7 @@ function Add-HPOVEnclosure
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -17410,25 +19814,25 @@ function Update-HPOVEnclosure
     Param 
 	(
         
-        [parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Reapply")]
-        [parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Refresh")]
+        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Reapply")]
+        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Refresh")]
         [ValidateNotNullOrEmpty()]
         [object]$Enclosure,
 
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $true, HelpMessage = "Refresh the Enclosure configuration.", ParameterSetName = "Refresh")]
+        [Parameter(Mandatory, HelpMessage = "Refresh the Enclosure configuration.", ParameterSetName = "Refresh")]
         [Switch]$Refresh,
 
-        [parameter(Mandatory = $true, HelpMessage = "Reapply Enclosure Configuration", ParameterSetName = "Reapply")]
+        [Parameter(Mandatory, HelpMessage = "Reapply Enclosure Configuration", ParameterSetName = "Reapply")]
         [Switch]$Reapply,
 
-        [parameter(Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Reapply")]
-        [parameter(Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Refresh")]
-        [switch]$Monitor
+        [Parameter(Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Reapply")]
+        [Parameter(Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Refresh")]
+        [switch]$Async
 
     )
 
@@ -17441,28 +19845,76 @@ function Update-HPOVEnclosure
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['Enclosure'])) 
+		{ 
+			
+			$PipelineInput = $True 
 		
-		$c = 0
-		
-		#Support ApplianceConnection property value via pipeline from Enclosure Object
-		if($PSboundParameters['ApplianceConnection'])
+		}
+
+		else
 		{
 
-			ForEach ($_connection in $ApplianceConnection) 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -17474,13 +19926,9 @@ function Update-HPOVEnclosure
 
 				}
 
-				$c++
-
 			}
-
+			
 		}
-
-		if (-not($PSBoundParameters['Enclosure'])) { $PipelineInput = $True }
 
 		$_TaskCollection      = New-Object System.Collections.ArrayList
 		$_EnclosureCollection = New-OBject System.Collections.ArrayList
@@ -17652,7 +20100,7 @@ function Update-HPOVEnclosure
 
 				}
 
-				if ($PSBoundParameters['Monitor'])
+				if (-not($PSBoundParameters['Async']))
 				{
 					
 					 $_task = Wait-HPOVTaskComplete $_task -ApplianceConnection $_enclosure.ApplianceConnection.Name
@@ -17697,14 +20145,14 @@ function Get-HPOVLogicalEnclosure
     Param 
 	(
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", Position = 0)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 0)]
 		[validateNotNullorEmpty()]
         [string]$Name = $null,
 
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -17719,30 +20167,64 @@ function Get-HPOVLogicalEnclosure
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -17753,8 +20235,6 @@ function Get-HPOVLogicalEnclosure
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -17877,26 +20357,26 @@ function Update-HPOVLogicalEnclosure
     Param 
 	(
         
-        [parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Update")]
-        [parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Reapply")]
+        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Update")]
+        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Reapply")]
         [ValidateNotNullOrEmpty()]
 		[Alias('le')]
         [object]$LogicalEnclosure,
 
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $true, HelpMessage = "Update Logical Enclosure configuration from Enclosure Group for compliance.", ParameterSetName = "Update")]
+        [Parameter(Mandatory, HelpMessage = "Update Logical Enclosure configuration from Enclosure Group for compliance.", ParameterSetName = "Update")]
         [Alias('UpdateFromGroup')]
         [Switch]$Update,
 
-        [parameter(Mandatory = $true, HelpMessage = "Reapply existing configuration only.", ParameterSetName = "Reapply")]
+        [Parameter(Mandatory, HelpMessage = "Reapply existing configuration only.", ParameterSetName = "Reapply")]
         [Switch]$Reapply,
 
-        [parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
-        [parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Reapply")]
+        [Parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
+        [Parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Reapply")]
         [Switch]$Async
 
     )
@@ -17910,28 +20390,76 @@ function Update-HPOVLogicalEnclosure
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['LogicalEnclosure'])) 
+		{ 
+			
+			$PipelineInput = $True 
 		
-		$c = 0
-		
-		#Support ApplianceConnection property value via pipeline from Enclosure Object
-		if($PSboundParameters['ApplianceConnection'])
+		}
+
+		else
 		{
 
-			ForEach ($_connection in $ApplianceConnection) 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -17943,13 +20471,9 @@ function Update-HPOVLogicalEnclosure
 
 				}
 
-				$c++
-
 			}
 
 		}
-
-		if (-not($PSBoundParameters['LogicalEnclosure'])) { $PipelineInput = $True }
 
 		$_TaskCollection             = New-Object System.Collections.ArrayList
 		$_LogicalEnclosureCollection = New-OBject System.Collections.ArrayList
@@ -18162,44 +20686,44 @@ function Invoke-HPOVVcmMigration
 	param
 	(
 
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Report")]	
-		[parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "VCEMMigration")]
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Default")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Report")]	
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Default")]
 		[alias('oip')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAIPAddress,
 
-        [parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Report")]
-		[parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "VCEMMigration")]
-        [parameter(Position = 1, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Default")]
+        [Parameter(Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Report")]
+		[Parameter(Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Default")]
 		[alias('ou')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAUserName,
 
-        [parameter(Position = 2, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Report")]
-		[parameter(Position = 2, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "VCEMMigration")]
-		[parameter(Position = 2, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Default")]
+        [Parameter(Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Report")]
+		[Parameter(Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "VCEMMigration")]
+		[Parameter(Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Default")]
 		[alias('op')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAPassword,
 
-        [parameter(Position = 3, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Report")]
-		[parameter(Position = 3, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "VCEMMigration")]
-		[parameter(Position = 3, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Default")]
+        [Parameter(Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Report")]
+		[Parameter(Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "VCEMMigration")]
+		[Parameter(Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Default")]
 		[alias('vu')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$VCMUserName,
 
-        [parameter(Position = 4, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Report")]
-		[parameter(Position = 4, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "VCEMMigration")]
-		[parameter(Position = 4, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Default")]
+        [Parameter(Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Report")]
+		[Parameter(Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "VCEMMigration")]
+		[Parameter(Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Default")]
 		[alias('vp')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$VCMPassword,
 
-		[parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Report")]
-        [parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
-        [parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Default")]
+		[Parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Report")]
+        [Parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Default")]
 		[alias('eg')]
         [ValidateScript({
             if (($_ -is [String]) -and ($_.StartsWith('/rest/')) -and (-not ($_.StartsWith('/rest/enclosure-groups')))) { Throw "'$_' is not an allowed resource URI.  Enclosure Group Resource URI must start with '/rest/enclosure-groups'. Please check the value and try again." } 
@@ -18214,9 +20738,9 @@ function Invoke-HPOVVcmMigration
             else { $True } })]
 		[Object]$EnclosureGroup = $Null,
 
-		[parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Report")]
-        [parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
-        [parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Default")]
+		[Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Report")]
+        [Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Default")]
 		[alias('lig')]
         [ValidateScript({
             if (($_ -is [String]) -and ($_.StartsWith('/rest/')) -and (-not ($_.StartsWith('/rest/logical-interconnect-groups')))) { Throw "'$_' is not an allowed resource URI.  Logical Interconnect Group Resource URI must start with '/rest/logical-interconnect-groups'. Please check the value and try again." } 
@@ -18231,42 +20755,44 @@ function Invoke-HPOVVcmMigration
             else { $True } })]
 		[Object]$LogicalInterconnectGroup = $Null,
 
-		[parameter(Position = 7, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Report")]
-        [parameter(Position = 7, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "VCEMMigration")]
-        [parameter(Position = 7, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Default")]
+		[Parameter(Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Report")]
+        [Parameter(Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Default")]
 		[ValidateSet("OneView", "OneViewNoiLO", IgnoreCase = $false)]
 		[ValidateNotNullOrEmpty()]
         [Alias("license", "l")]
 	    [System.String]$licensingIntent,
 
-        [parameter(Position = 8, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "Report")]
-        [parameter(Position = 8, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "Report")]
+        [Parameter(Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "VCEMMigration")]
 		[String]$VCEMCMS,
 
-        [parameter(Position = 9, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "Report")]
-        [parameter(Position = 9, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "Report")]
+        [Parameter(Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "VCEMMigration")]
 		[String]$VCEMUser,
 
-        [parameter(Position = 10, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "Report")]
-        [parameter(Position = 10, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "VCEMMigration")]
+        [Parameter(Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "Report")]
+        [Parameter(Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "VCEMMigration")]
 		[String]$VCEMPassword,
 
-		[parameter(Mandatory = $false, HelpMessage = "Do not wait for task to complete", ParameterSetName = "Default")]
-		[Switch]$NoWait,
+		[Parameter(Mandatory = $false, HelpMessage = "Do not wait for task to complete", ParameterSetName = "Default")]
+		[Alias('NoWait')]
+		[Switch]$Async,
 
-		[parameter(Mandatory = $true, HelpMessage = "Generate report only", ParameterSetName = "Report")]
+		[Parameter(Mandatory, HelpMessage = "Generate report only", ParameterSetName = "Report")]
 		[Switch]$Report,
 
-		[parameter(Mandatory = $false, HelpMessage = "Save Report Only", ParameterSetName = "Report")]
+		[Parameter(Mandatory = $false, HelpMessage = "Save Report Only", ParameterSetName = "Report")]
         [ValidateScript({
             if ({split-path $_ | Test-Path}) { $True } 
             else { Throw "'$(Split-Path $_)' is not a valid directory.  Please verify $(Split-Path $_) exists and try again." } 
             })]
 		[System.String]$Export,
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 		
 	)
 	
@@ -18830,7 +21356,8 @@ function Invoke-HPOVVcmMigration
 
                 $jobId = $reply.Envelope.body.removeVcDomainFromGroupResponse.result
 
-                if (-not ($jobId)){
+                if (-not ($jobId))
+				{
 
                     $ErrorRecord = New-ErrorRecord HPOneview.VCMigratorException InvalidJobIdResult InvalidResult 'VCEMCMS' -Message "A valid VCEM Job ID was not provided."
                     $PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -18852,7 +21379,8 @@ function Invoke-HPOVVcmMigration
         </s11:Envelope>
 "@
 
-                do {
+                do 
+				{
 
                     #Hide the progress display of Invoke-WebRequest, which adds unecessary tet to the Write-Progress output
                     $progressPreference = 'silentlyContinue' 
@@ -18877,7 +21405,8 @@ function Invoke-HPOVVcmMigration
                 } Until ($jobStatus.Envelope.body.listStatusForMvcdJobResponse.result.state -eq "COMPLETED" -or $jobStatus.Envelope.body.listStatusForMvcdJobResponse.result -eq "FAILED")
     
                 #Job Failed, terminate
-                if ($jobStatus.Envelope.body.listStatusForMvcdJobResponse.result -eq "FAILED") {
+                if ($jobStatus.Envelope.body.listStatusForMvcdJobResponse.result -eq "FAILED") 
+				{
                 
                     $errorRecord = New-ErrorRecord HPOneView.VCMigratorException $thisTask.taskErrors.errorCode InvalidArgument 'Invoke-HPOVVcMigration' -Message "$($thisTask.taskErrors.message)"
                     $PsCmdlet.ThrowTerminatingError($errorRecord)
@@ -18891,7 +21420,8 @@ function Invoke-HPOVVcmMigration
                 #Check for report status now
                 $thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $vcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
 
-                if ($thisTask.taskState -ieq "Error") {
+                if ($thisTask.taskState -ieq "Error") 
+				{
 
                     $errorRecord = New-ErrorRecord HPOneView.VCMigratorException $thisTask.taskErrors.errorCode InvalidResult 'Invoke-HPOVVcMigration' -Message "$($thisTask.taskErrors.message)"
                     $PsCmdlet.ThrowTerminatingError($errorRecord)
@@ -18899,10 +21429,10 @@ function Invoke-HPOVVcmMigration
                 }
 
                 #If we get here, task was successful. Generate new VCMMigrator report
-                #$vcMigrationReport = Send-HPOVRequest $thisTask.associatedResource.resourceUri
                 $vcMigrationReport = MigrationReport $thisTask
 
-                if ($vcMigrationReport.apiVcMigrationReport.migrationState -eq "UnableToMigrate") {
+                if ($vcMigrationReport.apiVcMigrationReport.migrationState -eq "UnableToMigrate") 
+				{
 
                     $errorRecord = New-ErrorRecord HPOneView.VCMigratorException UnableToMigrateVCDomain InvalidResult 'Invoke-HPOVVcMigration' -Message "The VC Domain in unable to be migrated due to $($vcMigrationReport.apiVcMigrationReport.highCount) Critical Issues.  Please examine the VC Migration Report to identify what needs to be resolved before migration can continue."
                     $PsCmdlet.ThrowTerminatingError($errorRecord)
@@ -18920,15 +21450,19 @@ function Invoke-HPOVVcmMigration
 
             }
 
-            Else {
+            Else 
+			{
 
-                if ($PSBoundParameters['whatif'].ispresent) { 
+                if ($PSBoundParameters['whatif'].ispresent) 
+				{ 
                             
                     write-warning "-WhatIf was passed, would have proceeded with removing '$vcDomainName' from VCEM Domain Group."
                     $resp = $null
             
                 }
-                else {
+
+                else 
+				{
 
 	                #If here, user chose "No", end processing
                     write-host ""
@@ -18944,34 +21478,44 @@ function Invoke-HPOVVcmMigration
         }
 
 		#We are ready to migrate
-        if ($vcMigrationReport.migrationState -eq "ReadyToMigrate" -and -not ($report.IsPresent)) {
+        if ($vcMigrationReport.migrationState -eq "ReadyToMigrate" -and -not ($report.IsPresent)) 
+		{
             
-            if ($pscmdlet.ShouldProcess("enclosure $EnclosureName at $($vcMigrationReport.apiVcMigrationReport.enclosureIp)","Process migration")) {
+            if ($pscmdlet.ShouldProcess("enclosure $EnclosureName at $($vcMigrationReport.apiVcMigrationReport.enclosureIp)","Process migration")) 
+			{
                 
                 #Make the PUT call to migrate
                 $migrateTask = Send-HPOVRequest -method PUT -uri $vcMigrationReport.apiVcMigrationReport.uri -body @{migrationState = "Migrated"; type = "migratable-vc-domains"}  -appliance $ApplianceConnection
 
-                if ($NoWait) {
+                if ($Async) 
+				{
 
                     $resp = $migrateTask
 
                 }
-                else {
+
+                else 
+				{
                     
                     $resp = $migrateTask | Wait-HPOVTaskComplete -timeout (New-TimeSpan -Minutes 60)
 
                 }
 
             }
-            else {
 
-                if ($PSBoundParameters['whatif'].ispresent) { 
+            else 
+			{
+
+                if ($PSBoundParameters['whatif'].ispresent) 
+				{ 
                             
                     write-warning "-WhatIf was passed, would have proceeded with migration of $($vcMigrationReport.apiVcMigrationReport.enclosureName)."
                     $resp = $null
             
                 }
-                else {
+
+                else 
+				{
 
 	                #If here, user chose "No", end processing
                     write-host ""
@@ -18987,21 +21531,24 @@ function Invoke-HPOVVcmMigration
         }#End if ReadyToMigrate
 
 		#Handle error conditions that need to be resolved by the caller before migration can be performed.
-		elseif ($vcMigrationReport.migrationState -eq "UnableToMigrate" -and $vcMigrationReport.apiVcMigrationReport.criticalCount -ge 1) {
+		elseif ($vcMigrationReport.migrationState -eq "UnableToMigrate" -and $vcMigrationReport.apiVcMigrationReport.criticalCount -ge 1) 
+		{
 		
 			$errorRecord = New-ErrorRecord HPOneView.VCMigratorException UnableToMigrateEnclosure InvalidResult 'Invoke-HPOVVcMigration' -Message "There are 1 or more critical issues preventing the enclosure from being eligible to migrate.  Please run a compatibility report using the -report switch, then review and resolve the reported issues before continuing."
             $PsCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($vcMigrationReport.migrationState -eq "Migrated") {
+		elseif ($vcMigrationReport.migrationState -eq "Migrated") 
+		{
 		
 			$errorRecord = New-ErrorRecord HPOneView.VCMigratorException EnclosureMigrated OperationStopped 'OAIP' -Message "The enclosure '$EnclosureName' was already migrated.  Not performing action again."
 			$PsCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($vcMigrationReport.migrationState -eq "Migrating") {
+		elseif ($vcMigrationReport.migrationState -eq "Migrating") 
+		{
 		
 			$errorRecord = New-ErrorRecord HPOneView.VCMigratorException MigratingEnclosure InvalidOperation 'OAIP' -Message "An asynchronOut task migrating enclosure '$EnclosureName' exists and is currently still running."
 			$PsCmdlet.ThrowTerminatingError($errorRecord)
@@ -19010,7 +21557,8 @@ function Invoke-HPOVVcmMigration
            
 	}#End process
 	
-	End {
+	End 
+	{
 	     
 	    $resp
 	}
@@ -19091,16 +21639,18 @@ function Get-HPOVEnclosure
     Param 
 	(
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", Position = 0)]
-		[parameter(Mandatory = $false, ParameterSetName = "export", Position = 0)]
-		[parameter(Mandatory = $false, ParameterSetName = "report", Position = 0)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 0)]
+		[Parameter(Mandatory = $false, ParameterSetName = "export", Position = 0)]
+		[Parameter(Mandatory = $false, ParameterSetName = "report", Position = 0)]
 		[validateNotNullorEmpty()]
         [string]$Name = $null,
 
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "export")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "report")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
         [parameter (Mandatory = $false, ParameterSetName = "export", Position = 2)]
         [Alias("x", "export")]
@@ -19123,30 +21673,64 @@ function Get-HPOVEnclosure
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -19157,8 +21741,6 @@ function Get-HPOVEnclosure
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -19315,13 +21897,13 @@ function Enclosure-Report
     Param 
 	(
 
-        [parameter(Mandatory = $true,ValueFromPipeline = $true, Position = 0)]
+        [Parameter(Mandatory,ValueFromPipeline = $true, Position = 0)]
         [object]$Enclosure,
 	
-	    [parameter(Mandatory = $false,ValueFromPipeline = $false, Position = 1)]
+	    [Parameter(Mandatory = $false,Position = 1)]
         [object]$file = $null,
 	
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
         [switch]$fwreport
     )
 
@@ -19476,12 +22058,12 @@ function Remove-HPOVEnclosure
         [Alias("uri", "name", "Enclosure")]
         [object]$Resource,
 
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $null,
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$Force
 
     )
@@ -19495,28 +22077,76 @@ function Remove-HPOVEnclosure
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['Enclosure'])) 
+		{ 
+			
+			$PipelineInput = $True 
 		
-		$c = 0
-		
-		#Support ApplianceConnection property value via pipeline from Enclosure Object
-		if(-not($PSboundParameters['ApplianceConnection']))
+		}
+
+		else
 		{
 
-			ForEach ($_connection in $ApplianceConnection) 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -19528,13 +22158,9 @@ function Remove-HPOVEnclosure
 
 				}
 
-				$c++
-
 			}
 
 		}
-
-		if (-not($PSBoundParameters['Enclosure'])) { $PipelineInput = $True }
 
 		$_TaskCollection      = New-Object System.Collections.ArrayList
 		$_EnclosureCollection = New-OBject System.Collections.ArrayList
@@ -19720,14 +22346,14 @@ function Get-HPOVServerHardwareType
 	Param
 	(
 
-		[parameter(Position = 0, Mandatory = $false)]
+		[Parameter(Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
-		[string]$Name = $null,
+		[string]$Name,
 
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter(Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[parameter (Position = 2, Mandatory = $false)]
         [Alias("x", "export")]
@@ -19747,19 +22373,18 @@ function Get-HPOVServerHardwareType
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  ($ApplianceConnection.Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-		
-		$c = 0
-		
-		#Support ApplianceConnection property value via pipeline from Enclosure Object
-		if(-not($PSboundParameters['ApplianceConnection']))
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
+
+			$c = 0
 
 			ForEach ($_connection in $ApplianceConnection) 
 			{
@@ -19787,6 +22412,33 @@ function Get-HPOVServerHardwareType
 				}
 
 				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
@@ -19892,25 +22544,25 @@ function Show-HPOVFirmwareReport
 	Param 
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, Position = 0)]
+		[Parameter(Mandatory, ValueFromPipeline, Position = 0)]
 		[validateNotNullorEmpty()]
 		[Object]$Resource,
 	
-		[parameter(Mandatory = $false, Position = 1)]
+		[Parameter(Mandatory = $false, Position = 1)]
 		[validateNotNullorEmpty()]
 		[Object]$Baseline,
             
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[Switch]$Export,
             
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[validateNotNullorEmpty()]
 		[String]$Location = (get-location).Path,
 
-		[parameter(ValueFromPipelineByPropertyName, Mandatory)]
+		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 	
@@ -19918,43 +22570,90 @@ function Show-HPOVFirmwareReport
 	{
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
-
-		if ($PSBoundParameters['Name'])
-		{
-
-			Write-Warning 'The -Name parameter is now deprecated.  Please use the -Resource parameter to specify a resource object via the parameter or Pipeline.'
-
-		}
-
+		
 		$Caller = (Get-PSCallStack)[1].Command
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		#Support ApplianceConnection property value via pipeline from Enclosure Object
-		if($PSboundParameters['ApplianceConnection'])
+		if(-not($PSboundParameters['ApplianceConnection']))
 		{
 
-			Try 
+			$PipelineInput = $true
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -20423,7 +23122,7 @@ function Get-EnclosureFirmware
     Param 
 	(
     
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Enclosure resource object")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Enclosure resource object")]
 		[ValidateScript({
 			if ($_.category -ne 'enclosures') 
 			{ 
@@ -20441,10 +23140,10 @@ function Get-EnclosureFirmware
 		})]
         [PsCustomObject]$Enclosure = $Null, 
 
-        [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null,
 
-        [parameter(Position = 2, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "Specify the level of the Write-Progress ID")]
+        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "Specify the level of the Write-Progress ID")]
         [int]$ProgressID = 0
         
     )
@@ -20906,10 +23605,10 @@ function Get-ServerFirmware
     Param 
 	(
     
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Server resource object")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Server resource object")]
         [PsCustomObject]$Server, 
 
-        [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null
         
     )
@@ -21366,10 +24065,10 @@ function Get-InterconnectFirmware
     Param 
 	(
     
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Interconnect resource object")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Interconnect resource object")]
         [PsCustomObject]$Interconnect, 
 
-        [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null
         
     )
@@ -21675,11 +24374,11 @@ function Show-HPOVUtilization
 
 	# .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdletBinding(DefaultParameterSetName = "Name")]
+    [CmdletBinding()]
     Param 
 	(
 
-        [parameter(Mandatory, ValueFromPipeLine, Position = 0)]
+        [Parameter(Mandatory, ValueFromPipeLine, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Object]$Resource
 
@@ -21741,12 +24440,31 @@ function Show-HPOVUtilization
 
 			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing object: {0}" -f $_resource.name | Write-Verbose 
 
+			switch ($_resource.category)
+			{
+
+				'server-profiles'
+				{
+
+					$_uri = $_resource.serverHardwareUri + '/utilization'
+
+				}
+
+				'server-hardware'
+				{
+
+					$_uri = $_resource.uri + '/utilization'
+
+				}
+
+			}
+
 			#Check to see if the resource is eligable for performance monitoring.
 
 			Try
 			{
 
-				$_UtilizationData = Send-HPOVRequest ($_resource.uri + '/utilization') -Hostname $_resource.ApplianceConnection.Name
+				$_UtilizationData = Send-HPOVRequest $_uri -Hostname $_resource.ApplianceConnection.Name
 
 			}
 
@@ -21884,23 +24602,23 @@ function Get-HPOVStorageSystem
     Param 
 	(
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position = 0)]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$SystemName,
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('SN')]
         [string]$SerialNumber,
 
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
-        [parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Serial")]
+        [Parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
+        [Parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Serial")]
         [Alias('Report')]
         [switch]$List
 
@@ -21916,31 +24634,65 @@ function Get-HPOVStorageSystem
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		if  ($ApplianceConnection.Count -eq 0)
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSessionFound InvalidArgument 'ApplianceConnection' -Message 'No ApplianceConnections were found.  Please use Connect-HPOVMgmt to establish an appliance connection.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -21951,8 +24703,6 @@ function Get-HPOVStorageSystem
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -22182,15 +24932,15 @@ function Update-HPOVStorageSystem
     Param 
 	(
 
-        [parameter(Mandatory = $false, ValueFromPipeLine = $True, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
+        [Parameter(Mandatory = $false, ValueFromPipeLine = $True, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$StorageSystem,
 		
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory, ParameterSetName = "Default")]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -22211,46 +24961,79 @@ function Update-HPOVStorageSystem
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and (-not($PipelineInput)))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif (($ApplianceConnection | Measure-Object).Count -gt 1 -and (-not($PipelineInput)))
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -22390,33 +25173,34 @@ function Add-HPOVStorageSystem
     Param 
 	(
 
-        [parameter(Mandatory = $true, position = 0, HelpMessage = "Enter the host name (FQDN) or IP of the Storage System.")]
+        [Parameter(Mandatory, position = 0, HelpMessage = "Enter the host name (FQDN) or IP of the Storage System.")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname,
          
-        [parameter(Mandatory = $true, position = 1, HelpMessage = "Enter the administrative user name (i.e. 3paradm).")]
+        [Parameter(Mandatory, position = 1, HelpMessage = "Enter the administrative user name (i.e. 3paradm).")]
         [ValidateNotNullOrEmpty()]
         [string]$Username,
 
-        [parameter(Mandatory = $true, position = 2, HelpMessage = "Enter the administrative account password (i.e. 3pardata).")]
+        [Parameter(Mandatory, position = 2, HelpMessage = "Enter the administrative account password (i.e. 3pardata).")]
         [ValidateNotNullOrEmpty()]
         [string]$Password,
 
-        [parameter(Mandatory = $false, position = 3, HelpMessage = "Specify the HP 3PAR Virtual Domain Name to Import resources from.")]
+        [Parameter(Mandatory = $false, position = 3, HelpMessage = "Specify the HP 3PAR Virtual Domain Name to Import resources from.")]
         [ValidateNotNullOrEmpty()]
         [String]$Domain = 'NO DOMAIN',
 
-        [parameter(Mandatory = $false, position = 4, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="Fabric A";"2:2:2"="Fabric B"}')]
+        [Parameter(Mandatory = $false, position = 4, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="Fabric A";"2:2:2"="Fabric B"}')]
         [ValidateNotNullOrEmpty()]
         [PsCustomObject]$Ports,
 
-		[parameter(Mandatory = $false, position = 5, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="PG_1";"2:2:2"="Fabric B"}')]
+		[Parameter(Mandatory = $false, position = 5, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="PG_1";"2:2:2"="Fabric B"}')]
         [ValidateNotNullOrEmpty()]
         [Hashtable]$PortGroups,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Name")]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -22900,17 +25684,18 @@ function Remove-HPOVStorageSystem
     Param 
 	(
 
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Enter the Storage System to remove.", Position = 0)]
+        [parameter (Mandatory, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Enter the Storage System to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$StorageSystem,
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$force,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -22923,39 +25708,90 @@ function Remove-HPOVStorageSystem
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['StorageSystem'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		else
 		{
+			
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
 
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] {
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			$c++
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
 
 		}
-
-		if (-not($PSBoundParameters['StorageSystem'])) { $PipelineInput = $True }
 
 		$_TaskCollection = New-Object System.Collections.ArrayList
 		$_StorageSystemCollection = New-Object System.Collections.ArrayList
@@ -23096,19 +25932,20 @@ function Get-HPOVStoragePool
     Param 
 	(
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool name.", ParameterSetName = "Name", Position = 0)]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('pool', 'PoolName')]
         [string]$Name,
 
-        [parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the Storage System Name or provide the Resource Object.", ParameterSetName = "Name", Position = 1)]
+        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the Storage System Name or provide the Resource Object.", ParameterSetName = "Name", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Alias('systemName', 'system')]
         [object]$StorageSystem,
 
-		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "Name")]
+		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "Name")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -23123,22 +25960,64 @@ function Get-HPOVStoragePool
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -23149,8 +26028,6 @@ function Get-HPOVStoragePool
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -23306,19 +26183,20 @@ function Add-HPOVStoragePool
     Param 
 	(
 
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Hostname', 'name')]
         [object]$StorageSystem,
 
-        [parameter(Mandatory, HelpMessage = "Provide array of Storage Pool names.", ParameterSetName = "Default", Position = 1)]
+        [Parameter(Mandatory, HelpMessage = "Provide array of Storage Pool names.", ParameterSetName = "Default", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Alias('PoolName', 'spName', 'cpg')]
         [array]$Pool,
 
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -23343,22 +26221,64 @@ function Add-HPOVStoragePool
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -23369,8 +26289,6 @@ function Add-HPOVStoragePool
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 
@@ -23543,13 +26461,13 @@ function Remove-HPOVStoragePool
     [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
     Param
     (
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "default",HelpMessage = "Specify the storage pool to remove.",Position=0)]
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "StorageSystem",HelpMessage = "Specify the storage pool to remove.",Position=0)]
+        [parameter (Mandatory, ValueFromPipeline = $true, ParameterSetName = "default",HelpMessage = "Specify the storage pool to remove.",Position=0)]
+        [parameter (Mandatory, ValueFromPipeline = $true, ParameterSetName = "StorageSystem",HelpMessage = "Specify the storage pool to remove.",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("uri", "name")]
         [Object]$StoragePool = $null,
 
-        [parameter (Mandatory = $true, ValueFromPipeline = $false, ParameterSetName = "StorageSystem",HelpMessage = "Specify the Storage System Name, URI or Resource Object where the Storage Pool is located to remove.",Position=1)]
+        [parameter (Mandatory, ParameterSetName = "StorageSystem",HelpMessage = "Specify the Storage System Name, URI or Resource Object where the Storage Pool is located to remove.",Position=1)]
         [ValidateNotNullOrEmpty()]
         [Alias("storage")]
         [Object]$StorageSystem = $null,
@@ -23557,9 +26475,10 @@ function Remove-HPOVStoragePool
 		[parameter (Mandatory = $false)]
 		[switch]$Force,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -23572,40 +26491,90 @@ function Remove-HPOVStoragePool
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['StoragePool'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		else
 		{
 
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			$c++
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
 
 		}
-
-		if (-not($PSBoundParameters['StoragePool'])) { $PipelineInput = $True }
 
 		$_TaskCollection        = New-Object System.Collections.ArrayList
 		$_StoragePoolCollection = New-Object System.Collections.ArrayList
@@ -23746,15 +26715,15 @@ function Get-HPOVStorageVolumeTemplate
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Volume template name.")]
+        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Volume template name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('TemplateName')]
         [string]$Name,
 
-        [parameter(Mandatory = $False, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory = $False)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -23769,38 +26738,76 @@ function Get-HPOVStorageVolumeTemplate
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-        ForEach ($_Connection in $ApplianceConnection) 
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
-			$c++
-
 		}
-
-		if (-not($PSBoundParameters['StoragePool'])) { $PipelineInput = $True }
 
 		$_StorageVolumeTemplateCollection = New-Object System.Collections.ArrayList
 
@@ -23892,41 +26899,43 @@ function New-HPOVStorageVolumeTemplate
     Param 
 	(
 
-        [parameter(Mandatory = $true, HelpMessage = "Enter the Volume Template Name.", ParameterSetName = "default")]
+        [Parameter(Mandatory, HelpMessage = "Enter the Volume Template Name.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias('templateName')]
         [string]$Name,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[string]$Description = $null,
 
-        [parameter(Mandatory = $true, ValueFromPipeline, HelpMessage = "Enter the Storage Pool Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage Pool Name, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$StoragePool = $Null,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool Name that will be used for snapshot storage, URI or provide the resource object.", ParameterSetName = "default")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool Name that will be used for snapshot storage, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$SnapshotStoragePool = $Null,
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$StorageSystem = $Null,
 
-        [parameter(Mandatory = $true, HelpMessage = "Enter the requested capacity in GB.", ParameterSetName = "default")]
+        [Parameter(Mandatory, HelpMessage = "Enter the requested capacity in GB.", ParameterSetName = "default")]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
         [int64]$capacity,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "default")]
         [switch]$full,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "default")]
         [switch]$shared,
 
-		[parameter(Mandatory = $true, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
+		[Parameter(Mandatory, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
 
     )
 
@@ -23948,46 +26957,82 @@ function New-HPOVStorageVolumeTemplate
 
 		}
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and -not($PipelineInput))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif  ($ApplianceConnection.Count -gt 1)
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			Catch 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+		}
+
 
 		}
 
@@ -24275,14 +27320,15 @@ function Remove-HPOVStorageVolumeTemplate
     Param 
 	(
 
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the storage pool to remove.", Position = 0)]
+        [parameter (Mandatory, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the storage pool to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('uri', 'name', 'templateName')]
         [Object]$Template = $null,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null,
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[switch]$Force
     
@@ -24297,40 +27343,90 @@ function Remove-HPOVStorageVolumeTemplate
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['Template'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['Template'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_TaskCollection = New-Object System.Collections.ArrayList
 		$_SVTCollection  = New-Object System.Collections.ArrayList
@@ -24538,9 +27634,10 @@ function Get-HPOVStorageVolumeTemplatePolicy
     Param 
 	(
 	
-		[parameter(Mandatory = $False)]
+		[parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -24555,23 +27652,65 @@ function Get-HPOVStorageVolumeTemplatePolicy
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -24581,8 +27720,6 @@ function Get-HPOVStorageVolumeTemplatePolicy
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -24640,15 +27777,17 @@ function Set-HPOVStorageVolumeTemplatePolicy
     Param 
 	(
     
-        [parameter(Mandatory = $True, HelpMessage = "Enable Storage Volume Template global policy.", ParameterSetName = "Enable")]
+        [Parameter(Mandatory, HelpMessage = "Enable Storage Volume Template global policy.", ParameterSetName = "Enable")]
         [switch]$Enable,
               
-        [parameter(Mandatory = $True, HelpMessage = "Disable Storage Volume Template global policy.", ParameterSetName = "Disable")]
+        [Parameter(Mandatory, HelpMessage = "Disable Storage Volume Template global policy.", ParameterSetName = "Disable")]
         [switch]$Disable,
-
-		[parameter(Mandatory = $False)]
+		
+		[Parameter(Mandatory = $false, ParameterSetName = "Enable")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Disable")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
     )
 
@@ -24663,23 +27802,65 @@ function Set-HPOVStorageVolumeTemplatePolicy
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -24689,8 +27870,6 @@ function Set-HPOVStorageVolumeTemplatePolicy
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -24773,18 +27952,18 @@ function Get-HPOVStorageVolume
     Param 
     (
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Volume name.", ParameterSetName = "Name", Position = 0)]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Volume name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$VolumeName = $Null,
 
-        [parameter(Mandatory = $false, HelpMessage = "Show only available storage volumes", ParameterSetName = "Name")]
+        [Parameter(Mandatory = $false, HelpMessage = "Show only available storage volumes", ParameterSetName = "Name")]
         [switch]$Available,
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, ParameterSetName = "Name")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -24798,40 +27977,78 @@ function Get-HPOVStorageVolume
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
-			$c++
-
 		}
-		
-		Write-Verbose -message ("ParameterSet: " + $PsCmdLet.ParameterSetName)
-        
+
         $volumeCollection = New-Object System.Collections.ArrayList
 
     }
@@ -24969,15 +28186,15 @@ function Get-HPOVStorageVolumeSnapShot
     Param 
     (
 
-        [parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$Volume,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -25002,25 +28219,74 @@ function Get-HPOVStorageVolumeSnapShot
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
-            {
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			else
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-            {
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -25103,20 +28369,20 @@ function New-HPOVStorageVolumeSnapshot
     Param 
     (
 
-        [parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Object]$Volume,
 
-		[parameter(Mandatory = $false, Position = 0)]
+		[Parameter(Mandatory = $false, Position = 0)]
 		[String]$Name = '{volumeName}_{timestamp}',
 
-		[parameter(Mandatory = $false, Position = 1)]
+		[Parameter(Mandatory = $false, Position = 1)]
 		[String]$Description,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -25141,25 +28407,74 @@ function New-HPOVStorageVolumeSnapshot
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
-            {
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			else
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-            {
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -25230,14 +28545,14 @@ function Remove-HPOVStorageVolumeSnapshot
     Param 
     (
 
-        [parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Object]$Snapshot,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -25262,25 +28577,74 @@ function Remove-HPOVStorageVolumeSnapshot
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
-            {
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			else
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-            {
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -25365,26 +28729,26 @@ function ConvertTo-HPOVStorageVolume
     Param 
     (
 
-        [parameter(Mandatory, ValueFromPipeline)]
+        [Parameter(Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Object]$Snapshot,
 
-		[parameter(Mandatory, Position = 0)]
+		[Parameter(Mandatory, Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[String]$Name,
 
-		[parameter(Mandatory = $false, Position = 1)]
+		[Parameter(Mandatory = $false, Position = 1)]
 		[ValidateNotNullOrEmpty()]
 		[String]$Description,
 
-		[parameter(Mandatory = $false, Position = 2)]
+		[Parameter(Mandatory = $false, Position = 2)]
 		[ValidateSet('Private', 'Shared')]
 		[String]$SharingMode,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -25409,25 +28773,74 @@ function ConvertTo-HPOVStorageVolume
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
-            {
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			else
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-            {
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -25531,42 +28944,43 @@ function New-HPOVStorageVolume
         [parameter (Mandatory, HelpMessage = "Specify the name of the storage volume.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("name")]
-        [string]$volumeName,
+        [string]$VolumeName,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", Position = 1)]
-        [string]$description = "",
+        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 1)]
+        [string]$Description = "",
 
-        [parameter(Mandatory, ValueFromPipeline, ParameterSetName = "default", Position = 2)]
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "default", Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Alias("pool","poolName")]
         [object]$StoragePool,
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$StorageSystem = $Null,
 
-        [parameter(Mandatory, ParameterSetName = "template")]
+        [Parameter(Mandatory, ParameterSetName = "template")]
         [ValidateNotNullOrEmpty()]
         [Alias('template','svt')]
         [object]$VolumeTemplate,
 
-        [parameter(Mandatory, ParameterSetName = "default", Position = 3)]
-        [parameter(Mandatory = $false, ParameterSetName = "template", Position = 2)]
+        [Parameter(Mandatory, ParameterSetName = "default", Position = 3)]
+        [Parameter(Mandatory = $false, ParameterSetName = "template", Position = 2)]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
-        [int64]$capacity,
+        [int64]$Capacity,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Create Thick provisioned volume.")]
-        [switch]$full,
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Create Thick provisioned volume.")]
+        [switch]$Full,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
-        [parameter(Mandatory = $false, ParameterSetName = "template", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
-        [switch]$shared,
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [Parameter(Mandatory = $false, ParameterSetName = "template", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [switch]$Shared,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "template")]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "template")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -25591,19 +29005,47 @@ function New-HPOVStorageVolume
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif  ($ApplianceConnection.Count -gt 1)
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
@@ -25612,7 +29054,7 @@ function New-HPOVStorageVolume
 
 				Try 
 				{
-	
+			
 					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
@@ -25620,8 +29062,8 @@ function New-HPOVStorageVolume
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -26020,39 +29462,40 @@ function Add-HPOVStorageVolume
     Param 
 	(
 
-        [parameter(Mandatory = $true, ValueFromPipeline = $True, Position = 0, ParameterSetName = "default")]
-		[parameter(Mandatory = $true, ValueFromPipeline = $True, Position = 0, ParameterSetName = "StorageDeviceName")]
+        [Parameter(Mandatory, ValueFromPipeline = $True, Position = 0, ParameterSetName = "default")]
+		[Parameter(Mandatory, ValueFromPipeline = $True, Position = 0, ParameterSetName = "StorageDeviceName")]
         [ValidateNotNullOrEmpty()]
         [object]$StorageSystem,
 
-        [parameter (Mandatory = $true, HelpMessage = "Specify the name of the storage volume.", Position = 1, ParameterSetName = "default")]
+        [parameter (Mandatory, HelpMessage = "Specify the name of the storage volume.", Position = 1, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias("volid","id","wwn")]
         [ValidateScript({if ($_ -match $script:wwnLongAddressPattern) {$true} else { Throw "The input value '$_' does not match the required format of 'AA:BB:CC:DD:EE:AA:BB:CC:DD:EE:AA:BB:CC:DD:EE:AA'. Please correct and try again." }})]
         [string]$VolumeID,
 
-		[parameter (Mandatory = $true, ParameterSetName = "StorageDeviceName", HelpMessage = "Specify the Storage Device Name of the storage volume.")]
+		[parameter (Mandatory, ParameterSetName = "StorageDeviceName", HelpMessage = "Specify the Storage Device Name of the storage volume.")]
         [ValidateNotNullOrEmpty()]
         [string]$StorageDeviceName,
 
-        [parameter (Mandatory = $true, ParameterSetName = "default", HelpMessage = "Specify the name of the storage volume.", Position = 2)]
-		[parameter (Mandatory = $true, ParameterSetName = "StorageDeviceName", HelpMessage = "Specify the name of the storage volume.", Position = 2)]
+        [parameter (Mandatory, ParameterSetName = "default", HelpMessage = "Specify the name of the storage volume.", Position = 2)]
+		[parameter (Mandatory, ParameterSetName = "StorageDeviceName", HelpMessage = "Specify the name of the storage volume.", Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Alias("name")]
         [string]$VolumeName,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", Position = 3)]
-		[parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", Position = 3)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 3)]
+		[Parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", Position = 3)]
         [string]$Description = "",
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
-		[parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+		[Parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
         [switch]$Shared,
 
-		[parameter(Mandatory = $true, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
-		[parameter(Mandatory = $true, ParameterSetName = "StorageDeviceName", ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -26067,19 +29510,47 @@ function Add-HPOVStorageVolume
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -26088,7 +29559,7 @@ function Add-HPOVStorageVolume
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -26096,8 +29567,8 @@ function Add-HPOVStorageVolume
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -26281,32 +29752,33 @@ function Set-HPOVStorageVolume
     Param 
 	(
 
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, HelpMessage = "Specify the original Storage VOlume Name, URI or Object.", Position = 0)]
+        [parameter (Mandatory, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the original Storage VOlume Name, URI or Object.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Object]$SourceVolume,
 
-        [parameter (Mandatory = $false, HelpMessage = "Specify the name of the storage volume.", Position = 1)]
+        [parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the name of the storage volume.", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [String]$VolumeName,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", Position = 2)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 2)]
         [String]$Description = "",
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", Position = 3)]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 3)]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
         [int64]$Capacity,
 
-		[parameter(Mandatory = $false, ParameterSetName = "default", Position = 2)]
+		[Parameter(Mandatory = $false, ParameterSetName = "default", Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Object]$SnapShotStoragePool,
 
-        [parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
         [bool]$Shared,
 
-		[parameter(Mandatory = $true, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -26326,46 +29798,79 @@ function Set-HPOVStorageVolume
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and (-not($PipelineInput)))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif  ($ApplianceConnection.Count -gt 1)
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch 
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -26656,13 +30161,13 @@ function Remove-HPOVStorageVolume
         [Alias('uri', 'name')]
         [Object]$StorageVolume,
 
-        [parameter(Mandatory = $false, HelpMessage = "Specify whether to delete the export reference or export and provisioning volume.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Specify whether to delete the export reference or export and provisioning volume.")]
         [Switch]$ExportOnly,
 	
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
-        [ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+        [ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -26682,46 +30187,79 @@ function Remove-HPOVStorageVolume
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and (-not($PipelineInput)))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif  ($ApplianceConnection.Count -gt 1)
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch 
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -26963,14 +30501,15 @@ function Get-HPOVSanManager
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.")]
+        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$SanManager = $Null,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -26984,24 +30523,66 @@ function Get-HPOVSanManager
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -27011,8 +30592,6 @@ function Get-HPOVSanManager
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -27116,67 +30695,66 @@ function Add-HPOVSanManager
     Param 
 	(
 
-        [parameter(Mandatory = $true, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "HPCisco")]
-		[parameter(Mandatory = $true, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "BNA")]
+        [Parameter(Mandatory, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "BNA")]
         [ValidateSet("Brocade","BNA","Brocade Network Advisor","HP","Cisco")]
         [string]$Type,
 
-		[parameter(Mandatory = $true, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $true, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
+		[Parameter(Mandatory, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname = $null,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(1,65535)]
         [int]$Port = 0,
          
-		#[parameter(Mandatory = $true, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $true, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
+        [Parameter(Mandatory, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Username = $Null,
 
-		#[parameter(Mandatory = $true, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $true, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
+        [Parameter(Mandatory, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-		[parameter(Mandatory = $true, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
 		[string]$SnmpUserName,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
 		[ValidateSet("None","AuthOnly","AuthAndPriv")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthLevel = "None",
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
 		[ValidateSet("sha","md5")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthProtocol,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthPassword,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
 		[ValidateSet("aes-128","des56","3des")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivProtocol,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivPassword,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "BNA")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "BNA")]
 	    [switch]$UseSsl,
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[switch]$Async,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -27191,23 +30769,65 @@ function Add-HPOVSanManager
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -27217,8 +30837,6 @@ function Add-HPOVSanManager
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -27440,122 +31058,6 @@ function Add-HPOVSanManager
 
 }
 
-function Show-HPOVSanEndpoints
-{
-	<#
-
-	Query does work!
-	GET https://{appl}/rest/fc-sans/endpoints?query=wwn eq 'AA:BB:CC:DD:AA:BB:CC:DD'
-
-
-	$resp.members
-uri                 : /rest/fc-sans/endpoints/21:52:00:02:AC:00:15:2C
-type                : FCEndpointV3
-aliasName           :
-category            : fc-endpoints
-created             : 2016-02-23T02:33:47.591Z
-deviceName          : HP-P10000-2
-deviceNameUri       : /rest/storage-systems/1405420
-devicePortGroupName :
-devicePortName      : 1:5:2
-eTag                : dff358ec-8014-48a2-91ee-4f7c1d1d87c9
-isOnline            : True
-modified            : 2016-02-25T03:40:47.944Z
-portType            : N_Port
-sanName             : POD-22, interconnect 2_FC direct-b
-sanUri              : /rest/fc-sans/managed-sans/2adaa55f-9575-4c0f-9daa-b30a738eac73
-wwn                 : 21:52:00:02:AC:00:15:2C
-zoneName            :
-ApplianceConnection : @{Name=pod22-hpov.cinetworking.lab; ConnectionId=1}
-
-uri                 : /rest/fc-sans/endpoints/20:52:00:02:AC:00:15:2C
-type                : FCEndpointV3
-aliasName           :
-category            : fc-endpoints
-created             : 2016-02-23T02:33:47.591Z
-deviceName          : HP-P10000-2
-deviceNameUri       : /rest/storage-systems/1405420
-devicePortGroupName :
-devicePortName      : 0:5:2
-eTag                : 46544b32-5ea5-45ba-8d22-c2dd1defceaf
-isOnline            : True
-modified            : 2016-02-25T03:40:47.905Z
-portType            : N_Port
-sanName             : POD-22, interconnect 1_FC direct-a
-sanUri              : /rest/fc-sans/managed-sans/ed01a48a-0930-4e74-9c13-434ce21daf1b
-wwn                 : 20:52:00:02:AC:00:15:2C
-zoneName            :
-ApplianceConnection : @{Name=pod22-hpov.cinetworking.lab; ConnectionId=1}
-
-uri                 : /rest/fc-sans/endpoints/10:00:66:03:6C:70:00:00
-type                : FCEndpointV3
-aliasName           :
-category            : fc-endpoints
-created             : 2016-02-23T02:33:47.591Z
-deviceName          : Prod ESXi Server Bay 09
-deviceNameUri       : /rest/server-profiles/a311432b-6c24-471d-81bc-01c361d8eedf
-devicePortGroupName :
-devicePortName      : vmhba1
-eTag                : 46544b32-5ea5-45ba-8d22-c2dd1defceaf
-isOnline            : False
-modified            : 2016-02-25T03:40:47.905Z
-portType            : N_Port
-sanName             : POD-22, interconnect 1_FC direct-a
-sanUri              : /rest/fc-sans/managed-sans/ed01a48a-0930-4e74-9c13-434ce21daf1b
-wwn                 : 10:00:66:03:6C:70:00:00
-zoneName            :
-ApplianceConnection : @{Name=pod22-hpov.cinetworking.lab; ConnectionId=1}
-
-uri                 : /rest/fc-sans/endpoints/10:00:66:03:6C:70:00:02
-type                : FCEndpointV3
-aliasName           :
-category            : fc-endpoints
-created             : 2016-02-23T02:33:47.591Z
-deviceName          : Prod ESXi Server Bay 09
-deviceNameUri       : /rest/server-profiles/a311432b-6c24-471d-81bc-01c361d8eedf
-devicePortGroupName :
-devicePortName      : vmhba2
-eTag                : dff358ec-8014-48a2-91ee-4f7c1d1d87c9
-isOnline            : False
-modified            : 2016-02-25T03:40:47.944Z
-portType            : N_Port
-sanName             : POD-22, interconnect 2_FC direct-b
-sanUri              : /rest/fc-sans/managed-sans/2adaa55f-9575-4c0f-9daa-b30a738eac73
-wwn                 : 10:00:66:03:6C:70:00:02
-zoneName            :
-ApplianceConnection : @{Name=pod22-hpov.cinetworking.lab; ConnectionId=1}
-
-
-
-[PS] C:\Users\clynch> $resp.members | ft -Property devicename,isOnline,sanName,wwn,zonename
-
-deviceName                                         isOnline sanName                       wwn                           zoneName
-----------                                         -------- -------                       ---                           --------
-HP-P10000-2                                            True POD-22, interconnect 2_FC ... 21:52:00:02:AC:00:15:2C
-HP-P10000-2                                            True POD-22, interconnect 1_FC ... 20:52:00:02:AC:00:15:2C
-Prod ESXi Server Bay 09                               False POD-22, interconnect 1_FC ... 10:00:66:03:6C:70:00:00
-Prod ESXi Server Bay 09                               False POD-22, interconnect 2_FC ... 10:00:66:03:6C:70:00:02
-
-
-[PS] C:\Users\clynch> $resp.members | ft -Property devicename,isOnline,sanName,wwn,zonename -auto
-
-deviceName              isOnline sanName                            wwn                     zoneName
-----------              -------- -------                            ---                     --------
-HP-P10000-2                 True POD-22, interconnect 2_FC direct-b 21:52:00:02:AC:00:15:2C
-HP-P10000-2                 True POD-22, interconnect 1_FC direct-a 20:52:00:02:AC:00:15:2C
-Prod ESXi Server Bay 09    False POD-22, interconnect 1_FC direct-a 10:00:66:03:6C:70:00:00
-Prod ESXi Server Bay 09    False POD-22, interconnect 2_FC direct-b 10:00:66:03:6C:70:00:02
-
-
-
-
-
-
-	#>
-
-
-}
-
 function Set-HPOVSanManager 
 {
 
@@ -27565,68 +31067,69 @@ function Set-HPOVSanManager
     Param 
 	(
 
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "BNA")]
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "BNA")]
 		[Alias('name')]
         [ValidateNotNullOrEmpty()]
         [object]$Resource,
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname = $null,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(1,65535)]
         [int]$Port = 0,
          
-		[parameter(Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Username = $Null,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "HPCisco")]
-        [parameter(Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "HPCisco")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
 		[string]$SnmpUserName,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
 		[ValidateSet("None","AuthOnly","AuthAndPriv")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthLevel = "None",
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
 		[ValidateSet("sha","md5")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthProtocol,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthPassword,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
 		[ValidateSet("aes-128","des56","3des")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivProtocol,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivPassword,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "BNA")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "BNA")]
 	    [switch]$EnableSsl,
 
 		[switch]$DisableSsl,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "HPCisco")]
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "BNA")]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "BNA")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -27651,19 +31154,47 @@ function Set-HPOVSanManager
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif  ($ApplianceConnection.Count -gt 1)
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
@@ -27672,7 +31203,7 @@ function Set-HPOVSanManager
 
 				Try 
 				{
-	
+			
 					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
@@ -27680,8 +31211,8 @@ function Set-HPOVSanManager
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -27885,15 +31416,15 @@ function Update-HPOVSanManager
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Managed SAN Name.")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Managed SAN Name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$SANManager = $Null,
 		
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory)]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -28056,15 +31587,15 @@ function Remove-HPOVSanManager
     Param 
 	(
 
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Name, or provide SAN Manager Resource.", Position = 0)]
+        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Name, or provide SAN Manager Resource.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [object]$SanManager = $Null,
 	
-		[parameter(position = 1, Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter(position = 1, Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -28089,23 +31620,65 @@ function Remove-HPOVSanManager
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -28115,8 +31688,6 @@ function Remove-HPOVSanManager
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 
@@ -28260,15 +31831,15 @@ function Get-HPOVManagedSan
     Param 
 	(
 
-        [parameter(Mandatory = $false, HelpMessage = "Enter the Managed SAN Name.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the Managed SAN Name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Fabric')]
-        [string]$Name = $null,
+        [string]$Name,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -28282,24 +31853,66 @@ function Get-HPOVManagedSan
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -28309,8 +31922,6 @@ function Get-HPOVManagedSan
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -28400,56 +32011,57 @@ function Set-HPOVManagedSan
     Param 
 	(
 
-        [parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Enable", position=0)]
-        [parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Disable", position=0)]
-        [parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "DisableAlias", position=0)]
+        [Parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Enable", position=0)]
+        [Parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Disable", position=0)]
+        [Parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "DisableAlias", position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Fabric','Name','ManagedSan')]
         [object]$Resource,
 
-        [parameter(Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Enable")]
-        [parameter(Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "DisableAlias")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "DisableAlias")]
         [Alias('ZoningEnable','Enable')]
         [switch]$EnableAutomatedZoning,
 
-        [parameter(Mandatory = $false, HelpMessage = "Disable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Disable")]
+        [Parameter(Mandatory = $false, HelpMessage = "Disable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Disable")]
         [Alias('ZoningDisable','Disable')]
         [switch]$DisableAutomatedZoning,
 
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Disable")]
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "DisableAlias")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Disable")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "DisableAlias")]
 		[ValidateSet('SingleInitiatorAllTargets','SingleInitiatorSingleStorageSystem','SingleInitiatorSingleTarget')]
 		[ValidateNotNullOrEmpty()]
 		[string]$ZoningPolicy = 'SingleInitiatorAllTargets',
       
-        [parameter(Mandatory = $false, ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Enable")]
         [switch]$EnableAliasing,
 
-        [parameter(Mandatory = $false, ParameterSetName = "DisableAlias")]
+        [Parameter(Mandatory = $false, ParameterSetName = "DisableAlias")]
         [switch]$DisableAliasing,
 
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$InitiatorNameFormat,
 
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$TargetGroupNameFormat,
 
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$TargetNameFormat,
 
-        [parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$ZoneNameFormat,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "Enable")]
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "Disable")]
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "DisableAlias")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Enable")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Disable")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DisableAlias")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -28474,19 +32086,47 @@ function Set-HPOVManagedSan
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif  ($ApplianceConnection.Count -gt 1)
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
@@ -28495,7 +32135,7 @@ function Set-HPOVManagedSan
 
 				Try 
 				{
-	
+			
 					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
@@ -28503,8 +32143,8 @@ function Set-HPOVManagedSan
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -28660,6 +32300,251 @@ function Set-HPOVManagedSan
 
 }
 
+function Show-HPOVSanEndpoint
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+    [CmdletBinding(DefaultParameterSetName = 'Default')]
+    Param 
+	(
+
+        [Parameter(Mandatory = $False, ValueFromPipeline, ParameterSetName = 'Default')]
+        [ValidateNotNullOrEmpty()]
+        [Object]$SAN,
+
+		[Parameter(Mandatory, ParameterSetName = 'WWN')]
+        [ValidateNotNullOrEmpty()]
+        [String]$WWN,
+
+		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[parameter(Mandatory = $false, ParameterSetName = 'WWN')]
+		[ValidateNotNullorEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
+	)
+
+	Begin 
+	{
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		$_SANEndpointCol = New-Object System.Collections.ArrayList
+
+    }
+
+	Process
+	{
+
+		$uri = $SanEndpoints
+
+		if ($SAN)
+		{
+
+			switch ($SAN.GetType().Name)
+			{
+
+
+				'String'
+				{
+
+					$uri += '?query=sanName eq "{0}"' -f $SAN
+
+				}
+
+				'PSCustomObject'
+				{
+
+					$uri += '?query=sanName eq "{0}"' -f $SAN.name
+
+				}
+
+			}
+
+			Try
+			{
+
+				$_resp = Send-HPOVRequest $uri -Hostname $ApplianceConnection
+
+				$_resp.members | % {
+
+					$_.PSObject.TypeNames.Insert(0,'HPOneView.Storage.San.Endpoint')
+
+					[void]$_SANEndpointCol.Add($_)
+
+				}
+
+			}
+
+			Catch
+			{
+
+			  $PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		else
+		{
+
+			if ($WWN)
+			{
+
+				$uri += '?query=wwn eq "{0}"' -f $WWN
+
+			}
+
+			if ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				ForEach ($_connection in $ApplianceConnection)
+				{
+
+
+					Try
+					{
+
+						$_resp = Send-HPOVRequest $uri -Hostname $ApplianceConnection
+
+						$_resp.members | % {
+
+							$_.PSObject.TypeNames.Insert(0,'HPOneView.Storage.San.Endpoint')
+
+							[void]$_SANEndpointCol.Add($_)
+
+						}
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+					
+				}
+
+			}
+
+			else
+			{
+
+				Try
+				{
+
+					$_resp = Send-HPOVRequest $uri -Hostname $ApplianceConnection
+
+					$_resp.members | % {
+
+						$_.PSObject.TypeNames.Insert(0,'HPOneView.Storage.San.Endpoint')
+
+						[void]$_SANEndpointCol.Add($_)
+
+					}
+
+				}
+
+				Catch
+				{
+
+				  $PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+			
+		}
+
+	}
+
+	end
+	{
+
+		Return $_SANEndpointCol
+
+	}
+
+}
+
 #######################################################
 # Unmanaged Devices: 
 #
@@ -28681,10 +32566,10 @@ function Get-HPOVUnmanagedDevice
         [Alias('report')]
         [Switch]$List,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 	
@@ -28705,24 +32590,66 @@ function Get-HPOVUnmanagedDevice
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -28732,8 +32659,6 @@ function Get-HPOVUnmanagedDevice
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -28832,11 +32757,11 @@ function New-HPOVUnmanagedDevice
     Param 
 	(
 
-        [Parameter(Mandatory = $true, Position = 0, ParameterSetName = 'Default', HelpMessage = "Enter the name of the unmanaged device.")]
+        [Parameter(Mandatory, Position = 0, ParameterSetName = 'Default', HelpMessage = "Enter the name of the unmanaged device.")]
         [ValidateNotNullOrEmpty()]
         [String]$Name,
 
-        [Parameter(Mandatory = $true, Position = 1, ParameterSetName = 'Default', HelpMessage = "Provide a device model description (e.g. HPN 5900CP).")]
+        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Default', HelpMessage = "Provide a device model description (e.g. HPN 5900CP).")]
         [ValidateNotNullOrEmpty()]
         [string]$Model,
 
@@ -28844,7 +32769,7 @@ function New-HPOVUnmanagedDevice
         [ValidateNotNullOrEmpty()]
         [int]$Height = 1,
 
-        [Parameter(Mandatory = $true, Position = 3, ParameterSetName = 'Default', HelpMessage = "Enter the max power consumption in WATTS (e.g. 300).")]
+        [Parameter(Mandatory, Position = 3, ParameterSetName = 'Default', HelpMessage = "Enter the max power consumption in WATTS (e.g. 300).")]
         [ValidateNotNullOrEmpty()]
         [int]$MaxPower,
 
@@ -28860,9 +32785,10 @@ function New-HPOVUnmanagedDevice
         [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPV6Address value does not appear to be a valid IPv6 Address.' } else { $True }})]
 		[string]$IPV6Address,
 
-		[parameter(Mandatory)]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -28877,32 +32803,74 @@ function New-HPOVUnmanagedDevice
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		Try 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
-	
-			$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		Catch [HPOneview.Appliance.AuthSessionException] 
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
-		Catch 
+		else
 		{
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-		}
+			}
 
-		if (-not($PSBoundParameters['LogicalInterconnectGroupMapping']))
-		{
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
 
-			$PipelineInput = $true
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
 
@@ -28965,18 +32933,18 @@ function Remove-HPOVUnmanagedDevice
     Param 
 	(
 
-        [parameter(Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the Unmanaged Device to be removed.")]
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the Unmanaged Device to be removed.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$UnmanagedDevice = $null,
 
-	    [parameter(Mandatory = $false)]
+	    [Parameter(Mandatory = $false, ParameterSetName = "default")]
 	    [switch]$force,
 	
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -28989,40 +32957,90 @@ function Remove-HPOVUnmanagedDevice
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['UnmanagedDevice'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['UnmanagedDevice'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_TaskCollection            = New-Object System.Collections.ArrayList
 		$_UnmanagedDeviceCollection = New-Object System.Collections.ArrayList
@@ -29162,12 +33180,13 @@ function Get-HPOVPowerDevice
 	Param 
 	(
 
-		[parameter(Mandatory = $false, Position = 0)]
-		[string]$Name = $null,
+		[Parameter(Mandatory = $false, Position = 0)]
+		[string]$Name,
         
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -29181,35 +33200,75 @@ function Get-HPOVPowerDevice
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
         
@@ -29284,24 +33343,25 @@ function Add-HPOVPowerDevice
     Param 
 	(
 
-        [parameter(Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the iPDU's management processor.", Position = 0)]
+        [Parameter(Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the iPDU's management processor.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname,
          
-        [parameter(Mandatory, HelpMessage = "Enter the iPDU administrative user name.", Position = 1)]
+        [Parameter(Mandatory, HelpMessage = "Enter the iPDU administrative user name.", Position = 1)]
         [ValidateNotNullOrEmpty()]
-        [string]$Username = "",
+        [string]$Username,
 
-        [parameter(Mandatory, HelpMessage = "Enter the iPDU administrative account password.", Position = 2)]
+        [Parameter(Mandatory, HelpMessage = "Enter the iPDU administrative account password.", Position = 2)]
         [ValidateNotNullOrEmpty()]
-        [string]$Password = "",
+        [string]$Password,
 
-	    [parameter(Mandatory = $false)]
+	    [Parameter(Mandatory = $false)]
 	    [switch]$Force,
 
-		[parameter(Mandatory)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -29316,19 +33376,47 @@ function Add-HPOVPowerDevice
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -29337,7 +33425,7 @@ function Add-HPOVPowerDevice
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -29345,8 +33433,8 @@ function Add-HPOVPowerDevice
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -29576,18 +33664,18 @@ function Remove-HPOVPowerDevice
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the power-device to be removed.")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the power-device to be removed.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$PowerDevice = $null,
 
-	    [parameter(Mandatory = $false)]
+	    [Parameter(Mandatory = $false)]
 	    [switch]$force,
 	
-		[parameter(position = 1, Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter(position = 1, Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -29600,40 +33688,90 @@ function Remove-HPOVPowerDevice
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['PowerDevice'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['PowerDevice'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_TaskCollection        = New-Object System.Collections.ArrayList
 		$_PowerDeviceCollection = New-Object System.Collections.ArrayList
@@ -29773,15 +33911,15 @@ function Get-HPOVPowerPotentialDeviceConnection
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Power Device to retrive potential power connections of resources.")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Power Device to retrive potential power connections of resources.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$PowerDevice = $null,
 	
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -29794,40 +33932,90 @@ function Get-HPOVPowerPotentialDeviceConnection
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['PowerDevice'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['PowerDevice'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_PowerDeviceCollection = New-Object System.Collections.ArrayList
 
@@ -29962,82 +34150,83 @@ function New-HPOVNetwork
     Param 
 	(
 
-		[parameter(Mandatory = $true, ParameterSetName = "FC",Position=0)]
-		[parameter(Mandatory = $true, ParameterSetName = "Ethernet",Position=0)]
-		[parameter(Mandatory = $true, ParameterSetName = "FCOE",Position=0)]
-		[parameter(Mandatory = $true, ParameterSetName = "VLANIDRange",Position=0)]
+		[Parameter(Mandatory, ParameterSetName = "FC",Position=0)]
+		[Parameter(Mandatory, ParameterSetName = "Ethernet",Position=0)]
+		[Parameter(Mandatory, ParameterSetName = "FCOE",Position=0)]
+		[Parameter(Mandatory, ParameterSetName = "VLANIDRange",Position=0)]
 		[string]$Name, 
 
-		[parameter(Mandatory = $true, ParameterSetName = "FC",Position=1)]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=1)]
-		[parameter(Mandatory = $false, ParameterSetName = "FCOE",Position=1)]
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=1)]
+		[Parameter(Mandatory, ParameterSetName = "FC",Position=1)]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=1)]
+		[Parameter(Mandatory = $false, ParameterSetName = "FCOE",Position=1)]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=1)]
 		[ValidateSet("Ethernet", "FC", "FibreChannel", "Fibre Channel", "FCoE")]
 		[string]$Type = "Ethernet",
         
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=2)] 
-		[parameter(Mandatory = $true, ParameterSetName = "FCOE",Position=2)] 
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=2)] 
+		[Parameter(Mandatory, ParameterSetName = "FCOE",Position=2)] 
 		[int32]$VlanId,
 
-		[parameter(Mandatory = $true, ParameterSetName = "VLANIDRange",Position=1)]
+		[Parameter(Mandatory, ParameterSetName = "VLANIDRange",Position=1)]
 		[string]$VlanRange,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=3)] 
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=2)]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=3)] 
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=2)]
 		[ValidateSet('Untagged','Tagged','Tunnel')]
 		[string]$VLANType = "Tagged", 
 
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
 		[ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
 		[string]$Purpose = "General", 
 
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
 		[boolean]$SmartLink = $true, 
 
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
 		[boolean]$PrivateNetwork = $false, 
 
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "FCOE")]
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FCOE")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(2,20000)]
 		[int32]$TypicalBandwidth = 2500, 
         
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "FCOE")]
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FCOE")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(100,20000)]
 		[int32]$MaximumBandwidth = 10000, 
 
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[int32]$LinkStabilityTime = 30, 
 
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[boolean]$AutoLoginRedistribution = $False,
 
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
 		[ValidateSet("FabricAttach","FA", "DirectAttach","DA")]
 		[string]$FabricType = "FabricAttach",
 
-		[parameter(Mandatory = $false, ParameterSetName = "FC", ValueFromPipeline = $True)]
-		[parameter(Mandatory = $false, ParameterSetName = "FCOE", ValueFromPipeline = $True, Position = 3)] 
+		[Parameter(Mandatory = $false, ParameterSetName = "FC", ValueFromPipeline = $True)]
+		[Parameter(Mandatory = $false, ParameterSetName = "FCOE", ValueFromPipeline = $True, Position = 3)] 
 		[ValidateNotNullOrEmpty()]
 		[object]$ManagedSan = $Null,
 
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
-		[parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "FCOE")]
-		[parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[parameter(Mandatory = $false, ParameterSetName = "importFile")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FCOE")]
+		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter(Mandatory = $false, ParameterSetName = "importFile")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[parameter(Mandatory = $true, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
+		[Parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
 		[string]$ImportFile
 
@@ -30051,26 +34240,68 @@ function New-HPOVNetwork
 		$Caller = (Get-PSCallStack)[1].Command
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
-
+		
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -30080,8 +34311,6 @@ function New-HPOVNetwork
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -30283,7 +34512,7 @@ function New-HPOVNetwork
 					{$_ -match "bulk-ethernet-network"}
 					{
 			            
-			            write-host "Creating bulk '$name' + '$vlanRange' Ethernet Networks"
+						"[{0}] Creating bulk '{1}' + '{2}' Ethernet Networks" -f $MyInvocation.InvocationName.ToString().ToUpper(), $name, $vlanRange | Write-Verbose
 
 			            $netUri = $script:ethNetworksUri + "/bulk"
 
@@ -30294,7 +34523,7 @@ function New-HPOVNetwork
 			        {$_ -match "ethernet-network"}
 					{
 
-			            write-host "Creating Ethernet Network" $net.name 
+						"[{0}] Creating Ethernet Network: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $net.name  | Write-Verbose
 
 			            $netUri = $script:ethNetworksUri
 
@@ -30305,7 +34534,7 @@ function New-HPOVNetwork
 			        {$_ -match "fc-network"}
 					{
 
-			            write-host "Creating FC Network" $net.name
+						"[{0}] Creating FC Network: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $net.name  | Write-Verbose
 
 			            $netUri = $script:fcNetworksUri
 
@@ -30316,7 +34545,7 @@ function New-HPOVNetwork
 					{$_ -match "fcoe-network"}
 					{
 
-						write-host "Creating FCoE Network" $net.name
+						"[{0}] Creating FCoE Network: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $net.name  | Write-Verbose
 
 			            $netUri = $script:fcoeNetworksUri
 
@@ -30512,7 +34741,7 @@ function VerifyManagedSan
 		[ValidateNotNullorEmpty()]
 		[Object]$managedSan,
 
-		[parameter (Mandatory = $true, Position = 1)]	
+		[parameter (Mandatory, Position = 1)]	
 		[ValidateNotNullorEmpty()]	
 		[object]$Appliance
     
@@ -30591,19 +34820,20 @@ function Get-HPOVNetwork
 	(
 
 		[parameter (ValueFromPipeline, Mandatory = $false, position = 0)]
-		[String]$Name = $null,
+		[String]$Name,
 		
 		[parameter (Mandatory = $false, position = 1)]
 		[ValidateSet("Ethernet","FC","FibreChannel","FCOE")]
-		[String]$Type = $null,
+		[String]$Type,
 		
 		[parameter (Mandatory = $false, position = 2)]
 		[ValidateSet("Management","FaultTolerance","General","VMMigration", IgnoreCase = $False)]
 		[String]$Purpose,
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 		
 		[parameter (Mandatory = $false, position = 4)]
 		[alias("x", "export")]
@@ -30630,24 +34860,66 @@ function Get-HPOVNetwork
 		}
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -30657,8 +34929,6 @@ function Get-HPOVNetwork
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -30900,65 +35170,66 @@ function Set-HPOVNetwork
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "Ethernet")]
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "FibreChannel")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "Ethernet")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [Alias('net')]
         [Object]$Network,
 
-        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "Ethernet")]
-        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "FibreChannel")]
+        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "Ethernet")]
+        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
-        [string]$Name = $Null,
+        [string]$Name,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-        [parameter(Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter(Mandatory = $false, ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [string]$Prefix,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-        [parameter(Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter(Mandatory = $false, ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [string]$Suffix,
 
-        [parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Enter the new Purpose of the network object.", ParameterSetName = "Ethernet")]
+        [Parameter(Position = 2, Mandatory = $false, HelpMessage = "Enter the new Purpose of the network object.", ParameterSetName = "Ethernet")]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
         [string]$Purpose,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
         [Bool]$Smartlink, 
 
-        [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
         [Bool]$PrivateNetwork, 
 
-        [parameter(Position = 5, Mandatory = $false, ParameterSetName = "Ethernet")]
-        [parameter(Position = 2, Mandatory = $false, ParameterSetName = "FibreChannel")]
-		[parameter(Position = 2, Mandatory = $false, ParameterSetName = "FCoE")]
+        [Parameter(Position = 5, Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "FibreChannel")]
+		[Parameter(Position = 2, Mandatory = $false, ParameterSetName = "FCoE")]
         [validaterange(2,20000)]
         [int32]$TypicalBandwidth, 
         
-        [parameter(Position = 6, Mandatory = $false, ParameterSetName = "Ethernet")]
-        [parameter(Position = 3, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter(Position = 6, Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "FibreChannel")]
         [validaterange(100,20000)]
         [int32]$MaximumBandwidth, 
 
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "FibreChannel")]
         [ValidateRange(1,1800)]
 		[Alias('lst')]
         [int32]$LinkStabilityTime, 
 
-        [parameter(Position = 5, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter(Position = 5, Mandatory = $false, ParameterSetName = "FibreChannel")]
 		[Alias('ald')]
         [Bool]$AutoLoginRedistribution,
 
-        [parameter(Position = 6, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter(Position = 6, Mandatory = $false, ParameterSetName = "FibreChannel")]
         [Object]$ManagedSan = $Null,
 
-		[parameter(ValueFromPipelineByPropertyName, ValueFromPipeline = $False, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "Ethernet")]
-		[parameter(ValueFromPipelineByPropertyName, ValueFromPipeline = $False, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "FibreChannel")]
+		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "Ethernet")]
+		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "FibreChannel")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
     
@@ -30983,39 +35254,78 @@ function Set-HPOVNetwork
 		else
 		{
 
-			#Network Name and Appliance Connection are both required.
-			if ($Network -is [String] -and (-not($ApplianceConnection)))
-			{
-		
-				$errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Network' -Message "The -Network parameter requires an Appliance to be specified.  Please provide the Appliance Connection object or name by using the -ApplianceConnection parameter."
-				$PSCmdLet.ThrowTerminatingError($errorRecord)
-
-			}
-
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch 
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
-
 
 		}
 
@@ -31387,20 +35697,21 @@ function Remove-HPOVNetwork
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName = "PipelineDefault",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
+    [CmdletBinding(DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = 'High')]
     Param
     (
 
-		[parameter(Mandatory, ValueFromPipeline, ParameterSetName = "PipelineDefault", HelpMessage = "Specify the network to remove.", Position = 0)]
-		[parameter(Mandatory, ParameterSetName = "ApplianceRequired", position = 0)]
+		[Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Specify the network to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('uri', 'name', 'network')]
-        [System.Object]$Resource = $null,
+        [System.Object]$Resource,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Default", position = 1)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null,
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
+		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
 		[switch]$Force
 
     )
@@ -31416,38 +35727,90 @@ function Remove-HPOVNetwork
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['Resource'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['Resource'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_TaskCollection    = New-Object System.Collections.ArrayList
 		$_NetworkCollection = New-Object System.Collections.ArrayList
@@ -31616,27 +35979,27 @@ function New-HPOVNetworkSet
     Param 
 	(
 
-		[parameter (Position = 0,Mandatory = $True)]
-		[String]$Name = $null,
+		[parameter (Position = 0, Mandatory)]
+		[String]$Name,
 
-		[parameter (Position = 1,Mandatory = $True)]
+		[parameter (Position = 1, Mandatory)]
 		[alias('networkUris')]
-		[Object]$Networks = $null,
+		[Object]$Networks,
 
-		[parameter (Position = 2,Mandatory = $False)]
+		[parameter (Position = 2, Mandatory = $False)]
 		[Alias ('untagged','native','untaggedNetworkUri')]
-		[Object]$UntaggedNetwork = $null,
+		[Object]$UntaggedNetwork,
 
-		[parameter (Position = 3,Mandatory = $False)]
+		[parameter (Position = 3, Mandatory = $False)]
 		[int32]$typicalBandwidth = 2500,
 
-		[parameter (Position = 4,Mandatory = $False)]
+		[parameter (Position = 4, Mandatory = $False)]
 		[int32]$maximumBandwidth = 10000,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, position = 5)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 	
@@ -31651,23 +36014,65 @@ function New-HPOVNetworkSet
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -31678,8 +36083,6 @@ function New-HPOVNetworkSet
 
 			}
 
-			$c++
-
 		}
 
 		$_NetSetStatusCol = New-Object System.Collections.ArrayList	
@@ -31688,361 +36091,354 @@ function New-HPOVNetworkSet
 	
 	Process 
 	{
+		
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Building NetworkSet '$($name) object."
 
-		ForEach ($_connection in $ApplianceConnection)
+		$_NewNetSet = Newobject -NetworkSet
+
+		$_NewNetSet.name = $Name
+
+		# Validate Networks if they are objects, and ApplianceConnection prop matches $_connection.Name value
+		ForEach ($_net in $Networks)
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_connection.Name)' Appliance Connection"
-
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Building NetworkSet '$($name) object."
-
-			$_NewNetSet = Newobject -NetworkSet
-
-			$_NewNetSet.name = $Name
-
-			# Validate Networks if they are objects, and ApplianceConnection prop matches $_connection.Name value
-			ForEach ($_net in $Networks)
+			switch ($_net.GetType().Name)
 			{
 
-				switch ($_net.GetType().Name)
+				'String'
 				{
 
-					'String'
+					#URI provided
+					if ($_net.StartsWith($ethNetworksUri))
 					{
 
-						#URI provided
-						if ($_net.StartsWith($ethNetworksUri))
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network resource is [String] and URI. Getting resource object."
+
+						try
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network resource is [String] and URI. Getting resource object."
-
-							try
-							{
-
-								$_net = Send-HPOVRequest $_net -Hostname $_connection.Name
-
-							}
-
-							Catch
-							{
-
-								$PSCmdlet.ThrowTerminatingError($_)
-
-							}
+							$_net = Send-HPOVRequest $_net -Hostname $ApplianceConnection.Name
 
 						}
 
-						#Name provided
-						else
+						Catch
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network resource is [String] and Name. Getting resource object."
-
-							try
-							{
-
-								$_originalnet = $_net
-
-								$_net = Get-HPOVNetwork $_net -ApplianceConnection $_connection.Name
-
-								if ($_net.count -gt 1)
-								{
-
-									$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MultipleNetworkResourcesFound LimitsExceeded 'Networks' -Message "Network '$_originalnet' is not a unique resource name, as multiple Network resources were found.  Please correct the parameter value and try again."
-									$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-								}
-
-							}
-
-							Catch
-							{
-
-								$PSCmdlet.ThrowTerminatingError($_)
-
-							}
+							$PSCmdlet.ThrowTerminatingError($_)
 
 						}
 
 					}
 
-					'PSCustomObject'
+					#Name provided
+					else
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Object: $($_net | fl * | Out-String)"
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network resource is [String] and Name. Getting resource object."
 
-						#Object must have the ApplianceConnection NoteProperty
-						if (-not($_net.ApplianceConnection))
+						try
 						{
 
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MissingApplianceConnectionNoteProperty InvalidArgument 'Networks' -TargetType 'PSObject' -Message "Network '$($_net.name)' does not contain the required 'ApplianceConnection' NoteProperty. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value  and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
+							$_originalnet = $_net
+
+							$_net = Get-HPOVNetwork $_net -ApplianceConnection $ApplianceConnection.Name
+
+							if ($_net.count -gt 1)
+							{
+
+								$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MultipleNetworkResourcesFound LimitsExceeded 'Networks' -Message "Network '$_originalnet' is not a unique resource name, as multiple Network resources were found.  Please correct the parameter value and try again."
+								$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+							}
 
 						}
 
-						elseif ($_net.ApplianceConnection.Name -ne $_Connection.Name)
+						Catch
 						{
 
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException ApplianceConnetionDoesNotMatchObject InvalidArgument 'Networks' -TargetType 'PSObject' -Message "Network '$($_net.name)' 'ApplianceConnection' NoteProperty {$($_net.ApplianceConnection.Name)}does not match the Appliance Connection currently processing {$($_connection.Name)}. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-						}
-
-						if ($_net.category -ne 'ethernet-networks')
-						{
-
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedResourceCategory InvalidArgument 'Networks' -TargetType 'PSObject' -Message "Network '$($_net.name)' category {$($_net.category)} is not the supported type, 'ethernet-networks'. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork using the -Type Ethernet parameter. Please correct the parameter value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
+							$PSCmdlet.ThrowTerminatingError($_)
 
 						}
 
 					}
 
-					default
+				}
+
+				'PSCustomObject'
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Object: $($_net | fl * | Out-String)"
+
+					#Object must have the ApplianceConnection NoteProperty
+					if (-not($_net.ApplianceConnection))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedParameterValueType InvalidType 'Networks' -TargetType $_Net.GetType().Name -Message "The provided Networks parameter value type '$($_Net.GetType().Name)' is not supported.  Only String (Name or URI) or PSCustomObject types are allowed and supported. Please correct the parameter value and try again."
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MissingApplianceConnectionNoteProperty InvalidArgument 'Networks' -TargetType 'PSObject' -Message "Network '$($_net.name)' does not contain the required 'ApplianceConnection' NoteProperty. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value  and try again."
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					elseif ($_net.ApplianceConnection.Name -ne $_Connection.Name)
+					{
+
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException ApplianceConnetionDoesNotMatchObject InvalidArgument 'Networks' -TargetType 'PSObject' -Message "Network '$($_net.name)' 'ApplianceConnection' NoteProperty {$($_net.ApplianceConnection.Name)}does not match the Appliance Connection currently processing {$($ApplianceConnection.Name)}. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value and try again."
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					if ($_net.category -ne 'ethernet-networks')
+					{
+
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedResourceCategory InvalidArgument 'Networks' -TargetType 'PSObject' -Message "Network '$($_net.name)' category {$($_net.category)} is not the supported type, 'ethernet-networks'. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork using the -Type Ethernet parameter. Please correct the parameter value and try again."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
 
 				}
 
-				[void]$_NewNetSet.networkUris.Add($_net.uri)
+				default
+				{
+
+					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedParameterValueType InvalidType 'Networks' -TargetType $_Net.GetType().Name -Message "The provided Networks parameter value type '$($_Net.GetType().Name)' is not supported.  Only String (Name or URI) or PSCustomObject types are allowed and supported. Please correct the parameter value and try again."
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
 
 			}
 
-			if ($PSboundParameters['UntaggedNetwork'])
+			[void]$_NewNetSet.networkUris.Add($_net.uri)
+
+		}
+
+		if ($PSboundParameters['UntaggedNetwork'])
+		{
+
+			# Validate UntaggedNetwork if it is an object, and ApplianceConnection prop matches $_connection.Name value
+			switch ($UntaggedNetwork.GetType().Name)
 			{
 
-				# Validate UntaggedNetwork if it is an object, and ApplianceConnection prop matches $_connection.Name value
-				switch ($UntaggedNetwork.GetType().Name)
+				'String'
 				{
 
-					'String'
+					#URI provided
+					if ($UntaggedNetwork.StartsWith($ethNetworksUri))
 					{
 
-						#URI provided
-						if ($UntaggedNetwork.StartsWith($ethNetworksUri))
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] UntaggedNetwork resource is [String] and URI. Getting resource object."
+
+						try
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] UntaggedNetwork resource is [String] and URI. Getting resource object."
-
-							try
-							{
-
-								$UntaggedNetwork = Send-HPOVRequest $UntaggedNetwork -Hostname $_connection.Name
-
-							}
-
-							Catch
-							{
-
-								$PSCmdlet.ThrowTerminatingError($_)
-
-							}
+							$UntaggedNetwork = Send-HPOVRequest $UntaggedNetwork -Hostname $ApplianceConnection.Name
 
 						}
 
-						#Name provided
-						else
+						Catch
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] UntaggedNetwork resource is [String] and Name. Getting resource object."
-
-							try
-							{
-
-								$UntaggedNetwork = Get-HPOVNetwork $UntaggedNetwork -ApplianceConnection $_connection.Name
-
-								if ($UntaggedNetwork.count -gt 1)
-								{
-
-									$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MultipleNetworkResourcesFound LimitsExceeded 'UntaggedNetwork' Message "Network '$_originalnet' is not a unique resource name, as multiple Network resources were found.  Please correct theparameter value and try again."
-									$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-								}
-
-							}
-
-							Catch
-							{
-
-								$PSCmdlet.ThrowTerminatingError($_)
-
-							}
+							$PSCmdlet.ThrowTerminatingError($_)
 
 						}
 
 					}
 
-					'PSCustomObject'
+					#Name provided
+					else
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Object: $($UntaggedNetwork | fl * | Out-String)"
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] UntaggedNetwork resource is [String] and Name. Getting resource object."
 
-						#Object must have the ApplianceConnection NoteProperty
-						if (-not($UntaggedNetwork.ApplianceConnection))
+						try
 						{
 
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MissingApplianceConnectionNoteProperty InvalidArgument 'UntaggedNetwork' TargetType 'PSObject' -Message "Network '$($UntaggedNetwork.name)' does not contain the required 'ApplianceConnection' NoteProperty. Networkobjects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
+							$UntaggedNetwork = Get-HPOVNetwork $UntaggedNetwork -ApplianceConnection $ApplianceConnection.Name
+
+							if ($UntaggedNetwork.count -gt 1)
+							{
+
+								$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MultipleNetworkResourcesFound LimitsExceeded 'UntaggedNetwork' Message "Network '$_originalnet' is not a unique resource name, as multiple Network resources were found.  Please correct theparameter value and try again."
+								$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+							}
 
 						}
 
-						elseif ($UntaggedNetwork.ApplianceConnection.Name -ne $_Connection.Name)
+						Catch
 						{
 
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException ApplianceConnetionDoesNotMatchObject InvalidArgument 'UntaggedNetwork' TargetType 'PSObject' -Message "Network '$($UntaggedNetwork.name)' 'ApplianceConnection' NoteProperty {$($UntaggedNetwork.ApplianceConnection.Name)}does notmatch the Appliance Connection currently processing {$($_connection.Name)}. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-						}
-
-						if ($UntaggedNetwork.category -ne 'ethernet-networks')
-						{
-
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedResourceCategory InvalidArgument 'UntaggedNetwork' -TargetType'PSObject' -Message "Network '$($UntaggedNetwork.name)' category {$($UntaggedNetwork.category)} is not the supported type, 'ethernet-networks'. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork using the -Type Ethernet parameter.Please correct the parameter value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
+							$PSCmdlet.ThrowTerminatingError($_)
 
 						}
 
 					}
 
-					default
+				}
+
+				'PSCustomObject'
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Object: $($UntaggedNetwork | fl * | Out-String)"
+
+					#Object must have the ApplianceConnection NoteProperty
+					if (-not($UntaggedNetwork.ApplianceConnection))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedParameterValueType InvalidType 'UntaggedNetwork' -TargetType	$UntaggedNetwork.GetType().Name -Message "The provided UntaggedNetwork parameter value type '$($UntaggedNetwork.GetType().Name)' is not	  supported.  Only String (Name or URI) or PSCustomObject types are allowed and supported. Please correct the parameter value and try again."
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException MissingApplianceConnectionNoteProperty InvalidArgument 'UntaggedNetwork' TargetType 'PSObject' -Message "Network '$($UntaggedNetwork.name)' does not contain the required 'ApplianceConnection' NoteProperty. Networkobjects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value and try again."
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					elseif ($UntaggedNetwork.ApplianceConnection.Name -ne $ApplianceConnection.Name)
+					{
+
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException ApplianceConnetionDoesNotMatchObject InvalidArgument 'UntaggedNetwork' TargetType 'PSObject' -Message "Network '$($UntaggedNetwork.name)' 'ApplianceConnection' NoteProperty {$($UntaggedNetwork.ApplianceConnection.Name)}does notmatch the Appliance Connection currently processing {$($ApplianceConnection.Name)}. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork. Please correct the parameter value and try again."
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					if ($UntaggedNetwork.category -ne 'ethernet-networks')
+					{
+
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedResourceCategory InvalidArgument 'UntaggedNetwork' -TargetType'PSObject' -Message "Network '$($UntaggedNetwork.name)' category {$($UntaggedNetwork.category)} is not the supported type, 'ethernet-networks'. Network objects must be retrieved from the appliance either using their unique URI or with Get-HPOVNetwork using the -Type Ethernet parameter.Please correct the parameter value and try again."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
 
 				}
 
-				$_NewNetSet.nativeNetworkUri = $UntaggedNetwork.uri
+				default
+				{
+
+					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException UnsupportedParameterValueType InvalidType 'UntaggedNetwork' -TargetType	$UntaggedNetwork.GetType().Name -Message "The provided UntaggedNetwork parameter value type '$($UntaggedNetwork.GetType().Name)' is not	  supported.  Only String (Name or URI) or PSCustomObject types are allowed and supported. Please correct the parameter value and try again."
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
 
 			}
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network Set object: $($_NewNetSet | out-string)"
+			$_NewNetSet.nativeNetworkUri = $UntaggedNetwork.uri
 
-			#Caller is requesting different bandwidth settings.  Need to handle async task to create network set.
-			if ($PSBoundParameters['TypicalBandwidth'] -or $PSBoundParameters['MaximumBandwidth']) 
+		}
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network Set object: $($_NewNetSet | out-string)"
+
+		#Caller is requesting different bandwidth settings.  Need to handle async task to create network set.
+		if ($PSBoundParameters['TypicalBandwidth'] -or $PSBoundParameters['MaximumBandwidth']) 
+		{
+
+			try 
 			{
 
-			    try 
+			    $_task = Send-HPOVRequest $networkSetsUri POST $_NewNetSet -Hostname $ApplianceConnection.Name | Wait-HPOVTaskComplete
+
+			    if ($_task.taskStatus -eq "Created") 
 				{
 
-			        $_task = Send-HPOVRequest $networkSetsUri POST $_NewNetSet -Hostname $_connection.Name | Wait-HPOVTaskComplete
+			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network Set was successfully created"
+			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network Set bandwidth"
+				    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Typical bandwidth: $($typicalBandwidth)"
+				    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Maximum bandwidth: $($maximumBandwidth)"
 
-			        if ($_task.taskStatus -eq "Created") 
+			        #Get Network Set Object
+			        Try
 					{
 
-			            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network Set was successfully created"
-			            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network Set bandwidth"
-				        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Typical bandwidth: $($typicalBandwidth)"
-				        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Maximum bandwidth: $($maximumBandwidth)"
+						$_NetSetObj = Send-HPOVRequest $_task.associatedResource.resourceUri -Hostname $ApplianceConnection.Name
 
-			            #Get Network Set Object
-			            Try
-						{
+					}
 
-							$_NetSetObj = Send-HPOVRequest $_task.associatedResource.resourceUri -Hostname $_connection.Name
+					Catch
+					{
 
-						}
+						$PSCmdlet.ThrowTerminatingError($_)
 
-						Catch
-						{
-
-							$PSCmdlet.ThrowTerminatingError($_)
-
-						}
+					}
 						
-						# Update the associated connection template with max & typical bandwidth settings	            
-						Try
-						{
+					# Update the associated connection template with max & typical bandwidth settings	            
+					Try
+					{
 
-							$_ct = Send-HPOVRequest $_NetSetObj.connectionTemplateUri -Hostname $_connection.Name
+						$_ct = Send-HPOVRequest $_NetSetObj.connectionTemplateUri -Hostname $ApplianceConnection.Name
 
-						}
+					}
 						
-						Catch
-						{
+					Catch
+					{
 
-							$PSCmdlet.ThrowTerminatingError($_)
+						$PSCmdlet.ThrowTerminatingError($_)
 
-						}
+					}
 			            
 
-			            if ($PSBoundParameters['typicalBandwidth']) { $_ct.bandwidth.typicalBandwidth = $typicalBandwidth }
+			        if ($PSBoundParameters['typicalBandwidth']) { $_ct.bandwidth.typicalBandwidth = $typicalBandwidth }
 
-			            if ($PSBoundParameters['maximumBandwidth']) { $_ct.bandwidth.maximumBandwidth = $maximumBandwidth }
+			        if ($PSBoundParameters['maximumBandwidth']) { $_ct.bandwidth.maximumBandwidth = $maximumBandwidth }
 			            
-						#Update Connection Template Object
-						Try
-						{
+					#Update Connection Template Object
+					Try
+					{
 
-							$_ct = Send-HPOVRequest $_ct.uri PUT $_ct -Hostname $_connection.Name
+						$_ct = Send-HPOVRequest $_ct.uri PUT $_ct -Hostname $ApplianceConnection.Name
 
-						}
+					}
 						
-						Catch
-						{
+					Catch
+					{
 
-							$PSCmdlet.ThrowTerminatingError($_)
+						$PSCmdlet.ThrowTerminatingError($_)
 
-						}
+					}
 
-						#Get Network Set Object after CT has been updated
-						Try
-						{
+					#Get Network Set Object after CT has been updated
+					Try
+					{
 
-							$_NetSetObj = Send-HPOVRequest $_NetSetObj.uri -Hostname $_connection.Name
+						$_NetSetObj = Send-HPOVRequest $_NetSetObj.uri -Hostname $ApplianceConnection.Name
 
-						}
+					}
 
-						Catch
-						{
+					Catch
+					{
 
-							$PSCmdlet.ThrowTerminatingError($_)
+						$PSCmdlet.ThrowTerminatingError($_)
 
-						}
+					}
 			            
-			        }
-
 			    }
-
-			    catch 
-				{
-
-			        $PSCmdlet.ThrowTerminatingError($_)
-
-			    }
-
-				[void]$_NetSetStatusCol.Add($_NetSetObj)
 
 			}
 
-			else 
+			catch 
 			{
 
-			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request with default bandwidth."
-
-				Try
-				{
-
-					$_task = Send-HPOVRequest $networkSetsUri POST $_NewNetSet -Hostname $_connection.Name
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-
-			    [void]$_NetSetStatusCol.Add($_task)
+			    $PSCmdlet.ThrowTerminatingError($_)
 
 			}
+
+			[void]$_NetSetStatusCol.Add($_NetSetObj)
+
+		}
+
+		else 
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request with default bandwidth."
+
+			Try
+			{
+
+				$_task = Send-HPOVRequest $networkSetsUri POST $_NewNetSet -Hostname $ApplianceConnection.Name
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			[void]$_NetSetStatusCol.Add($_task)
 
 		}
 
@@ -32069,17 +36465,18 @@ function Get-HPOVNetworkSet
 
 		[parameter (Position = 0, ParameterSetName = "Default", Mandatory = $false)]
 		[parameter (Position = 0, ParameterSetName = "Export", Mandatory = $false)]
-		[String]$Name = $null,
+		[String]$Name,
 		
-		[parameter(Mandatory = $false)]
+		[parameter (ParameterSetName = "Default", Mandatory = $false)]
+		[parameter (ParameterSetName = "Export", Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[parameter (ParameterSetName = "Export", Mandatory = $false)]
 		[alias("x", "export")]
 		[ValidateScript({split-path $_ | Test-Path})]
-		[String]$exportFile
+		[String]$ExportFile
 
 	)
 
@@ -32094,6 +36491,7 @@ function Get-HPOVNetworkSet
 
 		if (-not($PSBoundParameters['type']))
 		{
+
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] -Type parameter wasn't provided. Specifying all Network Resource Types."
 
 			[Array]$type = "Ethernet","FibreChannel","FCOE"
@@ -32101,24 +36499,66 @@ function Get-HPOVNetworkSet
 		}
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -32128,8 +36568,6 @@ function Get-HPOVNetworkSet
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -32275,7 +36713,7 @@ function Set-HPOVNetworkSet
     Param 
     (
 
-        [parameter (Mandatory = $true, ValueFromPipeline = $true, Position = 0)]
+        [parameter (Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateNotNullorEmpty()]
 		[Alias('NetSet')]
         [Object]$NetworkSet,
@@ -32291,19 +36729,20 @@ function Set-HPOVNetworkSet
         [parameter (Mandatory = $False, Position = 3)]
         [Alias ('untagged','native','untaggedNetworkUri')]
         [ValidateNotNullorEmpty()]
-        [Object]$UntaggedNetwork = $null,
+        [Object]$UntaggedNetwork,
 
-        [parameter(Position = 5, Mandatory = $false)]
+        [Parameter(Position = 5, Mandatory = $false)]
         [validaterange(2,20000)]
-        [int32]$TypicalBandwidth = $null, 
+        [int32]$TypicalBandwidth, 
         
-        [parameter(Position = 6, Mandatory = $false)]
+        [Parameter(Position = 6, Mandatory = $false)]
         [validaterange(100,20000)]
-        [int32]$MaximumBandwidth = $Null,
+        [int32]$MaximumBandwidth,
 
-        [parameter(Mandatory = $false, ValueFromPipelinebyPropertyName)]
+        [Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -32323,67 +36762,77 @@ function Set-HPOVNetworkSet
 
 		}
 
-		if (-not($PipelineInput))
+		else
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-			$c = 0
-		
-			ForEach ($_Connection in $ApplianceConnection) 
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
 				Catch 
 				{
 
-					$PSCmdlet.ThrowTerminatingError($_.Exception)
-
-				}
-
-				$c++
-
-			}
-
-			#Check for URI parameters with multiple appliance connections
-			if($ApplianceConnection.Count -gt 1)
-			{
-
-				if ($NetworkSet -is [String] -and ($NetworkSet.StartsWith($networkSetsUri))) 
-				{
-                    
-					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'NetworkSet' -Message "The NetworkSet parameter as URI is unsupported with multiple appliance connections.  Please check the -NetworkSet parameter value and try again."
-					$PSCmdLet.ThrowTerminatingError($errorRecord)
-            
-				}
-
-				if (($Networks -is [string] -and $Networks.startswith($ethNetworksUri)) -or ($Networks -is [Array] -and ($Networks | % { $_.startswith($ethNetworksUri) })))
-				{
-
-					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'Networks' -TargetType $Networks.GetType().Name -Message "Networks parameter contains 1 or more URIs that are unsupported with multiple appliance connections.  Please check the -networks parameter value and try again."
-					$PSCmdLet.ThrowTerminatingError($errorRecord)
-
-				}
-
-				if ($UntaggedNetwork -is [string] -and $UntaggedNetwork.startswith($ethNetworksUri)) 
-				{
-
-					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'Set-HPOVNetworkSet' -Message "Untaggednetwork parameter as URI is unsupported with multiple appliance connections.  Please check the -untaggednetwork parameter value and try again."
-					$PSCmdLet.ThrowTerminatingError($errorRecord)
+					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
 
@@ -32782,7 +37231,7 @@ function Remove-HPOVNetworkSet
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
+    [CmdLetBinding(DefaultParameterSetName = "default", SupportsShouldProcess, ConfirmImpact = 'High')]
     Param 
 	(
         
@@ -32791,10 +37240,10 @@ function Remove-HPOVNetworkSet
         [Alias("uri","name")]
         [Object]$NetworkSet = $null,
 
-        [parameter(Mandatory = $false, ValueFromPipelinebyPropertyName)]
-		[ValidateNotNullOrEmpty()]
+        [Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -32818,48 +37267,74 @@ function Remove-HPOVNetworkSet
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-			$c = 0
-		
-			ForEach ($_Connection in $ApplianceConnection) 
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
 				Catch 
 				{
 
-					$PSCmdlet.ThrowTerminatingError($_.Exception)
+					$PSCmdlet.ThrowTerminatingError($_)
 
-				}
-
-				$c++
-
-			}
-
-			#Check for URI parameters with multiple appliance connections
-			if($ApplianceConnection.Count -gt 1)
-			{
-
-				if (($NetworkSet -is [String] -and ($NetworkSet.StartsWith($networkSetsUri))) -or ($NetworkSet -is [Array] -and ($NetworkSet | % { $_.startswith($networkSetsUri) }))) 
-				{
-                    
-					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'NetworkSet' -Message "The NetworkSet parameter as URI is unsupported with multiple appliance connections.  Please check the -NetworkSet parameter value and try again."
-					$PSCmdLet.ThrowTerminatingError($errorRecord)
-            
 				}
 
 			}
@@ -32997,9 +37472,10 @@ function Get-HPOVAddressPool
         [parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Switch]$Report,
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -33013,24 +37489,66 @@ function Get-HPOVAddressPool
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -33040,8 +37558,6 @@ function Get-HPOVAddressPool
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -33172,15 +37688,15 @@ function Get-HPOVAddressPoolRange
     Param 
 	(
 
-        [parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
+        [parameter (Position = 0, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[ValidateSet('vmac', 'vwwn', 'vsn', 'all')]
         [Object]$Pool = 'all',
 		
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -33193,25 +37709,67 @@ function Get-HPOVAddressPoolRange
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -33222,11 +37780,7 @@ function Get-HPOVAddressPoolRange
 
 			}
 
-			$c++
-
 		}
-
-		if (-not($PSBoundParameters['Pool'])) { $PipelineInput = $True }
 
 		$_RangeList = New-Object System.Collections.ArrayList
                     
@@ -33357,29 +37911,30 @@ function New-HPOVAddressRange
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdLetBinding()]
+    [CmdLetBinding(DefaultParameterSetName = 'Default')]
     Param 
 	(
     
-        [parameter (Mandatory = $true, ParameterSetName = "Default", position = 0)]
-        [parameter (Mandatory = $true, ParameterSetName = "Custom", position = 0)]
+        [parameter (Mandatory, ParameterSetName = "Default", position = 0)]
+        [parameter (Mandatory, ParameterSetName = "Custom", position = 0)]
         [ValidateSet("vmac", "vwwn", "vsn")]
-        [String]$PoolType = $Null,
+        [String]$PoolType,
 
-        [parameter (Mandatory = $true, ParameterSetName = "Default", position = 1)]
-        [parameter (Mandatory = $true, ParameterSetName = "Custom", position = 1)]
+        [parameter (Mandatory, ParameterSetName = "Default", position = 1)]
+        [parameter (Mandatory, ParameterSetName = "Custom", position = 1)]
         [ValidateSet("Generated", "Custom")]
         [String]$RangeType = "Generated",
 
-        [parameter (Mandatory = $true, ParameterSetName = "Custom", position = 2)]
+        [parameter (Mandatory, ParameterSetName = "Custom", position = 2)]
         [String]$Start,
 
-        [parameter (Mandatory = $true, ParameterSetName = "Custom", position = 3)]
+        [parameter (Mandatory, ParameterSetName = "Custom", position = 3)]
         [String]$End,
 	
-		[parameter(Mandatory = $False)]
+		[Parameter(Mandatory = $False)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
     )
 
@@ -33394,35 +37949,75 @@ function New-HPOVAddressRange
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
-		
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
 			Try 
 			{
-		
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-		
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
 			}
-		
+
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
-		
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-		
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
 			}
-		
+
 			Catch 
 			{
-		
+
 				$PSCmdlet.ThrowTerminatingError($_)
-		
+
 			}
-		
-			$c++
-		
+
 		}
 
 		$_Collection = New-Object System.Collections.ArrayList
@@ -33633,14 +38228,15 @@ function Get-HPOVInterconnectType
 		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 
-        [parameter (Position = 0, Mandatory = $true, ParameterSetName = 'PartNumber')]
+        [parameter (Position = 0, Mandatory, ParameterSetName = 'PartNumber')]
 		[ValidateNotNullorEmpty()]
         [string]$PartNumber = $null,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Name')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'PartNumber')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
         [switch]$list
 
@@ -33657,22 +38253,65 @@ function Get-HPOVInterconnectType
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] {
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -33682,8 +38321,6 @@ function Get-HPOVInterconnectType
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -33794,14 +38431,14 @@ function Get-HPOVInterconnect
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $false)]
+		[Parameter(Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
-		[String]$Name = $null,
+		[String]$Name,
 
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[parameter (Mandatory = $false)]
 		[alias("x", "exportFile")]
@@ -33820,24 +38457,66 @@ function Get-HPOVInterconnect
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -33847,8 +38526,6 @@ function Get-HPOVInterconnect
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -33980,10 +38657,10 @@ function Get-HPOVLogicalInterconnect
 		[ValidateNotNullorEmpty()]
 		[String]$Name = $null,
 		
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[parameter (Position = 1, Mandatory = $false, ParameterSetName = "default")]
 		[alias("x", "ExportFile")]
@@ -34002,24 +38679,66 @@ function Get-HPOVLogicalInterconnect
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -34029,8 +38748,6 @@ function Get-HPOVLogicalInterconnect
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -34190,22 +38907,23 @@ function Update-HPOVLogicalInterconnect
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName = "default", SupportsShouldProcess = $True, ConfirmImpact = 'High')]
+    [CmdLetBinding(DefaultParameterSetName = "default", SupportsShouldProcess, ConfirmImpact = 'High')]
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
-		[parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $true, ParameterSetName = "Reapply", HelpMessage = "Specify the Logical Interconnect to Update.")]
+		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Reapply", HelpMessage = "Specify the Logical Interconnect to Update.")]
 		[ValidateNotNullorEmpty()]
 		[Alias('uri', 'li','name')]
 		[object]$Resource = $null,
 		
-		[parameter(Position = 1, Mandatory = $false)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Reapply")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[parameter(Mandatory = $true, ValueFromPipeline = $false, ParameterSetName = "Reapply", HelpMessage = "Reapply the Logical Interconnect configuration. Does not update from parent Logical Interconnect Group.")]
+		[Parameter(Mandatory, ParameterSetName = "Reapply", HelpMessage = "Reapply the Logical Interconnect configuration. Does not update from parent Logical Interconnect Group.")]
 		[switch]$Reapply
 
     )
@@ -34219,36 +38937,88 @@ function Update-HPOVLogicalInterconnect
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($PSBoundParameters['Resource']))
 		{
 
-			Try 
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			else
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
 
 		}
 
@@ -34492,22 +39262,22 @@ function Show-HPOVLogicalInterconnectMacTable
     Param 
 	(
 
-        [parameter (Position = 0, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default")]
-        [parameter (Position = 0, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "MACAddress")]
+        [parameter (Position = 0, Mandatory = $false, ParameterSetName = "default")]
+        [parameter (Position = 0, Mandatory = $false, ParameterSetName = "MACAddress")]
 		[parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Pipeline")]
 		[ValidateNotNullorEmpty()]
         [alias("name","li")]
-        [object]$LogicalInterconnect = $null,
+        [object]$LogicalInterconnect,
 
-        [parameter (Position = 1, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default")]
-		[parameter (Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "Pipeline")]
+        [parameter (Position = 1, Mandatory = $false, ParameterSetName = "default")]
+		[parameter (Mandatory = $false, ParameterSetName = "Pipeline")]
 		[ValidateNotNullorEmpty()]
-        [string]$network = $null,
+        [string]$Network,
 
-        [parameter (Position = 1, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "MACAddress")]
+        [parameter (Position = 1, Mandatory = $false, ParameterSetName = "MACAddress")]
         [validatescript({if ($_ -match $script:macAddressPattern) {$true} else { throw "The input value '$_' does not match 'aa:bb:cc:dd:ee:ff'. Please correct the value and try again."}})]
         [alias("mac")]
-        [string]$MacAddress = $null,
+        [string]$MacAddress,
 
         [parameter (Position = 2, Mandatory = $false, ParameterSetName = "default")]
         [parameter (Position = 2, Mandatory = $false, ParameterSetName = "MACAddress")]
@@ -34516,10 +39286,12 @@ function Show-HPOVLogicalInterconnectMacTable
         [ValidateScript({split-path $_ | Test-Path})]
         [String]$Export,
 		
-		[parameter(Mandatory = $false)]
+		[parameter (Mandatory = $false, ParameterSetName = "default")]
+        [parameter (Mandatory = $false, ParameterSetName = "MACAddress")]
+		[parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Pipeline")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -34539,29 +39311,67 @@ function Show-HPOVLogicalInterconnectMacTable
 		if ($PSCmdlet.ParameterSetName -ne 'Pipeline')
 		{
 
-			if ($ApplianceConnection.Count -eq 0)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession ObjectNotFound 'Hostname' -Message "No appliance Hostname parameter provided and no valid appliance session(s) found.  Please use Connect-HPOVMgmt to establish an appliance connection."
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			ForEach ($_Connection in $ApplianceConnection) 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-				
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -34571,8 +39381,6 @@ function Show-HPOVLogicalInterconnectMacTable
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 
@@ -34864,12 +39672,12 @@ function Download-MacTable
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, HelpMessage = "Specify the URI of the object to download.")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Specify the URI of the object to download.")]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({if ($_.startswith('/rest/logical-interconnects/')) { $true } else {throw "-URI must being with a '/rest/logical-interconnects/' in its value. Please correct the value and try again."}})]
         [string]$uri,
         
-		[parameter(Position = 1, Mandatory, HelpMessage = "Appliance Hostname")]
+		[Parameter(Position = 1, Mandatory, HelpMessage = "Appliance Hostname")]
         [ValidateNotNullOrEmpty()]
 		[string]$Hostname
 
@@ -35015,50 +39823,50 @@ function Install-HPOVLogicalInterconnectFirmware
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True,ConfirmImpact = 'High')]
+    [CmdLetBinding(DefaultParameterSetName = "default",SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     Param 
 	(
         
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [Alias('name','uri', 'li')]
 		[ValidateNotNullorEmpty()]
         [object]$LogicalInterconnect,
 
-        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect udpate method: Update, Activate, Stage.")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect udpate method: Update, Activate, Stage.")]
         [ValidateSet('Update','Activate','Stage')]
         [string]$Method = "Update",
 
-        [parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [ValidateSet('OddEven','Parallel','Serial')]
         [Alias('Order','ActivateOrder')]
         [string]$EthernetActivateOrder = 'OddEven',
 
-		[parameter(Position = 3, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
         [ValidateNotNullorEmpty()]
         [int]$EthernetActivateDelay = 5,
 
-		[parameter(Position = 4, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [ValidateSet('OddEven','Parallel','Serial')]
         [String]$FCActivateOrder = 'Serial',
 
-		[parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
+		[Parameter(Position = 5, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
         [ValidateNotNullorEmpty()]
         [int]$FCActivateDelay = 5,
 
-        [parameter(Mandatory, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the SPP Baseline Object or Name.")]
+        [Parameter(Mandatory, ParameterSetName = "default", HelpMessage = "Specify the SPP Baseline Object or Name.")]
         [Alias('spp')]
         [object]$Baseline,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[switch]$Async,
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Force install firmware version from SPP Baseline; will downgrade or re-install.")]
+        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Force install firmware version from SPP Baseline; will downgrade or re-install.")]
         [switch]$Force,
 
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -35071,46 +39879,93 @@ function Install-HPOVLogicalInterconnectFirmware
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
-		}
-
-		$TaskCollection = New-Object System.Collections.ArrayList
-
-        if (-not($LogicalInterconnect))
+		if (-not($LogicalInterconnect))
 		{
 
 			$PipelineInput = $True
 
 		}
-        
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		$TaskCollection = New-Object System.Collections.ArrayList
+
     }
 
     Process 
@@ -35459,16 +40314,18 @@ function Show-HPOVPortStatistics
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $true, ParameterSetName = "Pipeline")]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline = $true, ParameterSetName = "Pipeline")]
 		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "InterconnectPort")]
-        [object]$Port = $null,
+        [object]$Port,
 
-        [Parameter(Position = 0, Mandatory = $true, ParameterSetName = "InterconnectPort")]
-        [object]$Interconnect = $null,
+        [Parameter(Position = 0, Mandatory, ParameterSetName = "InterconnectPort")]
+        [object]$Interconnect,
 
-		[parameter(Mandatory = $true, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "InterconnectPort")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Pipeline")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -35481,55 +40338,88 @@ function Show-HPOVPortStatistics
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		if (-not($PSBoundParameters['ApplianceConnection']))
+		if (-not($PSCmdlet.ParameterSetName -eq 'Pipeline'))
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server object provided by pipeline."
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Interconnect Port object provided by pipeline."
 
 			$PipelineInput = $True
 
 		}
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])) -and (-not($PipelineInput)))
+		else
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		}
-
-		elseif (($ApplianceConnection | Measure-Object).Count -gt 1 -and (-not($PipelineInput)))
-		{
-
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif (-not($PipelineInput))
-		{
-
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch 
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -35780,18 +40670,18 @@ function Get-HPOVLogicalInterconnectGroup
 	Param 
 	(
 
-		[parameter(ValueFromPipeline, Mandatory, ParameterSetName = 'Pipeline')]
+		[Parameter(ValueFromPipeline, Mandatory, ParameterSetName = 'Pipeline')]
 		[Object]$Resource,
 
 		[parameter (Position = 0, Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[String]$Name = $null,
 
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Pipeline')]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Pipeline')]
 		[parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[alias("x", "export")]
@@ -35820,24 +40710,66 @@ function Get-HPOVLogicalInterconnectGroup
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-			$c = 0
-		
-			ForEach ($_connection in $ApplianceConnection) 
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -35847,8 +40779,6 @@ function Get-HPOVLogicalInterconnectGroup
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 
@@ -36038,7 +40968,7 @@ function New-HPOVLogicalInterconnectGroup
     param 
 	(
 
-        [Parameter(Mandatory = $True, ParameterSetName = "Default",HelpMessage = "Please specify the Logical Interconnect Name", Position = 0)]
+        [Parameter(Mandatory, ParameterSetName = "Default",HelpMessage = "Please specify the Logical Interconnect Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('ligname')]
         [String]$Name,
@@ -36088,13 +41018,16 @@ function New-HPOVLogicalInterconnectGroup
 		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
 		[bool]$EnableEnhancedLLDPTLV,		
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Appliance Connection Object or Name")]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Appliance Connection Object or Name")]
+		[Parameter(Mandatory = $False, ParameterSetName = "Import", HelpMessage = "Appliance Connection Object or Name")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
+		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
 		[switch]$Async,
 
-        [Parameter(Mandatory = $True, ParameterSetName = "Import",HelpMessage = "Specify JSON source file to create Logical Interconnect Group")]
+        [Parameter(Mandatory, ParameterSetName = "Import",HelpMessage = "Specify JSON source file to create Logical Interconnect Group")]
         [ValidateScript({split-path $_ | Test-Path})]
         [Alias('i')]
 	    [object]$Import
@@ -36112,23 +41045,65 @@ function New-HPOVLogicalInterconnectGroup
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -36138,8 +41113,6 @@ function New-HPOVLogicalInterconnectGroup
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -36893,20 +41866,20 @@ function New-HPOVQosConfig
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "Passthrough", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
-		[parameter(Position = 0, Mandatory = $True, ValueFromPipeline = $False, ParameterSetName = "Custom", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
+        [Parameter(Position = 0, Mandatory = $False, ParameterSetName = "Passthrough", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "Custom", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
 		[ValidateSet("Passthrough", "CustomNoFCoE", "CustomWithFCoE", IgnoreCase = $False)]
         [String]$ConfigType = "Passthrough",
 
-		[parameter(Position = 1, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "Custom", HelpMessage = "Specify the uplink ports ingress traffic classification based on the values of dot1p or DSCP or both in Ethernet and IP headers respectively.")]
+		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Specify the uplink ports ingress traffic classification based on the values of dot1p or DSCP or both in Ethernet and IP headers respectively.")]
 		[ValidateSet("DSCP", "DOT1P", "DOT1P_AND_DSCP", IgnoreCase = $False)]
 		[String]$UplinkClassificationType = "DOT1P",
 
-		[parameter(Position = 2, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "Custom", HelpMessage = "Specify the downlink ports ingress traffic classification based on the values of dot1p or DSCP or both.")]
+		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Specify the downlink ports ingress traffic classification based on the values of dot1p or DSCP or both.")]
 		[ValidateSet("DSCP", "DOT1P", "DOT1P_AND_DSCP", IgnoreCase = $False)]
 		[String]$DownlinkClassificationType = "DOT1P_AND_DSCP",
 
-		[parameter(Position = 3, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "Custom", HelpMessage = "Array of TrafficClassifiers Classes.")]
+		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Array of TrafficClassifiers Classes.")]
 		[System.Collections.ArrayList]$TrafficClassifiers
 
     )
@@ -37083,27 +42056,27 @@ function New-HPOVQosTrafficClass
     Param 
 	(
 
-		[parameter(Position = 0, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Specify a unique name for the traffic class.")]
+		[Parameter(Position = 0, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specify a unique name for the traffic class.")]
 		[Alias('ClassName')]
 		[string]$Name,
 
-		[parameter(Position = 1, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Maximum share the traffic class can use when other traffic classes are not using their guaranteed share")]
+		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Maximum share the traffic class can use when other traffic classes are not using their guaranteed share")]
 		[ValidateRange(1,100)]
         [int]$MaxBandwidth = $Null,
 
-		[parameter(Position = 2, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Minimum guaranteed bandwidth for the traffic class.")]
+		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Minimum guaranteed bandwidth for the traffic class.")]
 		[string]$BandwidthShare,
 		
-		[parameter(Position = 3, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Specifies the dot1p priority value to remark for the egressing packets")]
+		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the dot1p priority value to remark for the egressing packets")]
 		[int]$EgressDot1pValue,
 
-		[parameter(Position = 4, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier")]
+		[Parameter(Position = 4, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier")]
 		[System.Collections.ArrayList]$IngressDot1pClassMapping,
 		
-		[parameter(Position = 5, Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier.")]
+		[Parameter(Position = 5, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier.")]
 		[System.Collections.ArrayList]$IngressDscpClassMapping,
 
-		[parameter(Mandatory = $False, ValueFromPipeline = $False, ParameterSetName = "default", HelpMessage = "Specifies whether the traffic class is real time.")]
+		[Parameter(Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies whether the traffic class is real time.")]
 		[switch]$RealTime,
 
 		[switch]$Enabled
@@ -37250,18 +42223,17 @@ function Remove-HPOVLogicalInterconnectGroup
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect Group(s) to remove.")]
-		[parameter(position = 0, Mandatory, ParameterSetName = "ApplianceRequired")]
+        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect Group(s) to remove.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name","Lig")]
-        [Object]$Resource = $null,
+        [Object]$Resource,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-	    [parameter(Mandatory = $false)] 
+	    [Parameter(Mandatory = $false, ParameterSetName = "default")] 
         [switch]$force
 
     )
@@ -37287,23 +42259,65 @@ function Remove-HPOVLogicalInterconnectGroup
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -37313,8 +42327,6 @@ function Remove-HPOVLogicalInterconnectGroup
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 		
@@ -37517,27 +42529,29 @@ function Get-HPOVUplinkSet
 
         [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Name")]
 		[ValidateNotNullorEmpty()]
-        [string]$Name = $null,
+        [string]$Name,
 
         [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Name")]
         [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Type")]
 		[ValidateNotNullorEmpty()]
         [Alias('liname')]
-		[object]$LogicalInterconnect = $null,
+		[object]$LogicalInterconnect,
 
         [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Type")]
         [ValidateSet('Ethernet','FibreChannel', IgnoreCase=$False)]
-        [string]$type = $null,
+        [string]$Type,
 	
 		[Parameter(Mandatory = $false)]
-		[switch]$report,
+		[switch]$Report,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Name")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Type")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
 
-		[parameter (Mandatory = $false)]
+		[Parameter(Mandatory = $false, ParameterSetName = "Name")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Type")]
 		[alias("x", "export")]
 		[ValidateScript({split-path $_ | Test-Path})]
 		[String]$exportFile
@@ -37561,24 +42575,66 @@ function Get-HPOVUplinkSet
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -37588,8 +42644,6 @@ function Get-HPOVUplinkSet
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -38048,60 +43102,60 @@ function New-HPOVUplinkSet
     Param 
 	(
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectEthernet")]
-		[parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [alias('li','lig')]
         [Object]$Resource,
 
-		[parameter(Mandatory = $true, Position = 1, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [parameter(Mandatory = $true, Position = 1, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter(Mandatory, Position = 1, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter(Mandatory, Position = 1, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usName')]
         [String]$Name,
 
-		[parameter(Mandatory = $true, Position = 2, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [parameter(Mandatory = $true, Position = 2, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter(Mandatory, Position = 2, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter(Mandatory, Position = 2, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usType')]
         [ValidateSet("Ethernet", "FibreChannel", "Untagged", "Tunnel", IgnoreCase=$false)]
         [String]$Type = $Null,
 
-		[parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usNetworks')]
         [Array]$Networks = @(),
 
-        [parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectEthernet")]
         [Alias ('usNativeEthNetwork','Native','PVID')]
         [Object]$NativeEthNetwork = $Null,
 
-		[parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [parameter(Mandatory = $false, Position = 5, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter(Mandatory = $false, Position = 5, ParameterSetName = "PipelineOrObjectEthernet")]
         [Alias ('usUplinkPorts')]
         [ValidateScript({($_.Split(","))[0].contains(":")})]
         [Array]$UplinkPorts = @(),
 
-        [parameter(Mandatory = $false, Position = 6, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter(Mandatory = $false, Position = 6, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usEthMode')]
         [ValidateSet("Auto", "Failover", IgnoreCase=$false)]
         [String]$EthMode = "Auto",
         
-        [parameter(Mandatory = $false, Position = 7, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter(Mandatory = $false, Position = 7, ParameterSetName = "PipelineOrObjectEthernet")]
         [ValidateSet("Short", "Long", IgnoreCase=$false)]
         [String]$LacpTimer = "Short",
 
-        [parameter(Mandatory = $false, Position = 8, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter(Mandatory = $false, Position = 8, ParameterSetName = "PipelineOrObjectEthernet")]
         [ValidateSet("Short", "Long", IgnoreCase=$false)]
         [ValidateScript({$_.contains(":")})]
         [String]$PrimaryPort = $Null,
 
-        [parameter(Mandatory = $false, Position = 9, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter(Mandatory = $false, Position = 9, ParameterSetName = "PipelineOrObjectEthernet")]
         [ValidateSet("Auto", "2", "4", "8", IgnoreCase=$false)]
         [String]$fcUplinkSpeed = "Auto",
 		
-		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectEthernet")]
-		[parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectFibreChannel")]
+		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectFibreChannel")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -38114,28 +43168,36 @@ function New-HPOVUplinkSet
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		if ($PSCmdlet.ParameterSetName -eq "PipelineOrObject")
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
 
 			$c = 0
 
-			ForEach ($_Connection in $ApplianceConnection) 
+			ForEach ($_connection in $ApplianceConnection) 
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -38151,14 +43213,33 @@ function New-HPOVUplinkSet
 			}
 
 		}
-		
+
 		else
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating Uplink Set Object for caller without auth."
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
-
 		$Results = New-Object System.Collections.ArrayList
 
     }
@@ -38668,10 +43749,10 @@ function GetNetworkUris
     Param 
 	(
 
-		[parameter(Mandatory, Position = 0, ParameterSetName = "Default")]
+		[Parameter(Mandatory, Position = 0, ParameterSetName = "Default")]
 		[Array]$_Networks,
 
-		[parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
+		[Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
 		[Object]$_ApplianceConnection
 
 	)
@@ -38782,28 +43863,30 @@ function GetNetworkUris
     Param 
     (
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory = $false, Position = 0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $false, Position = 0)]
+        [Parameter(ParameterSetName = "Default", Mandatory = $false, Position = 0)]
+        [Parameter(ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
+        [Parameter(ParameterSetName = "Export", Mandatory = $false, Position = 0)]
         [Alias('profile')]
         [string]$name = $null,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Detailed", Mandatory)]
         [switch]$detailed,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory = $false)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $false)]
+        [Parameter(ParameterSetName = "Default", Mandatory = $false)]
+        [Parameter(ParameterSetName = "Export", Mandatory = $false)]
         [switch]$Unassigned,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(ParameterSetName = "Default", Mandatory = $false)]
+        [Parameter(ParameterSetName = "Detailed", Mandatory = $false)]
+        [Parameter(ParameterSetName = "Export", Mandatory = $false)]
 		[Alias('Appliance')]
 		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
         
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Export", Mandatory)]
         [alias("x")]
         [switch]$export,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Export", Mandatory)]
         [ValidateNotNullOrEmpty()]
         [alias("save")]
         [string]$location
@@ -38830,40 +43913,79 @@ function GetNetworkUris
 		}
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
-			$c++
-
 		}
-        
 
-        $uri = $script:ServerProfilesUri
+        $uri = $ServerProfilesUri
 
         if ($name) 
         { 
@@ -39240,7 +44362,7 @@ function GetNetworkUris
 
  }
 
- function New-HPOVServerProfile 
+function New-HPOVServerProfile 
 {
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
@@ -39249,206 +44371,210 @@ function GetNetworkUris
     Param 
     (
 
-        [parameter(Mandatory, ParameterSetName = "Default")]
-        [parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
-		[parameter(Mandatory, ParameterSetName = "SPT")]
-		[parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+        [Parameter(Mandatory, ParameterSetName = "Default")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory, ParameterSetName = "SPT")]
+		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
 		[ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [parameter(Mandatory, ParameterSetName = "Default")]
-        [parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory, ParameterSetName = "Default")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
 		[ValidateSet("bay", "server", "unassigned")]
         [alias('assign')]
         [string]$AssignmentType,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-		[parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
         [ValidateNotNullOrEmpty()]
         [object]$Enclosure,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-		[parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
         [ValidateRange(1,16)]
         [Alias('bay')]
         [int32]$EnclosureBay,
 
-        [parameter(Mandatory = $false, valuefrompipeline, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, valuefrompipeline, ParameterSetName = "SANStorageAttach")]
-		[parameter(Mandatory, valuefrompipeline, ParameterSetName = "SPT")]
+        [Parameter(Mandatory = $false, valuefrompipeline, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, valuefrompipeline, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory, valuefrompipeline, ParameterSetName = "SPT")]
         [ValidateNotNullOrEmpty()]
         [object]$Server,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")] 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-		[parameter(Mandatory = $false, ParameterSetName = "SPT")]
-		[parameter(Mandatory = $false, ParameterSetName = "SPTEmptyBay")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")] 
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "SPT")]
+		[Parameter(Mandatory = $false, ParameterSetName = "SPTEmptyBay")]
 		[string]$Description = $null,
 
-		[parameter(Mandatory, ParameterSetName = "SPT")]
-		[parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+		[Parameter(Mandatory, ParameterSetName = "SPT")]
+		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
 		[Object]$ServerProfileTemplate = $null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullOrEmpty()]
         [array]$Connections = @(),
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('eg')]
         [object]$EnclosureGroup = $Null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
 		[Alias('sht')]
         [object]$ServerHardwareType = $null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Firmware,
 	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [object]$Baseline = $null,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('FirmwareOnly', 'FirmwareAndSoftware', 'FirmwareOffline')]
 		[string]$FirmwareMode = 'FirmwareAndSoftware',
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$ForceInstallFirmware,
 	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Bios = $false,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [array]$BiosSettings = @(),
         
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("UEFI","UEFIOptimized","BIOS", IgnoreCase = $False)]
         [string]$BootMode = "BIOS",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("Auto","IPv4","IPv6","IPv4ThenIPv6","IPv6ThenIPv4", IgnoreCase = $False)]
         [string]$PxeBootPolicy = "Auto",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
         [switch]$ManageBoot,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [array]$BootOrder = @(),
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$LocalStorage,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[switch]$ImportLogicalDisk,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$Initialize,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateSet("HBA","RAID", IgnoreCase = $true)]
         [String]$ControllerMode,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
         [Object]$LogicalDisk,
 
 		#DEPRECATED
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [switch]$Bootable,
 
 		#DEPRECATED
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("RAID1","RAID0","NONE", IgnoreCase=$true)]
         [string]$RaidLevel = $Null,
 
-        [parameter(Mandatory = $True, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
         [switch]$SANStorage,
 
-        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
         [Alias('OS')]
         [string]$HostOStype = $Null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
         [object]$StorageVolume = $Null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Even')]
         [switch]$EvenPathDisabled,
 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Odd')]
         [switch]$OddPathDisabled,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Bay","BayAndServer", IgnoreCase=$false)]
         [string]$Affinity = "Bay",
 	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$MacAssignment = "Virtual",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "'UserDefined", IgnoreCase=$true)]
         [string]$WwnAssignment = "Virtual",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$SnAssignment = "Virtual",
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [string]$SerialNumber = $Null,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [string]$Uuid = $Null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [bool]$HideUnusedFlexNics = $True,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")] 
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SPT")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SPTEmptyBay")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $true, ParameterSetName = "Import")]
+        [Parameter(Mandatory, ParameterSetName = "Import")]
         [switch]$Import,
         
-        [parameter(Mandatory = $true, ParameterSetName = "Import", ValueFromPipeline = $true)]
+        [Parameter(Mandatory, ParameterSetName = "Import")]
         [alias("location","file")]
         [Object]$ProfileObj
 
@@ -39478,35 +44604,75 @@ function GetNetworkUris
 		}
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -40126,7 +45292,7 @@ function GetNetworkUris
 				$serverProfile.affinity                      = $Affinity
 				$serverProfile.hideUnusedFlexNics            = [bool]$hideUnusedFlexNics
 				$serverProfile.bios.manageBios               = [bool]$bios
-				$serverProfile.bios.overriddenSettings       = $biosSettings
+				#$serverProfile.bios.overriddenSettings       = $biosSettings
 				$serverProfile.boot.manageBoot               = $manageBoot.IsPresent
 				$serverProfile.boot.order                    = $bootOrder
 				$serverProfile.serialNumberType              = $snAssignment 
@@ -40905,10 +46071,10 @@ function GetNetworkUris
                 }
 
                 #Check to make sure Server Hardware Type supports Bios Management (OneView supported G7 blade do not support this feature)
-                if ($PSBoundParameters['bios']) 
+                if ($PSBoundParameters['Bios']) 
 				{
 
-					if ([bool]($bl460bios | Measure-Object).count) 
+					if (-not($BiosSettings | Measure-Object).count) 
 					{
 		    			
 						$errorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsIsNull InvalidArgument 'biosSettings' -TargetType 'Array' -Message "BIOS parameter was set to TRUE, but no biosSettings were provided.  Either change -bios to `$False or provide valid bioSettings to set within the Server Profile."
@@ -40926,7 +46092,7 @@ function GetNetworkUris
 							#check for any duplicate keys
 						    $biosFlag = $false
 						    $hash = @{}
-						    $biosSettings.id | % { $hash[$_] = $hash[$_] + 1 }
+						    $BiosSettings.id | % { $hash[$_] = $hash[$_] + 1 }
 
 						    foreach ($biosItem in ($hash.GetEnumerator() | ? {$_.value -gt 1} | % {$_.key} )) 
 							{
@@ -41397,17 +46563,17 @@ function Update-HPOVServerProfile
     Param 
 	(
         
-        [parameter(Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the Server Profile Object, Name, or an Array of names.", ParameterSetName = "Update")]
+        [Parameter(Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the Server Profile Object, Name, or an Array of names.", ParameterSetName = "Update")]
         [ValidateNotNullOrEmpty()]
 		[Alias('le')]
         [object]$ServerProfile,
 
-		[parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = 'Update')]
+		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = 'Update')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
+        [Parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
         [Switch]$Async
 
     )
@@ -41432,12 +46598,19 @@ function Update-HPOVServerProfile
 		{
 			
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-			$c = 0
-		
-			#Support ApplianceConnection property value via pipeline from Enclosure Object
-			if($PSboundParameters['ApplianceConnection'])
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
 
 				ForEach ($_connection in $ApplianceConnection) 
 				{
@@ -41452,8 +46625,8 @@ function Update-HPOVServerProfile
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
-						$PSCmdlet.ThrowTerminatingError($errorRecord)
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
 
@@ -41465,6 +46638,33 @@ function Update-HPOVServerProfile
 					}
 
 					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
 
@@ -41697,24 +46897,27 @@ function Get-HPOVServerProfileTemplate
     Param 
     (
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Default", Mandatory = $false, Position = 0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $false, Position = 0)]
+        [Parameter(ParameterSetName = "Default", Mandatory = $false, Position = 0)]
+        [Parameter(ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
+        [Parameter(ParameterSetName = "Export", Mandatory = $false, Position = 0)]
         [Alias('profile')]
         [string]$Name = $null,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Detailed", Mandatory)]
         [switch]$Detailed,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(ParameterSetName = "Default", Mandatory = $false)]
+        [Parameter(ParameterSetName = "Detailed", Mandatory = $false)]
+        [Parameter(ParameterSetName = "Export", Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
         
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Export", Mandatory)]
         [alias("x")]
         [switch]$Export,
 
-        [parameter(ValueFromPipeline = $false, ParameterSetName = "Export", Mandatory = $true)]
+        [Parameter(ParameterSetName = "Export", Mandatory)]
         [ValidateNotNullOrEmpty()]
         [alias("save")]
         [string]$Location
@@ -41741,35 +46944,75 @@ function Get-HPOVServerProfileTemplate
 		}
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
         
@@ -41911,156 +47154,157 @@ function New-HPOVServerProfileTemplate
     Param 
     (
 
-        [parameter(Mandatory = $true, ParameterSetName = "Default", Position = 0)]
-        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach", Position = 0)]
+        [Parameter(Mandatory, ParameterSetName = "Default", Position = 0)]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach", Position = 0)]
 		[ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default", position = 2)] 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 2)]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default", position = 2)] 
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 2)]
 		[string]$Description = $null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default", position = 3)]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 3)]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default", position = 3)]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 3)]
 		[ValidateNotNullOrEmpty()]
         [array]$Connections = @(),
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default",position = 4)]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 4)]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default",position = 4)]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 4)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('eg')]
         [object]$EnclosureGroup = $Null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default", position = 5)]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 5)]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default", position = 5)]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 5)]
         [ValidateNotNullOrEmpty()]
 		[Alias('sht')]
         [Object]$ServerHardwareType = $null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Firmware,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('FirmwareOnly', 'FirmwareAndSoftware', 'FirmwareOffline')]
 		[string]$FirmwareMode = 'FirmwareAndSoftware',
 	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [object]$Baseline = $null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$ForceInstallFirmware,
 	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Bios = $false,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [array]$BiosSettings=@(),
         
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("UEFI","UEFIOptimized","BIOS", IgnoreCase = $False)]
         [string]$BootMode = "BIOS",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("Auto","IPv4","IPv6","IPv4ThenIPv6","IPv6ThenIPv4", IgnoreCase = $False)]
         [string]$PxeBootPolicy = "Auto",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
         [switch]$ManageBoot,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [array]$BootOrder = @(),
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$LocalStorage,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$Initialize,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateSet("HBA","RAID", IgnoreCase = $true)]
         [String]$ControllerMode,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
         [Object]$LogicalDisk,
 
 		#DEPRECATED
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [switch]$Bootable,
 
 		#DEPRECATED
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("RAID1","RAID0","NONE", IgnoreCase=$true)]
         [string]$RaidLevel = $Null,
 
-        [parameter(Mandatory = $True, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
         [switch]$SANStorage,
 
-        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
         [Alias('OS')]
         [string]$HostOStype = $Null,
 
-        [parameter(Mandatory = $true, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
         [object]$StorageVolume = $Null,
 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Even')]
         [switch]$EvenPathDisabled,
 
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Odd')]
         [switch]$OddPathDisabled,
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Bay","BayAndServer", IgnoreCase=$false)]
         [string]$Affinity = "Bay",
 	
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$MacAssignment = "Virtual",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "'UserDefined", IgnoreCase=$true)]
         [string]$WwnAssignment = "Virtual",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$SnAssignment = "Virtual",
 
-        [parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [bool]$HideUnusedFlexNics = $True,
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
-
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 	
@@ -42088,35 +47332,75 @@ function New-HPOVServerProfileTemplate
 		}
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -43240,13 +48524,14 @@ function Join-HPOVServerProfileToTemplate
         [Alias("t")]
         [object]$Template,
 
-	    [parameter(Mandatory)]
+	    [Parameter(Mandatory)]
         [Alias("p", 'Profile')] 
         [object]$ServerProfile,
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Global:ConnectedSessions
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -43260,35 +48545,75 @@ function Join-HPOVServerProfileToTemplate
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
         
@@ -43487,15 +48812,16 @@ function ConvertTo-HPOVServerProfileTemplate
         [Alias("source")]
         [Object]$ServerProfile,
 
-		[parameter(Mandatory = $False)] 
+		[Parameter(Mandatory = $False)] 
 		[String]$Name,
 
-		[parameter(Mandatory = $False)] 
+		[Parameter(Mandatory = $False)] 
 		[Switch]$Async,
 
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
     )
 
@@ -43517,64 +48843,79 @@ function ConvertTo-HPOVServerProfileTemplate
 
 		}
 
-		if (-not($PipelineInput) -and (($ApplianceConnection | Measure-Object).Count -eq 1 ))
+		else
 		{
 
-			Try 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $_Connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-		}
-        
-		elseif (-not($PipelineInput) -and (($ApplianceConnection | Measure-Object).Count -gt 1 ))
-		{
-
-			$c = 0
-
-			ForEach ($_Connection in $ApplianceConnection) 
+			else
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
 				Catch 
 				{
 
-					$PSCmdlet.ThrowTerminatingError($_.Exception)
+					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 
@@ -43693,7 +49034,7 @@ function Generate-ServerProfileTemplate
     Param 
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, Position = 0)]
+		[Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Object]$Source = $Null
 
@@ -43963,23 +49304,23 @@ function New-HPOVServerProfileAssign
 	Param 
 	(
 
-		[parameter(Mandatory, valuefrompipeline, ParameterSetName = "Unassigned", Position = 0)]
-		[parameter(Mandatory, valuefrompipeline, ParameterSetName = "Default", Position = 0)]
+		[Parameter(Mandatory, valuefrompipeline, ParameterSetName = "Unassigned", Position = 0)]
+		[Parameter(Mandatory, valuefrompipeline, ParameterSetName = "Default", Position = 0)]
         [ValidateNotNullOrEmpty()]
 		[Alias('Profile')]
         [Object]$ServerProfile = $Null,
         
-		[parameter(Mandatory, valuefrompipeline = $false, ParameterSetName = "Default", Position = 1)]
+		[Parameter(Mandatory, ParameterSetName = "Default", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Object]$Server = $Null,
         
-		[parameter(Mandatory = $false, ParameterSetName = "Unassigned")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Unassigned")]
         [switch]$Unassigned,
 
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -44003,28 +49344,75 @@ function New-HPOVServerProfileAssign
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-			$c = 0
 
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			else
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-			{
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -44202,21 +49590,22 @@ function Copy-HPOVServerProfile
     Param
 	(
 	
-        [parameter(Mandatory = $True, ValueFromPipeline = $true, position = 0)]
+        [Parameter(Mandatory, ValueFromPipeline = $true, position = 0)]
         [Alias('sname','src')]
         [ValidateNotNullOrEmpty()]
         [object]$SourceName = $null,
         
-        [parameter(Mandatory = $false, position = 1)]
+        [Parameter(Mandatory = $false, position = 1)]
         [alias('dname','dst')]
         [string]$DestinationName = $null,
         
-        [parameter(Mandatory = $false, position = 2)]
-        [object]$assign = "unassigned",
+        [Parameter(Mandatory = $false, position = 2)]
+        [object]$Assign = "unassigned",
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
     
@@ -44229,38 +49618,91 @@ function Copy-HPOVServerProfile
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($PSBoundParameters['ServerProfile']))
 		{
 
-			Try 
-			{
-			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
+			$PipelineInput = $true
 
 		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
         
         if($ApplianceConnection.count -gt 1)
 		{
@@ -44690,20 +50132,21 @@ function Remove-HPOVServerProfile
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdLetBinding(DefaultParameterSetName = "default", SupportsShouldProcess = $True, ConfirmImpact = 'High')]
+    [CmdLetBinding(DefaultParameterSetName = "default", SupportsShouldProcess, ConfirmImpact = 'High')]
     Param 
     (
 
-        [parameter (Mandatory = $true,ValueFromPipeline = $true, ParameterSetName = "default", HelpMessage = "Specify the profile(s) to remove.", Position = 0)]
+        [parameter (Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the profile(s) to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('uri','name','profile')]
-        [Object]$ServerProfile = $null,
+        [Object]$ServerProfile,
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [parameter (Mandatory = $false,ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify to force-remove the profile.")]
+        [parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify to force-remove the profile.")]
         [Switch]$force
     
     )
@@ -44717,36 +50160,88 @@ function Remove-HPOVServerProfile
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($PSBoundParameters['ServerProfile']))
 		{
 
-			Try 
+			$PipelineINput = $true
+
+		}
+		
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			else
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
 
 		}
         
@@ -44841,13 +50336,15 @@ function Get-HPOVServerProfileConnectionList
 	[CmdLetBinding()]
     Param 
     (
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
-        [string]$name=$null,
+        [string]$Name,
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
     )
 
     Begin 
@@ -44860,35 +50357,75 @@ function Get-HPOVServerProfileConnectionList
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -45061,135 +50598,136 @@ function New-HPOVServerProfileConnection
     Param 
     (
 
-        [parameter(Position = 0, Mandatory, ParameterSetName = "Ethernet")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "FC")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "UserDefinedFC")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "bootEthernet")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "bootFC")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Position = 0, Mandatory, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Position = 0, Mandatory, ParameterSetName = "Ethernet")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "FC")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootEthernet")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootFC")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('id')]
         [int]$ConnectionID = 1,
 
-        [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "FC")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootFC")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [ValidateSet("Ethernet", "FibreChannel", IgnoreCase)]
 		[Alias('type')]
 		[string]$ConnectionType = "Ethernet",
 
-        [parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "Ethernet")]
-	    [parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "FC")]
-        [parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedFC")]
-	    [parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootEthernet")]
-		[parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootFC")]
-		[parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "Ethernet")]
+	    [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "FC")]
+        [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedFC")]
+	    [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootEthernet")]
+		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootFC")]
+		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
         [object]$Network,
 
-        [parameter(Position = 3, Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = "FC")]
-        [parameter(Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootFC")]
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "FC")]
+        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
         [string]$PortId = "Auto",
 
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = "FC")]
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootFC")]
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "FC")]
+        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
         [string]$Name = $Null,
 
-	    [parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "FC")]
-        [parameter(Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[parameter(Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "bootFC")]
-		[parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+	    [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+        [Parameter(Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateRange(100,10000)]
         [int]$RequestedBW = 2500,
 	
-		[parameter(Mandatory, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateNotNullOrEmpty()]
         [switch]$UserDefined,
 
-        [parameter(Mandatory, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Mandatory, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:macAddressPattern})]
         [string]$MAC = $Null,
 	
-		[parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:wwnAddressPattern})]
         [string]$WWNN = $Null,
 		
-		[parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:wwnAddressPattern})]
         [string]$WWPN = $Null,
 	
-	    [parameter(Mandatory, ParameterSetName = "bootEthernet")]
-		[parameter(Mandatory, ParameterSetName = "bootFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+	    [Parameter(Mandatory, ParameterSetName = "bootEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "bootFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateNotNullOrEmpty()]
         [switch]$Bootable,
 	
-		[parameter(Mandatory, ParameterSetName = "bootEthernet")]
-		[parameter(Mandatory, ParameterSetName = "bootFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "bootFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [ValidateSet("UseBIOS", "Primary","Secondary", IgnoreCase=$true)]
 		[string]$Priority = "NotBootable",
 	
-		[parameter(Mandatory, ParameterSetName = "bootFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateScript({$_ -match $script:wwnAddressPattern})]
 		[string]$ArrayWwpn = $null,
 	
-		[parameter(Mandatory, ParameterSetName = "bootFC")]
-		[parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootFC")]
+		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateRange(0,254)]
 		[int]$LUN = 0,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Ethernet")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "FC")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedEthernet")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedFC")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootEthernet")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootFC")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedEthernet")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Ethernet")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "FC")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedFC")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootEthernet")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootFC")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedFC")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 	
@@ -45202,36 +50740,88 @@ function New-HPOVServerProfileConnection
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($PSBoundParameters['Network']))
 		{
 
-			Try 
-            {
+			$PipelineInput = $true
+
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			else
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
-
-			Catch 
-            {
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
 
 		}
 
@@ -45392,23 +50982,23 @@ function New-HPOVServerProfileLogicalDisk
     Param 
     (
 
-		[parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
-        [string]$Name = $Null,
+        [string]$Name,
 
-        [parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateSet('RAID0','RAID1')]
         [string]$RAID = 'RAID1',
 
-        [parameter(Position = 2, Mandatory = $false , ParameterSetName = "Default")]
+        [Parameter(Position = 2, Mandatory = $false , ParameterSetName = "Default")]
 		[ValidateRange(1,2)]
 		[int]$NumberofDrives = 2,
 
-        [parameter(Position = 3, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateSet('SAS','SATA','SASSSD','SATASSD','Auto')]
         [string]$DriveType = 'Auto',
 
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
         [bool]$Bootable = $False
 
@@ -45467,93 +51057,93 @@ function New-HPOVServerProfileAttachVolume
     Param 
     (
 
-		[parameter(Mandatory, ParameterSetName = "ServerProfileObject")]
-		[parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter(Mandatory, ParameterSetName = "ServerProfileObject")]
+		[Parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
 		[ValidateScript({'server-profiles','server-profile-templates' -contains $_.category})]
 		[Object]$ServerProfile,
 		
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $False, ParameterSetName = "Default")]
-        [parameter(Mandatory = $False, ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $False, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $False, ParameterSetName = "ManualLunIdType")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('id')]
         [int]$VolumeID = 1,
 
-		[parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ServerProfileObject")]
-        [parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
-        [parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ManualLunIdType")]
+		[Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ServerProfileObject")]
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
+        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ManualLunIdType")]
 		[ValidateScript({$_ | ? { 'storage-volumes' -contains $_.category}})]
         [Array]$Volume,
 
-		[parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [object]$Name,
 
-		[parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [object]$StoragePool,
 
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [object]$StorageSystem,
 
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [int64]$Capacity,
 
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
         [switch]$Full,
 
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
         [switch]$Permanent,
 
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $False, ParameterSetName = "Default")]
-        [parameter(Mandatory = $True, ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $True, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $False, ParameterSetName = "Default")]
+        [Parameter(Mandatory, ParameterSetName = "ManualLunIdType")]
+        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
 	    [ValidateSet("Auto","Manual", IgnoreCase=$true)]
 		[Alias('type')]
         [string]$LunIdType = "Auto",
 
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
-		[parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory, ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]		
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory, ParameterSetName = "ManualLunIdType")]
+        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]		
         [ValidateRange(0,254)]
         [int]$LunID,
 
-		[parameter(Mandatory = $false, ParameterSetName = "ServerProfileObject")]
-		[parameter(Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter(Mandatory = $false, ParameterSetName = "ServerProfileObject")]
+		[Parameter(Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
 		[ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform')]
         [Alias('OS')]
         [string]$HostOStype,
 
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObject")]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ManualLunIdType")]
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachAuto")]
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObject")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ManualLunIdType")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 	
@@ -45578,25 +51168,74 @@ function New-HPOVServerProfileAttachVolume
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			else
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-			{
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -46359,10 +51998,10 @@ function Search-HPOVIndex
 		[ValidateNotNullorEmpty()]
 		[int]$start = 0,
 
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 	
@@ -46376,24 +52015,66 @@ function Search-HPOVIndex
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
 
-		ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -46403,8 +52084,6 @@ function Search-HPOVIndex
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -46517,10 +52196,10 @@ function Search-HPOVAssociations
 		[ValidateNotNullorEmpty()]
 		[int]$Start = 0,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName)]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )    
 
@@ -46563,11 +52242,55 @@ function Search-HPOVAssociations
 
 		}
 
-		if ($PSBoundParameters['ApplianceConnection'])
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
+		{
+
 			Try 
 			{
 			
@@ -46578,8 +52301,8 @@ function Search-HPOVAssociations
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -46689,36 +52412,37 @@ function Get-HPOVTask
 	Param 
 	(
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "ResourceCategory")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "ResourceCategory")]
 		[ValidateNotNullorEmpty()]
         [Alias("name")]
-		[string]$TaskName = $Null,
+		[string]$TaskName,
 
-        [parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Enter the resource you want to find tasks associated with.", ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Enter the resource you want to find tasks associated with.", ParameterSetName = "Default")]
         [ValidateNotNullorEmpty()]
-		[Object]$Resource = $Null,
+		[Object]$Resource,
 
-        [parameter(Mandatory = $false, HelpMessage = "Please specify the Resource Category the task (i.e. 'ethernet-networks', 'fc-networks', 'server-profiles', etc..)", ParameterSetName = "ResourceCategory")]
+        [Parameter(Mandatory = $false, HelpMessage = "Please specify the Resource Category the task (i.e. 'ethernet-networks', 'fc-networks', 'server-profiles', etc..)", ParameterSetName = "ResourceCategory")]
         [ValidateNotNullorEmpty()]
 		[Alias("Category")]
-        [String]$ResourceCategory = $Null,
+        [String]$ResourceCategory,
 
-        [parameter(Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "ResourceCategory")]
+        [Parameter(Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "ResourceCategory")]
         [ValidateNotNullorEmpty()]
 		[ValidateSet("Unknown","New","Running","Suspended","Terminated","Killed","Completed","Error","Warning")]
-        [string]$State = $Null,
+        [string]$State,
 
-        [parameter(Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "Default")]
-        [parameter(Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "ResourceCategory")]
+        [Parameter(Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "ResourceCategory")]
         [ValidateScript({ if ([int]$_ -gt -1) {$true} else {Throw "The Count Parameter value '$_' is invalid."}})]
         [Int]$Count = 0,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ResourceCategory")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 	
@@ -46731,36 +52455,76 @@ function Get-HPOVTask
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
+       Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-        ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
-            {
+			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
-            {
+			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
-            {
+			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -47018,19 +52782,20 @@ function Wait-HPOVTaskStart
 	Param 
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the task URI or task object")]
+		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the task URI or task object")]
 		[Alias('taskuri')]
         [object]$task,
 
-        [parameter(Mandatory = $false,HelpMessage = "Provide the resource name the task is for, which is displayed in the Write-Progress output.")]
+        [Parameter(Mandatory = $false, HelpMessage = "Provide the resource name the task is for, which is displayed in the Write-Progress output.")]
         [string]$resourceName,
 
-        [parameter(Mandatory = $false,HelpMessage = "Enter the new value for the global parameter")]
+        [Parameter(Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
         [timespan]$timeout = $script:defaultTimeout,
 
-		[parameter(ValueFromPipelineByPropertyName, ValueFromPipeline = $False, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	) 
 
@@ -47043,7 +52808,90 @@ function Wait-HPOVTaskStart
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		if (-not $PSBoundParameters['task']) { $PipelineInput = $True }
+		if (-not $PSBoundParameters['task']) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
+
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		if ($Task -is [String] -and ($ApplianceConnection.Count -gt 1) -and (-not($PipelineInput)))
 		{
@@ -47053,38 +52901,6 @@ function Wait-HPOVTaskStart
 
 		}
 
-		elseif (-not($PipelineInput))
-		{
-
-
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-			$c = 0
-
-			Try 
-			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-		}
-		
 		$TaskCollection = New-Object System.Collections.ArrayList
 
     }
@@ -47269,16 +53085,17 @@ function Wait-HPOVTaskComplete
 	Param
 	(
 
-		[parameter(Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the task URI or task object")]
+		[Parameter(Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the task URI or task object")]
 		[Alias('TaskUri')]
         [Object]$Task,
 
-        [parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
+        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
         [timespan]$timeout = $script:defaultTimeout,
 
-		[parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -47332,25 +53149,74 @@ function Wait-HPOVTaskComplete
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch 
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -47609,10 +53475,10 @@ function Get-HPOVUser
 		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 	
@@ -47627,49 +53493,76 @@ function Get-HPOVUser
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if  (($ApplianceConnection | Measure-Object).Count -eq 0)
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message 'This CMDLET requires athentication.  Please log into a valid appliance using Connect-HPOVMgmt, and then try the call again.'
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
 		else
 		{
 
-			$c = 0
-		
-			ForEach ($_Connection in $ApplianceConnection) 
+			Try 
 			{
-		
-				Try 
-				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-		
-				}
-		
-				Catch [HPOneview.Appliance.AuthSessionException] 
-				{
-		
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
-		
-				}
-		
-				Catch 
-				{
-		
-					$PSCmdlet.ThrowTerminatingError($_)
-		
-				}
-		
-				$c++
-		
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
 			}
 
-		}
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}	
 		
 		$_UserCollection = New-Object System.Collections.ArrayList
 
@@ -47681,13 +53574,65 @@ function Get-HPOVUser
 		ForEach ($_Connection in $ApplianceConnection)
 		{
 
+			$_uri = $UsersUri + "?sort=username:asc"
+
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_Connection.Name)' Appliance (of $($ApplianceConnection.Count))"
+
+			if ($PSBoundParameters['Name'])
+			{
+
+				$_filterparam = 'EQ'
+
+				if ($Name -contains '\*')
+				{
+
+					$_filterparam = 'MATCHES'
+					$Name = $Name -replace '\*','%25'
+
+				}
+
+				$_uri += '&filter=loginName {0} "{1}"' -f $_filterparam, $Name
+
+			}
 
 			Try
 			{
 
-				$_users = Send-HPOVRequest ($usersUri+"?sort=username:asc") -Hostname $_Connection.Name 
+				$_users = Send-HPOVRequest $_uri -Hostname $_Connection.Name 
 
+				if ($_users.count -eq 0 -and $Name) 
+				{
+				
+					$_Message    = "Username '{0}' was not found on {1} Appliance Connection. Please check the spelling, or create the user and try again." -f $Name, $_Connection.Name 
+					$errorRecord = New-ErrorRecord HPOneView.Appliance.UserResourceException UserNotFound ObjectNotFound "Name" -Message $_Message
+					$pscmdlet.WriteError($errorRecord)
+
+				}
+
+			}
+
+			#User isn't authorized, so let's display their user account
+			Catch [HPOneView.Appliance.AuthPrivilegeException]
+			{
+
+				Try
+				{
+
+					$_user = Send-HPOVRequest ($UsersUri + '/' + $_Connection.Username) -Hostname $_Connection.Name 
+
+					$_user.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.User')
+
+					[void]$_UserCollection.Add($_user)
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+				
 			}
 
 			Catch
@@ -47699,36 +53644,26 @@ function Get-HPOVUser
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found $($_users.count) user resources on '$($_Connection.Name)' appliance."
 
-			ForEach ($u in $_users.members) 
+			if ($_users.members)
 			{
 
-				$u.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.User')
+				ForEach ($u in $_users.members) 
+				{
 
-				[void]$_UserCollection.Add($u)
+					$u.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.User')
 
-            }
+					[void]$_UserCollection.Add($u)
 
+				}
+
+			}
+			
         }
 
 	}
 
 	End 
 	{
-
-        if ($Name) 
-		{
-
-            $_UserCollection = $_UserCollection | ? userName -like $Name
-
-        }
-
-        if ($_UserCollection.count -eq 0 -and $Name) 
-		{
-				
-            $errorRecord = New-ErrorRecord HPOneView.Appliance.UserResourceException UserNotFound ObjectNotFound "Name" -Message "Username `'$Name`' was not found. Please check the spelling, or create the user and try again."
-			$pscmdlet.ThrowTerminatingError($errorRecord)
-
-		}
 
 		"Done. {0} user(s) found." -f $_UserCollection.count | write-verbose 
 		
@@ -47749,34 +53684,35 @@ function New-HPOVUser
 	Param 
 	(
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory)]
         [string]$UserName, 
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory)]
         [string]$Password, 
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]$FullName, 
 
-        [parameter(Mandatory = $true)]
+        [Parameter(Mandatory)]
         [Array]$Roles = @(),
 
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [validatescript({$_ -as [Net.Mail.MailAddress]})]
         [string]$EmailAddress = $null,
 
-        [parameter(Mandatory = $false)] 
+        [Parameter(Mandatory = $false)] 
         [string]$officePhone = $null,
      
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [string]$mobilePhone = $null,
      
-        [parameter(Mandatory = $false)]
+        [Parameter(Mandatory = $false)]
         [switch]$enabled,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -47791,23 +53727,65 @@ function New-HPOVUser
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -47817,8 +53795,6 @@ function New-HPOVUser
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 		
@@ -47928,60 +53904,61 @@ function Set-HPOVUser
 	Param 
 	(
 
-		[parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Pipeline')]
 		[ValidateNotNullorEmpty()]
 		[Object]$UserObject,
 
-        [parameter(Position = 0, Mandatory = $true, ParameterSetName = 'default')]
+        [Parameter(Position = 0, Mandatory, ParameterSetName = 'default')]
 		[ValidateNotNullorEmpty()]
         [string]$UserName, 
 
-        [parameter(Position = 1, Mandatory = $false, ParameterSetName = 'default')]
-		[parameter(Position = 1, Mandatory = $false, ParameterSetName = 'Pipeline')]
+        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'default')]
+		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[string]$Password, 
 
-		[parameter(Position = 2, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[string]$FullName, 
 
-		[parameter(Position = 3, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[Array]$Roles,
 
-		[parameter(Position = 4, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 4, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [validatescript({$_ -as [Net.Mail.MailAddress]})]
         [string]$EmailAddress,
 
-		[parameter(Position = 5, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 5, Mandatory = $false, ParameterSetName = 'Pipeline')] 
+		[Parameter(Position = 5, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 5, Mandatory = $false, ParameterSetName = 'Pipeline')] 
         [ValidateNotNullorEmpty()]
 		[string]$OfficePhone,
      
-		[parameter(Position = 6, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 6, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 6, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 6, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[string]$MobilePhone,
      
-		[parameter(Position = 7, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 7, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 7, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 7, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [alias('enable')]
 		[ValidateNotNullorEmpty()]
         [switch]$Enabled,
 
-		[parameter(Position = 8, Mandatory = $false, ParameterSetName = 'default')]
-        [parameter(Position = 8, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter(Position = 8, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter(Position = 8, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [alias('disable')]
 		[ValidateNotNullorEmpty()]
         [switch]$Disabled,
 
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object")]
-		[Alias('Appliance')]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = 'default')]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = 'Pipeline')]
 		[ValidateNotNullorEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -48009,23 +53986,65 @@ function Set-HPOVUser
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -48035,8 +54054,6 @@ function Set-HPOVUser
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 						
@@ -48319,19 +54336,19 @@ function Set-HPOVUserPassword
 	Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $false)]
+        [Parameter(Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('CurrentPassword')]
         [String]$Current,
 
-        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $False)]
+        [Parameter(Position = 1, Mandatory = $false)]
         [ValidateNotNullorEmpty()]
 		[Alias('NewPassword')]
 		[String]$New,
 
-		[parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -48343,26 +54360,69 @@ function Set-HPOVUserPassword
 		$Caller = (Get-PSCallStack)[1].Command
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
-
-
+		
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
 		$c = 0
 
-		ForEach ($_Connection in $ApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+		
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -48374,18 +54434,14 @@ function Set-HPOVUserPassword
 
 			}
 
-			$c++
-
-		}
-
-		
+		}	
 
 		#Prompt user for current password if not provided
-        if (-not ($Current)) 
+        if (-not($PSBoundParameters['Current'])) 
 		{ 
         
             $Current                  = Read-Host -AsSecureString "Current"
-            $_decryptCurrentPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($currentPassword))
+            $_decryptCurrentPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Current))
 
         }
 
@@ -48397,7 +54453,7 @@ function Set-HPOVUserPassword
 		}
 
         #Prompt user for new password if not provided
-        if (-not($New)) 
+        if (-not($PSBoundParameters['New'])) 
 		{ 
         
             Do 
@@ -48437,7 +54493,6 @@ function Set-HPOVUserPassword
 
         }
 
-
 		$_UserStatus = New-Object System.Collections.ArrayList
 
     }
@@ -48450,48 +54505,61 @@ function Set-HPOVUserPassword
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_Connection.Name)' Appliance (of $($ApplianceConnection.Count))"
 
-			#Get current user object
-			Try
+			if ($_Connection.AuthLoginDomain -ne 'LOCAL')
 			{
 
-				$_CurrentUserObj = Get-HPOVUser $_Connection.UserName -ApplianceConnection $_Connection
+				$_message     = "The user account Auth Provider, {0}, is not the local appliance.  HPE OneView does not support updating an LDAP User Account password." -f $_Connection.AuthLoginDomain
+				$_errorrecord = New-ErrorRecord HPOneView.Appliance.UserResourceException UserNotFound ObjectNotFound 'UserName' -Message $_message
+				$PSCmdlet.WriteError($_errorrecord)
 
 			}
 
-			Catch
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				#Get current user object
+				Try
+				{
+
+					$_CurrentUserObj = Send-HPOVRequest ($UsersUri + '/' + $_Connection.UserName) -ApplianceConnection $_Connection
+
+					$_CurrentUserObj | add-member -notepropertyname currentPassword -NotePropertyValue $_decryptCurrentPassword
+					$_CurrentUserObj | add-member -notepropertyname password -NotePropertyValue $_decryptNewPassword
+					$_CurrentUserObj | add-member -notepropertyname replaceRoles -NotePropertyValue $false
+
+					Try
+					{
+
+						$_resp = Send-HPOVRequest $UsersUri PUT $_CurrentUserObj -Hostname $_Connection
+
+					}
+				
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					if ($_resp.category -eq 'users')
+					{
+
+						$_resp.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.User')
+
+					}
+
+					[void]$_UserStatus.Add($_resp)
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.WriteError($_)
+
+				}	
 
 			}
-			
-			$_CurrentUserObj | add-member -notepropertyname currentPassword -NotePropertyValue $decryptCurrentPassword
-			$_CurrentUserObj | add-member -notepropertyname password -NotePropertyValue $decryptNewPassword
-			$_CurrentUserObj | add-member -notepropertyname replaceRoles -NotePropertyValue $false
-			$_CurrentUserObj | add-member -notepropertyname type -NotePropertyValue UserAndRoles
-
-			Try
-			{
-
-				$_resp = Send-HPOVRequest $usersUri PUT $_CurrentUserObj -Hostname $_Connection
-
-			}
-			
-			Catch
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			if ($_resp.category -eq 'users')
-			{
-
-				$_resp.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.User')
-
-			}
-
-			[void]$_UserStatus.Add($_resp)
 
 		}     
 
@@ -48515,14 +54583,15 @@ function Remove-HPOVUser
 	param
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the User Account Name to delete from the appliance", Position = 0, ParameterSetName = "default")]
+		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the User Account Name to delete from the appliance", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias("u","user",'UserName')]
 		[Object]$Name,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -48535,39 +54604,90 @@ function Remove-HPOVUser
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] {
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['Name'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['Name'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+			
+		}
 
 		$_TaskCollection = New-Object System.Collections.ArrayList
 		$_UserCollection = New-Object System.Collections.ArrayList
@@ -48744,16 +54864,17 @@ function Set-HPOVUserRole
         [parameter (Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Alias("user",'userName')]
-        [Object]$Name = $null,
+        [Object]$Name,
 
         [parameter (Mandatory)]
         [ValidateNotNullOrEmpty()]
         [alias('roleName')]
         [Array]$Roles,
 
-		[parameter(ValueFromPipelineByPropertyName, ValueFromPipeline = $False, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -48765,8 +54886,6 @@ function Set-HPOVUserRole
 		$Caller = (Get-PSCallStack)[1].Command
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
-
-		
 
 		if (-not($PSBoundParameters['Name']))
 		{ 
@@ -48782,23 +54901,65 @@ function Set-HPOVUserRole
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -48809,38 +54970,9 @@ function Set-HPOVUserRole
 
 				}
 
-				$c++
-
 			}
 
 		}
-
-		#elseif (-not($PipelineInput))
-		#{
-		#
-		#	Try 
-		#	{
-		#
-		#		$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-		#
-		#	}
-		#
-		#	Catch [HPOneview.Appliance.AuthSessionException] 
-		#	{
-		#
-		#		$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-		#		$PSCmdlet.ThrowTerminatingError($errorRecord)
-		#
-		#	}
-		#
-		#	Catch 
-		#	{
-		#
-		#		$PSCmdlet.ThrowTerminatingError($_)
-		#
-		#	}
-		#
-		#}
 
         #Need to make sure role name is first letter capitalized only.
         $i = 0
@@ -48994,7 +55126,7 @@ function Set-HPOVInitialPassword
         [ValidateNotNullOrEmpty()]
         [string]$NewPassword,
 
-		[parameter(Position = 3, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.", ParameterSetName = 'Default')]
+		[Parameter(Position = 3, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.", ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
 		[Object]$Appliance = $null
 
@@ -49104,10 +55236,11 @@ function Get-HPOVLdap
         [ValidateScript({split-path $_ | Test-Path})]
         [string]$Save,
 		
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -49121,24 +55254,66 @@ function Get-HPOVLdap
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -49148,8 +55323,6 @@ function Get-HPOVLdap
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -49230,15 +55403,16 @@ function Get-HPOVLdapDirectory
         [Alias('directory','domain')]
 		[String]$Name,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Export')]
+        [Parameter(Mandatory, ParameterSetName = 'Export')]
         [Alias('x')]
 		[ValidateScript({split-path $_ | Test-Path})]
         [string]$Export,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -49252,24 +55426,66 @@ function Get-HPOVLdapDirectory
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -49279,8 +55495,6 @@ function Get-HPOVLdapDirectory
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -49397,53 +55611,54 @@ function New-HPOVLdapDirectory
 	param
 	(
 
-		[Parameter(Position=0, Mandatory = $true, ParameterSetName = "AD")]
-        [Parameter(Position=0, Mandatory = $true, ParameterSetName = "LDAP")]
+		[Parameter(Position=0, Mandatory, ParameterSetName = "AD")]
+        [Parameter(Position=0, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[String]$Name,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "AD")]
+		[Parameter(Mandatory, ParameterSetName = "AD")]
 		[Switch]$AD,
 
-		[Parameter(Mandatory = $true, ParameterSetName = "LDAP")]
+		[Parameter(Mandatory, ParameterSetName = "LDAP")]
 		[Alias('LDAP')]
 		[Switch]$OpenLDAP,
 
-		[Parameter(Position = 2, Mandatory = $true, ParameterSetName = "AD")]
-        [Parameter(Position = 2, Mandatory = $true, ParameterSetName = "LDAP")]
+		[Parameter(Position = 2, Mandatory, ParameterSetName = "AD")]
+        [Parameter(Position = 2, Mandatory, ParameterSetName = "LDAP")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('root','rootdn')]
         [String]$BaseDN,
 
-		[Parameter(Position = 3, Mandatory = $true, ParameterSetName = "LDAP")]
+		[Parameter(Position = 3, Mandatory, ParameterSetName = "LDAP")]
         [ValidateSet('UID','CN')]
 		[String]$UserAttribute,
 
-        [Parameter(Position = 4, Mandatory = $true, ParameterSetName = "LDAP")]
+        [Parameter(Position = 4, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Array]$OrganizationalUnits,
 
-        [Parameter(Position = 3, Mandatory = $true, ParameterSetName = "AD")]
-        [Parameter(Position = 5, Mandatory = $true, ParameterSetName = "LDAP")]
+        [Parameter(Position = 3, Mandatory, ParameterSetName = "AD")]
+        [Parameter(Position = 5, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Array]$Servers,
 
-        [Parameter(Position = 4, Mandatory = $true, ParameterSetName = "AD")]
-        [Parameter(Position = 6, Mandatory = $true, ParameterSetName = "LDAP")]
+        [Parameter(Position = 4, Mandatory, ParameterSetName = "AD")]
+        [Parameter(Position = 6, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Alias('u','user')]
         [String]$Username,
 
-        [Parameter(Position = 5, ValueFromPipeline = $true, Mandatory = $true, ParameterSetName = "AD")]
-        [Parameter(Position = 7, ValueFromPipeline = $true, Mandatory = $true, ParameterSetName = "LDAP")]
+        [Parameter(Position = 5, ValueFromPipeline = $true, Mandatory, ParameterSetName = "AD")]
+        [Parameter(Position = 7, ValueFromPipeline = $true, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Alias('p','pass')]
         [SecureString]$Password,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'AD')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'LDAP')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -49457,24 +55672,66 @@ function New-HPOVLdapDirectory
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -49484,8 +55741,6 @@ function New-HPOVLdapDirectory
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -49641,16 +55896,17 @@ function Remove-HPOVLdapDirectory
 	param
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory name", Position = 0, ParameterSetName = "default")]
-		[parameter(Mandatory, ParameterSetName = "ApplianceRequired", position = 0)]
+		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory name", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias("d")]
 		[Object]$Directory,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null,
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
+		[Parameter(Mandatory = $False, ParameterSetName = "default")]
 		[switch]$Force
 
     )
@@ -49664,42 +55920,92 @@ function Remove-HPOVLdapDirectory
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not($PSBoundParameters['Directory'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
+		}
 
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
+		else
 		{
 
-			Try 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch 
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
-
-			$c++
 
 		}
 
-		if (-not($PSBoundParameters['Directory'])) { $PipelineInput = $True }
-
-		$_TaskCollection    = New-Object System.Collections.ArrayList
+		$_TaskCollection      = New-Object System.Collections.ArrayList
 		$_DirectoryCollection = New-Object System.Collections.ArrayList
 
     }
@@ -49848,13 +56154,15 @@ Function Set-HPOVLdapDefaultDirectory
 
 		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Please provide the LDAP/AD Directory Name or Object.")]
 		[ValidateNotNullOrEmpty()]
-		[Object]$Directory = $Null,
-
+		[Object]$Directory,
+		
+		[Parameter(Mandatory = $False)]
 		[Switch]$DisableLocalLogin,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -49879,23 +56187,65 @@ Function Set-HPOVLdapDefaultDirectory
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -49906,11 +56256,9 @@ Function Set-HPOVLdapDefaultDirectory
 
 				}
 
-				$c++
-
 			}
 
-		}
+		}	
 
 		$_TaskCollection      = New-Object System.Collections.ArrayList
 		$_DirectoryCollection = New-Object System.Collections.ArrayList
@@ -49946,16 +56294,18 @@ Function Set-HPOVLdapDefaultDirectory
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Directory Name provided: $Directory"
 
-						$_Directory = Get-HPOVLdapDirectory $Directory -Hostname $_Connection.Name
+						$Directory = Get-HPOVLdapDirectory $Directory -ApplianceConnection $_Connection.Name
 
 					}
 
 					elseif ($Directory -eq "Local") 
 					{
 
-						$_Directory = [PSCustomObject] @{
+						"[{0}] Setting Appliance Connection {1} to 'Local' default authentication directory." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Connection.Name | Write-Verbose
 
-							type                = 'LoginDomainConfigInfoDto';
+						$Directory = [PSCustomObject] @{
+
+							type                = 'LoginDomainConfigVersion2Dto';
 							name                = "LOCAL";
 							uri                 = "";
 							loginDomain         = "0";
@@ -49969,10 +56319,11 @@ Function Set-HPOVLdapDefaultDirectory
 				"PSCustomObject" 
 				{
 
-					if ($Directory.type -eq 'LoginDomainConfigVersion2Dto') 
+					if ('LoginDomainConfigVersion2Dto','LoginDomainConfigVersion200' -contains $Directory.type) 
 					{
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Directory Object provided: $($Directory | out-string)"
+
 
 					}
 
@@ -49989,7 +56340,14 @@ Function Set-HPOVLdapDefaultDirectory
 
 			}
 
-			$_DefaultDirectoryConfig.defaultLoginDomain = ($_Directory | Select-Object type,loginDomain,name,eTag,uri)
+			$_DefaultDirectoryConfig.defaultLoginDomain = ($Directory | Select-Object type,loginDomain,name,eTag,uri)
+
+			if ($_Connection.MaxAPIVersion -eq 201)
+			{
+				
+				$_DefaultDirectoryConfig.defaultLoginDomain.type = 'LoginDomainConfigInfoDto'
+
+			}
 
 			[void]$_DirectoryCollection.Add($_DefaultDirectoryConfig)
 
@@ -50066,9 +56424,10 @@ Function Enable-HPOVLdapLocalLogin
 	param
 	(
 
-		[parameter(Mandatory = $False, position = 0)]
+		[Parameter(Mandatory = $false, position = 0)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -50083,23 +56442,65 @@ Function Enable-HPOVLdapLocalLogin
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -50109,8 +56510,6 @@ Function Enable-HPOVLdapLocalLogin
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -50196,9 +56595,10 @@ Function Disable-HPOVLdapLocalLogin
 	param
 	(
 
-		[parameter(Mandatory = $False, position = 0)]
+		[Parameter(Mandatory = $false, position = 0)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 	
 	)
 
@@ -50213,23 +56613,65 @@ Function Disable-HPOVLdapLocalLogin
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -50239,8 +56681,6 @@ Function Disable-HPOVLdapLocalLogin
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -50327,7 +56767,7 @@ function New-HPOVLdapServer
 	(
 		
 		[Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default")]
-		[String]$Name = $Null,
+		[String]$Name,
 
 		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default")]
 		[Alias('port')]
@@ -50336,7 +56776,7 @@ function New-HPOVLdapServer
 
         [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "default")]
         [Alias('cert')]
-        [Object]$Certificate = $null
+        [Object]$Certificate
 
 	)
 
@@ -50485,6 +56925,7 @@ function New-HPOVLdapServer
 
 }
 
+# // TODO
 function Show-HPOVLdapGroups 
 {
 
@@ -50494,17 +56935,17 @@ function Show-HPOVLdapGroups
 	param
 	(
 
-         [parameter(Mandatory = $true,HelpMessage = "Enter the user name",Position=0)]
+         [Parameter(Mandatory,HelpMessage = "Enter the user name",Position=0)]
          [ValidateNotNullOrEmpty()]
          [alias("u")]
          [string]$UserName,
 
-         [parameter(Mandatory = $true,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=1)]
+         [Parameter(Mandatory,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=1)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [SecureString]$Password,
 
-         [parameter(Mandatory = $true,HelpMessage = "Enter the Directory name",Position=2)]
+         [Parameter(Mandatory,HelpMessage = "Enter the Directory name",Position=2)]
          [ValidateNotNullOrEmpty()]
          [alias("d","domain","directory")]
          [string]$AuthProvider
@@ -50562,21 +57003,21 @@ function Get-HPOVLdapGroup
 	param
 	(
 
-        [parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Directroy Group Name", ParameterSetName = 'Default')]
+        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Directroy Group Name", ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
         [alias("group","GroupName")]
         [string]$Name,
 
-        [Parameter(Mandatory = $true, ParameterSetName = 'Export')]
+        [Parameter(Mandatory, ParameterSetName = 'Export')]
         [Alias('x')]
 		[ValidateScript({split-path $_ | Test-Path})]
         [string]$Export,
 		
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -50590,24 +57031,66 @@ function Get-HPOVLdapGroup
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -50617,8 +57100,6 @@ function Get-HPOVLdapGroup
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -50707,35 +57188,35 @@ function New-HPOVLdapGroup
 	param
 	(
 
-		[parameter(Mandatory = $true,HelpMessage = "Enter the Directory name",Position=0, ParameterSetName = 'Default')]
+		[Parameter(Mandatoryv,HelpMessage = "Enter the Directory name",vPosition=0, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("d","domain","directory")]
 		[string]$authProvider,
 
-		[parameter(Mandatory = $true,HelpMessage = "Enter the Directroy Group name in Distinguished Name format (i.e. CN=Admin Group,OU=Admins,DC=Domain,DC=com",Position=1, ParameterSetName = 'Default')]
+		[Parameter(Mandatoryv,HelpMessage = "Enter the Directroy Group name in Distinguished Name format (i.e. CN=Admin Group,OU=Admins,DC=Domain,DC=com",Position=1, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("g","group","name")]
 		[string]$GroupName,
 
-		[parameter(Mandatory = $true,HelpMessage = "Enter the Directroy Group roles in System.Array format",Position=2, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,vHelpMessage = "Enter the Directroy Group roles in System.Array format",Position=2, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("r","role")]
 		[Array]$Roles,
 
-		[parameter(Mandatory = $true,HelpMessage = "Enter the user name",Position=3, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,vHelpMessage = "Enter the user name",Position=3, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("u")]
 		[string]$UserName,
 
-		[parameter(Mandatory = $true,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=4, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,vValueFromPipeline = $true,HelpMessage = "Enter the password",Position=4, ParameterSetName = 'Default')]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
 			
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -50748,24 +57229,67 @@ function New-HPOVLdapGroup
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		ForEach ($_Connection in $_tmpApplianceConnection) 
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -50775,8 +57299,6 @@ function New-HPOVLdapGroup
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -50836,11 +57358,11 @@ function New-HPOVLdapGroup
 			#Get new Directory Group object   
 			$_NewGroup = NewObject -DirectoryGroup
 			
-			$_NewGroup.group2rolesPerGroup.loginDomain          = $authProvider
-			$_NewGroup.group2rolesPerGroup.egroup               = $GroupName
-			$_NewGroup.group2rolesPerGroup.roles                = $_Roles
-			$_NewGroup.group2rolesPerGroup.credentials.userName = $UserName
-			$_NewGroup.group2rolesPerGroup.credentials.password = $_decryptPassword
+			$_NewGroup.group2rolesPerGroup.loginDomain = $authProvider
+			$_NewGroup.group2rolesPerGroup.egroup      = $GroupName
+			$_NewGroup.group2rolesPerGroup.roles       = $_Roles
+			$_NewGroup.credentials.userName            = $UserName
+			$_NewGroup.credentials.password            = $_decryptPassword
 		
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory Group requested to create:  $($_NewGroup | out-string )"
 
@@ -50886,35 +57408,35 @@ function Set-HPOVLdapGroupRole
 	param
 	(
 
-		[parameter(Position = 0, Mandatory, HelpMessage = "Enter the Directory name", ParameterSetName = 'Default')]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the Directory name", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("d","domain","directory")]
 		[string]$authProvider,
 
-		[parameter(Position = 1, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directroy Group name", ParameterSetName = 'Default')]
+		[Parameter(Position = 1, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directroy Group name", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("g","name",'GroupName')]
 		[Object]$Group,
 
-		[parameter(Position = 2, Mandatory, HelpMessage = "Enter the Directroy Group roles in System.Array format", ParameterSetName = 'Default')]
+		[Parameter(Position = 2, Mandatory, HelpMessage = "Enter the Directroy Group roles in System.Array format", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("r","role")]
 		[Array]$Roles,
 
-		[parameter(Position = 3, Mandatory, HelpMessage = "Enter the user name", ParameterSetName = 'Default')]
+		[Parameter(Position = 3, Mandatory, HelpMessage = "Enter the user name", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("u")]
 		[string]$UserName,
 
-		[parameter(Position = 4, Mandatory, HelpMessage = "Enter the password", ParameterSetName = 'Default')]
+		[Parameter(Position = 4, Mandatory, HelpMessage = "Enter the password", ParameterSetName = 'Default')]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
 		
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'ApplianceRequired')]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -50941,23 +57463,65 @@ function Set-HPOVLdapGroupRole
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
 
-			ForEach ($_Connection in $ApplianceConnection) 
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -50967,8 +57531,6 @@ function Set-HPOVLdapGroupRole
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
 
 			}
 						
@@ -51139,14 +57701,15 @@ function Remove-HPOVLdapGroup
 	param 
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory Group name", Position = 0, ParameterSetName = "default")]
+		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory Group name", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias('g','Group')]
 		[Object]$Name,
 	
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -51159,39 +57722,90 @@ function Remove-HPOVLdapGroup
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $_tmpApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] {
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['Name'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['Name'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_TaskCollection  = New-Object System.Collections.ArrayList
 		$_GroupCollection = New-Object System.Collections.ArrayList
@@ -51340,9 +57954,10 @@ Function Get-HPOVAuditLog
     Param 
 	(
 
-		[parameter(Mandatory = $false, ParameterSetName = 'default')]
+		[Parameter(Mandatory = $false, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -51356,24 +57971,66 @@ Function Get-HPOVAuditLog
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -51383,8 +58040,6 @@ Function Get-HPOVAuditLog
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -51443,7 +58098,7 @@ Function Get-HPOVAuditLog
 
 }
 
-Function Download-HPOVAuditLog 
+Function Get-HPOVAuditLogArchive
 {
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
@@ -51452,14 +58107,15 @@ Function Download-HPOVAuditLog
     Param 
 	(
 
-        [parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the audit log file.")]
-		[ValidateNotNullofEmpty()]
+        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the audit log file.")]
+		[ValidateNotNullorEmpty()]
         [Alias("save")]
         [string]$Location = (get-location).Path,
 		
-		[parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -51473,24 +58129,66 @@ Function Download-HPOVAuditLog
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -51501,16 +58199,16 @@ Function Download-HPOVAuditLog
 
 			}
 
-			$c++
-
 		}
 
-		$_GlobalAuthDirectorySettings = New-Object System.Collections.ArrayList
-
 		#Validate the path exists.  If not, create it.
-		if (!(Test-Path $Location)){ 
+		if (-not(Test-Path $Location))
+		{
+			 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory does not exist.  Creating directory..."
+
             New-Item $Location -itemtype directory
+
         }
         
 	}
@@ -51525,9 +58223,7 @@ Function Download-HPOVAuditLog
 
 			Try
 			{
-				#Send the request
-				#Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Please wait while the appliance backup is generated.  This can take a few minutes..."
-	
+
 				#Now that the Support Dump has been requested, download the file
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Downloading audit log to $($Location)"
 
@@ -51569,34 +58265,35 @@ function Get-HPOVAlert
     Param
 	(
 
-		[parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "ServerProfile")]
-		[parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "ServerProfile")]
+		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
-		[alias('resourceUri')]
-		[Object]$Resource = $null,
+		[Object]$Resource,
 
-		[parameter(Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "ServerProfile")]
-		[parameter(Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "Default")]
+		[Parameter(Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "ServerProfile")]
+		[Parameter(Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateSet('OK','Critical','Disabled','Warning','Unknown')]
-		[string]$Severity = $null,
+		[string]$Severity,
 
-		[parameter(Position = 2, Mandatory = $false, HelpMessage = "Alert/Health Category", ParameterSetName = "Default")]
+		[Parameter(Position = 2, Mandatory = $false, HelpMessage = "Alert/Health Category", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateSet('Appliance', 'DeviceBay', 'Enclosure', 'Fan', 'Firmware', 'Host', 'Instance', 'InterconnectBay', 'LogicalSwitch', 'Logs', 'ManagementProcessor', 'Memory', 'Network', 'Operational', 'Power', 'Processor', 'RemoteSupport', 'Storage', 'Thermal', 'Unknown')]
-		[string]$HealthCategory = $null,
+		[string]$HealthCategory,
 
-		[parameter(Mandatory = $false, HelpMessage = "Filter by User",Position=3, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, HelpMessage = "Filter by User",Position=3, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
-		[String]$AssignedToUser = $null,
+		[String]$AssignedToUser,
 
-		[parameter(Mandatory = $false,  HelpMessage = "Alert state",Position=4, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false,  HelpMessage = "Alert state",Position=4, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
-		[String]$AlertState = $null,
+		[String]$AlertState,
 		
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfile")]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -51609,49 +58306,99 @@ function Get-HPOVAlert
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		if (-not $PSBoundParameters['resource']) 
+		{ 
+			
+			$Pipelineinput = $True 
 		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+		}
+
+		else
 		{
 
-			Try 
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			else
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			$c++
 
 		}
 
 		$_AlertResources = New-Object System.Collections.ArrayList
-
-		if (-not $PSBoundParameters['resource']) { $Pipelineinput = $True }
         
 	}
 	
 	Process 
 	{
 
-		If ($Pipelineinput -and $Resource -ne $null)
+		If ($Pipelineinput -and $Resource)
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource provided via pipeline."
@@ -51659,9 +58406,10 @@ function Get-HPOVAlert
 			$uri = $alertsUri + "?start=0&count=-1"
 
 			#Generate Error, unsupported pipeline input
-			if ($resource -is [String]) 
+			if ($Resource -is [String]) 
 			{ 
 					
+				$ErrorRecord = New-ErrorRecord ArgumentException UnsupportedResourceType InvalidArgument 'Resource' -Message 'The Resource parameter only accepts Objects.  Please provide a different value.'
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 				
 			}
@@ -51669,28 +58417,28 @@ function Get-HPOVAlert
 			elseif ($resource -is [PsCustomObject]) 
 			{ 
 					
-				$uri += "&filter=resourceUri=`'$($resource.uri)`'" 
+				$uri += "&filter=resourceUri='{0}'" -f $resource.uri
 				
 			}
             
 			if ($severity) 
 			{ 
 					
-				$uri += "&filter=severity='$severity'" 
+				$uri += "&filter=severity='{0}'"  -f $severity
 				
 			}
             
 			if ($healthCategory) 
 			{
 					
-					$uri += "&filter=healthCategory='$healthCategory'" 
+					$uri += "&filter=healthCategory='{0}'" -f $healthCategory
 				
 			}
             
 			if ($AssignedToUser) 
 			{ 
 					
-				$uri += "&filter=assignedTOuter='$AssignedToUser'" 
+				$uri += "&filter=assignedTOuter='{0}'" -f $AssignedToUser
 				
 			}
             
@@ -51701,7 +58449,7 @@ function Get-HPOVAlert
 
 				$alertState = $alertState.substring(0,1).ToUpper()+$alertState.substring(1).tolower(); 
 
-				$uri += "&filter=alertState=`'$alertState`'" 
+				$uri += "&filter=alertState='{0}'" -f $alertState
 				
 			}
 
@@ -51866,18 +58614,18 @@ function Set-HPOVAlert
         [ValidateNotNullOrEmpty()]
         [String]$Notes,
 
-        [parameter (Mandatory = $true, ParameterSetName = 'Cleared')]
+        [parameter (Mandatory, ParameterSetName = 'Cleared')]
         [switch]$Cleared,
 
-        [parameter (Mandatory = $true, ParameterSetName = 'Active')]
+        [parameter (Mandatory, ParameterSetName = 'Active')]
         [switch]$Active,
 
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Cleared')]
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Active')]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Cleared')]
+		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Active')]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
 	)
 
@@ -51912,25 +58660,74 @@ function Set-HPOVAlert
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			Try 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
 			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
 
 			}
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
+			else
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+				}
 
-			Catch 
-			{
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
 			}
 
@@ -52089,9 +58886,10 @@ function Get-HPOVLicense
 		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
 		[Switch]$Report,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
     )
 
@@ -52105,24 +58903,66 @@ function Get-HPOVLicense
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -52132,8 +58972,6 @@ function Get-HPOVLicense
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -52383,11 +59221,11 @@ function New-HPOVLicense
         [ValidateScript({Test-Path $_})]
         [String]$File,
 		
-		[parameter(Mandatory = $false, ParameterSetName = "licenseKey")]
-		[parameter(Mandatory = $false, ParameterSetName = "InputFile")]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $false, ParameterSetName = "licenseKey")]
+		[Parameter(Mandatory = $false, ParameterSetName = "InputFile")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -52524,19 +59362,19 @@ function Remove-HPOVLicense
 
     # .ExternalHelp HPOneView.200.psm1-help.xml
     
-    [CmdletBinding(DefaultParameterSetName = "PipelineDefault", SupportsShouldProcess = $True, ConfirmImpact = 'High')]
+    [CmdletBinding(DefaultParameterSetName = "Default", SupportsShouldProcess = $True, ConfirmImpact = 'High')]
     param
 	(
 
-		[parameter(Mandatory, ValueFromPipeline, ParameterSetName = "PipelineDefault", HelpMessage = "Specify the license to remove.", Position = 0)]
+		[Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Specify the license to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('uri', 'name', 'license')]
         [System.Object]$Resource = $null,
     
-		[parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "PipelineDefault", position = 1)]
-		[ValidateNotNullOrEmpty()]
+		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = $Null
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -52549,40 +59387,90 @@ function Remove-HPOVLicense
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		$c = 0
-
-		ForEach ($_Connection in $ApplianceConnection) 
-		{
-
-			Try 
-			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
-
-			}
-
-			$c++
-
+		if (-not($PSBoundParameters['Resource'])) 
+		{ 
+			
+			$PipelineInput = $True 
+		
 		}
 
-		if (-not($PSBoundParameters['Resource'])) { $PipelineInput = $True }
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			{
+
+				$c = 0
+
+				ForEach ($_connection in $ApplianceConnection) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+					$c++
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
 
 		$_ResponseCollection = New-Object System.Collections.ArrayList
 		$_LicenseCollection = New-Object System.Collections.ArrayList
@@ -52773,38 +59661,40 @@ function Set-HPOVSMTPConfig
 	param
 	(
 	
-		[parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Disabled")]
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Disabled")]
+        [Parameter(Position = 0, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
         [validatescript({if ($_ -as [Net.Mail.MailAddress]) {$true} else { Throw "The parameter value is not an email address. Please correct the value and try again." }})]
 		[System.String]$SenderEmailAddress,
 
-		[parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $True, HelpMessage = "Provide SMTP Server name if ", ParameterSetName = "Disabled")]
-        [parameter(Position = 0, Mandatory = $false, ValueFromPipeline = $True, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory = $false, HelpMessage = "Provide SMTP Server name if ", ParameterSetName = "Disabled")]
+        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
         [Alias('server')]		
         [ValidateNotNullOrEmpty()]
 		[System.String]$SmtpServer,
 
-        [parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
-		[parameter(Position = 1, Mandatory = $false, ValueFromPipeline = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
+		[Parameter(Position = 1, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[Alias('port')]
 		[ValidateNotNull()]
 		[System.Int32]$SmtpPort = 25,
 
-		[parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $True, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
-        [parameter(Position = 2, Mandatory = $false, ValueFromPipeline = $True, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter(Position = 2, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
+        [Parameter(Position = 2, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$Password,
 
-		[parameter(Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
+		[Parameter(Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
 		[Switch]$alertEmailDisabled,
 
-		[parameter(Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[Switch]$alertEmailEnabled,
     
-		[parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $False, ParameterSetName = "Disabled")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 		
 	)
 	
@@ -52819,38 +59709,76 @@ function Set-HPOVSMTPConfig
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 			Catch 
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_.Exception)
+				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
-			$c++
-
 		}
-
-		if (-not($PSBoundParameters['Resource'])) { $PipelineInput = $True }
 
 		$_ResponseCollection = New-Object System.Collections.ArrayList
 
@@ -52923,9 +59851,10 @@ function Get-HPOVSMTPConfig
 	param
 	(	
 	
-		[parameter(Mandatory = $false)]
+		[Parameter(Mandatory = $false)]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
     
 	)
 
@@ -52939,24 +59868,66 @@ function Get-HPOVSMTPConfig
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
-		
-		ForEach ($_Connection in $ApplianceConnection) 
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
 			
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -52966,8 +59937,6 @@ function Get-HPOVSMTPConfig
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -53028,20 +59997,21 @@ function Add-HPOVSmtpAlertEmailFilter
 	param
 	(
 	
-		[parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[alias('query')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$filter,
 
-        [parameter(Position = 0, Mandatory = $true, ValueFromPipeline = $True, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Default")]
+        [Parameter(Position = 1, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Default")]
 		[Alias('recipients')]
         [ValidateNotNullOrEmpty()]
         [validatescript({$_ | foreach { if ($_ -as [Net.Mail.MailAddress]) {$true} else { Throw "The parameter value '$_' is not an email address. Please correct the value and try again." }}})]
 		[System.Array]$Emails,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Object]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53056,28 +60026,34 @@ function Add-HPOVSmtpAlertEmailFilter
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
-
-		if ($ApplianceConnection -is [Array])
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$_tmpApplianceConnection = $ApplianceConnection.Clone()
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-			ForEach ($_Connection in $_tmpApplianceConnection) 
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
 			{
 
 				Try 
 				{
-	
-					$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -53089,6 +60065,33 @@ function Add-HPOVSmtpAlertEmailFilter
 				}
 
 				$c++
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
@@ -53160,9 +60163,10 @@ function Get-HPOVLoginMessage
 	param
 	(
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53177,23 +60181,65 @@ function Get-HPOVLoginMessage
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53203,8 +60249,6 @@ function Get-HPOVLoginMessage
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -53267,16 +60311,17 @@ function Set-HPOVLoginMessage
 	param
 	(
 	
-		[parameter(Position = 0, Mandatory, ValueFromPipeline = $false, ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[String]$Message,
 
-		[parameter(Position = 1, Mandatory = $False, ValueFromPipeline = $false, ParameterSetName = "Default")]
+		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default")]
 		[Bool]$Acknowledgment = $False,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53291,23 +60336,65 @@ function Set-HPOVLoginMessage
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53317,8 +60404,6 @@ function Set-HPOVLoginMessage
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 		
@@ -53388,9 +60473,10 @@ Function Get-HPOVRemoteSyslog
 	param
 	(
 	
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53405,23 +60491,65 @@ Function Get-HPOVRemoteSyslog
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53431,8 +60559,6 @@ Function Get-HPOVRemoteSyslog
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -53490,7 +60616,7 @@ Function Set-HPOVRemoteSyslog
 	param
 	(
 	
-		[parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
+		[Parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
 		[ValidateScript({ 
 		
 			[RegEx]::Match($_,$IPAddressPattern).Success
@@ -53498,17 +60624,17 @@ Function Set-HPOVRemoteSyslog
 		})]
 		[IPAddress]$Destination,
 
-		[parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default")]
 		[ValidateRange(1,65535)]
 		[Int]$Port = 514,
 
-		[parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
 		[switch]$SendTestMessage,
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[ValidateNotNullOrEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53523,23 +60649,65 @@ Function Set-HPOVRemoteSyslog
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53549,8 +60717,6 @@ Function Set-HPOVRemoteSyslog
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -53643,10 +60809,10 @@ function Enable-HPOVRemoteSyslog
 	param
 	(
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[ValidateNotNullOrEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53661,23 +60827,65 @@ function Enable-HPOVRemoteSyslog
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53687,8 +60895,6 @@ function Enable-HPOVRemoteSyslog
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -53776,10 +60982,10 @@ function Disable-HPOVRemoteSyslog
 	param
 	(
 
-		[parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
-		[ValidateNotNullOrEmpty()]
-		[Array]$ApplianceConnection = ${Global:ConnectedSessions}
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53794,23 +61000,65 @@ function Disable-HPOVRemoteSyslog
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53820,8 +61068,6 @@ function Disable-HPOVRemoteSyslog
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -53912,22 +61158,23 @@ function Enable-HPOVDebug
     param
 	(
 
-        [Parameter(Position=0, Mandatory = $true, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
+        [Parameter(Position=0, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
         [ValidateNotNullOrEmpty()]
         [String]$Scope,
 
-        [Parameter(Position = 1, Mandatory = $true, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
+        [Parameter(Position = 1, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
         [ValidateNotNullOrEmpty()]
         [String]$LoggerName,
 
-        [Parameter(Position = 2, Mandatory = $true, ParameterSetName = "default",HelpMessage = "Specify the verbose log level (ERROR, WARN, DEBUG or TRACE are allowed).")]
+        [Parameter(Position = 2, Mandatory, ParameterSetName = "default",HelpMessage = "Specify the verbose log level (ERROR, WARN, DEBUG or TRACE are allowed).")]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('ERROR','WARN','DEBUG','TRACE', IgnoreCase = $False)]
         [String]$Level,
 
-		[parameter(Mandatory = $true, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -53948,19 +61195,47 @@ function Enable-HPOVDebug
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -53969,7 +61244,7 @@ function Enable-HPOVDebug
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -53977,8 +61252,8 @@ function Enable-HPOVDebug
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -53988,6 +61263,14 @@ function Enable-HPOVDebug
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
+
+		}
+
+		if  ($ApplianceConnection.Count -gt 1)
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
@@ -54048,17 +61331,18 @@ function Disable-HPOVDebug
     param
 	(
 
-        [Parameter(Position=0, Mandatory = $true, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
+        [Parameter(Position=0, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
         [ValidateNotNullOrEmpty()]
         [String]$Scope,
 
-        [Parameter(Position = 1, Mandatory = $true, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
+        [Parameter(Position = 1, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
         [ValidateNotNullOrEmpty()]
         [String]$LoggerName,
 
-		[parameter(Mandatory = $true, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = $null
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
     )
 
@@ -54079,19 +61363,47 @@ function Disable-HPOVDebug
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif  ($ApplianceConnection.Count -gt 1)
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
 
 		}
 
@@ -54100,7 +61412,7 @@ function Disable-HPOVDebug
 
 			Try 
 			{
-	
+			
 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
@@ -54108,8 +61420,8 @@ function Disable-HPOVDebug
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -54119,6 +61431,14 @@ function Disable-HPOVDebug
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
+
+		}
+
+		if  ($ApplianceConnection.Count -gt 1)
+		{
+
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect parameter value.  Please correct this and try again.'
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
@@ -54223,6 +61543,7 @@ set-alias sr Send-HPOVRequest
 Export-ModuleMember -Function Send-HPOVRequest -Alias sr
 Export-ModuleMember -Function Connect-HPOVMgmt
 Export-ModuleMember -Function Disconnect-HPOVMgmt
+Export-ModuleMember -Function Set-HPOVApplianceDefaultConnection
 Export-ModuleMember -Function Ping-HPOVAddress
 Export-ModuleMember -Function New-HPOVResource
 Export-ModuleMember -Function Set-HPOVResource
@@ -54275,11 +61596,15 @@ Export-ModuleMember -Function Remove-HPOVPendingUpdate
 Export-ModuleMember -Function Import-HPOVSSLCertificate
 Export-ModuleMember -Function Restart-HPOVAppliance
 Export-ModuleMember -Function Stop-HPOVAppliance
+Export-ModuleMember -Function Set-HPOVApplianceDateTime
 
 #Server hardware and enclosures:
 Export-ModuleMember -Function Get-HPOVServer
 Export-ModuleMember -Function Add-HPOVServer -alias New-HPOVServer
 Export-ModuleMember -Function Set-HPOVServerPower
+Export-ModuleMember -Function Start-HPOVServer
+Export-ModuleMember -Function Stop-HPOVServer
+Export-ModuleMember -Function Restart-HPOVServer
 Export-ModuleMember -Function Remove-HPOVServer
 Export-ModuleMember -Function Update-HPOVServer
 Export-ModuleMember -Function Get-HPOVEnclosure
@@ -54296,6 +61621,7 @@ Export-ModuleMember -Function Get-HPOVServerHardwareType -Alias Get-HPOVServerHa
 Export-ModuleMember -Function Show-HPOVFirmwareReport
 Export-ModuleMember -Function Invoke-HPOVVcmMigration
 Export-ModuleMember -Function Get-HPOVIloSso
+Export-ModuleMember -Function Show-HPOVUtilization
 
 #Storage Systems
 Export-ModuleMember -Function Get-HPOVStorageSystem
@@ -54326,6 +61652,7 @@ Export-ModuleMember -Function Update-HPOVSanManager
 Export-ModuleMember -Function Remove-HPOVSanManager
 Export-ModuleMember -Function Get-HPOVManagedSan
 Export-ModuleMember -Function Set-HPOVManagedSan
+Export-ModuleMember -Function Show-HPOVSanEndpoint
 
 #Unmanaged Devices
 Export-ModuleMember -Function Get-HPOVUnmanagedDevice
@@ -54418,6 +61745,7 @@ Export-ModuleMember -Function New-HPOVLdapGroup
 Export-ModuleMember -Function Set-HPOVLdapGroup
 Export-ModuleMember -Function Remove-HPOVLdapGroup
 Export-ModuleMember -Function Get-HPOVAuditLog
+Export-ModuleMember -Function Get-HPOVAuditLogArchive 
 Export-ModuleMember -Function Get-HPOVLoginMessage
 Export-ModuleMember -Function Set-HPOVLoginMessage
 

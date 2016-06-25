@@ -32,6 +32,20 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.474.0
+     -- [#128] Implemented Default Appliance Connection handling. Please review Help about_Appliance_Connections for more
+        information.
+     -- [#128] Add Set-HPOVApplianceDefaultConnection to set the default appliance connection.
+     -- Refactored Get-HPOVUser to return the callers user account if they are not an Infrastructure Administrator.
+     -- [#120] Fixed Set-HPOVLdapDefaultDirectory due to 2.00.07 API changes.
+     -- [#121] Fixed Get-HPOVLdapGroup due to object property errors.
+     -- [#122] Fixed New-HPOVRestore due to misspelling of a Cmdlet name.
+     -- [#123] Fixed Set-HPOVApplianceDateTime by exporting the Cmdlet reference.
+     -- Added Show-HPOVSanEndpoint Cmdlet to examine Managed SAN fabric node information.
+     -- Added Start-HPOVServer, Stop-HPOVServer and Restart-HPOVServer Cmdlets to replace Set-HPOVServerPower.
+     -- Fixed New-HPOVServerProfile and New-HPOVServerProfileTemplate where BiosSettings parameter was not validating
+        correctly.
+
     Release 2.0.436.0
      -- [#119] Fixed issue with Send-HPOVRequest were Connection lookup would not look for the connection properly
         causing an HPOneView.Appliance.AuthSessionException exception.
