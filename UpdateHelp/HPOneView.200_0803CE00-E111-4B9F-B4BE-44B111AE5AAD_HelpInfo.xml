@@ -1,10 +1,10 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <HelpInfo xmlns="http://schemas.microsoft.com/powershell/help/2010/05">
-  <HelpContentURI>http://hewlettpackard.github.io/POSH-HPOneView/UpdateHelp</HelpContentURI>
+  <HelpContentURI>http://hpe.com/info/powershell-updatehelp</HelpContentURI>
   <SupportedUICultures>
     <UICulture>
       <UICultureName>en-US</UICultureName>
-      <UICultureVersion>2.0.436.0</UICultureVersion>
+      <UICultureVersion>2.0.480.2</UICultureVersion>
     </UICulture>
   </SupportedUICultures>
 </HelpInfo>
