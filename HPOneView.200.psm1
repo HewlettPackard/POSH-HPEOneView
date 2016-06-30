@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.474.0"
+[version]$script:ModuleVersion = "2.0.480.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2312,7 +2312,7 @@ If ($debugmode)
 }
 #Else{ $debugPreference = "SilentlyContinue" } # Hide debug messages
 
-#region URIs
+#region URIs and Enums
 [String]$script:AuthProviderSetting = "LOCAL"
 ${Global:ConnectedSessions}         = New-Object System.Collections.ArrayList
 ${Global:ResponseErrorObject}       = New-Object System.Collections.ArrayList
@@ -2584,7 +2584,7 @@ $script:profileAvailStorageSystemsUri              = '/rest/server-profiles/avai
 }
 [Hashtable]$Script:FirmwareControlModeEnum         = @{
 
-	FirmwaerOnly        = 'FirmwareOnly';
+	FirmwareOnly        = 'FirmwareOnly';
 	FirmwareAndSoftware = 'FirmwareAndOSDrivers';
 	FirmwareOffline     = 'FirmwareOnlyOfflineMode'
 
@@ -2690,6 +2690,8 @@ function NewObject
 		[switch]$DownloadFileStatus,
 		[switch]$EnclosureGroup,
 		[switch]$EnclosureImport,
+		[switch]$EnclosureRefresh,
+		[switch]$EnclosureRefreshForceOptions,
 		[switch]$EnclUtilizationObject,
 		[switch]$EphemeralStorageVolume,
 		[switch]$EthernetNetwork,
@@ -2741,7 +2743,9 @@ function NewObject
 		[switch]$UplinkSetLogicalLocationEntry,
 		[switch]$UnmanagedDevice,
 		[switch]$UserAccount,
+		[switch]$UpdateUserPassword,
 		[switch]$VcMigration,
+		[switch]$VCMigratorReport,
 		[switch]$VolSnapshot
 
 	)
@@ -2762,6 +2766,43 @@ function NewObject
 
 		switch($PSBoundParameters.Keys)
 		{
+
+			'UpdateUserPassword'
+			{
+
+				Return [PSCustomObject]@{
+
+					type            = 'UserAndRoles';
+					currentPassword = $null;
+					password        = $null;
+					userName        = $Null
+				}
+
+			}
+
+			'EnclosureRefresh'
+			{
+
+				Return [PSCustomObject]@{ 
+
+					refreshState        = "RefreshPending"; 
+					refreshForceOptions = $null 
+				}
+
+			}
+
+			'EnclosureRefreshForceOptions'
+			{
+
+				Return [PSCustomObject]@{
+
+					address  = $null;
+					username = $null;
+					password = $null
+
+				}
+
+			}
 
 			'ApplianceTimeLocale'
 			{
@@ -6125,7 +6166,7 @@ function Remove-ApplianceConnection
                 
             }
 
-            Return $Collection
+            Return ,$Collection
 
         }
 
@@ -6332,12 +6373,12 @@ function Ping-HPOVAddress
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -7390,27 +7431,116 @@ function Test-HPOVAuth
 
 		}
 		
-		ForEach ($_Appliance in $Appliance)
+		if ($Appliance -is [System.Collections.IEnumerable])
 		{
 
-			"[$($MyInvocation.InvocationName.ToString().ToUpper())] `$Appliance is [{0}]"  -f $_Appliance.GetType().FullName | Write-Verbose
+			ForEach ($_Appliance in $Appliance)
+			{
 
-			Switch ($_Appliance.GetType().FullName)
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] `$Appliance is [{0}]"  -f $_Appliance.GetType().FullName | Write-Verbose
+
+				Switch ($_Appliance.GetType().FullName)
+				{
+
+					'HPOneView.Appliance.Connection'
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Recieved HPOneView.Appliance.Connection Object: $($_Appliance | Out-String)"
+
+						If (-not(${Global:ConnectedSessions} | ? name -eq $_Appliance.Name))
+						{
+
+							$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+
+						}
+
+						$_Appliance = $Appliance
+
+					}
+
+					'System.String'
+					{
+
+						if (-not(${Global:ConnectedSessions} | ? name -eq $_Appliance))
+						{
+
+							$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message "No connection session found for '$($_Appliance)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+
+						}
+
+						elseif (${Global:ConnectedSessions} | ? name -eq $_Appliance)
+						{
+					
+							$_Appliance = ${Global:ConnectedSessions} | ? name -eq $_Appliance
+
+						}
+
+					}
+
+					'System.Management.Automation.PSCustomObject'
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Recieved PSCustomObject: $($_Appliance | Out-String)"
+
+						If (-not(${Global:ConnectedSessions} | ? name -eq $_Appliance.Name))
+						{
+
+							$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+
+						}
+
+						$_Appliance = ${Global:ConnectedSessions} | ? name -eq $_Appliance.Name
+
+					}
+
+					default
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unsupported ApplianceConnection object."
+
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NotaValidApplianceConnection AuthenticationError "$($Caller)" -Message "The provided appliance object is not valid, as it is neither an [HPOneView.Appliance.Connection] object, [String] value representing a potentially valid Appliance Connection, or a [PSCustomObject] property of a resource object obtained from an appliance.  Please correct the ApplianceConnection parameter value, and then try your command again."
+
+					}
+
+				}
+
+				If ($errorRecord)
+				{ 
+
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				Else
+				{
+
+					[void]$_ApplianceConnections.Add($_Appliance)
+
+				}
+
+			}
+
+		}
+
+		else
+		{
+
+			"[$($MyInvocation.InvocationName.ToString().ToUpper())] `$Appliance is [{0}]"  -f $Appliance.GetType().FullName | Write-Verbose
+
+			Switch ($Appliance.GetType().FullName)
 			{
 
 				'HPOneView.Appliance.Connection'
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Recieved HPOneView.Appliance.Connection Object: $($_Appliance | Out-String)"
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Recieved HPOneView.Appliance.Connection Object: $($Appliance | Out-String)"
 
-					If (-not(${Global:ConnectedSessions} | ? name -eq $_Appliance.Name))
+					If (-not(${Global:ConnectedSessions} | ? name -eq $Appliance.Name))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 
 					}
-
-					$_Appliance = $Appliance
 
 				}
 
@@ -7420,14 +7550,14 @@ function Test-HPOVAuth
 					if (-not(${Global:ConnectedSessions} | ? name -eq $_Appliance))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message "No connection session found for '$($_Appliance)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message "No connection session found for '$($_Appliance)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 
 					}
 
 					elseif (${Global:ConnectedSessions} | ? name -eq $_Appliance)
 					{
 					
-						$_Appliance = ${Global:ConnectedSessions} | ? name -eq $_Appliance
+						$Appliance = ${Global:ConnectedSessions} | ? name -eq $Appliance
 
 					}
 
@@ -7436,16 +7566,16 @@ function Test-HPOVAuth
 				'System.Management.Automation.PSCustomObject'
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Recieved PSCustomObject: $($_Appliance | Out-String)"
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Recieved PSCustomObject: $($Appliance | Out-String)"
 
-					If (-not(${Global:ConnectedSessions} | ? name -eq $_Appliance.Name))
+					If (-not(${Global:ConnectedSessions} | ? name -eq $Appliance.Name))
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($Appliance.Name)" -Message "No Appliance connection session found for '$($Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 
 					}
 
-					$_Appliance = ${Global:ConnectedSessions} | ? name -eq $_Appliance.Name
+					$Appliance = ${Global:ConnectedSessions} | ? name -eq $Appliance.Name
 
 				}
 
@@ -7454,7 +7584,7 @@ function Test-HPOVAuth
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unsupported ApplianceConnection object."
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NotaValidApplianceConnection AuthenticationError "$($Caller)" -Message "The provided appliance object is not valid, as it is neither an [HPOneView.Appliance.Connection] object, [String] value representing a potentially valid Appliance Connection, or a [PSCustomObject] property of a resource object obtained from an appliance.  Please correct the ApplianceConnection parameter value, and then try your command agian."
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NotaValidApplianceConnection AuthenticationError "$($Caller)" -Message "The provided appliance object is not valid, as it is neither an [HPOneView.Appliance.Connection] object, [String] value representing a potentially valid Appliance Connection, or a [PSCustomObject] property of a resource object obtained from an appliance.  Please correct the ApplianceConnection parameter value, and then try your command again."
 
 				}
 
@@ -7470,11 +7600,11 @@ function Test-HPOVAuth
 			Else
 			{
 
-				[void]$_ApplianceConnections.Add($_Appliance)
+				[void]$_ApplianceConnections.Add($Appliance)
 
 			}
 
-		}
+		}		
 
 	}
 
@@ -7525,12 +7655,12 @@ function New-HPOVResource
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -7664,12 +7794,12 @@ function Set-HPOVResource
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -7808,12 +7938,12 @@ function Remove-HPOVResource
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -8315,12 +8445,12 @@ Function Get-HPOVApplianceCertificateStatus
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -8519,12 +8649,12 @@ Function New-HPOVApplianceSelfSignedCertificate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -8770,12 +8900,12 @@ Function New-HPOVApplianceCsr
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -8959,12 +9089,12 @@ Function Install-HPOVApplianceCertificate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -9104,12 +9234,12 @@ function Get-HPOVPendingUpdate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -9280,12 +9410,12 @@ function Install-HPOVUpdate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -9892,12 +10022,12 @@ function Remove-HPOVPendingUpdate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -10096,12 +10226,12 @@ function Get-HPOVVersion
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -10394,12 +10524,12 @@ function Get-HPOVHealthStatus
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -10537,12 +10667,12 @@ function Get-HPOVXApiVersion
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -10883,12 +11013,12 @@ function Get-HPOVApplianceNetworkConfig
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -11057,12 +11187,12 @@ function Get-HPOVApplianceDateTime
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -11218,12 +11348,12 @@ function Set-HPOVApplianceDateTime
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 		
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 		
 		}
 		
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 		
 			$c = 0
@@ -11525,12 +11655,12 @@ function Set-HPOVApplianceNetworkConfig
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 		
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 		
 		}
 		
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 		
 			$c = 0
@@ -12154,12 +12284,12 @@ function Get-HPOVSnmpReadCommunity
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 		
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 		
 		}
 		
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 		
 			$c = 0
@@ -12299,12 +12429,12 @@ function Set-HPOVSnmpReadCommunity
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -12447,12 +12577,12 @@ function Get-HPOVApplianceGlobalSetting
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -12611,12 +12741,12 @@ function Set-HPOVApplianceGlobalSetting
 		elseif (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
@@ -12833,12 +12963,12 @@ function Get-HPOVBaseline
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -13065,12 +13195,12 @@ function Add-HPOVBaseline
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -13234,12 +13364,12 @@ function New-HPOVCustomBaseline
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -13445,12 +13575,12 @@ function Restore-HPOVCustomBaseline
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -13658,12 +13788,12 @@ function Remove-HPOVBaseline
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -13912,12 +14042,12 @@ function New-HPOVSupportDump
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -14250,12 +14380,12 @@ Function New-HPOVBackup
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -14444,12 +14574,12 @@ Function New-HPOVRestore
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -15382,12 +15512,12 @@ function Get-HPOVScmbCertificates
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -15796,12 +15926,12 @@ function Restart-HPOVAppliance
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -15981,12 +16111,12 @@ function Stop-HPOVAppliance
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -16159,12 +16289,12 @@ function Get-HPOVServer
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -16343,6 +16473,14 @@ function Get-HPOVIloSso
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
 			if (-not($Server -is [PSCustomObject]) -or (-not($Server.ApplianceConnection)))
 			{
 
@@ -16494,12 +16632,12 @@ function Add-HPOVServer
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -16791,12 +16929,12 @@ function Remove-HPOVServer
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -17038,12 +17176,12 @@ function Set-HPOVServerPower
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -17335,12 +17473,12 @@ function Start-HPOVServer
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -17606,12 +17744,12 @@ function Stop-HPOVServer
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -17909,12 +18047,12 @@ function Restart-HPOVServer
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -18206,12 +18344,12 @@ function Update-HPOVServer
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -18454,12 +18592,12 @@ function Get-HPOVEnclosureGroup
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -18694,12 +18832,12 @@ function New-HPOVEnclosureGroup
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -19043,12 +19181,12 @@ function Remove-HPOVEnclosureGroup
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -19366,12 +19504,12 @@ function Add-HPOVEnclosure
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -19860,12 +19998,12 @@ function Update-HPOVEnclosure
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -20170,12 +20308,12 @@ function Get-HPOVLogicalEnclosure
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -20405,12 +20543,12 @@ function Update-HPOVLogicalEnclosure
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -21676,12 +21814,12 @@ function Get-HPOVEnclosure
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -22092,12 +22230,12 @@ function Remove-HPOVEnclosure
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -22376,12 +22514,12 @@ function Get-HPOVServerHardwareType
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -22589,12 +22727,12 @@ function Show-HPOVFirmwareReport
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -24638,12 +24776,12 @@ function Get-HPOVStorageSystem
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -24969,12 +25107,12 @@ function Update-HPOVStorageSystem
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -25215,23 +25353,65 @@ function Add-HPOVStorageSystem
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
 
-		ForEach ($_Connection in $ApplianceConnection) 
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+			$c = 0
+
+			ForEach ($_connection in $ApplianceConnection) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				$c++
+
+			}
+
+		}
+
+		else
 		{
 
 			Try 
 			{
-	
-				$ApplianceConnection[$c] = Test-HPOVAuth $_Connection
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 			}
 
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -25241,8 +25421,6 @@ function Add-HPOVStorageSystem
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-
-			$c++
 
 		}
 
@@ -25723,12 +25901,12 @@ function Remove-HPOVStorageSystem
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -25963,12 +26141,12 @@ function Get-HPOVStoragePool
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -26224,12 +26402,12 @@ function Add-HPOVStoragePool
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -26506,12 +26684,12 @@ function Remove-HPOVStoragePool
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -26741,12 +26919,12 @@ function Get-HPOVStorageVolumeTemplate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -26965,12 +27143,12 @@ function New-HPOVStorageVolumeTemplate
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -27358,12 +27536,12 @@ function Remove-HPOVStorageVolumeTemplate
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -27655,12 +27833,12 @@ function Get-HPOVStorageVolumeTemplatePolicy
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -27805,12 +27983,12 @@ function Set-HPOVStorageVolumeTemplatePolicy
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -27981,12 +28159,12 @@ function Get-HPOVStorageVolume
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -28222,12 +28400,12 @@ function Get-HPOVStorageVolumeSnapShot
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -28410,12 +28588,12 @@ function New-HPOVStorageVolumeSnapshot
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -28580,12 +28758,12 @@ function Remove-HPOVStorageVolumeSnapshot
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -28776,12 +28954,12 @@ function ConvertTo-HPOVStorageVolume
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -29008,12 +29186,12 @@ function New-HPOVStorageVolume
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -29513,12 +29691,12 @@ function Add-HPOVStorageVolume
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -29806,12 +29984,12 @@ function Set-HPOVStorageVolume
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -30195,12 +30373,12 @@ function Remove-HPOVStorageVolume
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -30527,12 +30705,12 @@ function Get-HPOVSanManager
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -30621,7 +30799,7 @@ function Get-HPOVSanManager
 			Try
 			{
 
-				$_sanManagers = Send-HPOVRequest ($fcSanManagersUri + "?sort=name:asc") -Hostname $_connection.Name
+				$_sanManagers = Send-HPOVRequest ($fcSanManagersUri + "?sort=name:asc") -Hostname $Connection.Name
 
 			}
 
@@ -30642,9 +30820,9 @@ function Get-HPOVSanManager
 			    if (-not($_sanManagers.members)) 
 				{
 
-			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Managed SAN '$($SanManager)' not found on $($_connection.Name)."
+			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Requested Managed SAN '$($SanManager)' not found on $($Connection.Name)."
 			            
-			        $errorRecord = New-ErrorRecord InvalidOperationException SanManagerResourceNotFound ObjectNotFound 'SanManager' -Message "Request SAN Manager '$($SanManager)' not found on $($_connection.Name).  Please check the name and try again."
+			        $errorRecord = New-ErrorRecord InvalidOperationException SanManagerResourceNotFound ObjectNotFound 'SanManager' -Message "Request SAN Manager '$($SanManager)' not found on $($Connection.Name).  Please check the name and try again."
 			            
 			        #Generate Terminating Error
 			        $PSCmdlet.ThrowTerminatingError($errorRecord)
@@ -30748,10 +30926,13 @@ function Add-HPOVSanManager
 	    [Parameter(Mandatory = $false, ParameterSetName = "BNA")]
 	    [switch]$UseSsl,
 		
+		[Parameter(Mandatory = $false, ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, ParameterSetName = "BNA")]
 		[Parameter(Mandatory = $false)]
 		[switch]$Async,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "HPCisco")]
+		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "BNA")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -30772,12 +30953,12 @@ function Add-HPOVSanManager
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -31157,12 +31338,12 @@ function Set-HPOVSanManager
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -31623,12 +31804,12 @@ function Remove-HPOVSanManager
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -31857,12 +32038,12 @@ function Get-HPOVManagedSan
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -32089,12 +32270,12 @@ function Set-HPOVManagedSan
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -32338,12 +32519,12 @@ function Show-HPOVSanEndpoint
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -32472,7 +32653,7 @@ function Show-HPOVSanEndpoint
 
 			}
 
-			if ($ApplianceConnection -is [System.Collections.IEnumerable])
+			if ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				ForEach ($_connection in $ApplianceConnection)
@@ -32594,12 +32775,12 @@ function Get-HPOVUnmanagedDevice
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -32806,12 +32987,12 @@ function New-HPOVUnmanagedDevice
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -32972,12 +33153,12 @@ function Remove-HPOVUnmanagedDevice
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -33204,12 +33385,12 @@ function Get-HPOVPowerDevice
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -33379,12 +33560,12 @@ function Add-HPOVPowerDevice
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -33703,12 +33884,12 @@ function Remove-HPOVPowerDevice
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -33947,12 +34128,12 @@ function Get-HPOVPowerPotentialDeviceConnection
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -34246,12 +34427,12 @@ function New-HPOVNetwork
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -34864,12 +35045,12 @@ function Get-HPOVNetwork
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -35259,12 +35440,12 @@ function Set-HPOVNetwork
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -35742,12 +35923,12 @@ function Remove-HPOVNetwork
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -36017,12 +36198,12 @@ function New-HPOVNetworkSet
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -36503,12 +36684,12 @@ function Get-HPOVNetworkSet
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -36596,7 +36777,7 @@ function Get-HPOVNetworkSet
 			Try
 			{
 
-				$_NetSets = Send-HPOVRequest $uri -Hostname $_Connection
+				$_NetSets = Send-HPOVRequest $uri -Hostname $Connection
 
 			}
 			
@@ -36623,7 +36804,7 @@ function Get-HPOVNetworkSet
 						Try
 						{
 
-							$ct = Send-HPOVRequest -uri $_.connectionTemplateUri -Hostname $_Connection
+							$ct = Send-HPOVRequest -uri $_.connectionTemplateUri -Hostname $Connection
 
 						}
 					
@@ -36770,12 +36951,12 @@ function Set-HPOVNetworkSet
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -37271,12 +37452,12 @@ function Remove-HPOVNetworkSet
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -37493,12 +37674,12 @@ function Get-HPOVAddressPool
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -37714,12 +37895,12 @@ function Get-HPOVAddressPoolRange
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -37952,12 +38133,12 @@ function New-HPOVAddressRange
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -38256,12 +38437,12 @@ function Get-HPOVInterconnectType
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -38461,12 +38642,12 @@ function Get-HPOVInterconnect
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -38683,12 +38864,12 @@ function Get-HPOVLogicalInterconnect
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -38952,12 +39133,12 @@ function Update-HPOVLogicalInterconnect
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -39316,12 +39497,12 @@ function Show-HPOVLogicalInterconnectMacTable
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -39894,12 +40075,12 @@ function Install-HPOVLogicalInterconnectFirmware
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -40355,12 +40536,12 @@ function Show-HPOVPortStatistics
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -40714,12 +40895,12 @@ function Get-HPOVLogicalInterconnectGroup
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -41048,12 +41229,12 @@ function New-HPOVLogicalInterconnectGroup
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -42262,12 +42443,12 @@ function Remove-HPOVLogicalInterconnectGroup
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -42579,12 +42760,12 @@ function Get-HPOVUplinkSet
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -43173,12 +43354,12 @@ function New-HPOVUplinkSet
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -43917,12 +44098,12 @@ function GetNetworkUris
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -44608,12 +44789,12 @@ function New-HPOVServerProfile
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -45024,7 +45205,6 @@ function New-HPOVServerProfile
 
 							}
 							
-
 						}
 
 					}
@@ -46102,6 +46282,8 @@ function New-HPOVServerProfile
 
 						    }
 
+							$serverProfile.bios.overriddenSettings = $BiosSettings
+
 						}
 
 						else 
@@ -46602,12 +46784,12 @@ function Update-HPOVServerProfile
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -46948,12 +47130,12 @@ function Get-HPOVServerProfileTemplate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -47336,12 +47518,12 @@ function New-HPOVServerProfileTemplate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -48549,12 +48731,12 @@ function Join-HPOVServerProfileToTemplate
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -48851,12 +49033,12 @@ function ConvertTo-HPOVServerProfileTemplate
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -49348,12 +49530,12 @@ function New-HPOVServerProfileAssign
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -49633,12 +49815,12 @@ function Copy-HPOVServerProfile
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -50175,12 +50357,12 @@ function Remove-HPOVServerProfile
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -50269,7 +50451,6 @@ function Remove-HPOVServerProfile
 		}
 
         $taskCollection = New-Object System.Collections.ArrayList
-        $thisConnection = $ApplianceConnection.name
 
     }
 
@@ -50278,53 +50459,109 @@ function Remove-HPOVServerProfile
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile input type:  $($ServerProfile.gettype())"
 
-        foreach ($prof in $ServerProfile) 
+        foreach ($_profile in $ServerProfile) 
 		{
 
-            $profileNameOrUri   = $null
-            $profileDisplayName = $null
-
-            if ($prof -is [String]) 
+            if ($_profile -is [String] -and (-not($_profile.StartsWith.($ServerProfilesUri)))) 
 			{
 
-                $profileNameOrUri   = $prof
-                $profileDisplayName = $prof
+				Try
+				{
+
+					$_profile = Get-HPOVServerProfile $_profile -ApplianceConnection $ApplianceConnection
+
+				}
+                
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
         	}
 
-            elseif ($prof -is [PSCustomObject] -and $prof.category -ieq 'server-profiles') 
+			elseif ($_profile -is [String])
+			{
+
+				Try
+				{
+
+					$_profile = Send-HPOVRequest $_profile -Hostname $ApplianceConnection
+
+				}
+                
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+            elseif ($_profile -is [PSCustomObject] -and $_profile.category -ine 'server-profiles') 
 			{
                 
-                $thisConnection     = $prof.ApplianceConnection.name
-                $profileNameOrUri   = $prof.uri
-                $profileDisplayName = $prof.name
-
-            }
-
-		    else 
-			{
-
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Remove-HPOVServerProfile' -Message "Invalid profile parameter: $prof"
-                $pscmdlet.ThrowTerminatingError($errorRecord)
-            }
-
-            if (!$profileNameOrUri) 
-			{
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Remove-HPOVServerProfile' -Message "Invalid profile parameter: $prof"
+                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'SeverProfile' -Message ("Invalid profile object provided: {0}.  Please verify the object and try again." -f $_profile.name )
                 $pscmdlet.ThrowTerminatingError($errorRecord)
 
             }
 
-            elseif ($pscmdlet.ShouldProcess($thisConnection,"Remove profile $profileDisplayName from appliance?"))
+            if ($PSCmdlet.ShouldProcess($ApplianceConnection.Name,("remove Server Profile {0} from appliance?" -f $_profile.name )))
 			{   
                 
-                if ([bool]$force) { Remove-HPOVResource -nameOrUri $profileNameOrUri -force -appliance $thisConnection}
-                else { Remove-HPOVResource -nameOrUri $profileNameOrUri -appliance $thisConnection}
+				$uri = $_profile.uri
+
+				if ($PSBoundParamters['Force'])
+				{
+
+					$uri += '?force=true'
+
+				}
+
+				Try
+				{
+
+					$_resp = Send-HPOVRequest $_profile -Hostname $ApplianceConnection
+
+					[void]$taskCollection.Add($_resp)
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
 
             }
+
+			elseif ($PSBoundParameters['Whatif'])
+			{
+
+				"[{0}] -WhatIf provided." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			}
+
+			else
+			{
+
+				"[{0}] User cancelled." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			}
 
 	    }
 
     }
+
+	end
+	{
+
+		Return $taskCollection
+
+	}
 
 }
 
@@ -50361,12 +50598,12 @@ function Get-HPOVServerProfileConnectionList
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -50755,12 +50992,12 @@ function New-HPOVServerProfileConnection
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -51171,12 +51408,12 @@ function New-HPOVServerProfileAttachVolume
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -52019,12 +52256,12 @@ function Search-HPOVIndex
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -52247,12 +52484,12 @@ function Search-HPOVAssociations
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -52460,12 +52697,12 @@ function Get-HPOVTask
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -52823,12 +53060,12 @@ function Wait-HPOVTaskStart
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -53152,12 +53389,12 @@ function Wait-HPOVTaskComplete
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -53496,12 +53733,12 @@ function Get-HPOVUser
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -53730,12 +53967,12 @@ function New-HPOVUser
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -53989,12 +54226,12 @@ function Set-HPOVUser
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -54368,12 +54605,12 @@ function Set-HPOVUserPassword
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -54516,30 +54753,16 @@ function Set-HPOVUserPassword
 
 			else
 			{
+				
+				$_UpdatePassword                 = NewObject -UpdateUserPassword
+				$_UpdatePassword.currentPassword = $_decryptCurrentPassword
+				$_UpdatePassword.password        = $_decryptNewPassword
+				$_UpdatePassword.userName        = $_Connection.UserName
 
-				#Get current user object
 				Try
 				{
 
-					$_CurrentUserObj = Send-HPOVRequest ($UsersUri + '/' + $_Connection.UserName) -ApplianceConnection $_Connection
-
-					$_CurrentUserObj | add-member -notepropertyname currentPassword -NotePropertyValue $_decryptCurrentPassword
-					$_CurrentUserObj | add-member -notepropertyname password -NotePropertyValue $_decryptNewPassword
-					$_CurrentUserObj | add-member -notepropertyname replaceRoles -NotePropertyValue $false
-
-					Try
-					{
-
-						$_resp = Send-HPOVRequest $UsersUri PUT $_CurrentUserObj -Hostname $_Connection
-
-					}
-				
-					Catch
-					{
-
-						$PSCmdlet.ThrowTerminatingError($_)
-
-					}
+					$_resp = Send-HPOVRequest $UsersUri PUT $_UpdatePassword -Hostname $_Connection
 
 					if ($_resp.category -eq 'users')
 					{
@@ -54551,13 +54774,13 @@ function Set-HPOVUserPassword
 					[void]$_UserStatus.Add($_resp)
 
 				}
-
+				
 				Catch
 				{
 
-					$PSCmdlet.WriteError($_)
+					$PSCmdlet.ThrowTerminatingError($_)
 
-				}	
+				}
 
 			}
 
@@ -54619,12 +54842,12 @@ function Remove-HPOVUser
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -54904,12 +55127,12 @@ function Set-HPOVUserRole
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -55258,12 +55481,12 @@ function Get-HPOVLdap
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -55430,12 +55653,12 @@ function Get-HPOVLdapDirectory
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -55676,12 +55899,12 @@ function New-HPOVLdapDirectory
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -55935,12 +56158,12 @@ function Remove-HPOVLdapDirectory
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -56190,12 +56413,12 @@ Function Set-HPOVLdapDefaultDirectory
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -56445,12 +56668,12 @@ Function Enable-HPOVLdapLocalLogin
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -56616,12 +56839,12 @@ Function Disable-HPOVLdapLocalLogin
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -57035,12 +57258,12 @@ function Get-HPOVLdapGroup
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -57234,12 +57457,12 @@ function New-HPOVLdapGroup
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -57466,12 +57689,12 @@ function Set-HPOVLdapGroupRole
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -57737,12 +57960,12 @@ function Remove-HPOVLdapGroup
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -57975,12 +58198,12 @@ Function Get-HPOVAuditLog
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -58112,7 +58335,7 @@ Function Get-HPOVAuditLogArchive
         [Alias("save")]
         [string]$Location = (get-location).Path,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -58133,12 +58356,12 @@ Function Get-HPOVAuditLogArchive
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -58321,12 +58544,12 @@ function Get-HPOVAlert
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -58663,12 +58886,12 @@ function Set-HPOVAlert
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -58907,12 +59130,12 @@ function Get-HPOVLicense
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -59402,12 +59625,12 @@ function Remove-HPOVLicense
 			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
-			elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
 				$c = 0
@@ -59712,12 +59935,12 @@ function Set-HPOVSMTPConfig
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -59872,12 +60095,12 @@ function Get-HPOVSMTPConfig
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -60029,12 +60252,12 @@ function Add-HPOVSmtpAlertEmailFilter
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -60184,12 +60407,12 @@ function Get-HPOVLoginMessage
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -60339,12 +60562,12 @@ function Set-HPOVLoginMessage
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -60494,12 +60717,12 @@ Function Get-HPOVRemoteSyslog
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -60652,12 +60875,12 @@ Function Set-HPOVRemoteSyslog
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -60830,12 +61053,12 @@ function Enable-HPOVRemoteSyslog
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -61003,12 +61226,12 @@ function Disable-HPOVRemoteSyslog
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -61198,12 +61421,12 @@ function Enable-HPOVDebug
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0
@@ -61366,12 +61589,12 @@ function Disable-HPOVDebug
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable])
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
 			$c = 0

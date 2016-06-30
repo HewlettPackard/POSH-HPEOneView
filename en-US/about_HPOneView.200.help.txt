@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.480.0
+     -- [#130] Refactored Remove-HPOVServerProfile Cmdlet 
+     -- [#131] Fixed regression issue where custom BIOS Settings were not being set in New-HPOVServerProfile
+     -- [#132] Fixed regression in Get-HPOVSanManager and Add-HPOVSanManager Cmdlets not handling default
+        ApplianceConnection correctly.
+     -- [#133] Fixed regression in New-HPOVServerProfile where if a Server Profile Template resource Name was
+        provided, would generate an 'unable to index' exception.
+     -- Moved library offline help update URI to http://hewlettpackard.github.io/POSH-HPOneView/UpdateHelp.
+
     Release 2.0.474.0
      -- [#128] Implemented Default Appliance Connection handling. Please review Help about_Appliance_Connections for more
         information.

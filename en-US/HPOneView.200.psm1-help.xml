@@ -6556,9 +6556,6 @@ Details   : Add firmware bundle /rest/firmware-drivers/CP026527
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-			</command:syntaxItem>
-			<command:syntaxItem>
-				<maml:name>Get-HPOVAuditLogArchive</maml:name>
 				<command:parameter required="false" variableLength="False" globbing="false" pipelineInput="false" position="named">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -6630,10 +6627,10 @@ Details   : Add firmware bundle /rest/firmware-drivers/CP026527
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Get-HPOVAuditLog c:\temp
+				<dev:code>PS C:\&gt; Get-HPOVAuditLogArchive c:\temp
 </dev:code>
 				<dev:remarks>
-					<dev:para>Save the Appliance audit log to C:\Temp</dev:para>
+					<dev:para>Save the Appliance audit log archive to C:\Temp</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -6650,7 +6647,7 @@ Details   : Add firmware bundle /rest/firmware-drivers/CP026527
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
-				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVAuditLog</maml:uri>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVAuditLogArchive</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -25630,7 +25627,7 @@ PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
     
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create a BL Gen9 UEFI Server Profile template, and pipe to Wait-HPOVTaskComplete.</dev:para>
+					<dev:para>Create a BL Gen9 UEFI Server Profile and pipe to Wait-HPOVTaskComplete.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
