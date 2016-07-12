@@ -32,6 +32,14 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.500.0
+     -- [#136] Fixed Get-HPOVApplianceGlobalSetting where no object would be returned when providing a name.
+     -- [#135] [#134] Fixed minor bugs.
+     -- Enhanced New-HPOVEnclosureGroup to discover enclosure layout and create Logical Interconnect Group
+        using the -DiscoverFromEnclosure parameter.
+     -- [#126] Fixed New-HPOVLdapDirectory where the userAttribute property was being sent incorrectly, causing
+        inconsisteny directory verification auth exceptions.
+
     Release 2.0.480.0
      -- [#130] Refactored Remove-HPOVServerProfile Cmdlet 
      -- [#131] Fixed regression issue where custom BIOS Settings were not being set in New-HPOVServerProfile

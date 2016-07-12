@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.480.0"
+[version]$script:ModuleVersion = "2.0.500.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2417,16 +2417,16 @@ $script:FSRead                      = [System.IO.FileAccess]::Read
 [String]$script:FcSanManagersUri                        = "/rest/fc-sans/device-managers" #created SAN Managers
 [String]$script:FcManagedSansUri                        = "/rest/fc-sans/managed-sans" #Discovered managed SAN(s) that the added SAN Manager will manage
 [String]$Script:SanEndpoints                            = '/rest/fc-sans/endpoints'
-[String]$script:enclosuresUri                           = "/rest/enclosures"
+[String]$script:EnclosuresUri                           = "/rest/enclosures"
 [String]$script:LogicalEnclosuresUri                    = '/rest/logical-enclosures'
-[String]$script:enclosureGroupsUri                      = "/rest/enclosure-groups"
-[String]$script:enclosurePreviewUri                     = "/rest/enclosure-preview"
-[String]$script:fwUploadUri                             = "/rest/firmware-bundles"
-[String]$script:fwDriversUri                            = "/rest/firmware-drivers"
-[String]$script:powerDevicesUri                         = "/rest/power-devices"
-[String]$script:powerDevicesDiscoveryUri                = "/rest/power-devices/discover"
-[String]$script:powerDevicePotentialConnections         = "/rest/power-devices/potentialConnections?providerUri="
-[String]$script:unmanagedDevicesUri                     = "/rest/unmanaged-devices?sort=name:asc"
+[String]$script:EnclosureGroupsUri                      = "/rest/enclosure-groups"
+[String]$script:EnclosurePreviewUri                     = "/rest/enclosure-preview"
+[String]$script:FwUploadUri                             = "/rest/firmware-bundles"
+[String]$script:FwDriversUri                            = "/rest/firmware-drivers"
+[String]$script:PowerDevicesUri                         = "/rest/power-devices"
+[String]$script:PowerDevicesDiscoveryUri                = "/rest/power-devices/discover"
+[String]$script:PowerDevicePotentialConnections         = "/rest/power-devices/potentialConnections?providerUri="
+[String]$script:UnmanagedDevicesUri                     = "/rest/unmanaged-devices?sort=name:asc"
 [PSCustomObject]$script:mpModelTable                    = @{
 	ilo2 = "RI7";
 	ilo3 = "RI9";
@@ -2460,8 +2460,8 @@ $script:FSRead                      = [System.IO.FileAccess]::Read
 [String]$script:ApplianceVwwnPoolRangesUri   = '/rest/id-pools/vwwn/ranges'
 [String]$script:ApplianceVsnPoolsUri         = '/rest/id-pools/vsn'
 [String]$script:ApplianceVsnPoolRangesUri    = '/rest/id-pools/vsn/ranges'
-[String]$script:ApplianceIPv4PoolsUri        = '/rest/id-pools/ipv4'
-[String]$script:ApplianceIPv4SubnetsUri      = '/rest/id-pools/ipv4/subnets'
+[String]$script:ApplianceIPv4PoolsUri        = '/rest/id-pools/IPv4'
+[String]$script:ApplianceIPv4SubnetsUri      = '/rest/id-pools/IPv4/subnets'
 [String]$script:ApplianceVmacGenerateUri     = '/rest/id-pools/vmac/generate'
 [String]$script:ApplianceVwwnGenerateUri     = '/rest/id-pools/vwwn/generate'
 [String]$script:ApplianceVsnPoolGenerateUri  = '/rest/id-pools/vsn/generate'
@@ -2689,6 +2689,7 @@ function NewObject
 		[switch]$DirectoryGroup,
 		[switch]$DownloadFileStatus,
 		[switch]$EnclosureGroup,
+		[switch]$EnclosureGroupPreview,
 		[switch]$EnclosureImport,
 		[switch]$EnclosureRefresh,
 		[switch]$EnclosureRefreshForceOptions,
@@ -2766,6 +2767,21 @@ function NewObject
 
 		switch($PSBoundParameters.Keys)
 		{
+
+			'EnclosureGroupPreview'
+			{
+
+				Return [PSCustomObject]@{
+
+					hostname = $null;
+					username = $null;
+					password = $null;
+					logicalInterconnectGroupNeeded = $true;
+					ligPrefix = $null
+
+				}
+
+			}
 
 			'UpdateUserPassword'
 			{
@@ -3035,8 +3051,8 @@ function NewObject
 					model          = [string]$null; 
 					height         = [int]1; 
 					mac            = [string]$null;
-					ipv4Address    = [string]$null;
-					ipv6Address    = [string]$null;
+					IPv4Address    = [string]$null;
+					IPv6Address    = [string]$null;
 					maxPwrConsumed = [int]100 
 				
 				}
@@ -3219,7 +3235,7 @@ function NewObject
 					authProtocol        = 'AD';
 					baseDN              = $null;
 					orgUnits            = New-Object System.Collections.ArrayList
-					userNamingAttribute = 'CN';
+					userNamingAttribute = 'UID';
 					name                = $null;
 					credential          = [PSCustomObject]@{
 						
@@ -11131,9 +11147,9 @@ function Get-HPOVApplianceNetworkConfig
 				ForEach ($nic in $ApplianceConfig.applianceNetworks) 
 				{
 
-					if ($nic.ipv4Type -eq "DHCP") { $nic.app1Ipv4Addr = $null }
+					if ($nic.IPv4Type -eq "DHCP") { $nic.app1IPv4Addr = $null }
 
-					if ($nic.ipv6Type -eq "DHCP") { $nic.app1Ipv6Addr = $null }
+					if ($nic.IPv6Type -eq "DHCP") { $nic.app1IPv6Addr = $null }
 				
 				}
 
@@ -11321,10 +11337,6 @@ function Set-HPOVApplianceDateTime
 		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = 'NTPServers')]
 		[validateSet('en_US','zh_CN','ja_JP')]
 		[String]$Locale,
-
-		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = 'SyncHost')]
-		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = 'NTPServers')]
-		[String]$TimeZone = 'UTC',
 		
 		[Parameter(Mandatory = $False, ParameterSetName = 'SyncHost')]
 		[Parameter(Mandatory = $False, ParameterSetName = 'NTPServers')]
@@ -11562,44 +11574,44 @@ function Set-HPOVApplianceNetworkConfig
 
 		[Parameter(Position = 1,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 3,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv4Type = $null,
+		[string]$IPv4Type = $null,
 
 		[Parameter(Position = 2,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 4,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv4Addr = $null,
+		[string]$IPv4Addr = $null,
 
 		[Parameter(Position = 3,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 5,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv4Subnet = $null,
+		[string]$IPv4Subnet = $null,
 
 		[Parameter(Position = 4,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 6,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv4Gateway = $null,
+		[string]$IPv4Gateway = $null,
 
 		[Parameter(Position = 5,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 7,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv6Type = $null,
+		[string]$IPv6Type = $null,
 
 		[Parameter(Position = 6,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 8,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv6Addr = $null,
+		[string]$IPv6Addr = $null,
 
 		[Parameter(Position = 7,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 9,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$ipv6Subnet = $null,
+		[string]$IPv6Subnet = $null,
 
 		[Parameter(Position = 8,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 10,Mandatory = $false, ParameterSetName="secondary")]
-		[string]$Ipv6Gateway = $null,
+		[string]$IPv6Gateway = $null,
 
 		[Parameter(Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Mandatory = $false, ParameterSetName="secondary")]
         [alias('overrideDhcpDns')]
-		[switch]$OverrideIpv4DhcpDns,
+		[switch]$OverrideIPv4DhcpDns,
 
 		[Parameter(Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Mandatory = $false, ParameterSetName="secondary")]
-		[switch]$OverrideIpv6DhcpDns,
+		[switch]$OverrideIPv6DhcpDns,
 
 		[Parameter(Position = 9,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 11,Mandatory = $false, ParameterSetName="secondary")]
@@ -11612,11 +11624,11 @@ function Set-HPOVApplianceNetworkConfig
 		[Parameter(Position = 11,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 13,Mandatory = $false, ParameterSetName="secondary")]
         [alias('nameServers')]
-		[Array]$IpV4nameServers,
+		[Array]$IPv4nameServers,
 
 		[Parameter(Position = 12,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 14,Mandatory = $false, ParameterSetName="secondary")]
-		[Array]$IpV6nameServers,
+		[Array]$IPv6nameServers,
 
 		[Parameter(Position = 13,Mandatory = $false, ParameterSetName="primary")]
         [Parameter(Position = 15,Mandatory = $false, ParameterSetName="secondary")]
@@ -11837,32 +11849,32 @@ function Set-HPOVApplianceNetworkConfig
 						}
 
 					    if ($hostname)     { $_secondaryNet | Add-Member -NotePropertyName hostname -NotePropertyValue $hostname }
-					    if ($ipv4Type)     
+					    if ($IPv4Type)     
 						{ 
 							
-							$_secondaryNet | Add-Member -NotePropertyName ipv4Type -NotePropertyValue $ipv4Type.ToUpper()
+							$_secondaryNet | Add-Member -NotePropertyName IPv4Type -NotePropertyValue $IPv4Type.ToUpper()
 					        
 							# If setting DHCP, clear any existing IP address:
-					        if ($ipv4Type -ieq "DHCP") {$_secondaryNet | Add-Member -NotePropertyName app1Ipv4Addr -NotePropertyValue $null }
+					        if ($IPv4Type -ieq "DHCP") {$_secondaryNet | Add-Member -NotePropertyName app1IPv4Addr -NotePropertyValue $null }
 					    
 						}
 
-					    if ($ipv4Addr)     { $_secondaryNet | Add-Member -NotePropertyName app1Ipv4Addr -NotePropertyValue $ipv4Addr }
-					    if ($ipv4Subnet)   { $_secondaryNet | Add-Member -NotePropertyName ipv4Subnet   -NotePropertyValue $ipv4Subnet }
-					    if ($ipv4Gateway)  { $_secondaryNet | Add-Member -NotePropertyName ipv4Gateway  -NotePropertyValue $ipv4Gateway }
-					    if ($ipv6Type)     
+					    if ($IPv4Addr)     { $_secondaryNet | Add-Member -NotePropertyName app1IPv4Addr -NotePropertyValue $IPv4Addr }
+					    if ($IPv4Subnet)   { $_secondaryNet | Add-Member -NotePropertyName IPv4Subnet   -NotePropertyValue $IPv4Subnet }
+					    if ($IPv4Gateway)  { $_secondaryNet | Add-Member -NotePropertyName IPv4Gateway  -NotePropertyValue $IPv4Gateway }
+					    if ($IPv6Type)     
 						{ 
 							
-							$_secondaryNet | Add-Member -NotePropertyName ipv6Type -NotePropertyValue $ipv6Type.ToUpper() 
+							$_secondaryNet | Add-Member -NotePropertyName IPv6Type -NotePropertyValue $IPv6Type.ToUpper() 
 							
 							# If setting DHCP, clear any existing IP address:
-							if ($ipv6Type -ieq "DHCP") { $_secondaryNet | Add-Member -NotePropertyName app1Ipv6Addr = $null }
+							if ($IPv6Type -ieq "DHCP") { $_secondaryNet | Add-Member -NotePropertyName app1IPv6Addr = $null }
 					    
 						}
 
-					    if ($ipv6Addr)        { $_secondaryNet | Add-Member -NotePropertyName app1Ipv6Addr -NotePropertyValue $ipv6Addr }
-					    if ($ipv6Subnet)      { $_secondaryNet | Add-Member -NotePropertyName ipv6Subnet -NotePropertyValue $ipv6Subnet }
-					    if ($ipv6Gateway)     { $_secondaryNet | Add-Member -NotePropertyName ipv6Gateway -NotePropertyValue $ipv6Gateway }
+					    if ($IPv6Addr)        { $_secondaryNet | Add-Member -NotePropertyName app1IPv6Addr -NotePropertyValue $IPv6Addr }
+					    if ($IPv6Subnet)      { $_secondaryNet | Add-Member -NotePropertyName IPv6Subnet -NotePropertyValue $IPv6Subnet }
+					    if ($IPv6Gateway)     { $_secondaryNet | Add-Member -NotePropertyName IPv6Gateway -NotePropertyValue $IPv6Gateway }
 					    if ($overrideDhcpDns) { $_secondaryNet | Add-Member -NotePropertyName overrideDhcpDnsServers -NotePropertyValue $overrideDhcpDns }
 					    if ($domainName)      { $_secondaryNet | Add-Member -NotePropertyName domainName -NotePropertyValue $domainName }
 					    if ($searchDomains)   { $_secondaryNet | Add-Member -NotePropertyName searchDomains -NotePropertyValue $searchDomains }
@@ -11937,10 +11949,10 @@ function Set-HPOVApplianceNetworkConfig
                 For ($i -eq 0; $i -le ($_importConfig.applianceNetworks.Count - 1); $i++)
                 {
 
-                    if ($_importConfig.applianceNetworks[$i].ipv4Gateway -eq "127.0.0.1")
+                    if ($_importConfig.applianceNetworks[$i].IPv4Gateway -eq "127.0.0.1")
 					{
 
-                        $_importConfig.applianceNetworks[$i].ipv4Gateway = $null
+                        $_importConfig.applianceNetworks[$i].IPv4Gateway = $null
 
                     }
 
@@ -12005,29 +12017,29 @@ function Set-HPOVApplianceNetworkConfig
 
 			}
 
-            if ($ipv4Type) 
+            if ($IPv4Type) 
 			{ 
 				
-				$_currentconfig.applianceNetworks[$_deviceIndex].ipv4Type = $ipv4Type.ToUpper()
+				$_currentconfig.applianceNetworks[$_deviceIndex].IPv4Type = $IPv4Type.ToUpper()
                 
                 # If setting DHCP, clear any existing IP address:
-                if ($ipv4Type -ieq "DHCP") 
+                if ($IPv4Type -ieq "DHCP") 
 				{ 
 
-                    $_currentconfig.applianceNetworks[$_deviceIndex].app1Ipv4Addr = $null
+                    $_currentconfig.applianceNetworks[$_deviceIndex].app1IPv4Addr = $null
 
                     # If $overrideIPv4DhcpDns is true, set it, if not make sure it is fale
-                    if ($overrideIpv4DhcpDns) 
+                    if ($overrideIPv4DhcpDns) 
 					{ 
 						
-						$_currentconfig.applianceNetworks[$_deviceIndex].overrideIpv4DhcpDnsServers = [bool]$overrideIpv4DhcpDns 
+						$_currentconfig.applianceNetworks[$_deviceIndex].overrideIPv4DhcpDnsServers = [bool]$overrideIPv4DhcpDns 
 					
 					}
 
                     else 
 					{ 
 						
-						$_currentconfig.applianceNetworks[$_deviceIndex].overrideIpv4DhcpDnsServers = $false 
+						$_currentconfig.applianceNetworks[$_deviceIndex].overrideIPv4DhcpDnsServers = $false 
 					
 					}
 
@@ -12037,7 +12049,7 @@ function Set-HPOVApplianceNetworkConfig
 				{
                     
 					#Make sure override.. is false if STATIC ip addresses are in use.
-                    $_currentconfig.applianceNetworks[$_deviceIndex].overrideIpv4DhcpDnsServers = $false 
+                    $_currentconfig.applianceNetworks[$_deviceIndex].overrideIPv4DhcpDnsServers = $false 
 
 					if ((-not($PSBoundParameters['IPv4Subnet'])) -or ([IPAddress]$IPv4Subnet -eq 0.0.0.0) -or $IPv4Subnet -eq $null)
 					{
@@ -12052,27 +12064,27 @@ function Set-HPOVApplianceNetworkConfig
 
             }
 
-            if ($ipv4Addr)    { $_currentconfig.applianceNetworks[$_deviceIndex].app1Ipv4Addr = $ipv4Addr }
-            if ($ipv4Subnet)  { $_currentconfig.applianceNetworks[$_deviceIndex].ipv4Subnet   = $ipv4Subnet }
-            if ($ipv4Gateway) { $_currentconfig.applianceNetworks[$_deviceIndex].ipv4Gateway  = $ipv4Gateway }
-            if ($ipv6Type)    
+            if ($IPv4Addr)    { $_currentconfig.applianceNetworks[$_deviceIndex].app1IPv4Addr = $IPv4Addr }
+            if ($IPv4Subnet)  { $_currentconfig.applianceNetworks[$_deviceIndex].IPv4Subnet   = $IPv4Subnet }
+            if ($IPv4Gateway) { $_currentconfig.applianceNetworks[$_deviceIndex].IPv4Gateway  = $IPv4Gateway }
+            if ($IPv6Type)    
 			{ 
 				
-				$_currentconfig.applianceNetworks[$_deviceIndex].ipv6Type     = $ipv6Type.ToUpper() 
+				$_currentconfig.applianceNetworks[$_deviceIndex].IPv6Type     = $IPv6Type.ToUpper() 
                                       
                 # If setting DHCP, clear any existing IP address:
-                if ($ipv6Type -ieq "DHCP") { $_currentconfig.applianceNetworks[$_deviceIndex].app1Ipv6Addr = $null }
+                if ($IPv6Type -ieq "DHCP") { $_currentconfig.applianceNetworks[$_deviceIndex].app1IPv6Addr = $null }
 
             }
-            if ($ipv6Addr)            { $_currentconfig.applianceNetworks[$_deviceIndex].app1Ipv6Addr               = $ipv6Addr }
-            if ($ipv6Subnet)          { $_currentconfig.applianceNetworks[$_deviceIndex].ipv6Subnet                 = $ipv6Subnet }
-            if ($ipv6Gateway)         { $_currentconfig.applianceNetworks[$_deviceIndex].ipv6Gateway                = $ipv6Gateway }
-            if ($overrideIpv4DhcpDns) { $_currentconfig.applianceNetworks[$_deviceIndex].overrideIpv4DhcpDnsServers = [bool]$overrideIpv4DhcpDns }
-            if ($overrideIpv6DhcpDns) { $_currentconfig.applianceNetworks[$_deviceIndex].overrideIpv6DhcpDnsServers = [bool]$overrideIpv6DhcpDns }
+            if ($IPv6Addr)            { $_currentconfig.applianceNetworks[$_deviceIndex].app1IPv6Addr               = $IPv6Addr }
+            if ($IPv6Subnet)          { $_currentconfig.applianceNetworks[$_deviceIndex].IPv6Subnet                 = $IPv6Subnet }
+            if ($IPv6Gateway)         { $_currentconfig.applianceNetworks[$_deviceIndex].IPv6Gateway                = $IPv6Gateway }
+            if ($overrideIPv4DhcpDns) { $_currentconfig.applianceNetworks[$_deviceIndex].overrideIPv4DhcpDnsServers = [bool]$overrideIPv4DhcpDns }
+            if ($overrideIPv6DhcpDns) { $_currentconfig.applianceNetworks[$_deviceIndex].overrideIPv6DhcpDnsServers = [bool]$overrideIPv6DhcpDns }
             if ($domainName)          { $_currentconfig.applianceNetworks[$_deviceIndex].domainName                 = $domainName }
             if ($searchDomains)       { $_currentconfig.applianceNetworks[$_deviceIndex].searchDomains              = $searchDomains }
-            if ($ipV4nameServers)     { $_currentconfig.applianceNetworks[$_deviceIndex].ipv4NameServers            = $ipV4nameServers }
-            if ($ipV6nameServers)     { $_currentconfig.applianceNetworks[$_deviceIndex].ipv6NameServers            = $ipV6nameServers }
+            if ($IPv4nameServers)     { $_currentconfig.applianceNetworks[$_deviceIndex].IPv4NameServers            = $IPv4nameServers }
+            if ($IPv6nameServers)     { $_currentconfig.applianceNetworks[$_deviceIndex].IPv6NameServers            = $IPv6nameServers }
 
             # Hard code the following settings, for now:
             $_currentconfig.applianceNetworks[$_deviceIndex].confOneNode = "true"  # Always "true", for now
@@ -12175,7 +12187,7 @@ function Set-HPOVApplianceNetworkConfig
 
         }
 
-        if ($ipv4Type -eq "static") 
+        if ($IPv4Type -eq "static") 
 		{
             
             #Check to make sure we connect to a OneView appliance
@@ -12187,7 +12199,7 @@ function Set-HPOVApplianceNetworkConfig
 				$_originalcertpolicy = [System.Net.ServicePointManager]::CertificatePolicy
 				[System.Net.ServicePointManager]::CertificatePolicy = new-object HPOneView.ITempPolicy 
 				
-				$_resp = Invoke-WebRequest -uri "https://$ipv4Addr"
+				$_resp = Invoke-WebRequest -uri "https://$IPv4Addr"
 
 				#Return the ServicePointManager state back to original state
 				[System.Net.ServicePointManager]::CertificatePolicy = $_originalcertpolicy
@@ -12209,9 +12221,9 @@ function Set-HPOVApplianceNetworkConfig
             if ($_resp.Content -match "OneView") 
 			{ 
 
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Global Connection Sessions appliance object with new appliance address: $ipv4Addr"
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Global Connection Sessions appliance object with new appliance address: $IPv4Addr"
 
-				($Global:ConnectedSessions | ? name -eq $ApplianceConnection.Name).Name = $ipv4Addr
+				($Global:ConnectedSessions | ? name -eq $ApplianceConnection.Name).Name = $IPv4Addr
 
             }
 
@@ -12665,12 +12677,13 @@ function Get-HPOVApplianceGlobalSetting
 				if ($Name)
 				{
 
-					$_settings.members = $settings.members | Where-Object name -like $Name
+					$_settings.members = $_settings.members | ? name -like $Name
 
 				}
 
 				$_settings.members | % {
 
+					$_.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.GlobalSetting')
 					[void]$_ApplianceGlobalSettingCol.Add($_)
 
 				}
@@ -12707,14 +12720,18 @@ function Set-HPOVApplianceGlobalSetting
 	(
 
 		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Pipeline')]
-		[string]$Object,
+		[ValidateNotNullorEmpty()]
+		[Object]$Object,
 
 		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
 		[string]$Name,
 
         [Parameter(Position = 1, Mandatory, HelpMessage = "Enter the new value for the global parameter", ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
         [string]$Value,
 
+		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Pipeline')]
 		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
@@ -18782,38 +18799,52 @@ function New-HPOVEnclosureGroup
         [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = "Enter a name for the new enclosure group.")]
 		[Parameter(Position = 0, Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Enter a name for the new enclosure group.")]
         [ValidateNotNullOrEmpty()]
-        [string]$Name = $Null,
+        [string]$Name,
          
         [Parameter(Position = 1, Mandatory, ValueFromPipeline, ParameterSetName = 'Default', HelpMessage = "Enter the Object or URI or Array of Objects or URIs of the Logical Interconnect Group to associate with the Enclosure Group.")]
         [ValidateNotNullOrEmpty()]
         [alias('logicalInterconnectGroupUri','logicalInterconnectGroup')]
-        [object]$LogicalInterconnectGroupMapping = $Null,
+        [object]$LogicalInterconnectGroupMapping,
 
         [Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateSet('RedundantPowerFeed','RedundantPowerSupply', IgnoreCase = $false)]
         [string]$PowerRedundantMode = "RedundantPowerFeed",
 
         [Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Default')]
-        [string]$ConfigurationScript = $null,
+		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
+		[ValidateNotNullOrEmpty()]
+        [string]$ConfigurationScript,
 
 		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[switch]$DiscoverFromEnclosure,
 
+		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator IP Address or FQDN.")]
+		[ValidateNotNullorEmpty()]
+		[String]$OAAddress,
+
 		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator admin username.")]
+		[ValidateNotNullorEmpty()]
 		[String]$Username,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide the Onboard Administrator admin password.")]
+		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide the Onboard Administrator admin password.")]
+		[ValidateNotNullorEmpty()]
 		[String]$Password,
 
-		[Parameter(Mandatory, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
-		[Parameter(Mandatory, ParameterSetName = "importFile")]
-		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
+		[Parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
+		[ValidateNotNullorEmpty()]
+		[String]$LigPrefix,
+
+		[Parameter(Mandatory = $false, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
+		[Parameter(Mandatory = $false, ParameterSetName = "importFile")]
+		[Parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
 		[Parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
+		[ValidateNotNullorEmpty()]
 		[string]$ImportFile
 
     )
@@ -18914,124 +18945,184 @@ function New-HPOVEnclosureGroup
     Process 
 	{
 
-		$_EnclosureGroup = NewObject -EnclosureGroup
+		if ($PSCmdlet.ParameterSetName -eq 'DiscoverFromEnclosure')
+		{
 
-		#Process LIG Object here, and will be on a single Appliance Connection
-        if ($PipelineInput -or $LogicalInterconnectGroupMapping -is [PSCustomObject]) 
-		{ 
-			
-			if ($PipelineInput) 
+			$_EnclosureGroupPreview = NewObject -EnclosureGroupPreview
+
+			$_EnclosureGroupPreview.username  = $Username
+			$_EnclosureGroupPreview.password  = $Password
+			$_EnclosureGroupPreview.hostname  = $OAAddress
+			$_EnclosureGroupPreview.ligPrefix = $LigPrefix
+
+			Try
 			{
-				
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] LIG was passed via pipeline." 
+
+				$_EnclosurePreview = Send-HPOVRequest $EnclosurePreviewUri POST $_EnclosureGroupPreview -Hostname $ApplianceConnection
+
+				if (-not($PSBoundParameters['LigPrefix']))
+				{
+
+					$_EnclosurePreview.logicalInterconnectGroup.name = $_EnclosurePreview.logicalInterconnectGroup.name.Replace('null',$Name)
+
+				}
+
+				$LigTaskResp = Send-HPOVRequest $LogicalInterconnectGroupsUri POST $_EnclosurePreview.logicalInterconnectGroup -Hostname $ApplianceConnection | Wait-HPOVTaskComplete
+
+				$LogicalInterconnectGroupMapping = Send-HPOVRequest $LigTaskResp.associatedResource.resourceUri -Hostname $ApplianceConnection
 
 			}
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Single LIG Object:  $($LogicalInterconnectGroupMapping | fl * | out-string)" 
-
-			#Check to make sure the object is a LIG, generate error if not
-			if (-not($LogicalInterconnectGroupMapping.category -eq 'logical-interconnect-groups'))
+			Catch
 			{
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid LIG Category value provided '$($LogicalInterconnectGroupMapping.category)'"
+				$PSCmdlet.ThrowTerminatingError($_)
 
-                $errorRecord = New-ErrorRecord InvalidOperationException InvalidLogicalInterconnectGroupCategory InvalidType 'LogicalInterconnectGroupMapping' -TargetType 'PSObject' -Message "Invalid [PSObject] value provided '$LogicalInterconnectGroupMapping'.  Logical Interconnect Group category must begin with 'logical-interconnect-groups'.  Please check the value and try again."
-                $PSCmdlet.ThrowTerminatingError($errorRecord)
+			}			
+
+		}
+
+		if ($PSCmdlet.ParameterSetName -eq 'importFile')
+		{
+
+			$_EnclosureGroup = (GC $ImportFile).ToString()
+
+			"[{0}] Enclosure Group object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_EnclosureGroup | Write-Verbose
+
+			Try
+			{
+
+				$resp = Send-HPOVRequest $enclosureGroupsUri POST $_EnclosureGroup -Hostname $ApplianceConnection.Name
+
+				$resp.PSObject.TypeNames.Insert(0,'HPOneView.EnclosureGroup')
 
 			}
 
-			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Will process {0} Interconnect Bay Logical Location Entries in LIG Object." -f ($LogicalInterconnectGroupMapping.interconnectMapTemplate.interconnectMapEntryTemplates.logicalLocation | Measure-Object).Count | Write-Verbose
-
-			$c = 1
-
-			#Process Interconnect Bay Mapping, which is 1 LIG
-			ForEach ($_LigBayMapping in $LogicalInterconnectGroupMapping.interconnectMapTemplate.interconnectMapEntryTemplates)
+			Catch
 			{
 
-				"Processing {0} of {1} Bay Mappings" -f $c,($LogicalInterconnectGroupMapping.interconnectMapTemplate.interconnectMapEntryTemplates.logicalLocation | Measure-Object).Count | Write-Verbose
-
-				$_InterconnectBayMapping = NewOBject -InterconnectBayMapping
-
-				$_InterconnectBayMapping.interconnectBay             = ($_LigBayMapping.logicalLocation.locationEntries | ? type -EQ 'bay').relativeValue
-				$_InterconnectBayMapping.logicalInterconnectGroupUri = $LogicalInterconnectGroupMapping.uri
-
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Interconnect Bay Mapping Entry found in LIG resource:  $($_LigBayMapping)" 
-
-				[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
-
-				$c++
+				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
 		}
 
-		#Loop through Appliance Connections to create the Enclosure Group, and LIG Bay Mapping
 		else
 		{
 
-			ForEach ($_key in $LogicalInterconnectGroupMapping.Keys)
-			{
+			$_EnclosureGroup = NewObject -EnclosureGroup
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Hashtable key '$_key'"
+			#Process LIG Object here, and will be on a single Appliance Connection
+			if ($LogicalInterconnectGroupMapping -is [PSCustomObject]) 
+			{ 
 
-				$_InterconnectBayMapping = NewOBject -InterconnectBayMapping
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Single LIG Object:  $($LogicalInterconnectGroupMapping | fl * | out-string)" 
 
-				switch (($LogicalInterconnectGroupMapping.$_key).GetType().Name)
+				#Check to make sure the object is a LIG, generate error if not
+				if (-not($LogicalInterconnectGroupMapping.category -eq 'logical-interconnect-groups'))
 				{
 
-					'PSCustomObject'
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid LIG Category value provided '$($LogicalInterconnectGroupMapping.category)'"
+
+					$errorRecord = New-ErrorRecord InvalidOperationException InvalidLogicalInterconnectGroupCategory InvalidType 'LogicalInterconnectGroupMapping' -TargetType 'PSObject' -Message "Invalid [PSObject] value provided '$LogicalInterconnectGroupMapping'.  Logical Interconnect Group category must begin with 'logical-interconnect-groups'.  Please check the value and try again."
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Will process {0} Interconnect Bay Logical Location Entries in LIG Object." -f ($LogicalInterconnectGroupMapping.interconnectMapTemplate.interconnectMapEntryTemplates.logicalLocation | Measure-Object).Count | Write-Verbose
+
+				$c = 1
+
+				#Process Interconnect Bay Mapping, which is 1 LIG
+				ForEach ($_LigBayMapping in $LogicalInterconnectGroupMapping.interconnectMapTemplate.interconnectMapEntryTemplates)
+				{
+
+					"Processing {0} of {1} Bay Mappings" -f $c,($LogicalInterconnectGroupMapping.interconnectMapTemplate.interconnectMapEntryTemplates.logicalLocation | Measure-Object).Count | Write-Verbose
+
+					$_InterconnectBayMapping = NewOBject -InterconnectBayMapping
+
+					$_InterconnectBayMapping.interconnectBay             = ($_LigBayMapping.logicalLocation.locationEntries | ? type -EQ 'bay').relativeValue
+					$_InterconnectBayMapping.logicalInterconnectGroupUri = $LogicalInterconnectGroupMapping.uri
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Interconnect Bay Mapping Entry found in LIG resource:  $($_LigBayMapping)" 
+
+					[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
+
+					$c++
+
+				}
+
+			}
+
+			#Loop through Appliance Connections to create the Enclosure Group, and LIG Bay Mapping
+			else
+			{
+
+				ForEach ($_key in $LogicalInterconnectGroupMapping.Keys)
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Hashtable key '$_key'"
+
+					$_InterconnectBayMapping = NewOBject -InterconnectBayMapping
+
+					switch (($LogicalInterconnectGroupMapping.$_key).GetType().Name)
 					{
 
-						#Validate object is a LIG
-						if (-not(($LogicalInterconnectGroupMapping.$_key).category -eq 'logical-interconnect-groups'))
+						'PSCustomObject'
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid [PSCustomObject] value provided '$(($LogicalInterconnectGroupMapping.$_key).category)' for '$_key' Hashtable entry."
+							#Validate object is a LIG
+							if (-not(($LogicalInterconnectGroupMapping.$_key).category -eq 'logical-interconnect-groups'))
+							{
+
+								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid [PSCustomObject] value provided '$(($LogicalInterconnectGroupMapping.$_key).category)' for '$_key' Hashtable entry."
 									
-							$errorRecord = New-ErrorRecord InvalidOperationException InvalidLogicalInterconnectGroupMappingObject InvalidArgument 'LogicalInterconnectGroupMapping' -TargetType 'PSObject' -Message "Invalid [PSCustomObject] value provided '$(($LogicalInterconnectGroupMapping.$_key).category)' for '$_key' Hashtable entry.  Logical Interconnect Group object category must be 'logical-interconnect-groups'.  Please check the value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
+								$errorRecord = New-ErrorRecord InvalidOperationException InvalidLogicalInterconnectGroupMappingObject InvalidArgument 'LogicalInterconnectGroupMapping' -TargetType 'PSObject' -Message "Invalid [PSCustomObject] value provided '$(($LogicalInterconnectGroupMapping.$_key).category)' for '$_key' Hashtable entry.  Logical Interconnect Group object category must be 'logical-interconnect-groups'.  Please check the value and try again."
+								$PSCmdlet.ThrowTerminatingError($errorRecord)
 
-						}
+							}
 
-						$_InterconnectBayMapping.interconnectBay             = ((($LogicalInterconnectGroupMapping.$_key).interconnectMapTemplate.interconnectMapEntryTemplates.LogicalLocation.locationEntries) | ? { $_.type -EQ 'bay' -and $_.relativeValue -EQ $_key}).relativeValue
-						$_InterconnectBayMapping.logicalInterconnectGroupUri = ($LogicalInterconnectGroupMapping.$_key).uri
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Interconnect Bay Mapping Entry:  $($_InterconnectBayMapping)" 
-
-					}
-
-					'String'
-					{
-
-						#Value is an Objects URI
-						if (($LogicalInterconnectGroupMapping.$_key).StartsWith($logicalInterconnectGroupUri))
-						{
-
-							$_InterconnectBayMapping.interconnectBay             = $_key
-							$_InterconnectBayMapping.logicalInterconnectGroupUri = $LogicalInterconnectGroupMapping.$_key
+							$_InterconnectBayMapping.interconnectBay             = ((($LogicalInterconnectGroupMapping.$_key).interconnectMapTemplate.interconnectMapEntryTemplates.LogicalLocation.locationEntries) | ? { $_.type -EQ 'bay' -and $_.relativeValue -EQ $_key}).relativeValue
+							$_InterconnectBayMapping.logicalInterconnectGroupUri = ($LogicalInterconnectGroupMapping.$_key).uri
 
 							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Interconnect Bay Mapping Entry:  $($_InterconnectBayMapping)" 
 
 						}
 
-						#Object Name value
-						else
+						'String'
 						{
 
-							Try
+							#Value is an Objects URI
+							if (($LogicalInterconnectGroupMapping.$_key).StartsWith($logicalInterconnectGroupUri))
 							{
-									
-								$_LogicalInterconnectGroupObject = Get-HPOVLogicalInterconnectGroup $LogicalInterconnectGroupMapping.$_key -ApplianceConnection $ApplianceConnection.Name
 
 								$_InterconnectBayMapping.interconnectBay             = $_key
-								$_InterconnectBayMapping.logicalInterconnectGroupUri = $_LogicalInterconnectGroupObject.uri
-									
+								$_InterconnectBayMapping.logicalInterconnectGroupUri = $LogicalInterconnectGroupMapping.$_key
+
+								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Interconnect Bay Mapping Entry:  $($_InterconnectBayMapping)" 
+
 							}
-									
-							Catch
+
+							#Object Name value
+							else
 							{
 
-								$PSCmdlet.ThrowTerminatingError($_)
+								Try
+								{
+									
+									$_LogicalInterconnectGroupObject = Get-HPOVLogicalInterconnectGroup $LogicalInterconnectGroupMapping.$_key -ApplianceConnection $ApplianceConnection.Name
+
+									$_InterconnectBayMapping.interconnectBay             = $_key
+									$_InterconnectBayMapping.logicalInterconnectGroupUri = $_LogicalInterconnectGroupObject.uri
+									
+								}
+									
+								Catch
+								{
+
+									$PSCmdlet.ThrowTerminatingError($_)
+
+								}
 
 							}
 
@@ -19039,86 +19130,84 @@ function New-HPOVEnclosureGroup
 
 					}
 
-				}
+					[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
 
-				[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
+				}
 
 			}
 
-		}
-
-		if (($_EnclosureGroup.interconnectBayMappings | Measure-Object).count -lt 8)
-		{
-
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding null interconnectBayMapping entries." 
-
-			for ($b = $_EnclosureGroup.interconnectBayMappingCount - $_EnclosureGroup.interconnectBayMappings.count; $b -ne 0; $b--)
+			if (($_EnclosureGroup.interconnectBayMappings | Measure-Object).count -lt 8)
 			{
 
-				$_InterconnectBayMapping = NewOBject -InterconnectBayMapping
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding null interconnectBayMapping entries." 
 
-				$n = 1
-
-				do
+				for ($b = $_EnclosureGroup.interconnectBayMappingCount - $_EnclosureGroup.interconnectBayMappings.count; $b -ne 0; $b--)
 				{
 
-					$_bayId = $null
+					$_InterconnectBayMapping = NewOBject -InterconnectBayMapping
 
-					if (-not($_EnclosureGroup.interconnectBayMappings | ? interconnectBay -eq $n))
+					$n = 1
+
+					do
 					{
 
-						$_bayId = $n
+						$_bayId = $null
+
+						if (-not($_EnclosureGroup.interconnectBayMappings | ? interconnectBay -eq $n))
+						{
+
+							$_bayId = $n
+
+						}
+
+						#ERROR, we should never get more than the number of $_EnclosureGroup.interconnectBayMappingCount
+						if ($n -gt $_EnclosureGroup.interconnectBayMappingCount)
+						{
+
+							$ErrorRecord = New-ErrorRecord System.InvalidOperationException InvalidOperation InvalidOperation -Message "Could not determine Enclosure Group interconnectBay ID (`$_bayId). (`$n = $n)"
+
+							$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+						}
+
+						$n++
 
 					}
+					until ($_bayId)
 
-					#ERROR, we should never get more than the number of $_EnclosureGroup.interconnectBayMappingCount
-					if ($n -gt $_EnclosureGroup.interconnectBayMappingCount)
-					{
+					$_InterconnectBayMapping.interconnectBay = $_bayId
 
-						$ErrorRecord = New-ErrorRecord System.InvalidOperationException InvalidOperation InvalidOperation -Message "Could not determine Enclosure Group interconnectBay ID (`$_bayId). (`$n = $n)"
-
-						$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-					}
-
-					$n++
+					[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
 
 				}
-				until ($_bayId)
+			
+			}
 
-				$_InterconnectBayMapping.interconnectBay = $_bayId
+			$_EnclosureGroup.name                = $Name
+			$_EnclosureGroup.configurationScript = $ConfigurationScript
+			$_EnclosureGroup.powerMode           = $PowerRedundantMode
 
-				[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group object: $($_EnclosureGroup | out-string)"
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating $($_EnclosureGroup.name) Enclosure Group"
+
+			Try
+			{
+
+				$resp = Send-HPOVRequest $enclosureGroupsUri POST $_EnclosureGroup -Hostname $ApplianceConnection.Name
+
+				$resp.PSObject.TypeNames.Insert(0,'HPOneView.EnclosureGroup')
 
 			}
-			
-		}
 
-        $_EnclosureGroup.name                = $Name
-        $_EnclosureGroup.configurationScript = $ConfigurationScript
-		$_EnclosureGroup.powerMode           = $PowerRedundantMode
+			Catch
+			{
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group object: $($_EnclosureGroup | out-string)"
+				$PSCmdlet.ThrowTerminatingError($_)
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating $($_EnclosureGroup.name) Enclosure Group"
-
-
-		Try
-		{
-
-			$resp = Send-HPOVRequest $enclosureGroupsUri POST $_EnclosureGroup -Hostname $ApplianceConnection.Name
-
-			$resp.PSObject.TypeNames.Insert(0,'HPOneView.EnclosureGroup')
+			}
 
 		}
-
-		Catch
-		{
-
-			$PSCmdlet.ThrowTerminatingError($_)
-
-		}
-        
 
 		$_EnclosureGroupCreateResults.Add($resp)
 
@@ -20249,7 +20338,7 @@ function Update-HPOVEnclosure
                     
             }
 
-            elseif ($PSBoundParamters['WhatIf'])
+            elseif ($PSBoundParameters['WhatIf'])
 			{
 				
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
@@ -20793,7 +20882,7 @@ function Update-HPOVLogicalEnclosure
                     
             }
 
-            elseif ($PSBoundParamters['WhatIf'])
+            elseif ($PSBoundParameters['WhatIf'])
 			{
 				
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
@@ -31304,6 +31393,7 @@ function Set-HPOVSanManager
 	    [Parameter(Mandatory = $false, ParameterSetName = "BNA")]
 	    [switch]$EnableSsl,
 
+		[Parameter(Mandatory = $false, ParameterSetName = "BNA")]
 		[switch]$DisableSsl,
 
 		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "HPCisco")]
@@ -32958,13 +33048,13 @@ function New-HPOVUnmanagedDevice
         [ValidateNotNullOrEmpty()]
 		[string]$MacAddress,
 
-		[Parameter(Mandatory = $false, Position = 5, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPV4 Address (e.g. 10.1.1.10).")]
-        [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPV4Address value does not appear to be a valid IPv4 Address.' } else { $True }})]
-		[string]$IPV4Address,
+		[Parameter(Mandatory = $false, Position = 5, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPv4 Address (e.g. 10.1.1.10).")]
+        [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPv4Address value does not appear to be a valid IPv4 Address.' } else { $True }})]
+		[string]$IPv4Address,
 
-		[Parameter(Mandatory = $false, Position = 6, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPV6 Address (e.g. fe80::200:f8ff:fe21:67cf).")]
-        [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPV6Address value does not appear to be a valid IPv6 Address.' } else { $True }})]
-		[string]$IPV6Address,
+		[Parameter(Mandatory = $false, Position = 6, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPv6 Address (e.g. fe80::200:f8ff:fe21:67cf).")]
+        [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPv6Address value does not appear to be a valid IPv6 Address.' } else { $True }})]
+		[string]$IPv6Address,
 
 		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
@@ -33067,8 +33157,8 @@ function New-HPOVUnmanagedDevice
 		[string]$_NewDevice.model       = $Model
 		[int]$_NewDevice.height         = $Height
 		[string]$_NewDevice.mac         = $MacAddress
-		[string]$_NewDevice.ipv4Address = $IPV4Address
-		[string]$_NewDevice.ipv6Address = $IPV6Address
+		[string]$_NewDevice.IPv4Address = $IPv4Address
+		[string]$_NewDevice.IPv6Address = $IPv6Address
 		[int]$_NewDevice.maxPwrConsumed = $MaxPower
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Unmanaged Device:  $($newDevice)"
@@ -35007,10 +35097,6 @@ function Get-HPOVNetwork
 		[ValidateSet("Ethernet","FC","FibreChannel","FCOE")]
 		[String]$Type,
 		
-		[parameter (Mandatory = $false, position = 2)]
-		[ValidateSet("Management","FaultTolerance","General","VMMigration", IgnoreCase = $False)]
-		[String]$Purpose,
-		
 		[Parameter(Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
@@ -35158,7 +35244,19 @@ function Get-HPOVNetwork
 					
 					}
 
-					$FcNets = Send-HPOVRequest -uri $FcNetsUri -Hostname $Connection
+					Try
+					{
+
+						$FcNets = Send-HPOVRequest -uri $FcNetsUri -Hostname $Connection
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}					
 
 					#Add to final collection arraylist
 					if ($FcNets.members) 
@@ -35201,7 +35299,19 @@ function Get-HPOVNetwork
 						
 					}
 
-					$ENets = Send-HPOVRequest -uri $EnetsUri -Hostname $Connection
+					Try
+					{
+
+						$ENets = Send-HPOVRequest -uri $EnetsUri -Hostname $Connection
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}					
 					
 					#Add to final collection arraylist
 					if ($ENets.members) 
@@ -35244,7 +35354,19 @@ function Get-HPOVNetwork
 						
 					}
 
-					$FCoENets = Send-HPOVRequest -uri $FCoEUri -Hostname $Connection
+					Try
+					{
+
+						$FCoENets = Send-HPOVRequest -uri $FCoEUri -Hostname $Connection
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}					
 
 					#Add to final collection arraylist
 					if ($FCoENets.members) 
@@ -35301,7 +35423,19 @@ function Get-HPOVNetwork
 				if ($NetObject.connectionTemplateUri) 
 				{
 
-					$ct = Send-HPOVRequest -uri $NetObject.connectionTemplateUri -Hostname $NetObject.ApplianceConnection.Name
+					Try
+					{
+
+						$ct = Send-HPOVRequest -uri $NetObject.connectionTemplateUri -Hostname $NetObject.ApplianceConnection.Name
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}					
             
 					Add-Member -InputObject $NetObject -NotePropertyName defaultMaximumBandwidth -NotePropertyValue $ct.bandwidth.maximumBandwidth -Force 
 					Add-Member -InputObject $NetObject -NotePropertyName defaultTypicalBandwidth -NotePropertyValue $ct.bandwidth.typicalBandwidth -Force
@@ -39349,7 +39483,7 @@ function Update-HPOVLogicalInterconnect
                         
                 }
 
-                elseif ($PSBoundParamters['WhatIf'])
+                elseif ($PSBoundParameters['WhatIf'])
 				{
 					
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
@@ -39408,7 +39542,7 @@ function Update-HPOVLogicalInterconnect
 
                 }
 
-                elseif ($PSBoundParamters['WhatIf'])
+                elseif ($PSBoundParameters['WhatIf'])
 				{
 					
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
@@ -47039,7 +47173,7 @@ function Update-HPOVServerProfile
                     
 				}
 
-				elseif ($PSBoundParamters['WhatIf'])
+				elseif ($PSBoundParameters['WhatIf'])
 				{
 				
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
@@ -47083,6 +47217,7 @@ function Get-HPOVServerProfileTemplate
         [Parameter(ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
         [Parameter(ParameterSetName = "Export", Mandatory = $false, Position = 0)]
         [Alias('profile')]
+		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 
         [Parameter(ParameterSetName = "Detailed", Mandatory)]
@@ -50508,22 +50643,22 @@ function Remove-HPOVServerProfile
 
             }
 
-            if ($PSCmdlet.ShouldProcess($ApplianceConnection.Name,("remove Server Profile {0} from appliance?" -f $_profile.name )))
+            if ($PSCmdlet.ShouldProcess($ApplianceConnection.Name,("remove Server Profile {0} from appliance?" -f $_profile.name)))
 			{   
                 
-				$uri = $_profile.uri
+				$_uri = $_profile.uri
 
-				if ($PSBoundParamters['Force'])
+				if ($PSBoundParameters['Force'])
 				{
 
-					$uri += '?force=true'
+					$_uri += '?force=true'
 
 				}
 
 				Try
 				{
 
-					$_resp = Send-HPOVRequest $_profile -Hostname $ApplianceConnection
+					$_resp = Send-HPOVRequest $_uri -Hostname $ApplianceConnection
 
 					[void]$taskCollection.Add($_resp)
 
@@ -50682,7 +50817,7 @@ function Get-HPOVServerProfileConnectionList
             if ($name)
             {
 
-				$uri = $ServerProfilesUri + "?filter=`"name='$name'`"";
+				$uri = "{0}?filter=name='{1}'" -f $ServerProfilesUri, $Name
 
 				Try
 				{
@@ -50701,7 +50836,7 @@ function Get-HPOVServerProfileConnectionList
 				if (-not ($profile)) 
 				{ 
 
-					$errorRecord = New-ErrorRecord InvalidOperationException ProfileResourceNotFound ObjectNotFound 'Get-HPOVServerProfileConnectionList' - Message "Server Profile '$name' was not found."
+					$errorRecord = New-ErrorRecord InvalidOperationException ProfileResourceNotFound ObjectNotFound 'Get-HPOVServerProfileConnectionList' -Message "Server Profile '$name' was not found."
 					$pscmdlet.ThrowTerminatingError($errorRecord)
                 
 				}
@@ -51573,14 +51708,6 @@ function New-HPOVServerProfileAttachVolume
 				$volumeAttachment.volumeStoragePoolUri   = $_vol.storagePoolUri
 				$volumeAttachment.volumeStorageSystemUri = $_vol.storageSystemUri
 
-				#Needs to be part of the
-				if ($LunIdType -eq "Manual") 
-				{ 
-
-					$volumeAttachment.lun = $LunID 
-            
-				}
-
 				if ($PSBoundParameters['VolumeID'])
 				{
 
@@ -51607,8 +51734,6 @@ function New-HPOVServerProfileAttachVolume
         #Ephmeral Volume Support
         elseif ($PSBoundParameters['StoragePool']) 
         {
-
-			$volumeAttachment = NewObject -ServerProfileStorageVolume
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating dynamic volume attach object."
                 
@@ -55894,6 +56019,13 @@ function New-HPOVLdapDirectory
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
+		if ($PSBoundParameters['UserAttribute'])
+		{
+
+			Write-Warning 'The -UserAttribute parameter has been deprecated.  The -OpenLDAP switch parameter will dictate the "uid" User attribute.  The -AD switch parameter will dictate the "cn" user attribute.'
+
+		}
+
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
@@ -56025,7 +56157,7 @@ function New-HPOVLdapDirectory
 					if ($_ou.type -match $OrganizationalUnitPattern)
 					{
 
-						[void]$_NewAuthDirectoryObj.orgUnits.Add($Server)
+						[void]$_NewAuthDirectoryObj.orgUnits.Add($_ou)
 
 					}
 
@@ -56243,7 +56375,7 @@ function Remove-HPOVLdapDirectory
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory Object provided: $($Directory | FL * | Out-String)"
 
-			If ($Resource.category -eq 'users')
+			If ($Directory.category -eq 'users')
 			{
 
 				If (-not($Directory.ApplianceConnection))
@@ -57411,27 +57543,27 @@ function New-HPOVLdapGroup
 	param
 	(
 
-		[Parameter(Mandatoryv,HelpMessage = "Enter the Directory name",vPosition=0, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,HelpMessage = "Enter the Directory name",Position=0, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("d","domain","directory")]
 		[string]$authProvider,
 
-		[Parameter(Mandatoryv,HelpMessage = "Enter the Directroy Group name in Distinguished Name format (i.e. CN=Admin Group,OU=Admins,DC=Domain,DC=com",Position=1, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,HelpMessage = "Enter the Directroy Group name in Distinguished Name format (i.e. CN=Admin Group,OU=Admins,DC=Domain,DC=com",Position=1, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("g","group","name")]
 		[string]$GroupName,
 
-		[Parameter(Mandatory,vHelpMessage = "Enter the Directroy Group roles in System.Array format",Position=2, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,Helpmessage = "Enter the Directroy Group roles in System.Array format",Position=2, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("r","role")]
 		[Array]$Roles,
 
-		[Parameter(Mandatory,vHelpMessage = "Enter the user name",Position=3, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,Helpmessage = "Enter the user name",Position=3, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("u")]
 		[string]$UserName,
 
-		[Parameter(Mandatory,vValueFromPipeline = $true,HelpMessage = "Enter the password",Position=4, ParameterSetName = 'Default')]
+		[Parameter(Mandatory,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=4, ParameterSetName = 'Default')]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
@@ -58831,6 +58963,7 @@ function Set-HPOVAlert
         [Object]$Alert,
 
         [parameter (Position = 1, Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
         [string]$AssignToUser,
 
         [parameter (Position = 2, Mandatory = $false, ParameterSetName = 'Default')]
@@ -61778,7 +61911,6 @@ Export-ModuleMember -Function Get-HPOVRemoteSyslog
 Export-ModuleMember -Function Set-HPOVRemoteSyslog
 Export-ModuleMember -Function Enable-HPOVMSDSC
 Export-ModuleMember -Function Disable-HPOVMSDSC
-Export-ModuleMember -Function Remove-ApplianceConnection
 Export-ModuleMember -Function Start-HPOVLibraryTrace
 Export-ModuleMember -Function Stop-HPOVLibraryTrace
 Export-ModuleMember -Function Get-HPOVRemoteSyslog
