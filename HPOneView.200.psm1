@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.500.0"
+[version]$script:ModuleVersion = "2.0.526.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -2423,6 +2423,7 @@ $script:FSRead                      = [System.IO.FileAccess]::Read
 [String]$script:EnclosurePreviewUri                     = "/rest/enclosure-preview"
 [String]$script:FwUploadUri                             = "/rest/firmware-bundles"
 [String]$script:FwDriversUri                            = "/rest/firmware-drivers"
+[String]$Script:ApplianceBaselineRepositoriesUri        = '/rest/firmware-repositories/defaultOneViewRepo'
 [String]$script:PowerDevicesUri                         = "/rest/power-devices"
 [String]$script:PowerDevicesDiscoveryUri                = "/rest/power-devices/discover"
 [String]$script:PowerDevicePotentialConnections         = "/rest/power-devices/potentialConnections?providerUri="
@@ -6397,15 +6398,14 @@ function Ping-HPOVAddress
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -6424,7 +6424,6 @@ function Ping-HPOVAddress
 
 				}
 
-				$c++
 
 			}
 
@@ -7679,15 +7678,14 @@ function New-HPOVResource
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -7706,7 +7704,6 @@ function New-HPOVResource
 
 				}
 
-				$c++
 
 			}
 
@@ -7818,15 +7815,14 @@ function Set-HPOVResource
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -7845,7 +7841,6 @@ function Set-HPOVResource
 
 				}
 
-				$c++
 
 			}
 
@@ -7962,15 +7957,14 @@ function Remove-HPOVResource
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -7989,7 +7983,6 @@ function Remove-HPOVResource
 
 				}
 
-				$c++
 
 			}
 
@@ -8469,15 +8462,14 @@ Function Get-HPOVApplianceCertificateStatus
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -8496,7 +8488,6 @@ Function Get-HPOVApplianceCertificateStatus
 
 				}
 
-				$c++
 
 			}
 
@@ -8673,15 +8664,14 @@ Function New-HPOVApplianceSelfSignedCertificate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -8700,7 +8690,6 @@ Function New-HPOVApplianceSelfSignedCertificate
 
 				}
 
-				$c++
 
 			}
 
@@ -8924,15 +8913,14 @@ Function New-HPOVApplianceCsr
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -8951,7 +8939,6 @@ Function New-HPOVApplianceCsr
 
 				}
 
-				$c++
 
 			}
 
@@ -9027,7 +9014,7 @@ Function New-HPOVApplianceCsr
 		$_CsrObject.state              =  $State
 		$_CsrObject.locality           =  $City
 		$_CsrObject.organization       =  $Organization
-		$_CsrObject.commonName         =  $ContactName
+		$_CsrObject.commonName         =  $CommonName
 		$_CsrObject.organizationalUnit =  $OrganizationalUnit
 		$_CsrObject.alternativeName    =  $AlternativeName
 		$_CsrObject.contactPerson      =  $ContactName
@@ -9113,15 +9100,14 @@ Function Install-HPOVApplianceCertificate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -9140,7 +9126,6 @@ Function Install-HPOVApplianceCertificate
 
 				}
 
-				$c++
 
 			}
 
@@ -9179,7 +9164,6 @@ Function Install-HPOVApplianceCertificate
 
 	Process 
 	{
-
 			
 		#handle new line so as not to bork ConvertTo-Json in Send-HPOVRequest
 		$_TempCertificate += ($Certificate | Out-String) -join "\n"
@@ -9258,15 +9242,14 @@ function Get-HPOVPendingUpdate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -9285,7 +9268,6 @@ function Get-HPOVPendingUpdate
 
 				}
 
-				$c++
 
 			}
 
@@ -9434,15 +9416,14 @@ function Install-HPOVUpdate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -9461,7 +9442,6 @@ function Install-HPOVUpdate
 
 				}
 
-				$c++
 
 			}
 
@@ -10046,15 +10026,14 @@ function Remove-HPOVPendingUpdate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -10073,7 +10052,6 @@ function Remove-HPOVPendingUpdate
 
 				}
 
-				$c++
 
 			}
 
@@ -10250,15 +10228,14 @@ function Get-HPOVVersion
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 			
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -10277,7 +10254,6 @@ function Get-HPOVVersion
 
 					}
 
-					$c++
 
 				}
 
@@ -10548,15 +10524,14 @@ function Get-HPOVHealthStatus
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -10575,7 +10550,6 @@ function Get-HPOVHealthStatus
 
 				}
 
-				$c++
 
 			}
 
@@ -10691,15 +10665,14 @@ function Get-HPOVXApiVersion
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -10718,7 +10691,6 @@ function Get-HPOVXApiVersion
 
 				}
 
-				$c++
 
 			}
 
@@ -11037,15 +11009,14 @@ function Get-HPOVApplianceNetworkConfig
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -11064,7 +11035,6 @@ function Get-HPOVApplianceNetworkConfig
 
 				}
 
-				$c++
 
 			}
 
@@ -11211,15 +11181,14 @@ function Get-HPOVApplianceDateTime
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -11238,7 +11207,6 @@ function Get-HPOVApplianceDateTime
 
 				}
 
-				$c++
 
 			}
 
@@ -11367,16 +11335,15 @@ function Set-HPOVApplianceDateTime
 		
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
+
 		
-			$c = 0
-		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 		
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 		
 				}
 		
@@ -11394,8 +11361,7 @@ function Set-HPOVApplianceDateTime
 					$PSCmdlet.ThrowTerminatingError($_)
 		
 				}
-		
-				$c++
+
 		
 			}
 		
@@ -11674,16 +11640,15 @@ function Set-HPOVApplianceNetworkConfig
 		
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
+
 		
-			$c = 0
-		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 		
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 		
 				}
 		
@@ -11701,8 +11666,7 @@ function Set-HPOVApplianceNetworkConfig
 					$PSCmdlet.ThrowTerminatingError($_)
 		
 				}
-		
-				$c++
+
 		
 			}
 		
@@ -12303,16 +12267,15 @@ function Get-HPOVSnmpReadCommunity
 		
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
+
 		
-			$c = 0
-		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 		
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 		
 				}
 		
@@ -12330,8 +12293,7 @@ function Get-HPOVSnmpReadCommunity
 					$PSCmdlet.ThrowTerminatingError($_)
 		
 				}
-		
-				$c++
+
 		
 			}
 		
@@ -12449,15 +12411,14 @@ function Set-HPOVSnmpReadCommunity
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -12476,7 +12437,6 @@ function Set-HPOVSnmpReadCommunity
 
 				}
 
-				$c++
 
 			}
 
@@ -12597,15 +12557,14 @@ function Get-HPOVApplianceGlobalSetting
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -12624,7 +12583,6 @@ function Get-HPOVApplianceGlobalSetting
 
 				}
 
-				$c++
 
 			}
 
@@ -12768,15 +12726,14 @@ function Set-HPOVApplianceGlobalSetting
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -12795,7 +12752,6 @@ function Set-HPOVApplianceGlobalSetting
 
 				}
 
-				$c++
 
 			}
 
@@ -12988,15 +12944,14 @@ function Get-HPOVBaseline
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -13015,7 +12970,6 @@ function Get-HPOVBaseline
 
 				}
 
-				$c++
 
 			}
 
@@ -13123,7 +13077,7 @@ function Get-HPOVBaseline
 					
 					}
 
-			        if (-not ($_baselines.members)) 
+			        if (-not($_baselines.members) -and $Filename)
 					{
 
 			            $errorRecord = New-ErrorRecord HPOneView.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'isoFileName' -Message "The Baseline ISO '$isoFileName' was not found."
@@ -13183,16 +13137,16 @@ function Add-HPOVBaseline
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the path and file name to the SPP iso file.")]
+		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
         [ValidateScript({Test-Path $_})]
 		[Alias('sppFile')]
-		[string]$File,
+		[Object]$File,
 
 		[Parameter(Mandatory = $false)]
 		[switch]$Async,
 
 		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
-		[ValidateNotNullorEmpty()]
+		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
@@ -13207,36 +13161,75 @@ function Add-HPOVBaseline
 
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-
-		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		if (-not($PSBoundParameters['File']))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$PipelineInput = $True
 
 		}
 
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		else
 		{
 
-			$c = 0
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-			ForEach ($_connection in $ApplianceConnection) 
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+			{
+
+
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+
+				}
+
+			}
+
+			else
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -13246,35 +13239,6 @@ function Add-HPOVBaseline
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				$c++
-
-			}
-
-		}
-
-		else
-		{
-
-			Try 
-			{
-			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
@@ -13291,6 +13255,21 @@ function Add-HPOVBaseline
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Appliance $($_Connection.Name)"
+
+			if ($File -is [System.IO.FileSystemInfo])
+			{
+
+				$File = $File.FullName
+
+			}
+
+			if (-not(Test-Path $File -PathType Leaf))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.BaselineResourceException BaselineFileNotFound ObjectNotFound 'File' -Message ("The baseline file '{0}' was not found.  Please check the path and filename." -f $File)
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)				
+
+			}
 
 			#Start upload file
 			Try
@@ -13327,6 +13306,151 @@ function Add-HPOVBaseline
 	
 		Return $TaskCollection
 	
+	}
+
+}
+
+function Show-HPOVBaselineRepositorySize
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+	[CmdletBinding()]
+	param 
+	(
+	
+		[Parameter(Mandatory = $False, position = 0)]
+		[ValidateNotNullOrEmpty()]
+		[Alias('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+	
+	)
+
+    Begin 
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		$_BaselineRepoCollection = New-Object System.Collections.ArrayList
+
+    }
+
+    Process 
+	{
+
+		
+
+		ForEach ($_Connection in $ApplianceConnection)
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Appliance $($_Connection.Name) (of $($ApplianceConnection.Count))"
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting baseline repo information resources"
+
+			Try
+			{
+
+				$_baselinerepo = Send-HPOVRequest $ApplianceBaselineRepositoriesUri -Hostname $_Connection
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+			
+			$_baselinerepo.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.BaselineRepository')
+
+			[void]$_BaselineRepoCollection.Add($_baselinerepo)
+
+		}
+        
+    }
+
+	End
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] done."
+
+		Return $_BaselineRepoCollection
+
 	}
 
 }
@@ -13389,15 +13513,14 @@ function New-HPOVCustomBaseline
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -13416,7 +13539,6 @@ function New-HPOVCustomBaseline
 
 					}
 
-					$c++
 
 				}
 
@@ -13600,15 +13722,14 @@ function Restore-HPOVCustomBaseline
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -13627,7 +13748,6 @@ function Restore-HPOVCustomBaseline
 
 				}
 
-				$c++
 
 			}
 
@@ -13813,15 +13933,14 @@ function Remove-HPOVBaseline
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -13840,7 +13959,6 @@ function Remove-HPOVBaseline
 
 					}
 
-					$c++
 
 				}
 
@@ -14067,15 +14185,14 @@ function New-HPOVSupportDump
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -14094,7 +14211,6 @@ function New-HPOVSupportDump
 
 					}
 
-					$c++
 
 				}
 
@@ -14405,15 +14521,14 @@ Function New-HPOVBackup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -14432,7 +14547,6 @@ Function New-HPOVBackup
 
 				}
 
-				$c++
 
 			}
 
@@ -14599,15 +14713,14 @@ Function New-HPOVRestore
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -14626,7 +14739,6 @@ Function New-HPOVRestore
 
 				}
 
-				$c++
 
 			}
 
@@ -15537,15 +15649,14 @@ function Get-HPOVScmbCertificates
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -15564,7 +15675,6 @@ function Get-HPOVScmbCertificates
 
 				}
 
-				$c++
 
 			}
 
@@ -15951,15 +16061,14 @@ function Restart-HPOVAppliance
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -15978,7 +16087,6 @@ function Restart-HPOVAppliance
 
 					}
 
-					$c++
 
 				}
 
@@ -16136,15 +16244,14 @@ function Stop-HPOVAppliance
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -16163,7 +16270,6 @@ function Stop-HPOVAppliance
 
 					}
 
-					$c++
 
 				}
 
@@ -16314,15 +16420,14 @@ function Get-HPOVServer
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -16341,7 +16446,6 @@ function Get-HPOVServer
 
 				}
 
-				$c++
 
 			}
 
@@ -16381,7 +16485,7 @@ function Get-HPOVServer
 	Process 
 	{
 
-        ForEach ($_Connection in $ApplianceConnection) 
+        For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 		{
 
             $uri = $ServerHardwareUri + "?sort=name:asc"
@@ -16620,15 +16724,15 @@ function Add-HPOVServer
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-        [Parameter(Mandatory, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position = 3, ParameterSetName = "Managed")]
+        [Parameter(Mandatory= $False, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position = 3, ParameterSetName = "Managed")]
         [ValidateSet("OneView", "OneViewNoiLO")]
-        [string]$LicensingIntent = $NULL,
+        [string]$LicensingIntent = 'OneView',
 
         [Parameter(Mandatory, ParameterSetName = "Monitored")]
         [switch]$Monitored,
 
-		[Parameter(Mandatory, ParameterSetName = "Monitored")]
-		[Parameter(Mandatory, ParameterSetName = "Managed")]
+		[Parameter(Mandatory = $False, ParameterSetName = "Monitored")]
+		[Parameter(Mandatory = $False, ParameterSetName = "Managed")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16657,15 +16761,14 @@ function Add-HPOVServer
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -16684,7 +16787,6 @@ function Add-HPOVServer
 
 				}
 
-				$c++
 
 			}
 
@@ -16954,15 +17056,14 @@ function Remove-HPOVServer
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -16981,7 +17082,6 @@ function Remove-HPOVServer
 
 					}
 
-					$c++
 
 				}
 
@@ -17201,15 +17301,14 @@ function Set-HPOVServerPower
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -17228,7 +17327,6 @@ function Set-HPOVServerPower
 
 					}
 
-					$c++
 
 				}
 
@@ -17498,15 +17596,14 @@ function Start-HPOVServer
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -17525,7 +17622,6 @@ function Start-HPOVServer
 
 					}
 
-					$c++
 
 				}
 
@@ -17769,15 +17865,14 @@ function Stop-HPOVServer
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -17796,7 +17891,6 @@ function Stop-HPOVServer
 
 					}
 
-					$c++
 
 				}
 
@@ -18072,15 +18166,14 @@ function Restart-HPOVServer
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -18099,7 +18192,6 @@ function Restart-HPOVServer
 
 					}
 
-					$c++
 
 				}
 
@@ -18369,15 +18461,14 @@ function Update-HPOVServer
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -18396,7 +18487,6 @@ function Update-HPOVServer
 
 					}
 
-					$c++
 
 				}
 
@@ -18617,15 +18707,14 @@ function Get-HPOVEnclosureGroup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -18644,7 +18733,6 @@ function Get-HPOVEnclosureGroup
 
 				}
 
-				$c++
 
 			}
 
@@ -18871,15 +18959,14 @@ function New-HPOVEnclosureGroup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -18898,7 +18985,6 @@ function New-HPOVEnclosureGroup
 
 				}
 
-				$c++
 
 			}
 
@@ -19278,15 +19364,14 @@ function Remove-HPOVEnclosureGroup
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -19305,7 +19390,6 @@ function Remove-HPOVEnclosureGroup
 
 					}
 
-					$c++
 
 				}
 
@@ -19601,15 +19685,14 @@ function Add-HPOVEnclosure
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -19628,7 +19711,6 @@ function Add-HPOVEnclosure
 
 				}
 
-				$c++
 
 			}
 
@@ -20095,15 +20177,14 @@ function Update-HPOVEnclosure
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -20122,7 +20203,6 @@ function Update-HPOVEnclosure
 
 					}
 
-					$c++
 
 				}
 
@@ -20405,15 +20485,14 @@ function Get-HPOVLogicalEnclosure
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -20432,7 +20511,6 @@ function Get-HPOVLogicalEnclosure
 
 				}
 
-				$c++
 
 			}
 
@@ -20640,15 +20718,14 @@ function Update-HPOVLogicalEnclosure
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -20667,7 +20744,6 @@ function Update-HPOVLogicalEnclosure
 
 					}
 
-					$c++
 
 				}
 
@@ -21911,15 +21987,14 @@ function Get-HPOVEnclosure
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -21938,7 +22013,6 @@ function Get-HPOVEnclosure
 
 				}
 
-				$c++
 
 			}
 
@@ -22327,15 +22401,14 @@ function Remove-HPOVEnclosure
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -22354,7 +22427,6 @@ function Remove-HPOVEnclosure
 
 					}
 
-					$c++
 
 				}
 
@@ -22611,15 +22683,14 @@ function Get-HPOVServerHardwareType
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -22638,7 +22709,6 @@ function Get-HPOVServerHardwareType
 
 				}
 
-				$c++
 
 			}
 
@@ -22824,15 +22894,14 @@ function Show-HPOVFirmwareReport
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 				
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -22851,7 +22920,6 @@ function Show-HPOVFirmwareReport
 
 					}
 
-					$c++
 
 				}
 
@@ -24873,15 +24941,14 @@ function Get-HPOVStorageSystem
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -24900,7 +24967,6 @@ function Get-HPOVStorageSystem
 
 				}
 
-				$c++
 
 			}
 
@@ -25204,15 +25270,14 @@ function Update-HPOVStorageSystem
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -25231,7 +25296,6 @@ function Update-HPOVStorageSystem
 
 					}
 
-					$c++
 
 				}
 
@@ -25453,15 +25517,14 @@ function Add-HPOVStorageSystem
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -25480,7 +25543,6 @@ function Add-HPOVStorageSystem
 
 				}
 
-				$c++
 
 			}
 
@@ -25998,15 +26060,14 @@ function Remove-HPOVStorageSystem
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -26025,7 +26086,6 @@ function Remove-HPOVStorageSystem
 
 					}
 
-					$c++
 
 				}
 
@@ -26238,15 +26298,14 @@ function Get-HPOVStoragePool
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -26265,7 +26324,6 @@ function Get-HPOVStoragePool
 
 				}
 
-				$c++
 
 			}
 
@@ -26499,15 +26557,14 @@ function Add-HPOVStoragePool
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -26526,7 +26583,6 @@ function Add-HPOVStoragePool
 
 					}
 
-					$c++
 
 				}
 
@@ -26781,15 +26837,14 @@ function Remove-HPOVStoragePool
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -26808,7 +26863,6 @@ function Remove-HPOVStoragePool
 
 					}
 
-					$c++
 
 				}
 
@@ -27016,15 +27070,14 @@ function Get-HPOVStorageVolumeTemplate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -27043,7 +27096,6 @@ function Get-HPOVStorageVolumeTemplate
 
 				}
 
-				$c++
 
 			}
 
@@ -27240,15 +27292,14 @@ function New-HPOVStorageVolumeTemplate
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -27267,7 +27318,6 @@ function New-HPOVStorageVolumeTemplate
 
 					}
 
-					$c++
 
 				}
 
@@ -27633,15 +27683,14 @@ function Remove-HPOVStorageVolumeTemplate
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -27660,7 +27709,6 @@ function Remove-HPOVStorageVolumeTemplate
 
 					}
 
-					$c++
 
 				}
 
@@ -27930,15 +27978,14 @@ function Get-HPOVStorageVolumeTemplatePolicy
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -27957,7 +28004,6 @@ function Get-HPOVStorageVolumeTemplatePolicy
 
 				}
 
-				$c++
 
 			}
 
@@ -28080,15 +28126,14 @@ function Set-HPOVStorageVolumeTemplatePolicy
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -28107,7 +28152,6 @@ function Set-HPOVStorageVolumeTemplatePolicy
 
 				}
 
-				$c++
 
 			}
 
@@ -28256,15 +28300,14 @@ function Get-HPOVStorageVolume
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -28283,7 +28326,6 @@ function Get-HPOVStorageVolume
 
 				}
 
-				$c++
 
 			}
 
@@ -28323,7 +28365,7 @@ function Get-HPOVStorageVolume
     Process 
     { 
         
-        ForEach ($_Connection in $ApplianceConnection) 
+        For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
         {
 
 			if ($VolumeName)
@@ -28497,15 +28539,14 @@ function Get-HPOVStorageVolumeSnapShot
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -28524,7 +28565,6 @@ function Get-HPOVStorageVolumeSnapShot
 
 					}
 
-					$c++
 
 				}
 
@@ -28685,15 +28725,14 @@ function New-HPOVStorageVolumeSnapshot
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -28712,7 +28751,6 @@ function New-HPOVStorageVolumeSnapshot
 
 					}
 
-					$c++
 
 				}
 
@@ -28855,15 +28893,14 @@ function Remove-HPOVStorageVolumeSnapshot
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -28882,7 +28919,6 @@ function Remove-HPOVStorageVolumeSnapshot
 
 					}
 
-					$c++
 
 				}
 
@@ -29051,15 +29087,14 @@ function ConvertTo-HPOVStorageVolume
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -29078,7 +29113,6 @@ function ConvertTo-HPOVStorageVolume
 
 					}
 
-					$c++
 
 				}
 
@@ -29283,15 +29317,14 @@ function New-HPOVStorageVolume
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -29310,7 +29343,6 @@ function New-HPOVStorageVolume
 
 					}
 
-					$c++
 
 				}
 
@@ -29788,15 +29820,14 @@ function Add-HPOVStorageVolume
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -29815,7 +29846,6 @@ function Add-HPOVStorageVolume
 
 				}
 
-				$c++
 
 			}
 
@@ -30081,15 +30111,14 @@ function Set-HPOVStorageVolume
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -30108,7 +30137,6 @@ function Set-HPOVStorageVolume
 
 					}
 
-					$c++
 
 				}
 
@@ -30470,15 +30498,14 @@ function Remove-HPOVStorageVolume
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -30497,7 +30524,6 @@ function Remove-HPOVStorageVolume
 
 					}
 
-					$c++
 
 				}
 
@@ -30802,15 +30828,14 @@ function Get-HPOVSanManager
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -30829,7 +30854,6 @@ function Get-HPOVSanManager
 
 				}
 
-				$c++
 
 			}
 
@@ -31050,15 +31074,14 @@ function Add-HPOVSanManager
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -31077,7 +31100,6 @@ function Add-HPOVSanManager
 
 				}
 
-				$c++
 
 			}
 
@@ -31436,15 +31458,14 @@ function Set-HPOVSanManager
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -31463,7 +31484,6 @@ function Set-HPOVSanManager
 
 					}
 
-					$c++
 
 				}
 
@@ -31902,15 +31922,14 @@ function Remove-HPOVSanManager
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -31929,7 +31948,6 @@ function Remove-HPOVSanManager
 
 					}
 
-					$c++
 
 				}
 
@@ -32136,15 +32154,14 @@ function Get-HPOVManagedSan
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -32163,7 +32180,6 @@ function Get-HPOVManagedSan
 
 				}
 
-				$c++
 
 			}
 
@@ -32368,15 +32384,14 @@ function Set-HPOVManagedSan
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -32395,7 +32410,6 @@ function Set-HPOVManagedSan
 
 					}
 
-					$c++
 
 				}
 
@@ -32617,15 +32631,14 @@ function Show-HPOVSanEndpoint
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -32644,7 +32657,6 @@ function Show-HPOVSanEndpoint
 
 				}
 
-				$c++
 
 			}
 
@@ -32873,15 +32885,14 @@ function Get-HPOVUnmanagedDevice
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -32900,7 +32911,6 @@ function Get-HPOVUnmanagedDevice
 
 				}
 
-				$c++
 
 			}
 
@@ -33085,15 +33095,14 @@ function New-HPOVUnmanagedDevice
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -33112,7 +33121,6 @@ function New-HPOVUnmanagedDevice
 
 				}
 
-				$c++
 
 			}
 
@@ -33251,15 +33259,14 @@ function Remove-HPOVUnmanagedDevice
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -33278,7 +33285,6 @@ function Remove-HPOVUnmanagedDevice
 
 					}
 
-					$c++
 
 				}
 
@@ -33483,15 +33489,14 @@ function Get-HPOVPowerDevice
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -33510,7 +33515,6 @@ function Get-HPOVPowerDevice
 
 				}
 
-				$c++
 
 			}
 
@@ -33549,7 +33553,7 @@ function Get-HPOVPowerDevice
     Process 
 	{
 
-        ForEach ($_Connection in $ApplianceConnection) 
+        For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 		{
 
 			Try
@@ -33658,15 +33662,14 @@ function Add-HPOVPowerDevice
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -33685,7 +33688,6 @@ function Add-HPOVPowerDevice
 
 				}
 
-				$c++
 
 			}
 
@@ -33982,15 +33984,14 @@ function Remove-HPOVPowerDevice
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -34009,7 +34010,6 @@ function Remove-HPOVPowerDevice
 
 					}
 
-					$c++
 
 				}
 
@@ -34226,15 +34226,14 @@ function Get-HPOVPowerPotentialDeviceConnection
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -34253,7 +34252,6 @@ function Get-HPOVPowerPotentialDeviceConnection
 
 					}
 
-					$c++
 
 				}
 
@@ -34525,15 +34523,14 @@ function New-HPOVNetwork
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -34552,7 +34549,6 @@ function New-HPOVNetwork
 
 				}
 
-				$c++
 
 			}
 
@@ -35139,15 +35135,14 @@ function Get-HPOVNetwork
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -35166,7 +35161,6 @@ function Get-HPOVNetwork
 
 				}
 
-				$c++
 
 			}
 
@@ -35582,15 +35576,14 @@ function Set-HPOVNetwork
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -35609,7 +35602,6 @@ function Set-HPOVNetwork
 
 					}
 
-					$c++
 
 				}
 
@@ -36065,15 +36057,14 @@ function Remove-HPOVNetwork
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -36092,7 +36083,6 @@ function Remove-HPOVNetwork
 
 					}
 
-					$c++
 
 				}
 
@@ -36340,15 +36330,14 @@ function New-HPOVNetworkSet
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -36367,7 +36356,6 @@ function New-HPOVNetworkSet
 
 				}
 
-				$c++
 
 			}
 
@@ -36826,15 +36814,14 @@ function Get-HPOVNetworkSet
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -36853,7 +36840,6 @@ function Get-HPOVNetworkSet
 
 				}
 
-				$c++
 
 			}
 
@@ -37093,15 +37079,14 @@ function Set-HPOVNetworkSet
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -37120,7 +37105,6 @@ function Set-HPOVNetworkSet
 
 					}
 
-					$c++
 
 				}
 
@@ -37594,15 +37578,14 @@ function Remove-HPOVNetworkSet
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -37621,7 +37604,6 @@ function Remove-HPOVNetworkSet
 
 					}
 
-					$c++
 
 				}
 
@@ -37816,15 +37798,14 @@ function Get-HPOVAddressPool
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -37843,7 +37824,6 @@ function Get-HPOVAddressPool
 
 				}
 
-				$c++
 
 			}
 
@@ -38037,15 +38017,14 @@ function Get-HPOVAddressPoolRange
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -38064,7 +38043,6 @@ function Get-HPOVAddressPoolRange
 
 				}
 
-				$c++
 
 			}
 
@@ -38275,15 +38253,14 @@ function New-HPOVAddressRange
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -38302,7 +38279,6 @@ function New-HPOVAddressRange
 
 				}
 
-				$c++
 
 			}
 
@@ -38579,15 +38555,14 @@ function Get-HPOVInterconnectType
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -38606,7 +38581,6 @@ function Get-HPOVInterconnectType
 
 				}
 
-				$c++
 
 			}
 
@@ -38784,15 +38758,14 @@ function Get-HPOVInterconnect
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -38811,7 +38784,6 @@ function Get-HPOVInterconnect
 
 				}
 
-				$c++
 
 			}
 
@@ -39006,15 +38978,14 @@ function Get-HPOVLogicalInterconnect
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -39033,7 +39004,6 @@ function Get-HPOVLogicalInterconnect
 
 				}
 
-				$c++
 
 			}
 
@@ -39081,7 +39051,6 @@ function Get-HPOVLogicalInterconnect
 
 		}
 		
-
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 
@@ -39275,15 +39244,14 @@ function Update-HPOVLogicalInterconnect
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -39302,7 +39270,6 @@ function Update-HPOVLogicalInterconnect
 
 					}
 
-					$c++
 
 				}
 
@@ -39620,8 +39587,7 @@ function Show-HPOVLogicalInterconnectMacTable
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
-		
-		$c = 0
+
 		
 		if ($PSCmdlet.ParameterSetName -ne 'Pipeline')
 		{
@@ -39639,15 +39605,14 @@ function Show-HPOVLogicalInterconnectMacTable
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -39666,7 +39631,6 @@ function Show-HPOVLogicalInterconnectMacTable
 
 					}
 
-					$c++
 
 				}
 
@@ -40217,15 +40181,14 @@ function Install-HPOVLogicalInterconnectFirmware
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -40244,7 +40207,6 @@ function Install-HPOVLogicalInterconnectFirmware
 
 					}
 
-					$c++
 
 				}
 
@@ -40678,15 +40640,14 @@ function Show-HPOVPortStatistics
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -40705,7 +40666,6 @@ function Show-HPOVPortStatistics
 
 					}
 
-					$c++
 
 				}
 
@@ -41037,15 +40997,14 @@ function Get-HPOVLogicalInterconnectGroup
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -41064,7 +41023,6 @@ function Get-HPOVLogicalInterconnectGroup
 
 					}
 
-					$c++
 
 				}
 
@@ -41371,15 +41329,14 @@ function New-HPOVLogicalInterconnectGroup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -41398,7 +41355,6 @@ function New-HPOVLogicalInterconnectGroup
 
 				}
 
-				$c++
 
 			}
 
@@ -42585,15 +42541,14 @@ function Remove-HPOVLogicalInterconnectGroup
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -42612,7 +42567,6 @@ function Remove-HPOVLogicalInterconnectGroup
 
 					}
 
-					$c++
 
 				}
 
@@ -42902,15 +42856,14 @@ function Get-HPOVUplinkSet
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -42929,7 +42882,6 @@ function Get-HPOVUplinkSet
 
 				}
 
-				$c++
 
 			}
 
@@ -43496,15 +43448,14 @@ function New-HPOVUplinkSet
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -43523,7 +43474,6 @@ function New-HPOVUplinkSet
 
 				}
 
-				$c++
 
 			}
 
@@ -43614,7 +43564,20 @@ function New-HPOVUplinkSet
 					$_liUplinkSetObject  = NewObject -liUplinkSetObject
 
 					$_liUplinkSetObject.name      = $Name
-					$_liUplinkSetObject.lacpTimer = $LacpTimer
+
+					if ($PSBoundParameters['EthMode'])
+					{
+
+						$_liUplinkSetObject.mode = $EthMode
+
+					}
+
+					if ($EthMode -eq 'Auto' -and $PSBoundParameters['LacpTimer'])
+					{
+
+						$_liUplinkSetObject.lacpTimer = $LacpTimer
+
+					}
 
 					#Add Logical Interconnect object URI to Uplink Set Object
 					$_liUplinkSetObject.logicalInterconnectUri = $_resource.uri
@@ -43776,13 +43739,6 @@ function New-HPOVUplinkSet
 
 					#Validate Uplink Network Type.     
 					$_liUplinkSetObject.networkType = $Type  
-
-					if ($PSBoundParameters['EthMode'])
-					{
-
-						$_liUplinkSetObject.mode = $EthMode
-
-					}
 						
 					#Rebuld uplinkset collection
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_resource.name) Rebuilding UplinkSet template collection."
@@ -43837,7 +43793,20 @@ function New-HPOVUplinkSet
 					$_ligUplinkSetObject = NewObject -ligUplinkSetObject
 
 					$_ligUplinkSetObject.name      = $Name
-					$_ligUplinkSetObject.lacpTimer = $LacpTimer
+
+					if ($PSBoundParameters['EthMode'])
+					{
+
+						$_ligUplinkSetObject.mode = $EthMode
+
+					}
+
+					if ($EthMode -eq 'Auto' -and $PSBoundParameters['LacpTimer'])
+					{
+
+						$_ligUplinkSetObject.lacpTimer = $LacpTimer
+
+					}
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Provided LIG Resource Name: $($_resource.name)"
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Provided LIG Resource Category: $($_resource.category)"
@@ -44240,15 +44209,14 @@ function GetNetworkUris
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -44267,7 +44235,6 @@ function GetNetworkUris
 
 				}
 
-				$c++
 
 			}
 
@@ -44931,15 +44898,14 @@ function New-HPOVServerProfile
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -44958,7 +44924,6 @@ function New-HPOVServerProfile
 
 				}
 
-				$c++
 
 			}
 
@@ -46926,15 +46891,14 @@ function Update-HPOVServerProfile
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -46953,7 +46917,6 @@ function Update-HPOVServerProfile
 
 					}
 
-					$c++
 
 				}
 
@@ -47273,15 +47236,14 @@ function Get-HPOVServerProfileTemplate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -47300,7 +47262,6 @@ function Get-HPOVServerProfileTemplate
 
 				}
 
-				$c++
 
 			}
 
@@ -47661,15 +47622,14 @@ function New-HPOVServerProfileTemplate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -47688,7 +47648,6 @@ function New-HPOVServerProfileTemplate
 
 				}
 
-				$c++
 
 			}
 
@@ -48874,15 +48833,14 @@ function Join-HPOVServerProfileToTemplate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -48901,7 +48859,6 @@ function Join-HPOVServerProfileToTemplate
 
 				}
 
-				$c++
 
 			}
 
@@ -49176,15 +49133,14 @@ function ConvertTo-HPOVServerProfileTemplate
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -49203,7 +49159,6 @@ function ConvertTo-HPOVServerProfileTemplate
 
 					}
 
-					$c++
 
 				}
 
@@ -49673,15 +49628,14 @@ function New-HPOVServerProfileAssign
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -49700,7 +49654,6 @@ function New-HPOVServerProfileAssign
 
 					}
 
-					$c++
 
 				}
 
@@ -49958,15 +49911,14 @@ function Copy-HPOVServerProfile
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -49985,7 +49937,6 @@ function Copy-HPOVServerProfile
 
 					}
 
-					$c++
 
 				}
 
@@ -50500,15 +50451,14 @@ function Remove-HPOVServerProfile
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -50527,7 +50477,6 @@ function Remove-HPOVServerProfile
 
 					}
 
-					$c++
 
 				}
 
@@ -50741,15 +50690,14 @@ function Get-HPOVServerProfileConnectionList
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -50768,7 +50716,6 @@ function Get-HPOVServerProfileConnectionList
 
 				}
 
-				$c++
 
 			}
 
@@ -51135,15 +51082,14 @@ function New-HPOVServerProfileConnection
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -51162,7 +51108,6 @@ function New-HPOVServerProfileConnection
 
 					}
 
-					$c++
 
 				}
 
@@ -51551,15 +51496,14 @@ function New-HPOVServerProfileAttachVolume
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -51578,7 +51522,6 @@ function New-HPOVServerProfileAttachVolume
 
 					}
 
-					$c++
 
 				}
 
@@ -52389,15 +52332,14 @@ function Search-HPOVIndex
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -52416,7 +52358,6 @@ function Search-HPOVIndex
 
 				}
 
-				$c++
 
 			}
 
@@ -52617,15 +52558,14 @@ function Search-HPOVAssociations
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -52644,7 +52584,6 @@ function Search-HPOVAssociations
 
 				}
 
-				$c++
 
 			}
 
@@ -52830,15 +52769,14 @@ function Get-HPOVTask
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -52857,7 +52795,6 @@ function Get-HPOVTask
 
 				}
 
-				$c++
 
 			}
 
@@ -53193,15 +53130,14 @@ function Wait-HPOVTaskStart
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -53220,7 +53156,6 @@ function Wait-HPOVTaskStart
 
 					}
 
-					$c++
 
 				}
 
@@ -53522,15 +53457,14 @@ function Wait-HPOVTaskComplete
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -53549,7 +53483,6 @@ function Wait-HPOVTaskComplete
 
 					}
 
-					$c++
 
 				}
 
@@ -53866,15 +53799,14 @@ function Get-HPOVUser
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -53893,7 +53825,6 @@ function Get-HPOVUser
 
 				}
 
-				$c++
 
 			}
 
@@ -54100,15 +54031,14 @@ function New-HPOVUser
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -54127,7 +54057,6 @@ function New-HPOVUser
 
 				}
 
-				$c++
 
 			}
 
@@ -54359,15 +54288,14 @@ function Set-HPOVUser
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -54386,7 +54314,6 @@ function Set-HPOVUser
 
 					}
 
-					$c++
 
 				}
 
@@ -54725,7 +54652,6 @@ function Set-HPOVUserPassword
 		
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		$c = 0
 
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
@@ -54738,15 +54664,14 @@ function Set-HPOVUserPassword
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 		
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -54765,7 +54690,6 @@ function Set-HPOVUserPassword
 
 				}
 
-				$c++
 
 			}
 
@@ -54975,15 +54899,14 @@ function Remove-HPOVUser
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -55002,7 +54925,6 @@ function Remove-HPOVUser
 
 					}
 
-					$c++
 
 				}
 
@@ -55260,15 +55182,14 @@ function Set-HPOVUserRole
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -55287,7 +55208,6 @@ function Set-HPOVUserRole
 
 					}
 
-					$c++
 
 				}
 
@@ -55614,15 +55534,14 @@ function Get-HPOVLdap
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -55641,7 +55560,6 @@ function Get-HPOVLdap
 
 				}
 
-				$c++
 
 			}
 
@@ -55786,15 +55704,14 @@ function Get-HPOVLdapDirectory
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -55813,7 +55730,6 @@ function Get-HPOVLdapDirectory
 
 				}
 
-				$c++
 
 			}
 
@@ -56039,15 +55955,14 @@ function New-HPOVLdapDirectory
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -56066,7 +55981,6 @@ function New-HPOVLdapDirectory
 
 				}
 
-				$c++
 
 			}
 
@@ -56195,7 +56109,7 @@ function New-HPOVLdapDirectory
 			Catch
 			{
 
-				foreach ($NestedError in (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.nestedErrors) 
+				foreach ($NestedError in (${Global:ResponseErrorObject} | ? Name -eq $_Connection.Name).ErrorResponse.nestedErrors) 
 				{
 
 					if ($NestedError.errorCode -eq "AUTHN_LOGINDOMAIN_SERVER_AUTHENTICATION_ERROR" ) 
@@ -56224,7 +56138,7 @@ function New-HPOVLdapDirectory
 
 				}
 
-				$errorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode InvalidOperation 'New-HPOVLdap' -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.details)"
+				$errorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException (${Global:ResponseErrorObject} | ? Name -eq $_Connection.Name).ErrorResponse.errorCode InvalidOperation 'New-HPOVLdap' -Message ("{0} {1}" -f (${Global:ResponseErrorObject} | ? Name -eq $_Connection.Name).ErrorResponse.message, (${Global:ResponseErrorObject} | ? Name -eq $_Connection.Name).ErrorResponse.details)
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -56298,15 +56212,14 @@ function Remove-HPOVLdapDirectory
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -56325,7 +56238,6 @@ function Remove-HPOVLdapDirectory
 
 					}
 
-					$c++
 
 				}
 
@@ -56553,15 +56465,14 @@ Function Set-HPOVLdapDefaultDirectory
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -56580,7 +56491,6 @@ Function Set-HPOVLdapDefaultDirectory
 
 					}
 
-					$c++
 
 				}
 
@@ -56808,15 +56718,14 @@ Function Enable-HPOVLdapLocalLogin
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -56835,7 +56744,6 @@ Function Enable-HPOVLdapLocalLogin
 
 				}
 
-				$c++
 
 			}
 
@@ -56979,15 +56887,14 @@ Function Disable-HPOVLdapLocalLogin
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -57006,7 +56913,6 @@ Function Disable-HPOVLdapLocalLogin
 
 				}
 
-				$c++
 
 			}
 
@@ -57398,15 +57304,14 @@ function Get-HPOVLdapGroup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -57425,7 +57330,6 @@ function Get-HPOVLdapGroup
 
 				}
 
-				$c++
 
 			}
 
@@ -57597,15 +57501,14 @@ function New-HPOVLdapGroup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -57624,7 +57527,6 @@ function New-HPOVLdapGroup
 
 				}
 
-				$c++
 
 			}
 
@@ -57829,15 +57731,14 @@ function Set-HPOVLdapGroupRole
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -57856,7 +57757,6 @@ function Set-HPOVLdapGroupRole
 
 					}
 
-					$c++
 
 				}
 
@@ -58100,15 +58000,14 @@ function Remove-HPOVLdapGroup
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -58127,7 +58026,6 @@ function Remove-HPOVLdapGroup
 
 					}
 
-					$c++
 
 				}
 
@@ -58338,15 +58236,14 @@ Function Get-HPOVAuditLog
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -58365,7 +58262,6 @@ Function Get-HPOVAuditLog
 
 				}
 
-				$c++
 
 			}
 
@@ -58496,15 +58392,14 @@ Function Get-HPOVAuditLogArchive
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -58523,7 +58418,6 @@ Function Get-HPOVAuditLogArchive
 
 				}
 
-				$c++
 
 			}
 
@@ -58684,15 +58578,14 @@ function Get-HPOVAlert
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -58711,7 +58604,6 @@ function Get-HPOVAlert
 
 					}
 
-					$c++
 
 				}
 
@@ -59027,15 +58919,14 @@ function Set-HPOVAlert
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -59054,7 +58945,6 @@ function Set-HPOVAlert
 
 					}
 
-					$c++
 
 				}
 
@@ -59271,15 +59161,14 @@ function Get-HPOVLicense
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -59298,7 +59187,6 @@ function Get-HPOVLicense
 
 				}
 
-				$c++
 
 			}
 
@@ -59766,15 +59654,14 @@ function Remove-HPOVLicense
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				$c = 0
 
-				ForEach ($_connection in $ApplianceConnection) 
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
 					Try 
 					{
 			
-						$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 					}
 
@@ -59793,7 +59680,6 @@ function Remove-HPOVLicense
 
 					}
 
-					$c++
 
 				}
 
@@ -60076,15 +59962,14 @@ function Set-HPOVSMTPConfig
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -60103,7 +59988,6 @@ function Set-HPOVSMTPConfig
 
 				}
 
-				$c++
 
 			}
 
@@ -60236,15 +60120,14 @@ function Get-HPOVSMTPConfig
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -60263,7 +60146,6 @@ function Get-HPOVSMTPConfig
 
 				}
 
-				$c++
 
 			}
 
@@ -60393,15 +60275,14 @@ function Add-HPOVSmtpAlertEmailFilter
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -60420,7 +60301,6 @@ function Add-HPOVSmtpAlertEmailFilter
 
 				}
 
-				$c++
 
 			}
 
@@ -60548,15 +60428,14 @@ function Get-HPOVLoginMessage
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -60575,7 +60454,6 @@ function Get-HPOVLoginMessage
 
 				}
 
-				$c++
 
 			}
 
@@ -60703,15 +60581,14 @@ function Set-HPOVLoginMessage
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -60730,7 +60607,6 @@ function Set-HPOVLoginMessage
 
 				}
 
-				$c++
 
 			}
 
@@ -60858,15 +60734,14 @@ Function Get-HPOVRemoteSyslog
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -60885,7 +60760,6 @@ Function Get-HPOVRemoteSyslog
 
 				}
 
-				$c++
 
 			}
 
@@ -61016,15 +60890,14 @@ Function Set-HPOVRemoteSyslog
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -61043,7 +60916,6 @@ Function Set-HPOVRemoteSyslog
 
 				}
 
-				$c++
 
 			}
 
@@ -61194,15 +61066,14 @@ function Enable-HPOVRemoteSyslog
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -61221,7 +61092,6 @@ function Enable-HPOVRemoteSyslog
 
 				}
 
-				$c++
 
 			}
 
@@ -61367,15 +61237,14 @@ function Disable-HPOVRemoteSyslog
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -61394,7 +61263,6 @@ function Disable-HPOVRemoteSyslog
 
 				}
 
-				$c++
 
 			}
 
@@ -61562,15 +61430,14 @@ function Enable-HPOVDebug
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -61589,7 +61456,6 @@ function Enable-HPOVDebug
 
 				}
 
-				$c++
 
 			}
 
@@ -61730,15 +61596,14 @@ function Disable-HPOVDebug
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-			$c = 0
 
-			ForEach ($_connection in $ApplianceConnection) 
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
 				Try 
 				{
 			
-					$ApplianceConnection[$c] = Test-HPOVAuth $_connection
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
 
 				}
 
@@ -61757,7 +61622,6 @@ function Disable-HPOVDebug
 
 				}
 
-				$c++
 
 			}
 
@@ -61937,6 +61801,7 @@ Export-ModuleMember -Function Get-HPOVApplianceGlobalSetting
 Export-ModuleMember -Function Set-HPOVApplianceGlobalSetting
 Export-ModuleMember -Function Get-HPOVBaseline -Alias Get-HPOVSppFile
 Export-ModuleMember -Function Add-HPOVBaseline -Alias Add-HPOVSppFile
+Export-ModuleMember -Function Show-HPOVBaselineRepositorySize
 Export-ModuleMember -Function New-HPOVCustomBaseline
 Export-ModuleMember -Function Restore-HPOVCustomBaseline
 Export-ModuleMember -Function Remove-HPOVBaseline

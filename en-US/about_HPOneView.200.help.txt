@@ -32,13 +32,20 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.526.0
+     -- [#139] Fixed Get-HPOVBaseline where an exception would generate if no baselines were present.
+     -- Add Show-HPOVBaselineRepositorySize to report the appliance repository size.
+     -- Updated multiple appliance connection support where if multiple Appliance Connections were passed, 
+        an exception was thrown about collectoin being modified.
+     -- Fixed New-HPOVUplinkSet where LacpTimer and EthMode were not being set correctly.
+
     Release 2.0.500.0
      -- [#136] Fixed Get-HPOVApplianceGlobalSetting where no object would be returned when providing a name.
      -- [#135] [#134] Fixed minor bugs.
      -- Enhanced New-HPOVEnclosureGroup to discover enclosure layout and create Logical Interconnect Group
         using the -DiscoverFromEnclosure parameter.
      -- [#126] Fixed New-HPOVLdapDirectory where the userAttribute property was being sent incorrectly, causing
-        inconsisteny directory verification auth exceptions.
+        inconsistent directory verification auth exceptions.
 
     Release 2.0.480.0
      -- [#130] Refactored Remove-HPOVServerProfile Cmdlet 

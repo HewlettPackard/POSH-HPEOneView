@@ -1133,6 +1133,45 @@
         </ListEntries>
       </ListControl>
     </View>
+    <!--APPLIANCE_BaselineRepository FT-->
+    <View>
+      <Name>BaselineRepository</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.BaselineRepository</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Free Size</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Total Size</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0:N2}GB' -f ($_.freeRepoSpace / 1MB)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0:N2}GB' -f ($_.totalRepoSize / 1MB)</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--APPLIANCE_SSLCERTIFICATE-->
     <View>
       <Name>ApplianceSslCertificateStatus</Name>
