@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.526.0"
+[version]$script:ModuleVersion = "2.0.530.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -4051,12 +4051,7 @@ function NewObject
 			
 			        };
 								
-					qosClassificationMapping = [PSCustomObject]@{
-						
-						dot1pClassMapping = New-Object System.Collections.ArrayList;
-						dscpClassMapping  = New-Object System.Collections.ArrayList
-							
-					}
+					qosClassificationMapping = $null
 			
 				},
 				
@@ -4073,12 +4068,7 @@ function NewObject
 			
 			        };
 								
-					qosClassificationMapping = [PSCustomObject]@{
-						
-						dot1pClassMapping = New-Object System.Collections.ArrayList;
-						dscpClassMapping  = New-Object System.Collections.ArrayList
-							
-					}
+					qosClassificationMapping = $null
 			
 				},
 				
@@ -4095,12 +4085,7 @@ function NewObject
 			
 			        };
 								
-					qosClassificationMapping = [PSCustomObject]@{
-						
-						dot1pClassMapping = New-Object System.Collections.ArrayList;
-						dscpClassMapping  = New-Object System.Collections.ArrayList
-							
-					}
+					qosClassificationMapping = $null
 			
 				},
 				
@@ -4117,12 +4102,7 @@ function NewObject
 			
 			        };
 								
-					qosClassificationMapping = [PSCustomObject]@{
-						
-						dot1pClassMapping = New-Object System.Collections.ArrayList;
-						dscpClassMapping  = New-Object System.Collections.ArrayList
-							
-					}
+					qosClassificationMapping = $null
 			
 				},
 				
@@ -4267,12 +4247,7 @@ function NewObject
 
 					    };
 									
-						qosClassificationMapping = [PSCustomObject]@{
-							
-							dot1pClassMapping = New-Object System.Collections.ArrayList;
-							dscpClassMapping  = New-Object System.Collections.ArrayList
-								
-						}
+						qosClassificationMapping = $null
 
 					},
 								
@@ -4289,12 +4264,7 @@ function NewObject
 
 					    };
 									
-						qosClassificationMapping = [PSCustomObject]@{
-							
-							dot1pClassMapping = New-Object System.Collections.ArrayList;
-							dscpClassMapping  = New-Object System.Collections.ArrayList
-								
-						}
+						qosClassificationMapping = $null
 
 					},
 								
@@ -4311,12 +4281,7 @@ function NewObject
 
 					    };
 									
-						qosClassificationMapping = [PSCustomObject]@{
-							
-							dot1pClassMapping = New-Object System.Collections.ArrayList;
-							dscpClassMapping  = New-Object System.Collections.ArrayList
-								
-						}
+						qosClassificationMapping = $null
 
 					},
 								
@@ -4333,12 +4298,7 @@ function NewObject
 
 					    };
 									
-						qosClassificationMapping = [PSCustomObject]@{
-							
-							dot1pClassMapping = New-Object System.Collections.ArrayList;
-							dscpClassMapping  = New-Object System.Collections.ArrayList
-								
-						}
+						qosClassificationMapping = $null
 
 					},
 								
@@ -4355,12 +4315,7 @@ function NewObject
 
 					    };					
 								
-						qosClassificationMapping = [PSCustomObject]@{
-							
-							dot1pClassMapping = New-Object System.Collections.ArrayList;
-							dscpClassMapping  = New-Object System.Collections.ArrayList
-								
-						}
+						qosClassificationMapping = $null
 
 					},
 								
@@ -6412,7 +6367,7 @@ function Ping-HPOVAddress
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -7692,7 +7647,7 @@ function New-HPOVResource
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -7829,7 +7784,7 @@ function Set-HPOVResource
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -7971,7 +7926,7 @@ function Remove-HPOVResource
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -8476,7 +8431,7 @@ Function Get-HPOVApplianceCertificateStatus
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -8678,7 +8633,7 @@ Function New-HPOVApplianceSelfSignedCertificate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -8927,7 +8882,7 @@ Function New-HPOVApplianceCsr
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -9114,7 +9069,7 @@ Function Install-HPOVApplianceCertificate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -9256,7 +9211,7 @@ function Get-HPOVPendingUpdate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -9430,7 +9385,7 @@ function Install-HPOVUpdate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -10040,7 +9995,7 @@ function Remove-HPOVPendingUpdate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -10242,7 +10197,7 @@ function Get-HPOVVersion
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -10538,7 +10493,7 @@ function Get-HPOVHealthStatus
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -10679,7 +10634,7 @@ function Get-HPOVXApiVersion
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -11023,7 +10978,7 @@ function Get-HPOVApplianceNetworkConfig
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -11195,7 +11150,7 @@ function Get-HPOVApplianceDateTime
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -11350,7 +11305,7 @@ function Set-HPOVApplianceDateTime
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 		
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 		
 				}
@@ -11655,7 +11610,7 @@ function Set-HPOVApplianceNetworkConfig
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 		
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 		
 				}
@@ -12282,7 +12237,7 @@ function Get-HPOVSnmpReadCommunity
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 		
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 		
 				}
@@ -12425,7 +12380,7 @@ function Set-HPOVSnmpReadCommunity
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -12571,7 +12526,7 @@ function Get-HPOVApplianceGlobalSetting
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -12740,7 +12695,7 @@ function Set-HPOVApplianceGlobalSetting
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -12958,7 +12913,7 @@ function Get-HPOVBaseline
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -13198,7 +13153,7 @@ function Add-HPOVBaseline
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -13362,7 +13317,7 @@ function Show-HPOVBaselineRepositorySize
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -13527,7 +13482,7 @@ function New-HPOVCustomBaseline
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -13736,7 +13691,7 @@ function Restore-HPOVCustomBaseline
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -13947,7 +13902,7 @@ function Remove-HPOVBaseline
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -14199,7 +14154,7 @@ function New-HPOVSupportDump
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -14535,7 +14490,7 @@ Function New-HPOVBackup
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -14727,7 +14682,7 @@ Function New-HPOVRestore
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -15663,7 +15618,7 @@ function Get-HPOVScmbCertificates
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -16075,7 +16030,7 @@ function Restart-HPOVAppliance
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -16156,7 +16111,7 @@ function Restart-HPOVAppliance
 				{
 
             
-					$_resp = Send-HPOVRequest -uri $script:applianceRebootUri -method POST
+					$_resp = Send-HPOVRequest -uri $script:applianceRebootUri -method POST -hostname $_Connection
 
 				}
 				
@@ -16258,7 +16213,7 @@ function Stop-HPOVAppliance
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -16434,7 +16389,7 @@ function Get-HPOVServer
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -16485,7 +16440,7 @@ function Get-HPOVServer
 	Process 
 	{
 
-        For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+        ForEach ($_Connection in $ApplianceConnection)
 		{
 
             $uri = $ServerHardwareUri + "?sort=name:asc"
@@ -16775,7 +16730,7 @@ function Add-HPOVServer
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -17070,7 +17025,7 @@ function Remove-HPOVServer
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -17315,7 +17270,7 @@ function Set-HPOVServerPower
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -17610,7 +17565,7 @@ function Start-HPOVServer
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -17879,7 +17834,7 @@ function Stop-HPOVServer
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -18180,7 +18135,7 @@ function Restart-HPOVServer
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -18475,7 +18430,7 @@ function Update-HPOVServer
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -18721,7 +18676,7 @@ function Get-HPOVEnclosureGroup
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -18973,7 +18928,7 @@ function New-HPOVEnclosureGroup
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -19378,7 +19333,7 @@ function Remove-HPOVEnclosureGroup
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -19699,7 +19654,7 @@ function Add-HPOVEnclosure
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -20191,7 +20146,7 @@ function Update-HPOVEnclosure
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -20499,7 +20454,7 @@ function Get-HPOVLogicalEnclosure
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -20732,7 +20687,7 @@ function Update-HPOVLogicalEnclosure
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -22001,7 +21956,7 @@ function Get-HPOVEnclosure
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -22052,10 +22007,10 @@ function Get-HPOVEnclosure
     Process 
 	{
 
-		ForEach ($_connection in $ApplianceConnection)
+		ForEach ($_appliance in $ApplianceConnection)
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($Connection.Name)' Appliance (of $($Appliance.Count))"
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_appliance.Name)' Appliance (of $($ApplianceConnection.Count))"
 
 			if ($PSboundParameters['name']) 
 			{
@@ -22080,7 +22035,7 @@ function Get-HPOVEnclosure
 			Try
 			{
 	
-				$_enclosures = Send-HPOVRequest $uri -Hostname $_connection
+				$_enclosures = Send-HPOVRequest $uri -Hostname $_appliance
 	
 			}
 	        
@@ -22098,7 +22053,7 @@ function Get-HPOVEnclosure
 	
 	            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure '$name' resource not found. Generating error"
 
-	            $errorRecord = New-ErrorRecord InvalidOperationException EnclosureGroupNotFound ObjectNotFound 'Name' -Message "The specified Enclosure '$name' was not found on '$($_connection.Name)'.  Please check the name and try again." 
+	            $errorRecord = New-ErrorRecord InvalidOperationException EnclosureGroupNotFound ObjectNotFound 'Name' -Message "The specified Enclosure '$name' was not found on '$($_appliance.Name)'.  Please check the name and try again." 
 	            $pscmdlet.ThrowTerminatingError($errorRecord)  
 	            
 	        }
@@ -22106,7 +22061,7 @@ function Get-HPOVEnclosure
 	        elseif ($_enclosures.count -eq 0) 
 			{ 
 	
-	            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Enclosure resources found on $($_connection.name)."
+	            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No Enclosure resources found on $($_appliance.name)."
 	
 	        }
 	
@@ -22415,7 +22370,7 @@ function Remove-HPOVEnclosure
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -22697,7 +22652,7 @@ function Get-HPOVServerHardwareType
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -22908,7 +22863,7 @@ function Show-HPOVFirmwareReport
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -24709,7 +24664,7 @@ function Show-HPOVUtilization
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 			}
@@ -24955,7 +24910,7 @@ function Get-HPOVStorageSystem
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -25006,12 +24961,12 @@ function Get-HPOVStorageSystem
     Process 
 	{
 
-		ForEach ($_Connection in $ApplianceConnection)
+		ForEach ($_appliance in $ApplianceConnection)
 		{
 
 			$uri = $script:storageSystemUri
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($Connection.Name)' Appliance (of $($Appliance.Count))"
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_appliance.Name)' Appliance (of $($ApplianceConnection.Count))"
 
 			if ($SystemName)
 			{ 
@@ -25038,7 +24993,7 @@ function Get-HPOVStorageSystem
 			Try
 			{
 
-				$_StorageSystems = Send-HPOVRequest $uri -Hostname $_Connection
+				$_StorageSystems = Send-HPOVRequest $uri -Hostname $_appliance
 
 			}
 
@@ -25284,7 +25239,7 @@ function Update-HPOVStorageSystem
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -25531,7 +25486,7 @@ function Add-HPOVStorageSystem
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -26074,7 +26029,7 @@ function Remove-HPOVStorageSystem
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -26312,7 +26267,7 @@ function Get-HPOVStoragePool
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -26571,7 +26526,7 @@ function Add-HPOVStoragePool
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -26851,7 +26806,7 @@ function Remove-HPOVStoragePool
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -27084,7 +27039,7 @@ function Get-HPOVStorageVolumeTemplate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -27306,7 +27261,7 @@ function New-HPOVStorageVolumeTemplate
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
@@ -27697,7 +27652,7 @@ function Remove-HPOVStorageVolumeTemplate
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -27992,7 +27947,7 @@ function Get-HPOVStorageVolumeTemplatePolicy
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -28140,7 +28095,7 @@ function Set-HPOVStorageVolumeTemplatePolicy
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -28314,7 +28269,7 @@ function Get-HPOVStorageVolume
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -28365,7 +28320,7 @@ function Get-HPOVStorageVolume
     Process 
     { 
         
-        For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+        ForEach ($_Connection in $ApplianceConnection)
         {
 
 			if ($VolumeName)
@@ -28553,7 +28508,7 @@ function Get-HPOVStorageVolumeSnapShot
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -28739,7 +28694,7 @@ function New-HPOVStorageVolumeSnapshot
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -28907,7 +28862,7 @@ function Remove-HPOVStorageVolumeSnapshot
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -29101,7 +29056,7 @@ function ConvertTo-HPOVStorageVolume
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -29331,7 +29286,7 @@ function New-HPOVStorageVolume
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -29834,7 +29789,7 @@ function Add-HPOVStorageVolume
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -30125,7 +30080,7 @@ function Set-HPOVStorageVolume
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -30512,7 +30467,7 @@ function Remove-HPOVStorageVolume
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -30842,7 +30797,7 @@ function Get-HPOVSanManager
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -31088,7 +31043,7 @@ function Add-HPOVSanManager
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -31472,7 +31427,7 @@ function Set-HPOVSanManager
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -31936,7 +31891,7 @@ function Remove-HPOVSanManager
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -32168,7 +32123,7 @@ function Get-HPOVManagedSan
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -32398,7 +32353,7 @@ function Set-HPOVManagedSan
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -32645,7 +32600,7 @@ function Show-HPOVSanEndpoint
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -32899,7 +32854,7 @@ function Get-HPOVUnmanagedDevice
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -33109,7 +33064,7 @@ function New-HPOVUnmanagedDevice
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -33273,7 +33228,7 @@ function Remove-HPOVUnmanagedDevice
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -33503,7 +33458,7 @@ function Get-HPOVPowerDevice
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -33553,13 +33508,13 @@ function Get-HPOVPowerDevice
     Process 
 	{
 
-        For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+        ForEach ($_appliance in $ApplianceConnection)
 		{
 
 			Try
 			{
 
-				$ipdus = Send-HPOVRequest $powerDevicesUri -appliance $_Connection #($powerDevicesUri + "?filter=`"name matches '$name'`"")
+				$ipdus = Send-HPOVRequest $powerDevicesUri -appliance $_appliance #($powerDevicesUri + "?filter=`"name matches '$name'`"")
 
 			}
 
@@ -33676,7 +33631,7 @@ function Add-HPOVPowerDevice
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -33998,7 +33953,7 @@ function Remove-HPOVPowerDevice
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -34240,7 +34195,7 @@ function Get-HPOVPowerPotentialDeviceConnection
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -34537,7 +34492,7 @@ function New-HPOVNetwork
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -35149,7 +35104,7 @@ function Get-HPOVNetwork
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -35590,7 +35545,7 @@ function Set-HPOVNetwork
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -36071,7 +36026,7 @@ function Remove-HPOVNetwork
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -36344,7 +36299,7 @@ function New-HPOVNetworkSet
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -36828,7 +36783,7 @@ function Get-HPOVNetworkSet
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -37093,7 +37048,7 @@ function Set-HPOVNetworkSet
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -37592,7 +37547,7 @@ function Remove-HPOVNetworkSet
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -37812,7 +37767,7 @@ function Get-HPOVAddressPool
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -38031,7 +37986,7 @@ function Get-HPOVAddressPoolRange
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -38267,7 +38222,7 @@ function New-HPOVAddressRange
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -38458,7 +38413,7 @@ function New-HPOVAddressRange
 
 			        }
 			        
-			        $_newRange = NewOPbject -IDPoolRange
+			        $_newRange = NewObject -IDPoolRange
 
 					$_newRange.startAddress = $Start
 					$_newRange.endAddress   = $End
@@ -38569,7 +38524,7 @@ function Get-HPOVInterconnectType
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -38772,7 +38727,7 @@ function Get-HPOVInterconnect
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -38992,7 +38947,7 @@ function Get-HPOVLogicalInterconnect
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -39258,7 +39213,7 @@ function Update-HPOVLogicalInterconnect
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -39619,7 +39574,7 @@ function Show-HPOVLogicalInterconnectMacTable
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -40195,7 +40150,7 @@ function Install-HPOVLogicalInterconnectFirmware
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -40270,7 +40225,7 @@ function Install-HPOVLogicalInterconnectFirmware
 			if ($ApplianceConnection -eq $null)
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_Connection -Message 'No Appliance Connection was provided.  Please provide a valid ApplianceConnection Object.'
+				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message 'No Appliance Connection was provided.  Please provide a valid ApplianceConnection Object.'
 				$PSCmdlet.ThrowTerminatingError($errorRecord)
 			
 			}
@@ -40654,7 +40609,7 @@ function Show-HPOVPortStatistics
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -41011,7 +40966,7 @@ function Get-HPOVLogicalInterconnectGroup
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -41343,7 +41298,7 @@ function New-HPOVLogicalInterconnectGroup
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -42555,7 +42510,7 @@ function Remove-HPOVLogicalInterconnectGroup
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -42870,7 +42825,7 @@ function Get-HPOVUplinkSet
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -43462,7 +43417,7 @@ function New-HPOVUplinkSet
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -44223,7 +44178,7 @@ function GetNetworkUris
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -44912,7 +44867,7 @@ function New-HPOVServerProfile
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -46905,7 +46860,7 @@ function Update-HPOVServerProfile
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -47250,7 +47205,7 @@ function Get-HPOVServerProfileTemplate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -47636,7 +47591,7 @@ function New-HPOVServerProfileTemplate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -48847,7 +48802,7 @@ function Join-HPOVServerProfileToTemplate
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -49147,7 +49102,7 @@ function ConvertTo-HPOVServerProfileTemplate
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -49642,7 +49597,7 @@ function New-HPOVServerProfileAssign
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -49925,7 +49880,7 @@ function Copy-HPOVServerProfile
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -50465,7 +50420,7 @@ function Remove-HPOVServerProfile
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -50704,7 +50659,7 @@ function Get-HPOVServerProfileConnectionList
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -51096,7 +51051,7 @@ function New-HPOVServerProfileConnection
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -51510,7 +51465,7 @@ function New-HPOVServerProfileAttachVolume
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -52346,7 +52301,7 @@ function Search-HPOVIndex
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -52572,7 +52527,7 @@ function Search-HPOVAssociations
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -52783,7 +52738,7 @@ function Get-HPOVTask
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -53144,7 +53099,7 @@ function Wait-HPOVTaskStart
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -53471,7 +53426,7 @@ function Wait-HPOVTaskComplete
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -53813,7 +53768,7 @@ function Get-HPOVUser
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -54045,7 +54000,7 @@ function New-HPOVUser
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -54302,7 +54257,7 @@ function Set-HPOVUser
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -54678,7 +54633,7 @@ function Set-HPOVUserPassword
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 				}
@@ -54913,7 +54868,7 @@ function Remove-HPOVUser
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -55196,7 +55151,7 @@ function Set-HPOVUserRole
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -55548,7 +55503,7 @@ function Get-HPOVLdap
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -55718,7 +55673,7 @@ function Get-HPOVLdapDirectory
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -55969,7 +55924,7 @@ function New-HPOVLdapDirectory
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -56226,7 +56181,7 @@ function Remove-HPOVLdapDirectory
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -56479,7 +56434,7 @@ Function Set-HPOVLdapDefaultDirectory
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -56732,7 +56687,7 @@ Function Enable-HPOVLdapLocalLogin
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -56901,7 +56856,7 @@ Function Disable-HPOVLdapLocalLogin
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -57318,7 +57273,7 @@ function Get-HPOVLdapGroup
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -57515,7 +57470,7 @@ function New-HPOVLdapGroup
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -57598,7 +57553,7 @@ function New-HPOVLdapGroup
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Supported"
 
-					[void]$_NewUserRoles.Add($_Roles)
+					[void]$_Roles.Add($_role)
 
 				}
 
@@ -57745,7 +57700,7 @@ function Set-HPOVLdapGroupRole
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -58014,7 +57969,7 @@ function Remove-HPOVLdapGroup
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -58250,7 +58205,7 @@ Function Get-HPOVAuditLog
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -58406,7 +58361,7 @@ Function Get-HPOVAuditLogArchive
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -58592,7 +58547,7 @@ function Get-HPOVAlert
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -58933,7 +58888,7 @@ function Set-HPOVAlert
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -59175,7 +59130,7 @@ function Get-HPOVLicense
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -59668,7 +59623,7 @@ function Remove-HPOVLicense
 					Catch [HPOneview.Appliance.AuthSessionException] 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -59976,7 +59931,7 @@ function Set-HPOVSMTPConfig
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -60134,7 +60089,7 @@ function Get-HPOVSMTPConfig
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -60289,7 +60244,7 @@ function Add-HPOVSmtpAlertEmailFilter
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -60442,7 +60397,7 @@ function Get-HPOVLoginMessage
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -60595,7 +60550,7 @@ function Set-HPOVLoginMessage
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -60748,7 +60703,7 @@ Function Get-HPOVRemoteSyslog
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -60904,7 +60859,7 @@ Function Set-HPOVRemoteSyslog
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -61080,7 +61035,7 @@ function Enable-HPOVRemoteSyslog
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -61251,7 +61206,7 @@ function Disable-HPOVRemoteSyslog
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -61444,7 +61399,7 @@ function Enable-HPOVDebug
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -61610,7 +61565,7 @@ function Disable-HPOVDebug
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $_connection -Message $_.Exception.Message -InnerException $_.Exception
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}

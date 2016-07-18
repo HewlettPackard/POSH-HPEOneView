@@ -32,6 +32,11 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.530.0
+     -- [#141] Fixed minor bug.
+     -- [#140] Fixed New-HPOVLdapGroup where Roles property was not being processed correctly.
+     -- Fixed regression in how multiple appliance connections are handled with Get-HPOV Cmdlets.
+
     Release 2.0.526.0
      -- [#139] Fixed Get-HPOVBaseline where an exception would generate if no baselines were present.
      -- Add Show-HPOVBaselineRepositorySize to report the appliance repository size.
