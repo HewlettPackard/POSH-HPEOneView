@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.530.0"
+[version]$script:ModuleVersion = "2.0.530.1"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -3294,8 +3294,11 @@ function NewObject
 
 				Return [PsCustomObject]@{ 
 
-					type          = "Range"; 
-					rangeCategory = "CUSTOM";
+					type          = 'Range'; 
+					rangeCategory = 'CUSTOM';
+					prefix        = $null;
+					name          = $null;
+					enabled       = $true;
 					startAddress  = $null; 
 					endAddress    = $null
 
@@ -6683,7 +6686,7 @@ function Connect-HPOVMgmt
 		[Parameter(Mandatory = $false, HelpMessage = "Enter the password:", Position = 2)]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
-		[String]$password,
+		[Object]$Password,
 
 		[Parameter(Mandatory = $false)]
 		[switch]$LoginAcknowledge 
@@ -6799,13 +6802,20 @@ function Connect-HPOVMgmt
             
         }
 
-        if (-not($password))
+        if (-not($PSBoundParameters['Password']))
         {
 
             [SecureString]$password = read-host -AsSecureString "Password"
-            $decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
+            $decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
             
         }
+
+		elseif ($Password -is [SecureString])
+		{
+
+			$decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
+
+		}
 
         else 
         {
@@ -38429,7 +38439,7 @@ function New-HPOVAddressRange
 			Try
 			{
 
-				$_resp = Send-HPOVRequest $newPoolRangeUri POST $newRange -Hostname $_Connection.Name
+				$_resp = Send-HPOVRequest $_newPoolRangeUri POST $_newRange -Hostname $_Connection.Name
 
 				$_resp.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.AddressPoolRange')
 
@@ -43369,7 +43379,7 @@ function New-HPOVUplinkSet
         [ValidateScript({$_.contains(":")})]
         [String]$PrimaryPort = $Null,
 
-        [Parameter(Mandatory = $false, Position = 9, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter(Mandatory = $false, Position = 9, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [ValidateSet("Auto", "2", "4", "8", IgnoreCase=$false)]
         [String]$fcUplinkSpeed = "Auto",
 		
@@ -43518,12 +43528,20 @@ function New-HPOVUplinkSet
 					#Init Uplink Set Objects
 					$_liUplinkSetObject  = NewObject -liUplinkSetObject
 
-					$_liUplinkSetObject.name      = $Name
+					$_liUplinkSetObject.name = $Name
 
-					if ($PSBoundParameters['EthMode'])
+					if ($EthMode)
 					{
 
-						$_liUplinkSetObject.mode = $EthMode
+						$_liUplinkSetObject.connectionMode = $EthMode
+
+						if ($EthMode -eq 'Failover' -and $PSBoundParameters['LacpTimer'])
+						{
+
+							$errorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'LacpTimer' -Message "The -LacpTimer parameter valueis not supported when -EthMode is set to Failover."
+							$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+						}
 
 					}
 
@@ -43692,24 +43710,16 @@ function New-HPOVUplinkSet
 
 					}
 
-					#Validate Uplink Network Type.     
-					$_liUplinkSetObject.networkType = $Type  
-						
-					#Rebuld uplinkset collection
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_resource.name) Rebuilding UplinkSet template collection."
-
-					$_resource.uplinkSets | % {
-
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Saving Uplink Set object to new collection: {0}" -f $_.name | Write-Verbose
-
-						[void]$_NewUpinkSetCol.Add($_)
-
-					}
-
-					[void]$_NewUpinkSetCol.Add($_liUplinkSetObject)
-											
-					$_resource.uplinkSets = $_NewUpinkSetCol
-		
+					#Validate Uplink Network Type.        
+					$_liUplinkSetObject.networkType = $UplinkSetNetworkTypeEnum[$Type]
+					
+					If ($Type -ne 'FibreChannel')
+					{
+					
+						$_liUplinkSetObject.ethernetNetworkType = $UplinkSetEthNetworkTypeEnum[$Type]
+							
+					}   
+							
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_resource.name) Uplink Set object: $($_liUplinkSetObject | convertto-json -depth 99)"
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request..."
@@ -43747,12 +43757,20 @@ function New-HPOVUplinkSet
 					#Create new instance of the LIGUplinkSet Object
 					$_ligUplinkSetObject = NewObject -ligUplinkSetObject
 
-					$_ligUplinkSetObject.name      = $Name
+					$_ligUplinkSetObject.name = $Name
 
-					if ($PSBoundParameters['EthMode'])
+					if ($EthMode)
 					{
 
 						$_ligUplinkSetObject.mode = $EthMode
+
+						if ($EthMode -eq 'Failover' -and $PSBoundParameters['LacpTimer'])
+						{
+
+							$errorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'LacpTimer' -Message "The -LacpTimer parameter valueis not supported when -EthMode is set to Failover."
+							$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+						}
 
 					}
 
@@ -50501,7 +50519,7 @@ function Remove-HPOVServerProfile
         foreach ($_profile in $ServerProfile) 
 		{
 
-            if ($_profile -is [String] -and (-not($_profile.StartsWith.($ServerProfilesUri)))) 
+            if ($_profile -is [String] -and (-not($_profile.StartsWith($ServerProfilesUri)))) 
 			{
 
 				Try
@@ -50562,7 +50580,7 @@ function Remove-HPOVServerProfile
 				Try
 				{
 
-					$_resp = Send-HPOVRequest $_uri -Hostname $ApplianceConnection
+					$_resp = Send-HPOVRequest $_uri DELETE -Hostname $ApplianceConnection
 
 					[void]$taskCollection.Add($_resp)
 
@@ -54379,7 +54397,7 @@ function Set-HPOVUser
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Original User object: $($_User | FL * | Out-String)"
 
-			$_User | Add-Member -NotePropertyName type -NotePropertyValue 'UserAndRoles'
+			#$_User | Add-Member -NotePropertyName type -NotePropertyValue 'UserAndRoles'
 
 			switch ($PSBoundParameters.keys) 
 			{
@@ -54427,6 +54445,7 @@ function Set-HPOVUser
 
 					    #Validate roles provided are allowed.
 					    $_unsupportedRoles = New-OBject System.Collections.ArrayList
+						$_NewUserRoles     = New-OBject System.Collections.ArrayList
 
 					    #Validate roles provided are allowed.
 						foreach ($_role in $Roles) 
@@ -54434,7 +54453,7 @@ function Set-HPOVUser
 
 							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing role: $_role"
 
-							if (-not ((${Global:ConnectedSessions} | ? Name -EQ $_Connection.Name).ApplianceSecurityRoles -contains $_role)) 
+							if ((${Global:ConnectedSessions} | ? Name -EQ $_User.ApplianceConnection.Name).ApplianceSecurityRoles -notcontains $_role)
 							{ 
 							
 								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Invalid or unsupported"
@@ -54447,6 +54466,8 @@ function Set-HPOVUser
 							{
 
 								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Supported"
+
+								$_role = $_role.substring(0,1).ToUpper() + $_role.substring(1).tolower()
 
 								[void]$_NewUserRoles.Add($_role)
 
@@ -54461,18 +54482,6 @@ function Set-HPOVUser
 							$PSCmdlet.ThrowTerminatingError($errorRecord)            
 						
 						}
-
-					    #Need to make sure role name is first letter capitalized only.
-					    $i = 0
-
-					    foreach ($_role in $_NewUserRoles) 
-						{
-
-					        $_NewUserRoles[$i] = $_role.substring(0,1).ToUpper()+$_role.substring(1).tolower()
-
-					        $i++
-
-					    }
 
 						$_User.roles = $_NewUserRoles
 
@@ -54548,7 +54557,7 @@ function Set-HPOVUser
 			Try
 			{
 
-				$_resp = Send-HPOVRequest $usersUri PUT $updateUser -Hostname $_User.ApplianceConnection.Name
+				$_resp = Send-HPOVRequest $usersUri PUT $_User -Hostname $_User.ApplianceConnection.Name
 
 			}
             
@@ -58267,7 +58276,7 @@ Function Get-HPOVAuditLog
 				#Send the request
 				$_AuditLogs = Send-HPOVRequest $applAuditLogsUri -Hostname $_Connection
 
-				$_AuditLogs | % {
+				$_AuditLogs.members | % {
 
 					$_.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.AuditLogEntry')
 
@@ -61929,7 +61938,8 @@ Export-ModuleMember -Function Get-HPOVAlert
 Export-ModuleMember -Function Set-HPOVAlert
 Export-ModuleMember -Function Set-HPOVAlertAssignTOuter
 Export-ModuleMember -Function Clear-HPOVAlert
-Export-ModuleMember -Function Set-HPOVSmtpConfig
+Export-ModuleMember -Function Get-HPOVSMTPConfig
+Export-ModuleMember -Function Set-HPOVSMTPConfig
 Export-ModuleMember -Function Add-HPOVSmtpAlertEmailFilter
 
 #Licenses
