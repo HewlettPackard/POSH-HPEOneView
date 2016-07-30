@@ -1454,9 +1454,9 @@ Accepted values are
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Add-HPOVSmtpAlertEmailFilter</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default" aliases="query">
-					<maml:name>filter</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default" aliases="query">
+					<maml:name>Filter</maml:name>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Default" aliases="recipients">
 					<maml:name>Emails</maml:name>
@@ -1498,8 +1498,8 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default" aliases="query">
-				<maml:name>filter</maml:name>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default" aliases="query">
+				<maml:name>Filter</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-query]
 
@@ -1507,7 +1507,7 @@ REST API filter specifying the resource category, URI, name, and severity.
 	
 Example:  CPU status:'warning' or status:'critical'</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -1523,9 +1523,7 @@ Example:  CPU status:'warning' or status:'critical'</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None. You cannot pipe objects to this Cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -1533,12 +1531,11 @@ Example:  CPU status:'warning' or status:'critical'</maml:para>
 			<!--Return Values-->
 			<command:returnValue>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneview.Appliace.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>If successful, returns a resource.
-</maml:para>
+					<maml:para>Returns Asynchronous task to monitor.</maml:para>
 				</maml:description>
 			</command:returnValue>
 		</command:returnValues>
@@ -1698,9 +1695,7 @@ The IP Address or FQDN of the supported storage system to import a new or additi
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- Async Task(s) to monitor storage pool import.
-</maml:para>
+					<maml:para />
 				</maml:description>
 			</command:returnValue>
 		</command:returnValues>
@@ -1935,9 +1930,7 @@ Example: @{"1:1:1"="Fabric A";"2:2:2"="Fabric B"}</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None.  You cannot pipe objects to this Cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -2373,9 +2366,7 @@ Specify the Storage Volume Name.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -2387,9 +2378,7 @@ Specify the Storage Volume Name.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None
-</maml:para>
+					<maml:para />
 				</maml:description>
 			</command:returnValue>
 		</command:returnValues>
@@ -2535,9 +2524,7 @@ User name to authenticate.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None.  You cannot pipe objects to this Cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -6051,7 +6038,11 @@ Details   : Add firmware bundle /rest/firmware-drivers/CP026527
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>Retrieves the list of SPPs that have been uploaded to the appliance, and their detail.  You can examine the included components and their versions reported by the baseline.</maml:para>
+			<maml:para>Retrieves the list of SPPs that have been uploaded to the appliance, and their detail.  You can examine the included components and their versions reported by the baseline.
+
+Please note that any file name that contains the . (period, CHAR46) character will be replaced with _ (underscore, CHAR95).
+
+Example: My.Spp.To.Upload.201605.iso will become My_Spp_To_Upload_201605.iso.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -18304,7 +18295,7 @@ PS C:\&gt; New-HPOVEnclosureGroup -name "Production Enclosure Group 1" -LogicalI
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="5" isDynamic="false" parameterSetName="LDAP, AD" aliases="p, pass">
 					<maml:name>Password</maml:name>
-					<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="AD" aliases="None">
 					<maml:name>AD</maml:name>
@@ -18343,7 +18334,7 @@ PS C:\&gt; New-HPOVEnclosureGroup -name "Production Enclosure Group 1" -LogicalI
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="7" isDynamic="false" parameterSetName="LDAP, AD" aliases="p, pass">
 					<maml:name>Password</maml:name>
-					<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="LDAP" aliases="LDAP">
 					<maml:name>OpenLDAP</maml:name>
@@ -18442,11 +18433,11 @@ E.g. ou=admins,ou=contoso</maml:para>
 				<maml:name>Password</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-p, -pass]
-Directory Username password.</maml:para>
+Directory Username password in either String or SecureString format.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name>SecureString</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -26158,7 +26149,7 @@ PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric 
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>This Cmdlet will help create a Storage Volume resource on a managed Storage System.  The volume can be created by specifying the Storage Pool or an existing Storage Volume Template.  When the Storage Pool name is not unique, you can either use the -StorageSystem parameter, or pass via the pipeline the Storage Pool from Get-HPOVStoragePool.
+			<maml:para>This cmdlet will help create a Storage Volume resource on a managed Storage System.  The volume can be created by specifying the Storage Pool or an existing Storage Volume Template.  When the Storage Pool name is not unique, you can either use the -StorageSystem parameter, or pass via the pipeline the Storage Pool from Get-HPOVStoragePool.
 
 If the Storage Volume Template Global Policy is enabled, a valid Storage Volume Template must be provided.</maml:para>
 		</maml:description>
@@ -26166,29 +26157,29 @@ If the Storage Volume Template Global Policy is enabled, a valid Storage Volume 
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>New-HPOVStorageVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="name">
-					<maml:name>VolumeName</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="VolumeName">
+					<maml:name>Name</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="default" aliases="None">
-					<maml:name>Description</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="2" isDynamic="false" parameterSetName="default" aliases="pool, poolName">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="default" aliases="pool, poolName">
 					<maml:name>StoragePool</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="3" isDynamic="false" parameterSetName="template, default" aliases="size">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="size">
 					<maml:name>Capacity</maml:name>
 					<command:parameterValue required="true" variableLength="False">Int64</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="template, default" aliases="Appliance">
-					<maml:name>ApplianceConnection</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="None">
+					<maml:name>Description</maml:name>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="None">
+					<maml:name>SnapshotStoragePool</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="None">
 					<maml:name>StorageSystem</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="None">
 					<maml:name>Full</maml:name>
@@ -26198,41 +26189,41 @@ If the Storage Volume Template Global Policy is enabled, a valid Storage Volume 
 					<maml:name>Shared</maml:name>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
+					<maml:name>ApplianceConnection</maml:name>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVStorageVolume</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="name">
-					<maml:name>VolumeName</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="template, default" aliases="size">
-					<maml:name>Capacity</maml:name>
-					<command:parameterValue required="true" variableLength="False">Int64</command:parameterValue>
-				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template" aliases="template, svt">
 					<maml:name>VolumeTemplate</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="template, default" aliases="Appliance">
-					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="size">
+					<maml:name>Capacity</maml:name>
+					<command:parameterValue required="true" variableLength="False">Int64</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
 					<maml:name>Shared</maml:name>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
+					<maml:name>ApplianceConnection</maml:name>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="template, default" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
 
 Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
 
-Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -26241,7 +26232,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="template, default" aliases="size">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="size">
 				<maml:name>Capacity</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-size]
@@ -26254,7 +26245,7 @@ Max volume capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="template, default" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
 				<maml:name>Description</maml:name>
 				<maml:description>
 					<maml:para>Provide a description for the volume.</maml:para>
@@ -26279,6 +26270,19 @@ Default: Thin</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="VolumeName">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-VolumeName]
+Storage Volume Name. Device Volume created on the storage system will be this name without spaces.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
 				<maml:name>Shared</maml:name>
 				<maml:description>
@@ -26292,7 +26296,20 @@ Default: Private</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="2" isDynamic="false" parameterSetName="template, default" aliases="pool, poolName">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="template, default" aliases="None">
+				<maml:name>SnapshotStoragePool</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-pool, -PoolName]
+Storage Pool URI, name or resource object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="template, default" aliases="pool, poolName">
 				<maml:name>StoragePool</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-pool, -PoolName]
@@ -26310,22 +26327,9 @@ Storage Pool URI, name or resource object.</maml:para>
 				<maml:description>
 					<maml:para>When the Storage Pool name is not unique, specify the Storage System name the pool is managed/associate with.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name>String</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="template, default" aliases="name">
-				<maml:name>VolumeName</maml:name>
-				<maml:description>
-					<maml:para>Aliases [-Name]
-Storage Volume Name. Device Volume created on the storage system will be this name without spaces.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				<dev:type>
-					<maml:name>String</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -26348,17 +26352,7 @@ Specify the Storage Volume Template Name, URI or Resource.</maml:para>
 			<!--Input Types-->
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.String</maml:name>
-					<maml:uri />
-				</dev:type>
-				<maml:description>
-					<maml:para>Storage Pool Name or URI
-</maml:para>
-				</maml:description>
-			</command:inputType>
-			<command:inputType>
-				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Storage.Pool [System.Management.Automation.PSCustomObject]</maml:name>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
@@ -26486,22 +26480,6 @@ PS C:\&gt; $New-HPOVStorageVolume testvol3 -volumetemplate $svt -capacity 90 | W
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVStorageVolume</maml:linkText>
-				<maml:uri />
-			</maml:navigationLink>
-			<maml:navigationLink>
-				<maml:linkText>Get-HPOVStorageVolumeSnapshot</maml:linkText>
-				<maml:uri />
-			</maml:navigationLink>
-			<maml:navigationLink>
-				<maml:linkText>New-HPOVStorageVolumeSnapshot</maml:linkText>
-				<maml:uri />
-			</maml:navigationLink>
-			<maml:navigationLink>
-				<maml:linkText>Remove-HPOVStorageVolumeSnapshot</maml:linkText>
-				<maml:uri />
-			</maml:navigationLink>
-			<maml:navigationLink>
-				<maml:linkText>ConvertTo-HPOVStorageVolume</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -38572,20 +38550,20 @@ Currently, HPE OneView does not support Secure SMTP, even though the TCP Port ca
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Set-HPOVSMTPConfig</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default, Disabled" aliases="server">
-					<maml:name>SmtpServer</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default, Disabled" aliases="SmtpServer">
+					<maml:name>Server</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Default, Disabled" aliases="port">
-					<maml:name>SmtpPort</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Default, Disabled" aliases="SmtpPort">
+					<maml:name>Port</maml:name>
 					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="Default, Disabled" aliases="None">
 					<maml:name>Password</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
-					<maml:name>alertEmailEnabled</maml:name>
+					<maml:name>AlertEmailEnabled</maml:name>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="Appliance">
@@ -38595,20 +38573,20 @@ Currently, HPE OneView does not support Secure SMTP, even though the TCP Port ca
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Set-HPOVSMTPConfig</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default, Disabled" aliases="server">
-					<maml:name>SmtpServer</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default, Disabled" aliases="SmtpServer">
+					<maml:name>Server</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Default, Disabled" aliases="port">
-					<maml:name>SmtpPort</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Default, Disabled" aliases="SmtpPort">
+					<maml:name>Port</maml:name>
 					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="Default, Disabled" aliases="None">
 					<maml:name>Password</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled" aliases="None">
-					<maml:name>alertEmailDisabled</maml:name>
+					<maml:name>AlertEmailDisabled</maml:name>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="Appliance">
@@ -38619,6 +38597,30 @@ Currently, HPE OneView does not support Secure SMTP, even though the TCP Port ca
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="None">
+				<maml:name>AlertEmailDisabled</maml:name>
+				<maml:description>
+					<maml:para>Disable SMTP Email Alerting.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="None">
+				<maml:name>AlertEmailEnabled</maml:name>
+				<maml:description>
+					<maml:para>Enable SMTP Email Alerting</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
@@ -38638,14 +38640,27 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="Disabled, Default" aliases="None">
 				<maml:name>Password</maml:name>
 				<maml:description>
-					<maml:para>Provide an SMTP Password to authenticate to the SMTP Server.  This password will be sent in clear text to the SMTP server.</maml:para>
+					<maml:para>Provide an SMTP Password to authenticate to the SMTP Server.  Object can either be a String or SecureString value.  This password will be sent in clear text to the SMTP server.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name>String</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Disabled, Default" aliases="SmtpPort">
+				<maml:name>Port</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-SmtpPort]
+Provide an alternate TCP port number than the default SMTP port value 25/TCP.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>25</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Disabled, Default" aliases="None">
 				<maml:name>SenderEmailAddress</maml:name>
@@ -38659,23 +38674,10 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="Disabled, Default" aliases="port">
-				<maml:name>SmtpPort</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Disabled, Default" aliases="SmtpServer">
+				<maml:name>Server</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-port]
-Provide an alternate TCP port number than the default SMTP port value 25/TCP.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
-				<dev:type>
-					<maml:name>Int32</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue>25</dev:defaultValue>
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Disabled, Default" aliases="server">
-				<maml:name>SmtpServer</maml:name>
-				<maml:description>
-					<maml:para>Aliases [-server]
+					<maml:para>Aliases [-SmtpServer]
 Specify the SMTP Relay Server if DNS does not contain a valid DNS MX record for the sender email address domain name.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -38684,30 +38686,6 @@ Specify the SMTP Relay Server if DNS does not contain a valid DNS MX record for 
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="None">
-				<maml:name>alertEmailDisabled</maml:name>
-				<maml:description>
-					<maml:para>Disable SMTP Email Alerting.</maml:para>
-				</maml:description>
-				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
-				<dev:type>
-					<maml:name>SwitchParameter</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
-			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disabled, Default" aliases="None">
-				<maml:name>alertEmailEnabled</maml:name>
-				<maml:description>
-					<maml:para>Enable SMTP Email Alerting</maml:para>
-				</maml:description>
-				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
-				<dev:type>
-					<maml:name>SwitchParameter</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -39968,14 +39946,14 @@ Array of roles for the user. May include one of more of:
 		<command:details>
 			<command:name>Show-HPOVBaselineRepositorySize</command:name>
 			<maml:description>
-				<maml:para>Report the current Baseline repository utilization.</maml:para>
+				<maml:para>View appliance basline repository size.</maml:para>
 			</maml:description>
 			<command:verb>Show</command:verb>
 			<command:noun>HPOVBaselineRepositorySize</command:noun>
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>Use this Cmdlet to report the allocated and consumed repository size currently set within an HPE OneView appliance.  This Cmdlet will only report the total and remaining size of the repository.  To get Baseline information, use the Get-HPOVBaseline Cmdlet.</maml:para>
+			<maml:para>This Cmdlet will display the applinace baseline repository size</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -39996,7 +39974,7 @@ Array of roles for the user. May include one of more of:
 
 Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
 
-Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -40010,13 +39988,11 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 			<!--Input Types-->
 			<command:inputType>
 				<dev:type>
-					<maml:name>one. You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:name>None. You cannot pipe objects to this cmdlet.</maml:name>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- one. You cannot pipe objects to this cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -40028,18 +40004,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>The appliance repository information.
-</maml:para>
-				</maml:description>
-			</command:returnValue>
-			<command:returnValue>
-				<dev:type>
-					<maml:name>System.Collections.ArrayList &lt;HPOneView.Appliance.BaselineRepository&gt;</maml:name>
-					<maml:uri />
-				</dev:type>
-				<maml:description>
-					<maml:para>Collection of multiple appliances repository information.
-</maml:para>
+					<maml:para>Appliance baseline repository capacity object.</maml:para>
 				</maml:description>
 			</command:returnValue>
 		</command:returnValues>
@@ -40050,27 +40015,10 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Add-HPOVBaseline "C:\Users\me\Documents\SPP2012060B.2012_0525.1.iso"
+				<dev:code>PS C:\&gt; Show-HPOVBaselineRepositorySize
 </dev:code>
 				<dev:remarks>
-					<dev:para>Upload SPP ISO to the default connected appliance.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; GCI C:\Dir1\baseline1.iso,C:\dir2\baseline2.iso | Add-HPOVBaseline
-</dev:code>
-				<dev:remarks>
-					<dev:para>"Get the baselines from the specified directory, pass them as System.IO.FileSystemInfo va the pipeline, and upload to the default connected appliance.</dev:para>
+					<dev:para>Show the appliance baseline repository size.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -40083,15 +40031,11 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 		<maml:relatedLinks>
 			<!--Related Links-->
 			<maml:navigationLink>
-				<maml:linkText>Add-HPOVBaseline</maml:linkText>
-				<maml:uri />
-			</maml:navigationLink>
-			<maml:navigationLink>
 				<maml:linkText>Get-HPOVBaseline</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Restore-HPOVCustomBaseline</maml:linkText>
+				<maml:linkText>Add-HPOVBaseline</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>

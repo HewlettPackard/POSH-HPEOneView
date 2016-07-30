@@ -32,6 +32,17 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.576.0
+     -- [#149] Enhanced Set-HPOVSmtpConfig -Password parameter to allow SecureString type.
+     -- [#150] Fixed Set-HPOVSmtpConfig where SMTP Configuration object was not being sent to API.
+     -- [#152] Fixed Add-HPOVSmtpAlertEmailFilter where configuration was not being handled correctly.
+     -- [#153] Enhanced Add-HPOVSmtpAlertEmailFilter to allow a Null filter, which will process all
+        resources for all severities.
+     -- [#153] Enhanced Add-HPOVBaseline to check if the baseline exists based on the ISO filename.
+     -- [#159] Fixed Send-HPOVRequest redacting logic, which was causing issue with Get-HPOVLdapDirectory.
+     -- Added SnapshotStoragePool to New-HPOVStorageVolume to support setting custom Storage Pool
+        for Snapshots.
+
     Release 2.0.530.1
      -- Re-release of 2.0.530.0 to fix [#141].
      -- [#141] Fixed minor bug.
