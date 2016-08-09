@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.576.0"
+[version]$script:ModuleVersion = "2.0.604.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -5507,8 +5507,8 @@ function Send-HPOVRequest
                     $reader = New-Object System.IO.StreamReader($rs)
                     $resp   = $reader.ReadToEnd() | ConvertFrom-json
 
-					$rs.Close()
-					$reader.Close()
+					#$rs.Close()
+					#$reader.Close()
 					$LastWebResponse.Close()                   
 
 					if ($resp -is [String])
@@ -5921,11 +5921,6 @@ function Send-HPOVRequest
 
 								}
 
-                                
-		    					
-		    					
-                                
-
                             }
 
                             #User is unauthorized
@@ -5939,10 +5934,30 @@ function Send-HPOVRequest
 
 		    						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) Request was '$method' at '$uri'."
 
-                                    $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message).  Request was '$method' at '$uri'. "
+                                    $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: {0}.  Request was '{1}' at '{2}'. " -f (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message, $method, $uri )
                                     $PSCmdlet.ThrowTerminatingError($errorRecord)
 
                                 }
+
+								elseif ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode -eq "INSUFFICIENT_PRIVILEGES") 
+								{
+
+									Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) Request was '$method' at '$uri'."
+
+                                    $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: {0}.  Request was '{1}' at '{2}'. " -f (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message, $method, $uri )
+                                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+								}
+
+								elseif ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode -eq "AlertAuthorizationException") 
+								{
+
+									Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) Request was '$method' at '$uri'."
+
+                                    $errorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException AlertAuthorizationException AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: {0}.  Request was '{1}' at '{2}'. " -f (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message, $method, $uri )
+                                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+								}
 
                                 else 
 								{
@@ -6545,6 +6560,10 @@ function Wait-HPOVApplianceStart
     Process 
 	{
 
+		$_SW = New-Object System.Diagnostics.Stopwatch
+
+		$_SW.Start()
+
         do 
 		{
             
@@ -6624,6 +6643,13 @@ function Wait-HPOVApplianceStart
             catch [Net.WebException] 
 			{
 
+				if ($_.Exception.Message -match 'The remote name could not be resolved')
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
                 if ($waitResponse) 
 				{
 
@@ -6681,6 +6707,33 @@ function Wait-HPOVApplianceStart
 
                 $waitRequest = $null
             }
+
+			#Timeout after 10 minutes
+			if ($_SW.Elapsed.TotalSeconds -ge 600)
+			{
+
+				if ($waitResponse -is [System.IDisposable])
+				{
+
+					$waitResponse.Close()
+					$waitResponse.Dispose()
+
+				}	
+
+				$_SW.Stop()
+
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.NetworkConnectionException ConnectionWaitTimeoutExceeded OperationTimeout -TargetObject 'Hostname' -Message "Timeout waiting for appliance to respond after restart event.  Verify the appliance is operational and reconnect to the appliance."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			if ($waitResponse -is [System.IDisposable])
+			{
+
+				$waitResponse.Close()
+				$waitResponse.Dispose()
+
+			}			
 
         } until ($resp.complete -eq $resp.total -and [int]$waitResponse.StatusCode -eq 200)
 
@@ -9059,6 +9112,140 @@ Function New-HPOVApplianceCsr
 	{
 
 		Return $_TaskStatus
+
+	}
+
+}
+
+function GetTwoLetterCountry
+{
+
+<#
+    .DESCRIPTION
+    Helper function to get ISO3166-2 Compliant Country Name
+                
+    .PARAMETER Country
+    Helper function to get ISO3166-2 Compliant Country Name
+
+    .INPUTS
+    None.  You cannot pipe objects to this cmdlet.
+                
+    .OUTPUTS
+    System.String
+	ISO3166-2 Compliant two character country name
+	
+    .EXAMPLE
+    PS C:\> GetTwoLetterCountry 'United States'
+	US
+
+	Returns the ISO3166-2 Compliant 2-character Country name.
+			
+#>
+
+	[CmdletBinding(DefaultParameterSetName = 'Default')]
+
+	Param 
+	(
+
+		[Parameter(Mandatory, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
+        [String]$Name
+
+	)
+
+	Begin
+	{
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+
+	}
+
+	Process
+	{
+
+		Write-Verbose 'Building Country collection.'
+
+		$CountriesCollection = New-Object Hashtable
+
+		$Countries = [System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]'AllCultures')
+
+		foreach ($ObjCultureInfo in [System.Globalization.CultureInfo]::GetCultures([System.Globalization.CultureTypes]'AllCultures'))
+		{
+
+			Try
+			{
+
+				[System.Globalization.RegionInfo]$_Country = $ObjCultureInfo.LCID
+
+				if ($_Country.EnglishName -match ' AND ')
+				{
+
+					$_CountriesSplit = $_Country.EnglishName.Split(' AND ')
+
+					ForEach ($_split in $_CountriesSplit)
+					{
+
+						if (-not($CountriesCollection.ContainsKey($_split)))
+						{
+                
+							$CountriesCollection.Add($_split, $_Country.TwoLetterISORegionName.ToUpper());
+
+						}
+
+					}
+
+				}
+
+				else
+				{
+
+					if (-not($CountriesCollection.ContainsKey($_Country.EnglishName)))
+					{
+
+
+						$CountriesCollection.Add($_Country.EnglishName, $_Country.TwoLetterISORegionName.ToUpper());
+
+					}
+
+				}
+
+			}
+
+			Catch
+			{
+
+				#Write-Verbose ("{0} Doesn't have RegionInfo" -f $ObjCultureInfo)
+
+			}
+
+		}
+
+	}
+
+	End
+	{
+
+		Write-Verbose 'Returning value'
+
+		Write-verbose ('Country Collection: {0}' -f ($CountriesCollection | Out-String))
+
+		Write-Verbose ('ISO3166-2 Country Name: {0}' -f $CountriesCollection[$Name])
+
+		$_Return = $CountriesCollection[$Name]
+
+		if (-not($_Return))
+		{
+
+			$ErrorRecord = New-ErrorRecord InvalidOperationException CountryNameNotFound ObjectNotFound 'Name' -Message ('{0} is not a valid Country Name, or unable to find mapping to RegionInfo ISO3166-2 compliant 2-Character name.' -f $Name )
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		Return $_Return
 
 	}
 
@@ -13288,11 +13475,9 @@ function Add-HPOVBaseline
 			Catch [HPOneView.BaselineResourceException]
 			{
 
-				"[{0}] Baseline {1} does NOT exist." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+				"[{0}] Baseline {1} does NOT exist." -f $MyInvocation.InvocationName.ToString().ToUpper(), $File.Name | Write-Verbose
 
 				$_BaselineDoesNotExist = $True
-
-				Write-Verbose 
 
 			}
 
@@ -15979,7 +16164,9 @@ function Import-HPOVSslCertificate
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting response"
 			
-				$WebRequest = [Net.WebRequest]::Create($_ConnectString)
+				[System.Net.HttpWebRequest]$WebRequest = [System.Net.HttpWebRequest]::Create($_ConnectString)
+
+				$WebRequest.ServerCertificateValidationCallback = { $True }
 					
 				$Response = $WebRequest.GetResponse()
 			
@@ -17279,7 +17466,7 @@ function Remove-HPOVServer
 
 		Return $_TaskCollection
 
-      }
+    }
 
 }
 
@@ -29288,6 +29475,7 @@ function New-HPOVStorageVolume
 	(
 
         [parameter (Mandatory, ParameterSetName = "default")]
+		[parameter (Mandatory, ParameterSetName = "template")]
         [ValidateNotNullOrEmpty()]
         [Alias("VolumeName")]
         [string]$Name,
@@ -37306,240 +37494,154 @@ function Set-HPOVNetworkSet
     Process 
 	{
         
-        ForEach ($_Connection in $ApplianceConnection)
+		#Process Network Set input object is the correct resource and data type.
+        switch ($NetworkSet.Gettype().Name) 
 		{
 
-			#Process Network Set input object is the correct resource and data type.
-            switch ($NetworkSet.Gettype().Name) 
-			{
-
-                "PSCustomObject" 
-				{ 
+            "PSCustomObject" 
+			{ 
     
-                    if ($NetworkSet.category -eq "network-sets")
-					{
-
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($NetworkSet.type) $($NetworkSet.name) resource."
-
-                    }
-
-                    else 
-					{
-
-                        $errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'NetworkSet' -TargetType 'PSObject' -Message "The provided NetworkSet resource contains an unsupported category type, '$($NetworkSet.category)'.  Only 'network-sets' resources are allowed.  Please check the -NetworkSet parameter value and try again."
-                        $PSCmdLet.ThrowTerminatingError($errorRecord)
-
-                    }
-                
-                }
-
-                "String" 
-				{ 
-                
-                    if (-not ($NetworkSet.StartsWith($networkSetsUri)))
-					{
-                    
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting '$($NetworkSet)' resource from appliance."
-
-						Try
-						{
-
-							$NetworkSet = Get-HPOVNetworkSet $NetworkSet -appliance $_Connection
-
-						}
-
-						Catch
-						{
-
-							$PSCmdlet.ThrowTerminatingError($_)
-
-						}
-                        
-                        
-                        #if (-not $NetworkSet) {
-						#
-                        #    $errorRecord = New-ErrorRecord HPOneView.NetworkResourceException NetworkSetResourceNotFound ObjectNotFound 'Set-HPOVNetwork' -Message #"'$netSet' Network Set was not found.  Please check the value and try again."
-                        #    $PSCmdLet.ThrowTerminatingError($errorRecord)
-						#
-                        #}
-                    
-                    }
-
-                    elseif ($netSet.StartsWith($networkSetsUri))
-					{
-                    
-                        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting '$($netSet)' resource from appliance."
-
-						Try
-						{
-
-							$NetworkSet = Send-HPOVRequest $NetworkSet -appliance $_Connection
-
-						}
-
-						Catch
-						{
-
-							$PSCmdlet.ThrowTerminatingError($_)
-
-						}
-                    
-                    }
-                
-                }
-
-                default
-				{
-                    
-                    #if($netSet -is [Object[]] -and ($netSet.category -eq "network-sets")){
-                    #    $updatedNetworkSet = $netSet | ? {$_.ApplianceConnection.name -eq $ApplianceConnection.name}
-                    #}
-                    #else {
-
-                        $errorRecord = New-ErrorRecord HPOneView.NetworkSetResourceException InvalidArgumentValue InvalidArgument 'NetworkSet' -TargetType $NetworkSet.GetType().Name -Message "[$($netSet.gettype().name)] is an unsupported data type.  Only [System.String] or [PSCustomObject] Network Set resources are allowed.  Please check the -NetworkSet parameter value and try again."
-                        $PSCmdLet.ThrowTerminatingError($errorRecord)
-
-                    #}
-
-                }
-
-            }
-
-			$_UpdatedNetSet = $NetworkSet.PSObject.Copy()
-
-            #Process Network Set Name change
-            if ($PSBoundParameters["Name"]) 
-			{
-            
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network Set name to '$name'."
-
-                $_UpdatedNetSet.name = $name
-            
-            }
-
-            if ($PSBoundParameters["Networks"]) 
-			{
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($Networks.count) network resources"
-
-                $i = 1
-
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Clearing out existing networkUris."
-
-				$_UpdatedNetSet.networkUris = New-Object System.Collections.ArrayList
-
-                foreach ($_net in $Networks) 
+                if ($NetworkSet.category -eq "network-sets")
 				{
 
-					switch ($_net.GetType().Name)
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($NetworkSet.type) $($NetworkSet.name) resource."
+
+                }
+
+                else 
+				{
+
+                    $errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'NetworkSet' -TargetType 'PSObject' -Message "The provided NetworkSet resource contains an unsupported category type, '$($NetworkSet.category)'.  Only 'network-sets' resources are allowed.  Please check the -NetworkSet parameter value and try again."
+                    $PSCmdlet.ThrowTerminatingError($errorRecord)
+
+                }
+                
+            }
+
+            "String" 
+			{ 
+                
+                if (-not ($NetworkSet.StartsWith($networkSetsUri)))
+				{
+                    
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting '$($NetworkSet)' resource from appliance."
+
+					Try
 					{
 
-						'String'
-						{
-
-							if ($_net.startswith($ethNetworksUri)) 
-							{
-
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] is a URI: $_net"
-
-								[void]$_UpdatedNetSet.networkUris.Add($net)
-
-							}
-
-							elseif ($net -is [string]) 
-							{
-
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] is a Name: $net"
-
-								Try
-								{
-
-									$_networkObject = Get-HPOVNnetwork $_net -type Ethernet -appliance $_Connection
-
-									[void]$_UpdatedNetSet.networkUris.Add($_networkObject.uri)
-
-								}
-
-								Catch
-								{
-
-									$PSCmdlet.ThrowTerminatingError($_)
-
-								}
-								
-							}
-
-						}
-
-						'PSCustomObject'
-						{
-
-							if ($_net.category -eq "ethernet-networks") 
-							{
-
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] is a type [PsCustomObject]"
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] Name: $($_net.name)"
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] uri: $($_net.uri)"
-
-							}
-
-							else 
-							{
-
-								$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'Networks' -TargetType $_Net.GetType().Name -Message "Network '$($_net.name)' is not a supported type '$($_net.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
-								$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-							}
-
-							[void]$_UpdatedNetSet.networkUris.Add($_net.uri)
-
-						}
-
-						default
-						{
-
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'Networks' -TargetType $_Net.GetType().Name -Message "The provided Network is not a supported type '$($_net.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
-							$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-						}
+						$NetworkSet = Get-HPOVNetworkSet $NetworkSet -appliance $ApplianceConnection
 
 					}
 
-                    $i++
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+                        
+
+                }
+
+                elseif ($netSet.StartsWith($networkSetsUri))
+				{
+                    
+                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting '$($netSet)' resource from appliance."
+
+					Try
+					{
+
+						$NetworkSet = Send-HPOVRequest $NetworkSet -appliance $ApplianceConnection
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
                     
                 }
+                
+            }
+
+            default
+			{
+					
+                $errorRecord = New-ErrorRecord HPOneView.NetworkSetResourceException InvalidArgumentValue InvalidArgument 'NetworkSet' -TargetType $NetworkSet.GetType().Name -Message "[$($netSet.gettype().name)] is an unsupported data type.  Only [System.String] or [PSCustomObject] Network Set resources are allowed.  Please check the -NetworkSet parameter value and try again."
+                $PSCmdlet.ThrowTerminatingError($errorRecord)
 
             }
 
-    	    if ($PSBoundParameters["UntaggedNetwork"])
+        }
+
+		$_UpdatedNetSet = $NetworkSet.PSObject.Copy()
+
+        #Process Network Set Name change
+        if ($PSBoundParameters["Name"]) 
+		{
+            
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network Set name to '$name'."
+
+            $_UpdatedNetSet.name = $name
+            
+        }
+
+        if ($PSBoundParameters["Networks"]) 
+		{
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($Networks.count) network resources"
+
+            [array]::sort($Networks)
+
+            $i = 1
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Clearing out existing networkUris."
+
+			$_UpdatedNetSet.networkUris = New-Object System.Collections.ArrayList
+
+            foreach ($_net in $Networks) 
 			{
 
-				switch ($UntaggedNetwork.GetType().Name)
+				switch ($_net.GetType().Name)
 				{
 
 					'String'
 					{
 
-						if ($UntaggedNetwork.startswith($ethNetworksUri)) 
+						if ($_net.startswith($ethNetworksUri)) 
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Untagged Network is a URI: $UntaggedNetwork"
-
-							$_UpdatedNetSet.nativeNetworkUri = $UntaggedNetwork
-
-						}
-
-						elseif ($net -is [string]) 
-						{
-
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Untagged Network is a Name: $UntaggedNetwork"
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] is a URI: $_net"
 
 							Try
 							{
 
-								$_networkObject = Get-HPOVNnetwork $UntaggedNetwork -type Ethernet -appliance $_Connection
+								[void]$_UpdatedNetSet.networkUris.Add((Send-HPOVRequest $UntaggedNetwork -Hostname $ApplianceConnection).uri)
 
-								$_UpdatedNetSet.nativeNetworkUri = $_networkObject.uri
+							}
+
+							Catch
+							{
+
+								$PSCmdlet.ThrowTerminatingError($_)
+
+							}
+
+						}
+
+						elseif ($_net -is [string]) 
+						{
+
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] is a Name: $_net"
+
+							Try
+							{
+
+								$_networkObject = Get-HPOVNetwork $_net -type Ethernet -appliance $ApplianceConnection
+
+								[void]$_UpdatedNetSet.networkUris.Add($_networkObject.uri)
 
 							}
 
@@ -37557,109 +37659,184 @@ function Set-HPOVNetworkSet
 					'PSCustomObject'
 					{
 
-						if ($UntaggedNetwork.category -eq "ethernet-networks") 
+						if ($_net.category -eq "ethernet-networks") 
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network is a type [PsCustomObject]"
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network Name: $($UntaggedNetwork.name)"
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network uri: $($UntaggedNetwork.uri)"
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] is a type [PsCustomObject]"
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] Name: $($_net.name)"
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network [$i] uri: $($_net.uri)"
 
 						}
 
 						else 
 						{
 
-							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'UntaggedNetwork' -TargetType $UntaggedNetwork.GetType().Name -Message "The UntaggedNetwork '$($UntaggedNetwork.name)' is not a supported type '$($UntaggedNetwork.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
+							$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'Networks' -TargetType $_Net.GetType().Name -Message "Network '$($_net.name)' is not a supported type '$($_net.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
 							$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 						}
 
-						$_UpdatedNetSet.nativeNetworkUri = $UntaggedNetwork.uri
+						[void]$_UpdatedNetSet.networkUris.Add($_net.uri)
 
 					}
 
 					default
 					{
 
-						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'UntaggedNetwork' -TargetType $UntaggedNetwork.GetType().Name -Message "The provided UntaggedNetwork is not a supported type '$($UntaggedNetwork.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'Networks' -TargetType $_Net.GetType().Name -Message "The provided Network is not a supported type '$($_net.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
 						$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 					}
 
 				}
 
-		    }
-
-            #Process Network Set Bandwidth assignment change
-            if ($PSBoundParameters["TypicalBandwidth"] -or $PSBoundParameters["MaximumBandwidth"]) 
-			{
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network bandwidth assignment."
-
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Network Set Connection Template."
-				
-				Try
-				{
-
-					$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri -appliance $_Connection
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-                
-                if ($PSBoundParameters["MaximumBandwidth"]) 
-				{
-                
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Original Maximum bandwidth assignment: $($_ct.bandwidth.maximumBandwidth)"
-
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Maximum bandwidth assignment: $MaximumBandwidth"
-
-                    $_ct.bandwidth.maximumBandwidth = $MaximumBandwidth
-
-                }
-
-                if($PSBoundParameters["TypicalBandwidth"]) 
-				{
-
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Original Typical bandwidth assignment: $($_ct.bandwidth.typicalBandwidth)"
-
-                    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Typical bandwidth assignment: $TypicalBandwidth"
-
-                    $_ct.bandwidth.typicalBandwidth = $TypicalBandwidth
+                $i++
                     
-                }
-
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Connection Template: $($_ct | out-string)"
-
-                Try
-				{
-
-					$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri PUT $_ct -appliance $_Connection
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-
             }
 
-            $_UpdatedNetSet = $_UpdatedNetSet | select * -ExcludeProperty typicalBandwidth, maximumBandwidth, created, modified, state, status
-            
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network Resource object: $($_UpdatedNetSet | out-string)"
+        }
 
+    	if ($PSBoundParameters["UntaggedNetwork"])
+		{
+
+			switch ($UntaggedNetwork.GetType().Name)
+			{
+
+				'String'
+				{
+
+					if ($UntaggedNetwork.startswith($ethNetworksUri)) 
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Untagged Network is a URI: $UntaggedNetwork"
+
+						Try
+						{
+
+							$_UpdatedNetSet.nativeNetworkUri = (Send-HPOVRequest $UntaggedNetwork -Hostname $ApplianceConnection).uri
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+					}
+
+					elseif ($UntaggedNetwork -is [string]) 
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Untagged Network is a Name: $UntaggedNetwork"
+
+						Try
+						{
+
+							$_networkObject = Get-HPOVNetwork $UntaggedNetwork -type Ethernet -appliance $ApplianceConnection
+
+							$_UpdatedNetSet.nativeNetworkUri = $_networkObject.uri
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+								
+					}
+
+				}
+
+				'PSCustomObject'
+				{
+
+					if ($UntaggedNetwork.category -eq "ethernet-networks") 
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network is a type [PsCustomObject]"
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network Name: $($UntaggedNetwork.name)"
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Native Network uri: $($UntaggedNetwork.uri)"
+
+					}
+
+					else 
+					{
+
+						$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'UntaggedNetwork' -TargetType $UntaggedNetwork.GetType().Name -Message "The UntaggedNetwork '$($UntaggedNetwork.name)' is not a supported type '$($UntaggedNetwork.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
+						$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+					}
+
+					$_UpdatedNetSet.nativeNetworkUri = $UntaggedNetwork.uri
+
+				}
+
+				default
+				{
+
+					$errorRecord = New-ErrorRecord HPOneView.NetworkResourceException InvalidArgumentValue InvalidArgument 'UntaggedNetwork' -TargetType $UntaggedNetwork.GetType().Name -Message "The provided UntaggedNetwork is not a supported type '$($UntaggedNetwork.gettype().fullname)'.  Network resource must be either [System.String] or [PsCustomObject].  Please correct the parameter value and try again."
+					$PSCmdlet.ThrowTerminatingError($errorRecord)
+
+				}
+
+			}
+
+		}
+
+        #Process Network Set Bandwidth assignment change
+        if ($PSBoundParameters["TypicalBandwidth"] -or $PSBoundParameters["MaximumBandwidth"]) 
+		{
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network bandwidth assignment."
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Network Set Connection Template."
+				
 			Try
 			{
 
-				$_results = Send-HPOVRequest $_UpdatedNetSet.Uri PUT $_UpdatedNetSet -appliance $_Connection.Name
+				$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri -appliance $_appliance
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+                
+            if ($PSBoundParameters["MaximumBandwidth"]) 
+			{
+                
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Original Maximum bandwidth assignment: $($_ct.bandwidth.maximumBandwidth)"
+
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Maximum bandwidth assignment: $MaximumBandwidth"
+
+                $_ct.bandwidth.maximumBandwidth = $MaximumBandwidth
+
+            }
+
+            if($PSBoundParameters["TypicalBandwidth"]) 
+			{
+
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Original Typical bandwidth assignment: $($_ct.bandwidth.typicalBandwidth)"
+
+                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Typical bandwidth assignment: $TypicalBandwidth"
+
+                $_ct.bandwidth.typicalBandwidth = $TypicalBandwidth
+                    
+            }
+
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Connection Template: $($_ct | out-string)"
+
+            Try
+			{
+
+				$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri PUT $_ct -appliance $_appliance
 
 			}
 
@@ -37670,9 +37847,27 @@ function Set-HPOVNetworkSet
 
 			}
 
-            [void]$_TaskCollection.Add($_results)
-
         }
+
+        $_UpdatedNetSet = $_UpdatedNetSet | select * -ExcludeProperty typicalBandwidth, maximumBandwidth, created, modified, state, status
+            
+        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Network Resource object: $($_UpdatedNetSet | out-string)"
+
+		Try
+		{
+
+			$_results = Send-HPOVRequest $_UpdatedNetSet.Uri PUT $_UpdatedNetSet -appliance $_appliance.Name
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+        [void]$_TaskCollection.Add($_results)
 
     }
 
@@ -46096,6 +46291,8 @@ function New-HPOVServerProfile
 						
 						}
 
+						#Look at model?s
+
 		    	    }
 
 		    	    else 
@@ -46259,7 +46456,8 @@ function New-HPOVServerProfile
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
 
 					#Get avaialble Networks based on the EG and SHT
-					$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+					#$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+					$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $serverProfile.serverHardwareTypeUri,$serverProfile.enclosureGroupUri
 
 					Try
 					{
@@ -53004,7 +53202,7 @@ function Get-HPOVTask
     Process 
 	{
 
-		ForEach ($_Connection in $ApplianceConnection)
+		ForEach ($_appliance in $ApplianceConnection)
 		{
 
 			$uri = $allNonHiddenTaskUri
@@ -53014,7 +53212,7 @@ function Get-HPOVTask
         
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Name parameter value: $($TaskName)"
 
-				$Uri += "?filter=name='$TaskName'" 
+				$Uri += "&filter=name='$TaskName'" 
         
 			}
 
@@ -53023,40 +53221,16 @@ function Get-HPOVTask
         
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] State parameter value: $($State)"
 
-				if ($Uri) 
-				{ 
-					
-					$Uri += "&filter=taskState='$State'" 
-				
-				}
-
-				else 
-				{
-					
-					$Uri = "?filter=taskState='$State'" 
-				
-				}
-			
+				$Uri += "&filter=taskState='$State'" 
+							
 			}
 
 			if ($PSBoundParameters['Count']) 
 			{
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Count parameter value: $($Count)"
-
-				if ($Uri) 
-				{ 
 					
-					$Uri += "&count=$Count&sort=created:descending" 
-				
-				}
-
-				else 
-				{ 
-					
-					$Uri = "?count=$Count&sort=created:descending"
-					
-				} 
+				$Uri += "&count=$Count&sort=created:descending" 
 
 			}
 
@@ -53080,20 +53254,8 @@ function Get-HPOVTask
 
 			                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource parameter Name: $($Resource)"
 
-			                if ($Uri) 
-							{ 
-								
-								$Uri += "&filter=associatedResource.resourceName='$Resource'" 
+							$Uri += "&filter=associatedResource.resourceName='$Resource'" 
 							
-							}
-
-			                else 
-							{ 
-								
-								$Uri = "?filter=associatedResource.resourceName='$Resource'" 
-							
-							}
-
 			            }
 
 			            #Checking if the input is System.String and IS a URI
@@ -53101,20 +53263,9 @@ function Get-HPOVTask
 						{
 			    
 			                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource parameter URI: $($Resource)"
-
-			                if ($Uri) 
-							{ 
-								
-								$Uri += "&filter=associatedResource.resourceUri='$Resource'" 
+	
+							$Uri += "&filter=associatedResource.resourceUri='$Resource'" 
 							
-							}
-			                
-							else 
-							{ 
-								
-								$Uri = "?filter=associatedResource.resourceUri='$Resource'" 
-							
-							}
 			
 			            }
 
@@ -53126,27 +53277,15 @@ function Get-HPOVTask
 
 			                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Using URI value ($($Resource.Uri)) from input object."
 
-			                if ($Uri) 
-							{ 
-								
-								$Uri += "&filter=associatedResource.resourceUri='$($Resource.Uri)'" 
+							$Uri += "&filter=associatedResource.resourceUri='$($Resource.Uri)'" 
 							
-							}
-
-			                else 
-							{ 
-								
-								$Uri = "?filter=associatedResource.resourceUri='$($Resource.Uri)'" 
-							
-							}
-			            
 						}
 
 						else 
 						{
 							 
 			                $errorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Get-HPOVTask' -Message "The Resource input parameter was not recognized as a valid type or format."
-			                $pscmdlet.ThrowTerminatingError($errorRecord)
+			                $PSCmdlet.ThrowTerminatingError($errorRecord)
 							
 						}
 						
@@ -53159,18 +53298,7 @@ function Get-HPOVTask
 			    
 			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource Category was specified:  $($ResourceCategory)"
 
-			        if ($Uri) 
-					{
-						
-						 $Uri += "&filter=associatedResource.resourceCategory='$($ResourceCategory)'" 
-					}
-
-			        else 
-					{
-						
-						$Uri = "?filter=associatedResource.resourceCategory='$($ResourceCategory)'" 
-					
-					}
+					$Uri += "&filter=associatedResource.resourceCategory='$($ResourceCategory)'" 
 
 			    } #End ResourceCategory
 
@@ -53196,12 +53324,12 @@ function Get-HPOVTask
 			try 
 			{
         
-				$_tasks = Send-HPOVRequest $Uri -Hostname $_Connection
+				$_tasks = Send-HPOVRequest $Uri -Hostname $_appliance
 
 				if ($_tasks.count -eq 0) 
 				{ 
                 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No tasks found on Appliance '$($_Connection.Name)'."
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No tasks found on Appliance '$($_appliance.Name)'."
                     
 				}
 
@@ -53223,7 +53351,7 @@ function Get-HPOVTask
 			catch 
 			{
 
-				$pscmdlet.ThrowTerminatingError($_)
+				$PSCmdlet.ThrowTerminatingError($_)
 			
 			}
 
@@ -59310,13 +59438,14 @@ function Set-HPOVAlert
 
 		}
 
-		if ($Pipeline)
+		if ($Alert.alertState -eq 'Locked' -and ($PSboundParameters['Cleared'] -or $PSboundParameters['Active']))
 		{
 
-			$ApplianceConnection = $Alert.ApplianceConnection.Name
+			$errorRecord = New-ErrorRecord InvalidOperationException InvalidAlertState InvalidOperation 'Alert' -TargetType $Alert.GetType().Name -Message "The Alert provided is a Locked alert and it's state cannot be modified."
+			$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 		}
-			
+
 		Try
 		{
 
@@ -60662,7 +60791,7 @@ function Add-HPOVSmtpAlertEmailFilter
 		    #Create new alert filter object
 		    $_alertFilter = NewObject -AlertFilter
 		
-			$_alertFilter.filter          = "($filter)"
+			$_alertFilter.filter          = $filter
 			$_alertFilter.displayFilter   = $filter
 			$_alertFilter.userQueryFilter = $filter
 			$_alertFilter.emails          = $Emails

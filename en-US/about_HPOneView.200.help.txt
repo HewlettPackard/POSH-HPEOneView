@@ -32,13 +32,27 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.604.0
+     -- [#161] Fixed Add-HPOVBaseline where verbose reporting caused an invalid Index error. 
+     -- [#162] Updated Add-HPOVSmtpAlertEmailFilter to not encapsulate the filter with () if it were null.
+     -- [#164] Fixed New-HPOVServerProfile where incorrect URI was being used to lookup available
+        networks based on the Server Hardware Type and Enclosure Group, when assigning to
+        Server hardware.
+     -- Fixed Get-HPOVTask where URI was built incorrectly for API search queries.
+     -- Fixed New-HPOVStorageVolume where -Name parameter was not bound to the both parameter sets,
+        causing PowerShell exception when trying to use Storage Volume template.
+     -- Fixed Set-HPOVNetworkSet where String Network names were not being handled correctly.
+     -- Enhanced Wait-HPOVApplianceStart to terminate if the Hostname cannot be resolved, and
+        added 10 minute timeout so not to indefinitely wait.
+
     Release 2.0.576.0
+     -- [#144] Implemented workaround for New-HPOVLdapDirectory to handle OneView known issue.
      -- [#149] Enhanced Set-HPOVSmtpConfig -Password parameter to allow SecureString type.
      -- [#150] Fixed Set-HPOVSmtpConfig where SMTP Configuration object was not being sent to API.
      -- [#152] Fixed Add-HPOVSmtpAlertEmailFilter where configuration was not being handled correctly.
      -- [#153] Enhanced Add-HPOVSmtpAlertEmailFilter to allow a Null filter, which will process all
         resources for all severities.
-     -- [#153] Enhanced Add-HPOVBaseline to check if the baseline exists based on the ISO filename.
+     -- [#156] Enhanced Add-HPOVBaseline to check if the baseline exists based on the ISO filename.
      -- [#159] Fixed Send-HPOVRequest redacting logic, which was causing issue with Get-HPOVLdapDirectory.
      -- Added SnapshotStoragePool to New-HPOVStorageVolume to support setting custom Storage Pool
         for Snapshots.
