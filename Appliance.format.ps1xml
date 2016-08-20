@@ -438,61 +438,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--Appliance.TaskResource FL-->
-		<View>
-			<Name>TaskResource</Name>
-			<ViewSelectedBy>
-				<TypeName>HPOneView.Appliance.TaskResource</TypeName>
-			</ViewSelectedBy>
-			<ListControl>
-				<ListEntries>
-					<ListEntry>
-						<ListItems>
-              <ListItem>
-                <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
-            </ListItem>
-							<ListItem>
-								<Label>Name</Label>
-								<PropertyName>name</PropertyName>
-							</ListItem>
-							<ListItem>
-								<Label>Owner</Label>
-								<PropertyName>owner</PropertyName>
-							</ListItem>
-              <ListItem>
-                <Label>Created</Label>
-                <PropertyName>created</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Duratuon</Label>
-                <ScriptBlock>"{0:hh\:mm\:ss}" -f ((Get-Date $_.modified) - (Get-Date $_.created))</ScriptBlock>
-              </ListItem>
-							<ListItem>
-								<Label>TaskState</Label>
-								<PropertyName>taskState</PropertyName>
-							</ListItem>
-							<ListItem>
-								<Label>Complete</Label>
-								<PropertyName>percentComplete</PropertyName>
-							</ListItem>
-							<ListItem>
-								<Label>ProgressUpdates</Label>
-								<PropertyName>progressUpdates</PropertyName>
-							</ListItem>
-							<ListItem>
-								<Label>TaskErrors</Label>
-								<PropertyName>taskErrors</PropertyName>
-							</ListItem>
-							<ListItem>
-								<Label>ParentTaskUri</Label>
-								<PropertyName>parentTaskUri</PropertyName>
-							</ListItem>
-						</ListItems>
-					</ListEntry>
-				</ListEntries>
-			</ListControl>
-		</View>
     <!--Appliance.TaskResource FT-->
     <View>
       <Name>TaskResource</Name>
@@ -560,6 +505,61 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <!--Appliance.TaskResource FL-->
+		<View>
+			<Name>TaskResource</Name>
+			<ViewSelectedBy>
+				<TypeName>HPOneView.Appliance.TaskResource</TypeName>
+			</ViewSelectedBy>
+			<ListControl>
+				<ListEntries>
+					<ListEntry>
+						<ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+            </ListItem>
+							<ListItem>
+								<Label>Name</Label>
+								<PropertyName>name</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>Owner</Label>
+								<PropertyName>owner</PropertyName>
+							</ListItem>
+              <ListItem>
+                <Label>Created</Label>
+                <PropertyName>created</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Duratuon</Label>
+                <ScriptBlock>"{0:hh\:mm\:ss}" -f ((Get-Date $_.modified) - (Get-Date $_.created))</ScriptBlock>
+              </ListItem>
+							<ListItem>
+								<Label>TaskState</Label>
+								<PropertyName>taskState</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>Complete</Label>
+								<PropertyName>percentComplete</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>ProgressUpdates</Label>
+								<PropertyName>progressUpdates</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>TaskErrors</Label>
+								<PropertyName>taskErrors</PropertyName>
+							</ListItem>
+							<ListItem>
+								<Label>ParentTaskUri</Label>
+								<PropertyName>parentTaskUri</PropertyName>
+							</ListItem>
+						</ListItems>
+					</ListEntry>
+				</ListEntries>
+			</ListControl>
+		</View>
     <!--APPLIANCE_LICENSE FL-->
 		<View>
 			<Name>License</Name>

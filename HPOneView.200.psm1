@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.604.0"
+[version]$script:ModuleVersion = "2.0.610.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -960,7 +960,6 @@ namespace HPOneView
             private string _userName = null;
             private string _authLoginDomain = null;
             private bool _sslChecked = false;
-			private string _applianceType = null;
 			private int _maxApiVersion = 0;
 			private bool _default = false;
 
@@ -1001,14 +1000,6 @@ namespace HPOneView
                 get { return _authLoginDomain; }
                 set { _authLoginDomain = value; }
             }
-
-			public string ApplianceType
-			{
-
-				get { return _applianceType; }
-				set { _applianceType = value; }
-
-			}
 
             public bool SslChecked
             {
@@ -2749,6 +2740,7 @@ function NewObject
 		[switch]$StorageSystemManagedPort,
 		[switch]$StorageVolume,
 		[switch]$StorageVolumeTemplate,
+		[switch]$TemporaryConnection,
 		[switch]$UpdateAlert,
 		[switch]$UplinkSetLocation,
 		[switch]$UplinkSetLocationEntry,
@@ -2779,6 +2771,36 @@ function NewObject
 
 		switch($PSBoundParameters.Keys)
 		{
+
+			'TemporaryConnection'
+			{
+
+				$_ID = 99
+
+				While (-not($FoundID))
+				{
+
+					if ($ConnectedSessions.ConnectionID -notcontains $_ID)
+					{
+
+						$FoundID = $_ID
+
+					}
+
+					$_ID--
+
+				}
+
+				$_TemporaryConnection = New-Object HPOneView.Appliance.Connection
+				$_TemporaryConnection.ConnectionID = $_ID
+				$_TemporaryConnection.SessionID    = 'TemporaryConnection'
+				$_TemporaryConnection.SslChecked   = $true
+
+				[void]${Global:ConnectedSessions}.Add($_TemporaryConnection)
+
+				Return $_TemporaryConnection
+
+			}
 
 			'ApplianceTrustStoreCertificate'
 			{
@@ -4926,22 +4948,22 @@ function RestClient
 
     .PARAMETER Appliance
     Optional.  Provide the appliance hostname or FQDN.  The default is the value of '$script:HPOneViewAppliance'
-#>
+	#>
 
     [CmdletBinding()]
     Param 
 	(
 
-        [Parameter(Mandatory = $False, Position = 0)]
-        [ValidateScript({if ("GET","POST","DELETE","PATCH","PUT" -match $_) {$true} else { Throw "'$_' is not a valid Method.  Only GET, POST, DELETE, PATCH, or PUT are allowed." }})]
+        [Parameter (Mandatory = $False, Position = 0)]
+        [ValidateScript ({if ("GET","POST","DELETE","PATCH","PUT" -match $_) {$true} else { Throw "'$_' is not a valid Method.  Only GET, POST, DELETE, PATCH, or PUT are allowed." }})]
         [string]$method = "GET",
 
-        [Parameter(Mandatory, Position = 1, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
-        [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
+        [Parameter (Mandatory, Position = 1, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
+        [ValidateScript ({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
         [string]$uri,
 
-        [Parameter(Mandatory, Position = 2)]
-        [ValidateNotNullorEmpty()]
+        [Parameter (Mandatory, Position = 2)]
+        [ValidateNotNullorEmpty ()]
         [string]$Appliance = $Null
 
     )
@@ -4976,135 +4998,164 @@ function RestClient
  
         # Set the callback to check for null certificate and thumbprint matching.
 		#This method is only supported in PowerShell 4 or greater
-        $restClient.ServerCertificateValidationCallback = {
+		$restClient.ServerCertificateValidationCallback = {
 
             $_WebRequest = [System.Net.WebRequest]$args[0]
+
+			#Handle IPv6 Addresses, which must be encapsulated with [], e.g. [fde4:8dba:82e1::1]
+			$_Hostname = $_WebRequest.Host #.Replace('[',$null).Replace(']',$null)
+
+            [IPAddress]$_HostnameIsIPv6Address = 0.0.0.0
+
+            #Need to handle IPv6 Address, as System.Net.WebRequest will expand an IPv6 address in $args[0].Host
+            If ([System.Net.IPAddress]::TryParse($_Hostname,[ref]$_HostnameIsIPv6Address))
+            {
+
+                $_Hostname = '[{0}]' -f $_HostnameIsIPv6Address.IPAddressToString
+
+            }
+
+			if (-not(($Global:ConnectedSessions | ? Name -eq $_Hostname).SslChecked))
+			{
+
+				if ($Global:IgnoreCertPolicy)
+				{
+
+					Try
+					{
+
+						($Global:ConnectedSessions | ? Name -eq $_Hostname).SslChecked = $true
+
+					}
+
+					Catch
+					{
+
+						Throw $_
+
+					}				
+			
+					return $true
+
+				}
+
+				else
+				{
+
+					$_certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]$args[1]
+
+					try 
+					{ 
+					
+						$_san = ($_certificate.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", " 
+				
+					}
+
+					catch 
+					{ 
+					
+						$_san = $null 
+				
+					}
+
+					$_chain = New-Object Security.Cryptography.X509Certificates.X509Chain 
+
+					[void]$_chain.ChainPolicy.ApplicationPolicy.Add("1.3.6.1.5.5.7.3.1")
+
+					$_status = $_chain.Build($_certificate)
+
+					if ($_chain.ChainStatus) { $_chainstatus = $_chain.ChainStatus | % { $_.Status.ToString() } }
+
+					$_certObject = [HPOneView.PKI.SslCertificate] @{
+
+							Certificate             = $_WebRequest.ServicePoint.Certificate;
+							Issuer                  = $_WebRequest.ServicePoint.Certificate.Issuer;
+							Subject                 = $_WebRequest.ServicePoint.Certificate.Subject;
+							SubjectAlternativeNames = $_san;
+							CertificateIsValid      = $_status;
+							ErrorInformation        = $_chainstatus
+
+					}
+
+					# // Check _san as well?  DnsNameList is likely not enough, and is failing cert chain validation in some cases with DCS.
+					if (($_certificate.DnsNameList -contains $_Hostname -or $_certObject.SubjectAlternativeNames -match $_Hostname) -and (-not($_status)) -and ($_chainstatus -contains "UntrustedRoot"))
+					{
+
+						if (-not(($Global:ConnectedSessions | ? Name -eq $_Hostname).SslChecked))
+						{
+
+							$_backgroundcolor = [System.Console]::BackgroundColor 
+							$Host.UI.WriteLine([System.ConsoleColor]::Yellow,$_backgroundcolor,"`n$($_certObject | Out-String)")
+							$Host.UI.WriteWarningLine("The appliance SSL Certificate is UNTRUSTED.  Use the Import-HPOVSSLCertificate to import the appliance Self-Signed certificate to your user accounts local Trusted Root Certification Authorities store to not display this warning when you first connect to your appliance.")
+							$Host.UI.WriteLine("")
+
+							($Global:ConnectedSessions | ? Name -eq $_Hostname).SslChecked = $true
+
+						}
+				
+						return $true
+				
+					}
+
+					#If Cert IS valid, but cannot validate with Root CA, can validate with Subordinate CA and unable to validate revocation, display warning
+					elseif ((-not ($_status)) -and ($_certificate.ErrorInformation -contains "PartialChain" -and $_certificate.ErrorInformation -contains "RevocationStatusUnknown" -and $_certificate.ErrorInformation -contains "OfflineRevocation")) 
+					{ 
+
+						$Host.UI.WriteLine([System.ConsoleColor]::Yellow,$_backgroundcolor,"`n$($_certObject | Out-String)")
+
+						$Host.UI.WriteWarningLine("The appliance SSL Certificate is UNTRUSTED.  This system does not trust the CA issuer, and is unable to verify the Certificate Authorities Revocation List (CRL) or the Revocation List Destination (CLD) is not contained within the certificate.")
+						$Host.UI.WriteLine("")
+					
+					}
+
+					#If Cert IS valid, but cannot validate with Root CA and unable to validate revocation, display warning
+					elseif ((-not ($_status)) -and ($_certificate.ErrorInformation -contains "RevocationStatusUnknown" -and $_certificate.ErrorInformation -contains "OfflineRevocation")) 
+					{				 
+					
+						$Host.UI.WriteLine([System.ConsoleColor]::Yellow,$_backgroundcolor,"`n$($_certObject | Out-String)")
+					
+						$Host.UI.WriteWarningLine("The appliance SSL Certificate is UNTRUSTED.  This system is unable to verify the Certificate Authorities Revocation List (CRL) or the Revocation List Destination (CLD) is not contained within the certificate.  If you are using an Enterprise Certificate Authority (i.e. Windows Server CA), please make sure the CRL is published as part of the issued certificate (CRL is an Extension that needs to be enabled prior to issuing certificates).")
+						$Host.UI.WriteLine("")
+
+					}
+
+					#Cert is trusted and a Global ConnectedSession exists
+					elseif ($_status -and ($Global:ConnectedSessions | ? Name -eq $_Hostname))
+					{
+
+						($Global:ConnectedSessions | ? Name -eq $_Hostname).SslChecked = $true
+				
+						return $_status
+
+					}
+
+					elseif ($_status)
+					{
+
+						#$Host.UI.WriteLine("Reached final ElseIf and cert is trusted.")
+						return $_status
+
+					}
+
+					else 
+					{
+
+						$Host.UI.WriteLine([System.ConsoleColor]::Red,[System.ConsoleColor]::Black,"`n$($_certObject | Out-String)")
+
+					}
+
+					return $false
+
+				}
+
+			}
  
-            $_certificate = [System.Security.Cryptography.X509Certificates.X509Certificate2]$args[1]
-
-            try 
-			{ 
-				
-				$_san = ($_certificate.Extensions | Where-Object {$_.Oid.Value -eq "2.5.29.17"}).Format(0) -split ", " 
-			
-			}
-
-            catch 
-			{ 
-				
-				$_san = $null 
-			
-			}
-
-            $_chain = New-Object Security.Cryptography.X509Certificates.X509Chain 
-
-            [void]$_chain.ChainPolicy.ApplicationPolicy.Add("1.3.6.1.5.5.7.3.1")
-
-            $_status = $_chain.Build($_certificate)
-
-            if ($_chain.ChainStatus) { $_chainstatus = $_chain.ChainStatus | % { $_.Status.ToString() } }
-
-            $_certObject = [HPOneView.PKI.SslCertificate] @{
-
-                    Certificate             = $_WebRequest.ServicePoint.Certificate;
-                    Issuer                  = $_WebRequest.ServicePoint.Certificate.Issuer;
-                    Subject                 = $_WebRequest.ServicePoint.Certificate.Subject;
-                    SubjectAlternativeNames = $_san;
-                    CertificateIsValid      = $_status;
-                    ErrorInformation        = $_chainstatus
-
-            }
-
-			# Return true if SSLChecked Property has been set to $True
-			if (($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host).SslChecked)
+			else
 			{
 
-				Return $true
+				($Global:ConnectedSessions | ? Name -eq $_Hostname).SslChecked
 
-			}
-
-			# // Check _san as well?  DnsNameList is likely not enough, and is failing cert chain validation in some cases with DCS.
-            elseif ((($_certificate.DnsNameList -contains $_WebRequest.Host) -or ($_certObject.SubjectAlternativeNames -match $_WebRequest.Host)) -and (-not($_status)) -and ($_chainstatus -contains "UntrustedRoot"))
-            {
-
-                if (-not(($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host).SslChecked))
-                {
-
-                    $_backgroundcolor = [System.Console]::BackgroundColor 
-                    $Host.UI.WriteLine([System.ConsoleColor]::Yellow,$_backgroundcolor,"`n$($_certObject | Out-String)")
-                    $Host.UI.WriteWarningLine("The appliance SSL Certificate is UNTRUSTED.  Use the Import-HPOVSSLCertificate to import the appliance Self-Signed certificate to your user accounts local Trusted Root Certification Authorities store to not display this warning when you first connect to your appliance.")
-					$Host.UI.WriteLine("")
-
-                    ($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host).SslChecked = $true
-
-                }
-            
-                return $true
-            
-			}
-
-            #If Cert IS valid, but cannot validate with Root CA, can validate with Subordinate CA and unable to validate revocation, display warning
-			elseif 
-			(
-				(-not ($_status)) -and 
-				($_certificate.ErrorInformation -contains "PartialChain" -and 
-				 $_certificate.ErrorInformation -contains "RevocationStatusUnknown" -and
-				 $_certificate.ErrorInformation -contains "OfflineRevocation")
-			) 
-			{ 
-
-                $Host.UI.WriteLine([System.ConsoleColor]::Yellow,$_backgroundcolor,"`n$($_certObject | Out-String)")
-
-                $Host.UI.WriteWarningLine("The appliance SSL Certificate is UNTRUSTED.  This system does not trust the CA issuer, and is unable to verify the Certificate Authorities Revocation List (CRL) or the Revocation List Destination (CLD) is not contained within the certificate.")
-				$Host.UI.WriteLine("")
-                
-            }
-
-			#If Cert IS valid, but cannot validate with Root CA and unable to validate revocation, which makes the cert 'invalid', display warning
-			elseif 
-			(
-				(-not($_status)) -and 
-				($_certificate.ErrorInformation -contains "RevocationStatusUnknown"	-or 
-				 $_certificate.ErrorInformation -contains "OfflineRevocation")
-			) 
-			{				 
-                
-				$Host.UI.WriteLine([System.ConsoleColor]::Yellow,$_backgroundcolor,"`n$($_certObject | Out-String)")
-                
-				$Host.UI.WriteWarningLine("The appliance SSL Certificate is UNTRUSTED.  This system is unable to verify the Certificate Authorities Revocation List (CRL) or the Revocation List Destination (CLD) is not contained within the certificate.  If you are using an Enterprise Certificate Authority (i.e. Windows Server CA), please make sure the CRL is published as part of the issued certificate (CRL is an Extension that needs to be enabled prior to issuing certificates).")
-				$Host.UI.WriteLine("")
-
-				($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host).SslChecked = $true
-
-				return $true
-
-			}
-
-            #Cert is trusted and a Global ConnectedSession exists
-            elseif ($_status -and ($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host))
-            {
-
-                ($Global:ConnectedSessions | ? Name -eq $_WebRequest.Host).SslChecked = $true
-            
-                return $_status
-
-            }
-
-            elseif ($_status)
-            {
-
-                return $_status
-
-            }
-
-            else 
-			{
-
-				$Host.UI.WriteLine([System.ConsoleColor]::Red,[System.ConsoleColor]::Black,"`n$($_certObject | Out-String)")
-
-            }
-
-            return $false
+			}            
 
         }
 
@@ -5227,6 +5278,8 @@ function Send-HPOVRequest
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] PROCESS"
 
+			"[{0}] Hostname value: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($ApplianceHost | Out-String) | Write-Verbose
+
 			if (${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name)
 			{
 
@@ -5248,14 +5301,14 @@ function Send-HPOVRequest
 
             }
 
-            elseif ($ApplianceHost -is [String])
+            <#elseif ($ApplianceHost -is [String])
             {
 
 				"[{0}] Basic ApplianceHost for unauth requests: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ApplianceHost | Write-Verbose
 
                 [PSCustomObject]$ApplianceHost = @{Name = $ApplianceHost}
 
-            }
+            }#>
 
 			elseif ($ApplianceHost -isnot [HPOneView.Appliance.Connection] -and $ApplianceHost.Name)
 			{
@@ -5605,7 +5658,7 @@ function Send-HPOVRequest
 
 		    				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding 'HPOneView.Appliance.TaskResource' to PSObject TypeNames for task object"
 
-		    				$resp | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.TaskResource") }
+		    				$resp | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.TaskResource") }
 
                         }
 
@@ -5623,7 +5676,7 @@ function Send-HPOVRequest
 		    		if (([int]$LastWebResponse.StatusCode -eq 200 -or [int]$LastWebResponse.StatusCode -eq 202) -and ($resp.category -eq "tasks") -and (-not($resp.PSObject.TypeNames -match "HPOneView.Appliance.TaskResource"))) 
 					{
 		    			
-		    			$resp | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.TaskResource") }
+		    			$resp | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.TaskResource") }
 
 		    		}
 
@@ -10849,74 +10902,36 @@ function Get-HPOVXApiVersion
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
 
-		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		#Check to see if a connection to the appliance exists
+		#if ($ApplianceConnection -isnot [HPOneView.Appliance.Connection] -and $ApplianceConnection -isnot [System.Collections.IEnumerable] -and $ApplianceConnection -is [String])
+		if ($ApplianceConnection -is [String])
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-		}
-
-		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
-		{
-
-		
-			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+			if ((${Global:ConnectedSessions}.Name -notcontains $ApplianceConnection) -and (-not(${Global:ConnectedSessions} | ? Name -eq $ApplianceConnection).SessionID))
 			{
 
-				Try 
-				{
-			
-					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
 
-				}
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
 
-				Catch [HPOneview.Appliance.AuthSessionException] 
-				{
+				$_ApplianceName = $ApplianceConnection
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+				[HPOneView.Appliance.Connection]$ApplianceConnection = NewObject -TemporaryConnection
 
-				}
+				$ApplianceConnection.Name = $_ApplianceName
 
-				Catch 
-				{
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($ApplianceConnection | out-string)"
+            
+			}
 
-					$PSCmdlet.ThrowTerminatingError($_)
+			else
+			{
 
-				}
-
+				[HPOneView.Appliance.Connection]$ApplianceConnection = ${Global:ConnectedSessions} | ? Name -eq $ApplianceConnection
 
 			}
 
 		}
-
-		else
-		{
-
-			Try 
-			{
-			
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
-
-			}
-
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
-
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
-
-			}
-
-			Catch 
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-		}	
 
 		$_XAPICollection = New-Object System.Collections.ArrayList
 
@@ -10942,8 +10957,23 @@ function Get-HPOVXApiVersion
 
 			}
 
+			finally
+			{
+
+				#Remove Temporary appliance connection
+				if ((${Global:ConnectedSessions} | ? Name -eq $_connection.Name).SessionID -eq 'TemporaryConnection')
+				{
+
+					write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+
+					[void]${Global:ConnectedSessions}.Remove($_connection)
+
+				}
+
+			}
+
 			$_XAPIVersion | % { 
-				
+
 				$_.PSObject.TypeNames.insert(0,'HPOneView.Appliance.XAPIVersion') 
 			
 			}
@@ -10974,7 +11004,7 @@ function Get-HPOVEulaStatus
 
 		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
         [ValidateNotNullOrEmpty()]
-		[string]$Appliance = $null
+		[object]$Appliance = $null
 
     )
 
@@ -10991,30 +11021,43 @@ function Get-HPOVEulaStatus
 		# otherwise, cmdlet will fail when making call to REstClient and it performs the SSL validation and flag value in SSLChecked property
 		# need to do the same with Set-HPOVEulaStatus
 		#Check to see if a connection to the appliance exists
-        if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
-        {
-
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
-
-            write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
-
-            [HPOneView.Appliance.Connection]$_ApplianceConnection = New-Object HPOneView.Appliance.Connection
-
-            $_ApplianceConnection.ConnectionId = 99
-			$_ApplianceConnection.Name         = $Appliance
-			$_ApplianceConnection.SessionID    = 'TemporaryConnection'
-			$_ApplianceConnection.SslChecked   = $true
-
-			[void]${Global:ConnectedSessions}.Add($_ApplianceConnection)
-
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_ApplianceConnection | out-string)"
-            
-        }
-
-		else
+        if ($Appliance -is [String])
 		{
 
-			$_ApplianceConnection = ${Global:ConnectedSessions} | ? Name -eq $Appliance
+			if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
+			{
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
+
+				$_ApplianceName = $Appliance
+
+				[HPOneView.Appliance.Connection]$Appliance = NewObject -TemporaryConnection
+
+				$Appliance.Name = $_ApplianceName
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($Appliance | fl * | out-string)"
+            
+			}
+
+			else #if (${Global:ConnectedSessions}.Name -contains $Appliance)
+			{
+
+				"[{0}] Appliance is a string value, lookup connection in global tracker." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				[HPOneView.Appliance.Connection]$Appliance = ${Global:ConnectedSessions} | ? Name -eq $Appliance
+
+				"[{0}] Found connection in global tracker: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Appliance | Out-String) | Write-Verbose
+
+			}
+			
+		}
+
+		elseif ($Appliance -is [HPOneView.Appliance.Connection])
+		{
+
+			"[{0}] Appliance is a Connection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Appliance | Out-String) | Write-Verbose
 
 		}
 
@@ -11023,12 +11066,12 @@ function Get-HPOVEulaStatus
     Process 
 	{
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting EULA Status from '$($_ApplianceConnection.Name)'."
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting EULA Status from '$($Appliance.Name)'."
 
 		Try
 		{
 
-			$_eulastatus = Send-HPOVRequest $ApplianceEulaStatusUri -Hostname $_ApplianceConnection.Name
+			$_eulastatus = Send-HPOVRequest $ApplianceEulaStatusUri -Hostname $Appliance
 
 		}
 
@@ -11039,12 +11082,18 @@ function Get-HPOVEulaStatus
 
 		}
 
-		if ((${Global:ConnectedSessions} | ? Name -eq $_ApplianceConnection.Name).SessionID -eq 'TemporaryConnection')
+		finally
 		{
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+			#Remove Temporary appliance connection
+			if ((${Global:ConnectedSessions} | ? Name -eq $Appliance.Name).SessionID -eq 'TemporaryConnection')
+			{
 
-			[void]${Global:ConnectedSessions}.Remove($_ApplianceConnection)
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+
+				[void]${Global:ConnectedSessions}.Remove($Appliance)
+
+			}
 
 		}
 		
@@ -11053,7 +11102,7 @@ function Get-HPOVEulaStatus
     End 
 	{ 
 
-        Return $_eulastatus
+        Return [Bool]$_eulastatus
 	
     }
 
@@ -11068,13 +11117,13 @@ function Set-HPOVEulaStatus
     Param
     (
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
         [ValidateNotNullOrEmpty()]
 		[string]$Appliance,
 
-        [Parameter(Position = 1, Mandatory, HelpMessage = "Set to 'yes' to allow HP support access to the appliance, otherwise set to 'no'.")]
+        [Parameter (Position = 1, Mandatory, HelpMessage = "Set to 'yes' to allow HP support access to the appliance, otherwise set to 'no'.")]
         [ValidateNotNullOrEmpty()]
-		[ValidateSet('Yes', 'No')]
+		[ValidateSet ('Yes', 'No')]
         [string]$SupportAccess
 
     )
@@ -11089,30 +11138,51 @@ function Set-HPOVEulaStatus
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		#Check to see if a connection to the appliance exists
-        if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
-        {
+        if ($Appliance -is [String])
+		{
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
+			if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
+			{
 
-            write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
 
-            [HPOneView.Appliance.Connection]$_ApplianceConnection = New-Object HPOneView.Appliance.Connection
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
 
-			$_ApplianceConnection.ConnectionId = 99
-			$_ApplianceConnection.Name         = $Appliance
-			$_ApplianceConnection.SessionID    = 'TemporaryConnection'
-			$_ApplianceConnection.SslChecked   = $true
+				$_ApplianceName = $Appliance
 
-            [void]${Global:ConnectedSessions}.Add($_ApplianceConnection)
+				[HPOneView.Appliance.Connection]$Appliance = NewObject -TemporaryConnection
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_ApplianceConnection | out-string)"
+				$Appliance.Name = $_ApplianceName
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($Appliance | fl * | out-string)"
             
-        }
+			}
+
+			else #if (${Global:ConnectedSessions}.Name -contains $Appliance)
+			{
+
+				"[{0}] Appliance is a string value, lookup connection in global tracker." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				[HPOneView.Appliance.Connection]$Appliance = ${Global:ConnectedSessions} | ? Name -eq $Appliance
+
+				"[{0}] Found connection in global tracker: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Appliance | Out-String) | Write-Verbose
+
+			}
+
+		}        
+
+		elseif ($Appliance -is [HPOneView.Appliance.Connection])
+		{
+
+			"[{0}] Appliance is a Connection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Appliance | Out-String) | Write-Verbose
+
+		}
 
 		else
 		{
 
-			$_ApplianceConnection = ${Global:ConnectedSessions} | ? Name -eq $Appliance
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnknownCondition InvalidOperation "Appliance" -Message "An unknown condition has ocurred."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
     
@@ -11130,7 +11200,7 @@ function Set-HPOVEulaStatus
 		Try
 		{
 
-			$_eulastatus = Send-HPOVRequest $ApplianceEulaSaveUri POST $body -Hostname $_ApplianceConnection.Name
+			$_eulastatus = Send-HPOVRequest $ApplianceEulaSaveUri POST $body -Hostname $Appliance.Name
 
 		}
 
@@ -11141,12 +11211,17 @@ function Set-HPOVEulaStatus
 
 		}
 
-		if ((${Global:ConnectedSessions} | ? Name -eq $_ApplianceConnection.Name).SessionID -eq 'TemporaryConnection')
+		Finally
 		{
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+			if ((${Global:ConnectedSessions} | ? Name -eq $Appliance.Name).SessionID -eq 'TemporaryConnection')
+			{
 
-			[void]${Global:ConnectedSessions}.Remove($_ApplianceConnection)
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+
+				[void]${Global:ConnectedSessions}.Remove($Appliance)
+
+			}
 
 		}
 		
@@ -13462,6 +13537,13 @@ function Add-HPOVBaseline
 
 			}
 
+			if ($File -isnot [System.IO.FileInfo])
+			{
+				
+				$File = GCI $File
+
+			}
+
 			#Check if the Baseline exists already, instead of waiting for filetransfer to finish
 			"[{0}] Checking if Baseline exists" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
@@ -15341,8 +15423,7 @@ function Download-File
 			$_stream = $_rs.GetResponseStream() 
 			    
 			#Define buffer and buffer size
-			[int] $_bufferSize = (4096*1024)
-			[byte[]]$_buffer   = New-Object byte[] ($_bufferSize)
+			[byte[]]$_buffer   = New-Object byte[] (4096*1024)
 			[int] $_bytesRead  = 0
 
 			#This is used to keep track of the file upload progress.
@@ -15353,13 +15434,16 @@ function Download-File
 
 			$_fs = New-Object IO.FileStream ($saveLocation + "\" + $_fileName),'Create','Write','Read'
 
+			$_sw = New-Object System.Diagnostics.StopWatch
+			$_sw.Start()
+
 			do
 			{
 
 				$_bytesRead = $_stream.Read($_buffer, 0, $_bufferSize)
 
 			    #Write from buffer to file
-				$_byteCount = $_fs.Write($_buffer, 0, $_bytesRead);
+				$_byteCount = $_fs.Write($_buffer, 0, $_bytesRead)
 				
 				#Keep track of bytes written for progress meter
 				$_numBytesWrote += $_bytesRead
@@ -15374,22 +15458,39 @@ function Download-File
 				
 				}
 
-			    $_status = "(" + $_numBytesWrote + " of " + $_fileSize + ") Completed " + $_percent + "%"
+			    #Elapsed time to calculate throughput
+				[int]$_elapsed = $_sw.ElapsedMilliseconds / 1000
+                
+				if ($_elapsed -ne 0 ) 
+				{
 
-			    #Handle the call from -Verbose so Write-Progress does not get borked on display.
-			    if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
-				{ 
-			    
-			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."
-			        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Downloading file $_fileName, status: $_status, percentComplete: $_percent"
-			        
-			    }
-			      
-			    else 
-				{ 
-					
-					Write-Progress -activity "Downloading file $_fileName" -status $_status -percentComplete $_percent 
+					$_transferrate = ($_numBytesWrote / $_sw.Elapsed.TotalSeconds) / 1MB
 				
+				} 
+				
+				else 
+				{
+
+					[single]$_transferrate = 0.0
+				
+				}
+
+				$_status = "({0:0}MB of {1:0}MB transferred @ {2:N2}MB/s) Completed {3}%" -f ($_numBytesWrote / 1MB), ($_fileSize / 1MB), $_transferrate, $_percent
+
+				#Handle the call from -Verbose so Write-Progress does not get borked on display.
+				if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+				{ 
+            
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Downloading file $fileName, status: $_status"
+                
+				}
+              
+				else 
+				{ 
+            
+					if ($_numBytesRead % 1mb -eq 0) { Write-Progress -activity "Upload File" -status "Downloading file $fileName" -CurrentOperation $_status -PercentComplete $_percent }
+                
 				}
 
 			} while ($_bytesRead -ne 0)
@@ -15399,6 +15500,8 @@ function Download-File
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] File saved to $($saveLocation)"
 
 			#Clean up our work
+
+			$_sw.Stop()
 			$_stream.Close()
 			$_rs.Close()
 			$_fs.Close()
@@ -15807,7 +15910,7 @@ function Upload-File
 			
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response is a task resource"			
 
-			$uploadResponse | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.TaskResource") }
+			$uploadResponse | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.TaskResource") }
 
         }
 
@@ -21565,13 +21668,13 @@ function Invoke-HPOVVcmMigration
        
             $oaUrl = "https://$OAIPAddress/xmldata?item=all"
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Building SOAP Request to OA: $oaUrl” 
+            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Building SOAP Request to OA: $oaUrl" 
 
             try {
 
                 $soapWebRequest = [System.Net.WebRequest]::Create($oaUrl) 
-                $soapWebRequest.Accept = “text/xml” 
-                $soapWebRequest.Method = “GET” 
+                $soapWebRequest.Accept = “text/xml" 
+                $soapWebRequest.Method = “GET" 
                 $resp = $soapWebRequest.GetResponse() 
                 $responseStream = $resp.GetResponseStream() 
                 $soapReader = [System.IO.StreamReader]($responseStream) 
@@ -21819,9 +21922,9 @@ function Invoke-HPOVVcmMigration
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Attempting SOAP Call to '$uri'"
 
                     $soapWebRequest = [System.Net.HttpWebRequest]::Create($uri) 
-                    $soapWebRequest.Accept = “text/xml” 
-                    $soapWebRequest.ContentType = “text/xml”
-                    $soapWebRequest.Method = “POST” 
+                    $soapWebRequest.Accept = “text/xml" 
+                    $soapWebRequest.ContentType = “text/xml"
+                    $soapWebRequest.Method = “POST" 
                     $bytes = [System.Text.Encoding]::UTF8.GetBytes($removeVcDomainRequest) 
                     $soapWebRequest.ContentLength = $bytes.Length
 
@@ -27211,7 +27314,7 @@ function Remove-HPOVStoragePool
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing $($_StoragePoolCollection.count) Storage Pool object resources to remove."
 
 		#Process Storage Resources
-		ForEach ($_storagepool in $_StorageSystemCollection)
+		ForEach ($_storagepool in $_StoragePoolCollection)
 		{
 
 			if ($pscmdlet.ShouldProcess($_storagepool.ApplianceConnection.Name,"Remove Storage Pool '$($_storagepool.name)' from appliance")) 
@@ -33918,7 +34021,7 @@ function Get-HPOVPowerDevice
 
 			}            
 
-            $ipdus.members | % { $_.psobject.typenames.Insert(0,”HPOneView.PowerDeliveryDevice") }
+            $ipdus.members | % { $_.psobject.typenames.Insert(0,"HPOneView.PowerDeliveryDevice") }
 
             if ($Name) 
 			{ 
@@ -35608,7 +35711,7 @@ function Get-HPOVNetwork
 
 						$FcNets.members | % { 
 
-							$_.psobject.typenames.Insert(0,”HPOneView.Networking.FibreChannelNetwork")  
+							$_.psobject.typenames.Insert(0,"HPOneView.Networking.FibreChannelNetwork")  
 
 							[void]$NetworkCollection.Add($_)
 						
@@ -35663,7 +35766,7 @@ function Get-HPOVNetwork
 
 						$ENets.members | % { 
 
-							$_.psobject.typenames.Insert(0,”HPOneView.Networking.EthernetNetwork")  
+							$_.psobject.typenames.Insert(0,"HPOneView.Networking.EthernetNetwork")  
 
 							[void]$NetworkCollection.Add($_)
 
@@ -35718,7 +35821,7 @@ function Get-HPOVNetwork
 
 						$FCoENets.members | % { 
 
-							$_.psobject.typenames.Insert(0,”HPOneView.Networking.FCoENetwork")  
+							$_.psobject.typenames.Insert(0,"HPOneView.Networking.FCoENetwork")  
 						
 							[void]$NetworkCollection.Add($_)
 						
@@ -37288,7 +37391,7 @@ function Get-HPOVNetworkSet
 
 					}
 
-					$_.PSObject.TypeNames.Insert(0,”HPOneView.Networking.NetworkSet")  
+					$_.PSObject.TypeNames.Insert(0,"HPOneView.Networking.NetworkSet")  
 
 					[void]$_NetworkSetCollection.Add($_)
 						
@@ -37798,7 +37901,7 @@ function Set-HPOVNetworkSet
 			Try
 			{
 
-				$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri -appliance $_appliance
+				$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri -appliance $ApplianceConnection
 
 			}
 
@@ -37836,7 +37939,7 @@ function Set-HPOVNetworkSet
             Try
 			{
 
-				$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri PUT $_ct -appliance $_appliance
+				$_ct = Send-HPOVRequest $_UpdatedNetSet.connectionTemplateUri PUT $_ct -appliance $ApplianceConnection
 
 			}
 
@@ -37856,7 +37959,7 @@ function Set-HPOVNetworkSet
 		Try
 		{
 
-			$_results = Send-HPOVRequest $_UpdatedNetSet.Uri PUT $_UpdatedNetSet -appliance $_appliance.Name
+			$_results = Send-HPOVRequest $_UpdatedNetSet.Uri PUT $_UpdatedNetSet -appliance $ApplianceConnection
 
 		}
 
@@ -38254,7 +38357,7 @@ function Get-HPOVAddressPool
 
 					}
 
-					$_VMACPool | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPool") } 
+					$_VMACPool | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AddressPool") } 
 					
 					[void]$_AddressPoolCollection.Add($_VMACPool)
 
@@ -38280,7 +38383,7 @@ function Get-HPOVAddressPool
 
 					}
 
-					$_VWWNPool | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPool") } 
+					$_VWWNPool | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AddressPool") } 
 					
 					[void]$_AddressPoolCollection.Add($_VWWNPool)
 
@@ -38308,7 +38411,7 @@ function Get-HPOVAddressPool
 
 					}
 
-					$_VWWNPool | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPool") } 
+					$_VWWNPool | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AddressPool") } 
 					
 					[void]$_AddressPoolCollection.Add($_VWWNPool)
 
@@ -38480,7 +38583,7 @@ function Get-HPOVAddressPoolRange
 
 							}
 
-							$_rangeObject | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
+							$_rangeObject | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AddressPoolRange") } 
 
 							[void]$_RangeList.Add($_rangeObject)
 
@@ -38515,7 +38618,7 @@ function Get-HPOVAddressPoolRange
 
 						}
 
-						$_rangeObject | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AddressPoolRange") } 
+						$_rangeObject | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AddressPoolRange") } 
                         
 						[void]$_RangeList.Add($_rangeObject)
 
@@ -39224,13 +39327,13 @@ function Get-HPOVInterconnect
 
 				$_interconnects.members | % { 
 					
-					$_.PSObject.TypeNames.Insert(0,”HPOneView.Networking.Interconnect") 
+					$_.PSObject.TypeNames.Insert(0,"HPOneView.Networking.Interconnect") 
 				
 				} 
 
 				$_interconnects.members.ports | ? { $_.portType -eq "Uplink" -or $_.portType -eq "Stacking" } | % { 
 					
-					$_.PSObject.TypeNames.Insert(0,”HPOneView.Networking.Interconnect.UplinkPort") 
+					$_.PSObject.TypeNames.Insert(0,"HPOneView.Networking.Interconnect.UplinkPort") 
 
 					$_ | Add-Member -NotePropertyName ApplianceConnection -NotePropertyValue (@{Name = $_appliance.Name; ConnectionID = $_appliance.ConnectionID})
 				
@@ -39238,7 +39341,7 @@ function Get-HPOVInterconnect
 				
 				$_interconnects.members.ports | ? { $_.portType -eq "Downlink" } | % { 
 					
-					$_.PSObject.TypeNames.Insert(0,”HPOneView.Networking.Interconnect.DownlinkPort") 
+					$_.PSObject.TypeNames.Insert(0,"HPOneView.Networking.Interconnect.DownlinkPort") 
 
 					$_ | Add-Member -NotePropertyName ApplianceConnection -NotePropertyValue (@{Name = $_appliance.Name; ConnectionID = $_appliance.ConnectionID})
 				
@@ -41231,7 +41334,7 @@ function Show-HPOVPortStatistics
 
 		}
 		
-		$_InterconnectStats | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Networking.InterconnectStatistics") }
+		$_InterconnectStats | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Networking.InterconnectStatistics") }
 
 		if ($Port) 
 		{ 
@@ -44836,7 +44939,7 @@ function GetNetworkUris
                 if (-not ($profileCache[$enclosureGroupUri]) -and $profile.enclosureGroupUri) { $profileCache.Add($enclosureGroupUri,(Send-HPOVRequest $enclosureGroupUri -appliance $_.ApplianceConnection.name).name) }
                 foreach ($connection in $profile.connections) {
                 
-                    $connection | % { $_.psobject.typenames.Insert(0,”HPOneView.Profile.Connection”) }
+                    $connection | % { $_.psobject.typenames.Insert(0,"HPOneView.Profile.Connection") }
 
                     if (-not ($profileCache[$connection.networkUri])) { $profileCache.Add($connection.networkUri,(Send-HPOVRequest $connection.networkUri -appliance $_.ApplianceConnection.name ).name) } 
                 
@@ -44845,7 +44948,7 @@ function GetNetworkUris
                 foreach ($volume in $profile.sanStorage.volumeAttachments) {
 
                     #insert HPOneView.Profile.SanVolume TypeName
-                    $volume | % { $_.psobject.typenames.Insert(0,”HPOneView.Profile.SanVolume") }
+                    $volume | % { $_.psobject.typenames.Insert(0,"HPOneView.Profile.SanVolume") }
 	
                     #Cache Storage System, Storage Pool and Storage Volume Resources
                     if (-not ($profileCache[$volume.volumeStorageSystemUri])) { $profileCache.Add($volume.volumeStorageSystemUri,(Send-HPOVRequest $volume.volumeStorageSystemUri $_.ApplianceConnection.name)) }
@@ -55699,30 +55802,52 @@ function Set-HPOVInitialPassword
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
 
 		#Check to see if a connection to the appliance exists
-        if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
-        {
+        if ($Appliance -is [String])
+		{
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
+			if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
+			{
 
-            write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
 
-            [HPOneView.Appliance.Connection]$_ApplianceConnection = New-Object HPOneView.Appliance.Connection
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
 
-			$_ApplianceConnection.ConnectionId = 99
-			$_ApplianceConnection.Name         = $Appliance
-			$_ApplianceConnection.SessionID    = 'TemporaryConnection'
-			$_ApplianceConnection.SslChecked   = $true
+				[HPOneView.Appliance.Connection]$Appliance = New-Object HPOneView.Appliance.Connection(99, $Appliance)
 
-            [void]${Global:ConnectedSessions}.Add($_ApplianceConnection)
+				$Appliance.SessionID    = 'TemporaryConnection'
+				$Appliance.SslChecked   = $true
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_ApplianceConnection | out-string)"
+				[void]${Global:ConnectedSessions}.Add($Appliance)
+
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($Appliance | fl * | out-string)"
             
-        }
+			}
+
+			elseif (${Global:ConnectedSessions}.Name -contains $Appliance)
+			{
+
+				"[{0}] Appliance is a string value, lookup connection in global tracker." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				[HPOneView.Appliance.Connection]$Appliance = ${Global:ConnectedSessions} | ? Name -eq $Appliance
+
+				"[{0}] Found connection in global tracker: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Appliance | Out-String) | Write-Verbose
+
+			}
+
+		}        
+
+		elseif ($Appliance -is [HPOneView.Appliance.Connection])
+		{
+
+			"[{0}] Appliance is a Connection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Appliance | Out-String) | Write-Verbose
+
+		}
 
 		else
 		{
 
-			$_ApplianceConnection = ${Global:ConnectedSessions} | ? Name -eq $Appliance
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnknownCondition InvalidOperation "Appliance" -Message "An unknown condition has ocurred."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
     
@@ -55744,7 +55869,7 @@ function Set-HPOVInitialPassword
         Try
 		{
 
-			$resp = Send-HPOVRequest $uri POST $body -Hostname $_ApplianceConnection.Name
+			$resp = Send-HPOVRequest $uri POST $body -Hostname $Appliance.Name
 
 		}
 
@@ -55755,12 +55880,18 @@ function Set-HPOVInitialPassword
 
 		}
 
-		if ((${Global:ConnectedSessions} | ? Name -eq $_ApplianceConnection.Name).SessionID -eq 'TemporaryConnection')
+		finally
 		{
 
-			write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+			#Remove Temporary appliance connection
+			if ((${Global:ConnectedSessions} | ? Name -eq $Appliance.Name).SessionID -eq 'TemporaryConnection')
+			{
 
-			[void]${Global:ConnectedSessions}.Remove($_ApplianceConnection)
+				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing temporary Session object"
+
+				[void]${Global:ConnectedSessions}.Remove($Appliance)
+
+			}
 
 		}
 
@@ -55898,7 +56029,7 @@ function Get-HPOVLdap
 
 				$_AuthDirectoryGlobalSettings = Send-HPOVRequest $authnSettingsUri -Hostname $_Connection.Name
 				
-				$_AuthDirectoryGlobalSettings | % { $_.psobject.typenames.Insert(0,”HPOneView.Appliance.AuthGlobalDirectoryConfiguration") }
+				$_AuthDirectoryGlobalSettings | % { $_.psobject.typenames.Insert(0,"HPOneView.Appliance.AuthGlobalDirectoryConfiguration") }
 
 			}
 
@@ -56084,7 +56215,7 @@ function Get-HPOVLdapDirectory
 
 					}
 
-					$_AuthDirectory.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AuthDirectory") 
+					$_AuthDirectory.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AuthDirectory") 
 				
 					[void]$_AuthDirectorySettings.Add($_AuthDirectory)
 
@@ -56486,7 +56617,7 @@ function New-HPOVLdapDirectory
 
 				$_resp = Send-HPOVRequest $authnProvidersUri POST $_NewAuthDirectoryObj -Hostname $_Connection
 
-				$_resp.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AuthDirectory")
+				$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AuthDirectory")
 
 				[void]$_AuthDirectorySettings.Add($_resp)
 
@@ -57628,7 +57759,7 @@ function Show-HPOVLdapGroups
 
 			$DirectoryGroups = [PSCustomObject]@{Name = @()}
                 
-			$groups | % { $_.psobject.typenames.Insert(0,”HPOneView.Appliance.AuthDirectoryGroup") }
+			$groups | % { $_.psobject.typenames.Insert(0,"HPOneView.Appliance.AuthDirectoryGroup") }
 
         }
 
@@ -57768,7 +57899,7 @@ function Get-HPOVLdapGroup
 				ForEach ($_Group in $_Groups.members)
 				{
 
-					$_Group.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.AuthDirectoryGroupRoleMapping") 
+					$_Group.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AuthDirectoryGroupRoleMapping") 
 				
 					[void]$_DirectoryGroupsCollection.Add($_Group)
 
@@ -59102,7 +59233,7 @@ function Get-HPOVAlert
         
 			$_ResourceAlerts.members | % { 
 					
-				$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
+				$_.PSObject.TypeNames.Insert(0,"HPOneView.Alert")
 
 				[void]$_AlertResources.Add($_)
 				
@@ -59191,7 +59322,7 @@ function Get-HPOVAlert
         
 				$_ResourceAlerts.members | % { 
 					
-					$_.PSObject.TypeNames.Insert(0,”HPOneView.Alert")
+					$_.PSObject.TypeNames.Insert(0,"HPOneView.Alert")
 
 					[void]$_AlertResources.Add($_)
 				
@@ -59724,12 +59855,12 @@ function Get-HPOVLicense
 
 			$ret.members | % { 
 
-				$_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.License")
+				$_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.License")
 					
 				if ($_.nodes) 
 				{ 
 						
-					$_.nodes | % { $_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.License.Node") } 
+					$_.nodes | % { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.License.Node") } 
 					
 				} 
 
@@ -60624,7 +60755,7 @@ function Get-HPOVSMTPConfig
 	
 	        $currentSmtpConfig | % { 
 				
-				$_.PSObject.TypeNames.Insert(0,”HPOneView.Appliance.SmtpConfiguration") 
+				$_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.SmtpConfiguration") 
 			
 				[void]$_SMTPConfigCollection.Add($_)
 			
@@ -60716,7 +60847,6 @@ function Add-HPOVSmtpAlertEmailFilter
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -62446,6 +62576,7 @@ $regkeyGlobal   = "HKLM:\Software\Hewlett-Packard\HPOneView"
 $regkeyUser     = "HKCU:\Software\Hewlett-Packard\HPOneView" 
 
 $UserUseMSDSC   = [bool](Get-ItemProperty -LiteralPath $regkeyUser -ea silentlycontinue).'UseMSDSC'
+$PesterTest = Get-Variable -Name PesterTest -Scope Global -ErrorAction SilentlyContinue
 
 Write-Verbose "$regkeyUser exists: $(Test-Path $regkeyUser)" -verbose:$script:ModuleVerbose
 Write-Verbose "UseMSDSC Enabled: $($UserUseMSDSC)" -verbose:$script:ModuleVerbose
@@ -62489,6 +62620,40 @@ if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
 	    Param()
 
 		Return [PSCustomObject]$Width = @{ UI = @{ RawUI = @{ MaxWindowSize = @{ width = 120 } } } }
+
+	}
+
+}
+
+if ($PesterTest)
+{
+
+	function Global:Write-Host 
+	{
+		
+		[CmdletBinding()]
+		Param
+		(
+
+			[Parameter(Mandatory = $false, Position = 0)]
+			[Object]$Object,
+
+			[Parameter(Mandatory = $false, Position = 1)]
+			[Object]$Object2,
+
+			[Parameter(Mandatory = $false, Position = 2)]
+			[Object]$Object3,
+
+			[Switch]$NoNewLine,
+
+			[ConsoleColor]$ForegroundColor,
+
+			[ConsoleColor]$BackgroundColor
+
+		)
+
+		#Override default Write-Host...
+		Out-Null
 
 	}
 
@@ -62539,6 +62704,8 @@ write-host ""
 
 $ExecutionContext.SessionState.Module.OnRemove = {
 
-    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cleaning up"
+    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Cleaning up" -verbose:$script:ModuleVerbose
+
+	'CallStack', 'ConnectedSessions','FCNetworkFabricTypeEnum','GetUplinkSetPortSpeeds','SetUplinkSetPortSpeeds','LogicalInterconnectConsistencyStatusEnum','UplinkSetNetworkTypeEnum','UplinkSetEthNetworkTypeEnum','LogicalInterconnectGroupRedundancyEnum','IgnoreCertPolicy','ResponseErrorObject' | % { Remove-Variable -Name $_ -Scope Global -EA SilentlyContinue } 	
 
 }

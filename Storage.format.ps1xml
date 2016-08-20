@@ -1024,7 +1024,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.actualNetworkUri -and (-not($_.actualNetworkUri -eq "unknown")))
+                  if ($_.actualNetworkUri -and "unknown",'none' -notcontains $_.actualNetworkUri)
                   {
                   $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
                   if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}

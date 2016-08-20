@@ -32,6 +32,10 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.610.0
+     -- [#161] Fixed condition where String Full File Path was provided and not handled correctly.
+     -- Updated RestClient to officially support IPv6 Address connection to appliance.
+
     Release 2.0.604.0
      -- [#161] Fixed Add-HPOVBaseline where verbose reporting caused an invalid Index error. 
      -- [#162] Updated Add-HPOVSmtpAlertEmailFilter to not encapsulate the filter with () if it were null.

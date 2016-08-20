@@ -2466,7 +2466,7 @@ Default is determined by examinig registry at HKCU\Software\Hewlett-Packard\HPOn
 				<maml:description>
 					<maml:para>Aliases [-appliance]
 
-The hostname or IP address of the appliance.</maml:para>
+The hostname or IP address of the appliance.  When attempting to use an IPv6 Address, it must be encapsulated with the left backet '[' and the right backet ']'.  Example: [fde4:8dba:82e1::1] </maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -2576,14 +2576,13 @@ User name to authenticate.</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.domain.com
-ConnectionID Name                   UserName      AuthLoginDomain
------------- ----                   --------      ---------------
-1            myappliance.domain.com Administrator LOCAL
+				<dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.domain.com -UserName Administrator -Password MyPassword
 
-</dev:code>
+ConnectionID Name                   UserName      AuthLoginDomain Default Connection
+------------ ----                   --------      --------------- ------------------
+1            myappliance.domain.com Administrator LOCAL           True</dev:code>
 				<dev:remarks>
-					<dev:para>Connect to a specific appliance FQDN.  The user will be prompted for authentication provider, user name and password.</dev:para>
+					<dev:para>Connect to a specific appliance FQDN.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -2597,10 +2596,53 @@ ConnectionID Name                   UserName      AuthLoginDomain
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Connect-HPOVMgmt -appliance myappliance.domain.com:11223
+				<dev:code>PS C:\&gt; Connect-HPOVMgmt -Hostname myappliance.domain.com:11223 -Username Administrator -Password MyPassword
 </dev:code>
 				<dev:remarks>
-					<dev:para>Connect to a specific appliance, where the target TCP port isn't the default.  The user will be prompted for authentication provider, user name and password.</dev:para>
+					<dev:para>Connect to a specific appliance, where the target TCP port isn't the default.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $MyPassword = Read-Host 'Password' -AsSecureString -Force
+PS C:\&gt; Connect-HPOVMgmt -Hostname myappliance.domain.com -Username Administrator -Password $MyPassword 
+
+ConnectionID Name                   UserName      AuthLoginDomain
+------------ ----                   --------      ---------------
+1            myappliance.domain.com Administrator LOCAL
+
+</dev:code>
+				<dev:remarks>
+					<dev:para>Connect to a specific appliance FQDN, providing a SecureString object for the -Password parameter.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Connect-HPOVMgmt -Hostname [fde4:8dba:82e1::1] -Username Administrator -Password MyPassword
+
+ConnectionID Name                UserName      AuthLoginDomain Default Connection
+------------ ----                --------      --------------- ------------------
+1            [fde4:8dba:82e1::1] Administrator LOCAL           True</dev:code>
+				<dev:remarks>
+					<dev:para>Connect to a specific appliance, using it's IPv6 Address (DHCPv6 or Static).</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -6781,7 +6823,7 @@ Full path and file name to save the output of Get-HPOVEnclosureGroup</maml:para>
 				<maml:name>Get-HPOVEulaStatus</maml:name>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="None">
 					<maml:name>Appliance</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
@@ -6792,9 +6834,9 @@ Full path and file name to save the output of Get-HPOVEnclosureGroup</maml:para>
 				<maml:description>
 					<maml:para>The FQDN or IP Address of an HPE OneView appliance must be provided.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name>String</maml:name>
+					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -25594,7 +25636,7 @@ PS C:\&gt; $task = New-HPOVServerProfileTemplate -name $profileName -connections
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $profileName = 'SQL DB Cluster Node Template v1.0'
+				<dev:code>PS C:\&gt; $profileName = "SQL DB Cluster Node Template v1.0"
 PS C:\&gt; $bl660SHT = Get-HPOVServerHardwareTypes -name "BL660c Gen9 1"
 PS C:\&gt; #display the BL660 Gen9 BIOS Settings
 PS C:\&gt; $bl660SHT.biosSettings
@@ -25602,15 +25644,13 @@ PS C:\&gt; #Set HP Power Profile (ID 210) to Maximum Performance and HP Power Re
 PS C:\&gt; $bl660bios = @(@{id=210;value=3},@{id=140;value=3})
 PS C:\&gt; $enclosuregroup = Get-HPOVEnclosureGroup "Production EG1"
 PS C:\&gt; $con1 = Get-HPOVNetwork "Net 41-A" | New-HPOVServerProfileConnection -connectionId 1
-PS C:\&gt; $con2 = Get-HPOVNetwork "Net 41-B" | New-HPOVServerProfileConnection -connectionId 2
-PS C:\&gt; $con3 = Get-HPOVNetwork "fabric a" | New-HPOVServerProfileConnection -id 3 -type FibreChannel -bootable -priority Primary -arrayWWPn "21:11:00:02:AC:00:72:03" -LUN 0
+PS C:\&gt;$con2 = Get-HPOVNetwork "Net 41-B" | New-HPOVServerProfileConnection -connectionId 2
+PS C:\&gt; $con3 = Get-HPOVNetwork "fabric a" | New-HPOVServerProfileConnection -id 3 -type FibreChannel -bootable -priority Primary -arrayWWPn"21:11:00:02:AC:00:72:03" -LUN 0
 PS C:\&gt; $con4 = Get-HPOVNetwork "fabric b" | New-HPOVServerProfileConnection -id 4 -type FibreChannel -bootable -priority Secondary -arrayWWPn "22:12:00:02:AC:00:72:03" -LUN 0
-PS C:\&gt; $LogicalDisk = New-HPOVServerProfileLogicalDisk -Name 'My Local Disk' -RAID RAID1 -NumberofDrives 2 -DiskType SasSsd 
-PS C:\&gt; $volume1 = Get-HPOVStorageVolume SharedVolume1 -ApplianceConnection 'MyAppliance.domain.com' | New-HPOVServerProfileAttachVolume
+PS C:\&gt; $LogicalDisk = New-HPOVServerProfileLogicalDisk -Name "My Local Disk" -RAID RAID1 -NumberofDrives 2 -DiskType SasSsd 
+PS C:\&gt; $volume1 = Get-HPOVStorageVolume SharedVolume1 | New-HPOVServerProfileAttachVolume
 PS C:\&gt; $params = @{
 &gt;&gt;    name                = $profileName;
-&gt;&gt;    assignmentType      = "server"
-&gt;&gt;    server              = $server;
 &gt;&gt;    connections         = $con1, $con2, $con3, $con4;
 &gt;&gt;    bios                = $true;
 &gt;&gt;    biossettings        = $bl660bios
@@ -25623,69 +25663,13 @@ PS C:\&gt; $params = @{
 &gt;&gt;    Initialize          = $True;
 &gt;&gt;    LogicalDisk         = $LogicalDisk;
 &gt;&gt;    SANStorage          = $True;
-&gt;&gt;    Ostype              = 'Win2k12';
-&gt;&gt;    StorageVolume       = $volume1;
-&gt;&gt;    ApplianceConnection = 'MyAppliance.domain.com'
+&gt;&gt;    HostOsType          = "Win2k12";
+&gt;&gt;    StorageVolume       =$volume1
 &gt;&gt; }
 &gt;&gt;    
-PS C:\&gt; New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete
-    
-</dev:code>
+PS C:\&gt; New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete</dev:code>
 				<dev:remarks>
 					<dev:para>Create a BL Gen9 UEFI Server Profile template with Ethernet and FC connections, local storage, SAN Storage and BIOS Settings, then pipe to Wait-HPOVTaskComplete.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; New-HPOVServerProfileTemplate -import -file C:\profiles\ServerProfile1.json
-</dev:code>
-				<dev:remarks>
-					<dev:para>Basic Server Profile Template import.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; (Get-Content C:\profiles\ServerProfileTemplate1.json) -join "`n" | New-HPOVServerProfileTemplate -import
-</dev:code>
-				<dev:remarks>
-					<dev:para>Read the contents from ServerProfileTemplate1.json, join each line into a single object, and pipe to New-HPOVServerProfileTemplate to import.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; $jsonProfiles = Get-ChildItem C:\profiles\*.json
-PS C:\&gt; $jsonProfiles | foreach-object { New-HPOVServerProfileTemplate -import -file $_.fullname }
-    
-</dev:code>
-				<dev:remarks>
-					<dev:para>Retrieve list of all JSON files in C:\profiles, then pass each file and its full path to New-HPOVServerProfileTemplate.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -35197,9 +35181,9 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>NtpServers</maml:name>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="secondary, primary" aliases="overrideDhcpDns">
 					<maml:name>OverrideIPv4DhcpDns</maml:name>
@@ -35276,9 +35260,9 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>NtpServers</maml:name>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="secondary, primary" aliases="overrideDhcpDns">
 					<maml:name>OverrideIPv4DhcpDns</maml:name>
@@ -35295,15 +35279,15 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>importFile</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -35312,7 +35296,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value.
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -35559,9 +35543,7 @@ Switch to override DHCP provided DNS Servers</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None.  You cannot pipe objects to this Cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
