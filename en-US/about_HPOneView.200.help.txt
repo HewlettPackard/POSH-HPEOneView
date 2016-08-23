@@ -32,6 +32,13 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.620.0
+     -- Fixed Set-HPOVInitialPassword where the Temporary Appliance Connection object was not using
+        a supported method to create. 
+     -- [#167] Fixed incorrect handling of IPv4 address when passing in as Hostname value. Properly
+        validate IP Address family type within RestClient.
+     -- Improved HTTP 400 Error exceptions from the appliance in Send-HPOVRequest and Connect-HPOVMgmt.
+
     Release 2.0.610.0
      -- [#161] Fixed condition where String Full File Path was provided and not handled correctly.
      -- Updated RestClient to officially support IPv6 Address connection to appliance.

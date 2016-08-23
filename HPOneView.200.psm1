@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.610.0"
+[version]$script:ModuleVersion = "2.0.620.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -5003,15 +5003,15 @@ function RestClient
             $_WebRequest = [System.Net.WebRequest]$args[0]
 
 			#Handle IPv6 Addresses, which must be encapsulated with [], e.g. [fde4:8dba:82e1::1]
-			$_Hostname = $_WebRequest.Host #.Replace('[',$null).Replace(']',$null)
+			$_Hostname = $_WebRequest.Host
 
-            [IPAddress]$_HostnameIsIPv6Address = 0.0.0.0
+            [IPAddress]$_HostnameIsIPAddress = $null
 
             #Need to handle IPv6 Address, as System.Net.WebRequest will expand an IPv6 address in $args[0].Host
-            If ([System.Net.IPAddress]::TryParse($_Hostname,[ref]$_HostnameIsIPv6Address))
+            If ([System.Net.IPAddress]::TryParse($_Hostname,[ref]$_HostnameIsIPAddress) -and $_HostnameIsIPAddress.AddressFamily -eq 'InterNetworkV6')
             {
 
-                $_Hostname = '[{0}]' -f $_HostnameIsIPv6Address.IPAddressToString
+                $_Hostname = '[{0}]' -f $_HostnameIsIPAddress.IPAddressToString
 
             }
 
@@ -5020,6 +5020,8 @@ function RestClient
 
 				if ($Global:IgnoreCertPolicy)
 				{
+
+					$Host.UI.WriteLine([System.ConsoleColor]::Yellow,[System.Console]::BackgroundColor ,'IgnoreCertPolicy Enabled. Use at your own risk.')
 
 					Try
 					{
@@ -5301,15 +5303,6 @@ function Send-HPOVRequest
 
             }
 
-            <#elseif ($ApplianceHost -is [String])
-            {
-
-				"[{0}] Basic ApplianceHost for unauth requests: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ApplianceHost | Write-Verbose
-
-                [PSCustomObject]$ApplianceHost = @{Name = $ApplianceHost}
-
-            }#>
-
 			elseif ($ApplianceHost -isnot [HPOneView.Appliance.Connection] -and $ApplianceHost.Name)
 			{
 
@@ -5560,8 +5553,6 @@ function Send-HPOVRequest
                     $reader = New-Object System.IO.StreamReader($rs)
                     $resp   = $reader.ReadToEnd() | ConvertFrom-json
 
-					#$rs.Close()
-					#$reader.Close()
 					$LastWebResponse.Close()                   
 
 					if ($resp -is [String])
@@ -5913,16 +5904,18 @@ function Send-HPOVRequest
                                 
                                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] HTTP 400 error caught."
 
+								$_Message = "{0} {1} " -f ($Global:ResponseErrorObject | ? Name -eq $ApplianceHost.Name).ErrorResponse.details, ([String]::Join(' ',($global:ResponseErrorObject | ? Name -eq $ApplianceHost.Name).ErrorResponse.recommendedActions)).trim()
+
 								switch ((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.errorCode)
 								{
 
 									#Hande initial authentication errors
-									"AUTHN_AUTH_DIR_FAIL"
+									{"AUTHN_AUTH_DIR_FAIL","AUTHN_AUTH_FAIL" -match $_}
 									{
                                     
 										${Global:ConnectedSessions}.Remove($ApplianceHost)
-										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError 'Send-HPOVRequest' -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message)  $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.recommendedActions)"
-										$pscmdlet.ThrowTerminatingError($errorRecord)
+										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message
+										$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 									}
 
@@ -5934,7 +5927,7 @@ function Send-HPOVRequest
 
 										${Global:ConnectedSessions}.Remove($ApplianceHost)
 
-										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUserSession AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message "$($global:ResponseErrorObject.($ApplianceHost.Name).details)"
+										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUserSession AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message
 										Throw $errorRecord
 
 									}
@@ -5945,8 +5938,30 @@ function Send-HPOVRequest
 
 		    							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User needed to accept the Login Message."
 
-										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException LoginMessageAcknowledgementRequired AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message ("{0} {1} " -f $global:ResponseErrorObject.($ApplianceHost.Name).details, $global:ResponseErrorObject.($ApplianceHost.Name).recommendedActions)
+										$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException LoginMessageAcknowledgementRequired AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message
 										Throw $errorRecord
+
+									}
+
+									#Valid user, but does not belong to a group that has an assigned role
+									'AUTHN_AUTH_FAIL_NO_ROLES'
+									{
+
+										${Global:ConnectedSessions}.Remove($ApplianceHost)
+
+										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException NoDirectoryRoleMapping AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message 
+										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+									}
+
+									#Valid User, but no directory group have been added
+									'AUTHN_LOGINDOMAIN_NO_MEMBER_GROUPS_FOUND'
+									{
+
+										${Global:ConnectedSessions}.Remove($ApplianceHost)
+
+										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException NoDirectoryRoleMapping AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message 
+										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 									}
 
@@ -5967,8 +5982,8 @@ function Send-HPOVRequest
 									
 										}
 
-										$errorRecord = New-ErrorRecord InvalidOperationException InvalidAuthOperation InvalidOperation $source -Message "$((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.details)"
-										$pscmdlet.ThrowTerminatingError($errorRecord)
+										$errorRecord = New-ErrorRecord InvalidOperationException InvalidAuthOperation InvalidOperation $source -Message $_Message
+										$PSCmdlet.ThrowTerminatingError($errorRecord)
 
 									}
 
@@ -6814,27 +6829,27 @@ function Connect-HPOVMgmt
     Param
 	(
 
-		[Parameter(Mandatory, Position = 0)]
+		[Parameter (Mandatory, Position = 0)]
 		[ValidateNotNullOrEmpty()]
-		[alias('Appliance')]
+		[alias ('Appliance')]
 		[string]$Hostname,
 
-		[Parameter(Mandatory = $false, Position = 3)]
+		[Parameter (Mandatory = $false, Position = 3)]
 		[ValidateNotNullOrEmpty()]
-		[alias('authProvider')]
+		[alias ('authProvider')]
 		[string]$AuthLoginDomain = 'LOCAL',
 
-		[Parameter(Mandatory, Position = 1)]
+		[Parameter (Mandatory, Position = 1)]
 		[ValidateNotNullOrEmpty()]
-		[alias("u",'user')]
+		[alias ("u",'user')]
 		[string]$UserName,
 
-		[Parameter(Mandatory = $false, Position = 2)]
-		[alias("p")]
+		[Parameter (Mandatory = $false, Position = 2)]
+		[alias ("p")]
 		[ValidateNotNullOrEmpty()]
 		[Object]$Password,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[switch]$LoginAcknowledge 
 
     )
@@ -7145,8 +7160,8 @@ function Connect-HPOVMgmt
 					#Remove Connection from global tracker
 					[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
 
-					$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException $_ErrorId InvalidResult 'Connect-HPOVMgmt' -Message $_.Exception.Message 
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					#$errorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException $_ErrorId InvalidResult 'Connect-HPOVMgmt' -Message $_.Exception.Message 
+					$PSCmdlet.ThrowTerminatingError($_ErrorRecord)
 
 				}
 
@@ -7178,6 +7193,16 @@ function Connect-HPOVMgmt
             $PSCmdlet.ThrowTerminatingError($errorRecord)
 
         }
+
+		#Something bad happened, should not leave connection in this state
+		catch
+		{
+
+			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
 
     }
 
@@ -55786,7 +55811,7 @@ function Set-HPOVInitialPassword
         [ValidateNotNullOrEmpty()]
         [string]$NewPassword,
 
-		[Parameter(Position = 3, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.", ParameterSetName = 'Default')]
+		[Parameter (Position = 3, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.", ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
 		[Object]$Appliance = $null
 
@@ -55808,16 +55833,16 @@ function Set-HPOVInitialPassword
 			if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
 			{
 
+
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
 
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
 
-				[HPOneView.Appliance.Connection]$Appliance = New-Object HPOneView.Appliance.Connection(99, $Appliance)
+				$_ApplianceName = $Appliance
 
-				$Appliance.SessionID    = 'TemporaryConnection'
-				$Appliance.SslChecked   = $true
+				[HPOneView.Appliance.Connection]$Appliance = NewObject -TemporaryConnection
 
-				[void]${Global:ConnectedSessions}.Add($Appliance)
+				$Appliance.Name = $_ApplianceName
 
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($Appliance | fl * | out-string)"
             
