@@ -32,6 +32,11 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW 
 
+    Release 2.0.621.0
+     -- [#168] Enhanced New-HPOVEnclosureGroup to allow empty Logical Interconnect Group mapping.
+     -- [#169] Fixed internal Download-File function where the FileStream.IO Buffer was not being created
+        correctly and causing a 0KB file.
+
     Release 2.0.620.0
      -- Fixed Set-HPOVInitialPassword where the Temporary Appliance Connection object was not using
         a supported method to create. 

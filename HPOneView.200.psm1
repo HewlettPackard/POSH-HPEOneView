@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$script:ModuleVersion = "2.0.620.0"
+[version]$ModuleVersion = "2.0.621.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -4789,14 +4789,14 @@ function New-ErrorRecord
     [CmdletBinding()]
     param(
 
-        [Parameter(Mandatory, Position = 0)]
+        [Parameter (Mandatory, Position = 0)]
         [System.String]$Exception,
 
-        [Parameter(Mandatory, Position = 1)]
+        [Parameter (Mandatory, Position = 1)]
         [Alias('ID')]
         [System.String]$ErrorId,
 
-        [Parameter(Mandatory, Position = 2)]
+        [Parameter (Mandatory, Position = 2)]
         [Alias('Category')]
         [ValidateSet('AuthenticationError','ConnectionError','NotSpecified', 'OpenError', 'CloseError', 'DeviceError',
             'DeadlockDetected', 'InvalidArgument', 'InvalidData', 'InvalidOperation',
@@ -4807,15 +4807,15 @@ function New-ErrorRecord
                                 'FromStdErr', 'SecurityError')]
         [System.Management.Automation.ErrorCategory]$ErrorCategory,
 
-        [Parameter(Mandatory, Position = 3)]
+        [Parameter (Mandatory, Position = 3)]
         [System.Object]$TargetObject,
 
-        [Parameter()]
+        [Parameter ()]
         [System.String]$Message,
 
-        [Parameter()]
+        [Parameter ()]
         [System.Exception]$InnerException,
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [System.String]$TargetType = "String"
     )
 
@@ -5182,26 +5182,26 @@ function Send-HPOVRequest
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Enter the resource URI (ex. /rest/enclosures)")]
         [ValidateScript({if ($_.startswith('/')) {$true} else {throw "-URI must being with a '/' (eg. /rest/server-hardware) in its value. Please correct the value and try again."}})]
         [string]$uri,
 
-        [Parameter(Position = 1, Mandatory = $false)]
+        [Parameter (Position = 1, Mandatory = $false)]
         [string]$method = "GET",
         
-        [Parameter(Position = 2, Mandatory = $false)]
+        [Parameter (Position = 2, Mandatory = $false)]
         [object]$body = $null,
 
-        [Parameter(Position = 3, Mandatory = $false)]
+        [Parameter (Position = 3, Mandatory = $false)]
         [int]$start = 0,
 
-        [Parameter(Position = 4, Mandatory = $false)]
+        [Parameter (Position = 4, Mandatory = $false)]
         [int]$count = 0,
 
-        [Parameter(Position = 5, Mandatory = $false)]
+        [Parameter (Position = 5, Mandatory = $false)]
         [hashtable]$addHeader,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
 		[Alias('Appliance','ApplianceConnection')]
         [Object]$Hostname = ${Global:ConnectedSessions}
 
@@ -6239,7 +6239,7 @@ function Remove-ApplianceConnection
     param 
     (
 
-        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline, Position = 0)]
         #[ValidateNotNullorEmpty()]
         [Object]$InputObject
     
@@ -6343,7 +6343,7 @@ function ConvertTo-Object
     Param 
 	(
 
-         [Parameter(Position = 0, Mandatory)]
+         [Parameter (Position = 0, Mandatory)]
          [ValidateNotNullOrEmpty()]
          [System.Collections.ArrayList]$Objects
 
@@ -6433,18 +6433,18 @@ function Ping-HPOVAddress
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Device FQDN or IP Address to PING from the HP OneView Appliance.")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Device FQDN or IP Address to PING from the HP OneView Appliance.")]
 		[ValidateNotNullOrEmpty()]
 		[string]$Address,
 
-		[Parameter(Position = 1, Mandatory = $False, HelpMessage = "Number of packets to send.")]
+		[Parameter (Position = 1, Mandatory = $False, HelpMessage = "Number of packets to send.")]
 		[ValidateNotNullOrEmpty()]
 		[int]$Packets = 5,
 
-		[Parameter(Mandatory = $False, HelpMessage = "Run as Async")]
+		[Parameter (Mandatory = $False, HelpMessage = "Run as Async")]
 		[switch]$Async,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -6607,7 +6607,7 @@ function Wait-HPOVApplianceStart
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Provide the Appliance IP Address or Host Name to monitor.")]
 		[Alias('Appliance')] 
 		[ValidateNotNullOrEmpty()]
 		[string]$Hostname = $null
@@ -7296,7 +7296,7 @@ function Disconnect-HPOVMgmt
     Param
 	(
     
-        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [Parameter (Position = 0, Mandatory = $false, HelpMessage = "Enter the hostname or an array of hostnames")]
 		[Alias('Appliance','ApplianceSession')]
         [Object]$Hostname = ${Global:ConnectedSessions}
     
@@ -7419,7 +7419,7 @@ function Set-HPOVApplianceDefaultConnection
     Param
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Provide the HPOneView.Appliance.Connection object or the HPOneView.Appliance.Connection.Name value of the connection object you wish to set as the default.", Position = 0)]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Provide the HPOneView.Appliance.Connection object or the HPOneView.Appliance.Connection.Name value of the connection object you wish to set as the default.", Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[alias('Appliance')]
 		[Object]$Connection
@@ -7543,7 +7543,7 @@ function Test-HPOVAuth
     Param
 	(
     
-        [Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
+        [Parameter (Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
         [Object]$Appliance
     
     )
@@ -7780,15 +7780,15 @@ function New-HPOVResource
     Param
     (
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the URI string of the resource type to be created")]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Enter the URI string of the resource type to be created")]
 		[ValidateNotNullOrEmpty()]
 		[string] $uri,
 
-		[Parameter(Position = 1, Mandatory, HelpMessage = "Enter the resource object definition")]
+		[Parameter (Position = 1, Mandatory, HelpMessage = "Enter the resource object definition")]
 		[ValidateNotNullOrEmpty()]
 		[object] $resource,
 
-		[Parameter(Mandatory = $False, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
+		[Parameter (Mandatory = $False, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
         [ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -7917,15 +7917,15 @@ function Set-HPOVResource
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline = $true, HelpMessage = "Enter the resource object that has been modifed")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline = $true, HelpMessage = "Enter the resource object that has been modifed")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateScript({$_.Uri})]
 		[object]$resource,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[string]$force = $false,
 
-		[Parameter(Mandatory = $False, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
+		[Parameter (Mandatory = $False, ValueFromPipeline, HelpMessage = "Enter the hostname or an array of hostnames")]
         [ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -8059,15 +8059,15 @@ function Remove-HPOVResource
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline = $true, HelpMessage = "Provide the Object, Name or URI of the resource object to delete/remove.")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline = $true, HelpMessage = "Provide the Object, Name or URI of the resource object to delete/remove.")]
 		[ValidateNotNullorEmpty()]
 		[Alias("ro",'nameOruri','uri','name')]
 		[object]$Resource,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[switch]$force,
 
-		[Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or object of the appliance connection")]
+		[Parameter (Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the hostname or object of the appliance connection")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -8312,7 +8312,7 @@ function ConvertFrom-HTML
     param
 	(
 
-        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory)]
+        [Parameter (Position = 0, ValueFromPipeline = $True, Mandatory)]
         [ValidateNotNullOrEmpty()]
         [System.String] $html,
 
@@ -8383,7 +8383,7 @@ function Start-HPOVLibraryTrace
     Param
 	(
     
-        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Specify path location where the verbose trace will be saved.")]
+        [Parameter (Position = 0, Mandatory = $false, HelpMessage = "Specify path location where the verbose trace will be saved.")]
         [String]$Location = (pwd).path
     
     )
@@ -8572,7 +8572,7 @@ Function Get-HPOVApplianceCertificateStatus
 	Param 
 	(
 		
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -8712,69 +8712,69 @@ Function New-HPOVApplianceSelfSignedCertificate
 	Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = 'Default', Position = 0)]
+		[Parameter (Mandatory, ParameterSetName = 'Default', Position = 0)]
         [Alias('C')]
         [ValidateNotNullOrEmpty()]
         [string]$Country,
 
-        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 1)]
+        [Parameter (Mandatory, ParameterSetName = 'Default', Position = 1)]
         [Alias('ST','Province')]
 		[ValidateNotNullOrEmpty()]	
 		[string]$State,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 2)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 2)]
 		[Alias('L','Locality')]	
 		[ValidateNotNullOrEmpty()]
 		[string]$City,
 
-        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 3)]
+        [Parameter (Mandatory, ParameterSetName = 'Default', Position = 3)]
         [Alias('O')]
 		[ValidateNotNullOrEmpty()]
 		[string]$Organization,
 
-        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 4)]
+        [Parameter (Mandatory, ParameterSetName = 'Default', Position = 4)]
         [Alias('CN')]
 		[ValidateNotNullOrEmpty()]
 		[string]$CommonName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
 		[Alias('OU')]	
 		[ValidateNotNullOrEmpty()]
         [string]$OrganizationalUnit,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
 		[Alias('SAN')]	
 		[ValidateNotNullOrEmpty()]
         [string]$AlternativeName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
 		[Alias('Contact')]	
 		[ValidateNotNullOrEmpty()]
         [string]$ContactName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
 		[ValidateNotNullOrEmpty()]
         [string]$Email,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
 		[Alias('Sur')]	
 		[ValidateNotNullOrEmpty()]
         [string]$Surname,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
 		[Alias('Giv')]	
 		[ValidateNotNullOrEmpty()]
         [string]$GivenName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
 		[ValidateNotNullOrEmpty()]
         [string]$Initials,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
 		[ValidateNotNullOrEmpty()]
         [string]$DNQualifier,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -8953,77 +8953,77 @@ Function New-HPOVApplianceCsr
 	Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = 'Default', Position = 0)]
+		[Parameter (Mandatory, ParameterSetName = 'Default', Position = 0)]
         [Alias('C')]
         [ValidateNotNullOrEmpty()]
         [string]$Country,
 
-        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 1)]
+        [Parameter (Mandatory, ParameterSetName = 'Default', Position = 1)]
         [Alias('ST','Province')]
 		[ValidateNotNullOrEmpty()]	
 		[string]$State,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 2)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 2)]
 		[Alias('L','Locality')]	
 		[ValidateNotNullOrEmpty()]
 		[string]$City,
 
-        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 3)]
+        [Parameter (Mandatory, ParameterSetName = 'Default', Position = 3)]
         [Alias('O')]
 		[ValidateNotNullOrEmpty()]
 		[string]$Organization,
 
-        [Parameter(Mandatory, ParameterSetName = 'Default', Position = 4)]
+        [Parameter (Mandatory, ParameterSetName = 'Default', Position = 4)]
         [Alias('CN')]
 		[ValidateNotNullOrEmpty()]
 		[string]$CommonName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 5)]
 		[Alias('OU')]	
 		[ValidateNotNullOrEmpty()]
         [string]$OrganizationalUnit,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 6)]
 		[Alias('SAN')]	
 		[ValidateNotNullOrEmpty()]
         [string]$AlternativeName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 7)]
 		[Alias('Contact')]	
 		[ValidateNotNullOrEmpty()]
         [string]$ContactName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 8)]
 		[ValidateNotNullOrEmpty()]
         [string]$Email,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 9)]
 		[Alias('Sur')]	
 		[ValidateNotNullOrEmpty()]
         [string]$Surname,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 10)]
 		[Alias('Giv')]	
 		[ValidateNotNullOrEmpty()]
         [string]$GivenName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 11)]
 		[ValidateNotNullOrEmpty()]
         [string]$Initials,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 12)]
 		[ValidateNotNullOrEmpty()]
         [string]$DNQualifier,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 13)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 13)]
         [string]$ChallengePassword,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default', Position = 14)]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default', Position = 14)]
 		[Alias('UN')]	
 		[ValidateNotNullOrEmpty()]
         [string]$UnstructuredName,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -9225,7 +9225,7 @@ function GetTwoLetterCountry
 	Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = 'Default')]
+		[Parameter (Mandatory, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
         [String]$Name
 
@@ -9339,12 +9339,12 @@ Function Install-HPOVApplianceCertificate
 	Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = 'Default', Position = 0, ValueFromPipeline = $true)]
+		[Parameter (Mandatory, ParameterSetName = 'Default', Position = 0, ValueFromPipeline = $true)]
         [Alias('PrivateKey')]
 		[ValidateNotNullOrEmpty()]
         [Object]$Certificate,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -9486,7 +9486,7 @@ function Get-HPOVPendingUpdate
 	Param 
 	(
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -9633,34 +9633,34 @@ function Install-HPOVUpdate
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ParameterSetName = 'Update')]
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Stage')]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = 'Update')]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = 'Stage')]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
         [string]$File,
         
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'Update')]
-        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = 'StageInstall')]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = 'Update')]
+        [Parameter (Position = 0, Mandatory = $false, ParameterSetName = 'StageInstall')]
         [string]$Eula,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Update')]
-        [Parameter(Mandatory = $false, ParameterSetName = 'Stage')]
-        [Parameter(Mandatory = $false, ParameterSetName = 'List')]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Update')]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Stage')]
+        [Parameter (Mandatory = $false, ParameterSetName = 'List')]
         [switch]$DisplayReleaseNotes,
 
-        [Parameter(Mandatory, ParameterSetName = 'Stage')]
+        [Parameter (Mandatory, ParameterSetName = 'Stage')]
         [switch]$Stage,
 
-        [Parameter(Mandatory, ParameterSetName = 'StageInstall')]
+        [Parameter (Mandatory, ParameterSetName = 'StageInstall')]
         [switch]$InstallNow,
         
-        [Parameter(Mandatory, ParameterSetName = 'List')]
+        [Parameter (Mandatory, ParameterSetName = 'List')]
         [Alias('list')]
         [switch]$ListPending,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Update")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Stage")]
-		[Parameter(Mandatory = $false, ParameterSetName = "List")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Update")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Stage")]
+		[Parameter (Mandatory = $false, ParameterSetName = "List")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -10082,7 +10082,7 @@ function Invoke-Upgrade
 	Param 
 	(
 
-		[Parameter(Mandatory)]
+		[Parameter (Mandatory)]
 		[ValidateNotNullorEmpty()]
 		[Object]$PendingUpdate
 
@@ -10270,7 +10270,7 @@ function Remove-HPOVPendingUpdate
 	Param 
 	(
 	
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -10453,14 +10453,14 @@ function Get-HPOVVersion
 	Param
 	(
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
         [switch]$ApplianceVer,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[Parameter(Mandatory = $false, ParameterSetName = 'CheckOnlineOnly')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'CheckOnlineOnly')]
         [switch]$CheckOnline,
 
-		[Parameter(Position = 0, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Position = 0, Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -10768,7 +10768,7 @@ function Get-HPOVHealthStatus
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false)]
+		[Parameter (Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -10909,7 +10909,7 @@ function Get-HPOVXApiVersion
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false)]
+		[Parameter (Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -11027,7 +11027,7 @@ function Get-HPOVEulaStatus
     Param
     (
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Provide the IP Address or FQDN of the Appliance to connect to.")]
         [ValidateNotNullOrEmpty()]
 		[object]$Appliance = $null
 
@@ -11270,12 +11270,12 @@ function Get-HPOVApplianceNetworkConfig
     Param 
 	(
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [alias("x", "export", 'exportFile')]
         [ValidateScript({split-path $_ | Test-Path})]
         [String]$Location,
 		
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -11447,7 +11447,7 @@ function Get-HPOVApplianceDateTime
     Param 
 	(
 		
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -11587,22 +11587,22 @@ function Set-HPOVApplianceDateTime
     Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = 'SyncHost')]
+		[Parameter (Mandatory, ParameterSetName = 'SyncHost')]
 		[Switch]$SyncWithHost,
 
-		[Parameter(Position = 0, Mandatory, ParameterSetName = 'NTPServers')]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = 'NTPServers')]
 		[Array]$NTPServers,
 
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'NTPServers')]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = 'NTPServers')]
 		[Int]$PollingInterval,
 
-		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = 'SyncHost')]
-		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = 'NTPServers')]
+		[Parameter (Position = 2, Mandatory = $False, ParameterSetName = 'SyncHost')]
+		[Parameter (Position = 2, Mandatory = $False, ParameterSetName = 'NTPServers')]
 		[validateSet('en_US','zh_CN','ja_JP')]
 		[String]$Locale,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = 'SyncHost')]
-		[Parameter(Mandatory = $False, ParameterSetName = 'NTPServers')]
+		[Parameter (Mandatory = $False, ParameterSetName = 'SyncHost')]
+		[Parameter (Mandatory = $False, ParameterSetName = 'NTPServers')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -11821,86 +11821,86 @@ function Set-HPOVApplianceNetworkConfig
 	Param 
 	(
         
-		[Parameter(Position = 0, mandatory=$true, ParameterSetName="secondary")]
+		[Parameter (Position = 0, mandatory=$true, ParameterSetName="secondary")]
         [ValidateScript({$_ -ne "eth0"})]
 		[string]$Device,
 
-        [Parameter(Position = 1, mandatory=$true, ParameterSetName="secondary")]
+        [Parameter (Position = 1, mandatory=$true, ParameterSetName="secondary")]
         [ValidateSet("Management", "Deployment")]
 		[string]$InterfaceName,
 
-		[Parameter(Position = 0,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 2,mandatory=$true, ParameterSetName="secondary")]
+		[Parameter (Position = 0,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 2,mandatory=$true, ParameterSetName="secondary")]
 		[string]$Hostname = $null,
 
-		[Parameter(Position = 1,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 3,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 1,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 3,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv4Type = $null,
 
-		[Parameter(Position = 2,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 4,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 2,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 4,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv4Addr = $null,
 
-		[Parameter(Position = 3,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 5,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 3,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 5,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv4Subnet = $null,
 
-		[Parameter(Position = 4,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 6,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 4,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 6,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv4Gateway = $null,
 
-		[Parameter(Position = 5,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 7,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 5,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 7,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv6Type = $null,
 
-		[Parameter(Position = 6,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 8,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 6,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 8,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv6Addr = $null,
 
-		[Parameter(Position = 7,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 9,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 7,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 9,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv6Subnet = $null,
 
-		[Parameter(Position = 8,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 10,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 8,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 10,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$IPv6Gateway = $null,
 
-		[Parameter(Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Mandatory = $false, ParameterSetName="secondary")]
         [alias('overrideDhcpDns')]
 		[switch]$OverrideIPv4DhcpDns,
 
-		[Parameter(Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Mandatory = $false, ParameterSetName="secondary")]
 		[switch]$OverrideIPv6DhcpDns,
 
-		[Parameter(Position = 9,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 11,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 9,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 11,Mandatory = $false, ParameterSetName="secondary")]
 		[string]$DomainName,
 
-		[Parameter(Position = 10,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 12,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 10,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 12,Mandatory = $false, ParameterSetName="secondary")]
 		[Array]$SearchDomains,
 
-		[Parameter(Position = 11,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 13,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 11,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 13,Mandatory = $false, ParameterSetName="secondary")]
         [alias('nameServers')]
 		[Array]$IPv4nameServers,
 
-		[Parameter(Position = 12,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 14,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 12,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 14,Mandatory = $false, ParameterSetName="secondary")]
 		[Array]$IPv6nameServers,
 
-		[Parameter(Position = 13,Mandatory = $false, ParameterSetName="primary")]
-        [Parameter(Position = 15,Mandatory = $false, ParameterSetName="secondary")]
+		[Parameter (Position = 13,Mandatory = $false, ParameterSetName="primary")]
+        [Parameter (Position = 15,Mandatory = $false, ParameterSetName="secondary")]
         [Array]$NtpServers,
 
-        [Parameter(Mandatory, ParameterSetName="importFile", HelpMessage="Enter the full path and file name for the input file.")]
+        [Parameter (Mandatory, ParameterSetName="importFile", HelpMessage="Enter the full path and file name for the input file.")]
         [alias("i", "import")]
         [ValidateScript({Test-Path $_})]
         [Object]$importFile,
 
-		[Parameter(Mandatory)]
+		[Parameter (Mandatory)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -12534,7 +12534,7 @@ function Get-HPOVSnmpReadCommunity
 	Param 
 	(
 	
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -12674,10 +12674,10 @@ function Set-HPOVSnmpReadCommunity
 	Param 
 	(
 
-		[Parameter(Position= 0, Mandatory)]
+		[Parameter (Position= 0, Mandatory)]
 		[string]$Name,
 			
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -12820,10 +12820,10 @@ function Get-HPOVApplianceGlobalSetting
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false)]
+		[Parameter (Position = 0, Mandatory = $false)]
 		[string]$Name,
 			
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -12972,20 +12972,20 @@ function Set-HPOVApplianceGlobalSetting
 	Param
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Pipeline')]
 		[ValidateNotNullorEmpty()]
 		[Object]$Object,
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Default')]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Enter the name of the global parameter", ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[string]$Name,
 
-        [Parameter(Position = 1, Mandatory, HelpMessage = "Enter the new value for the global parameter", ParameterSetName = 'Default')]
+        [Parameter (Position = 1, Mandatory, HelpMessage = "Enter the new value for the global parameter", ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
         [string]$Value,
 
-		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Pipeline')]
-		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Pipeline')]
+		[Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -13192,25 +13192,25 @@ function Get-HPOVBaseline
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false, ParameterSetName = "ISOFileName")]
+		[Parameter (Position = 0, Mandatory = $false, ParameterSetName = "ISOFileName")]
         [ValidateNotNullOrEmpty()]
         [Alias('isoFileName')]
 		[string]$FileName,
 
-		[Parameter(position = 0, Mandatory = $false, ParameterSetName = "SppName")]
+		[Parameter (position = 0, Mandatory = $false, ParameterSetName = "SppName")]
 		[Alias('name')]
         [string]$SppName,
 
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "SppName")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "SppName")]
         [ValidateNotNullOrEmpty()]
 		[string]$Version,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "HotFixesOnly")]
+		[Parameter (Mandatory = $false, ParameterSetName = "HotFixesOnly")]
 		[switch]$HotfixesOnly,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "HotFixesOnly")]
-		[Parameter(Mandatory = $false, ParameterSetName = "SppName")]
-		[Parameter(Mandatory = $false, ParameterSetName = "ISOFileName")]
+		[Parameter (Mandatory = $false, ParameterSetName = "HotFixesOnly")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SppName")]
+		[Parameter (Mandatory = $false, ParameterSetName = "ISOFileName")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -13432,15 +13432,15 @@ function Add-HPOVBaseline
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
         [ValidateScript({Test-Path $_})]
 		[Alias('sppFile')]
 		[Object]$File,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[switch]$Async,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -13656,7 +13656,7 @@ function Show-HPOVBaselineRepositorySize
 	param 
 	(
 	
-		[Parameter(Mandatory = $False, position = 0)]
+		[Parameter (Mandatory = $False, position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -13801,17 +13801,17 @@ function New-HPOVCustomBaseline
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the path and file name to the SPP iso file.")]
         [ValidateNotNullorEmpty()]
 		[Object]$SourceBaseline,
 
-		[Parameter(Position = 1, Mandatory)]
+		[Parameter (Position = 1, Mandatory)]
 		[Array]$Hotfixes,
 
-		[Parameter(Position = 2, Mandatory)]
+		[Parameter (Position = 2, Mandatory)]
 		[String]$BaselineName,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -14030,7 +14030,7 @@ function Restore-HPOVCustomBaseline
 	param 
 	(
 	
-		[Parameter(Mandatory = $false, Position = 0)]
+		[Parameter (Mandatory = $false, Position = 0)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -14226,12 +14226,12 @@ function Remove-HPOVBaseline
 	param
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Baseline name", Position = 0, ParameterSetName = "default")]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the Baseline name", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias("b")]
 		[Object]$Baseline,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -14467,23 +14467,23 @@ function New-HPOVSupportDump
     Param 
 	(
 
-        [Parameter(Mandatory = $false,ParameterSetName = "values", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
-		[Parameter(Mandatory = $false,ParameterSetName = "Object", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
+        [Parameter (Mandatory = $false,ParameterSetName = "values", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
+		[Parameter (Mandatory = $false,ParameterSetName = "Object", HelpMessage = "Specify the folder location to save the Support Dump.",Position=0)]
         [Alias("save")]
         [string]$Location = (get-location).Path,
 
-        [Parameter(Mandatory,ParameterSetName = "values", HelpMessage = "Specify the Type of Support Dump (appliance | li) you wish to generate.", Position = 1)]
+        [Parameter (Mandatory,ParameterSetName = "values", HelpMessage = "Specify the Type of Support Dump (appliance | li) you wish to generate.", Position = 1)]
         [ValidateSet("Appliance","LI")]
         [string]$Type = $null,
 
-		[Parameter(Mandatory = $false,ParameterSetName = "values", HelpMessage = "Specfy to encrypt the Appliance Support Dump.")]
+		[Parameter (Mandatory = $false,ParameterSetName = "values", HelpMessage = "Specfy to encrypt the Appliance Support Dump.")]
 		[switch]$Encrypted,
 
-		[Parameter(Mandatory,ValueFromPipeline = $true, ParameterSetName = "Object", HelpMessage = "Specify the Logical Interconnect URI the Support Dump will be generated for.", Position = 3)]
+		[Parameter (Mandatory,ValueFromPipeline = $true, ParameterSetName = "Object", HelpMessage = "Specify the Logical Interconnect URI the Support Dump will be generated for.", Position = 3)]
         [Alias('liobject','li','name')]
         [object]$LogicalInterconnect,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Object")]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -14824,12 +14824,12 @@ Function New-HPOVBackup
     Param 
 	(
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the appliance backup file.",Position=0)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the appliance backup file.",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias("save")]
         [string]$Location = (get-location).Path,
 			
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -15016,12 +15016,12 @@ Function New-HPOVRestore
 	Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = "default", HelpMessage = "Specify the file to restore.", Position = 0)]
+		[Parameter (Mandatory, ParameterSetName = "default", HelpMessage = "Specify the file to restore.", Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[Alias("File")]
 		[string]$FileName = $null,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -15279,15 +15279,15 @@ function Download-File
     Param 
 	(
 
-		[Parameter(Mandatory, HelpMessage = "Specify the URI of the object to download.", Position = 0)]
+		[Parameter (Mandatory, HelpMessage = "Specify the URI of the object to download.", Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[string]$uri,
 		
-		[Parameter(Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 1)]
+		[Parameter (Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 1)]
 		[ValidateNotNullorEmpty()]
 		[object]$ApplianceConnection = $null,
 
-		[Parameter(Mandatory, HelpMessage = "Specify the location where to save the file to.", Position = 2)]
+		[Parameter (Mandatory, HelpMessage = "Specify the location where to save the file to.", Position = 2)]
 		[Alias("save")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SaveLocation
@@ -15465,7 +15465,7 @@ function Download-File
 			do
 			{
 
-				$_bytesRead = $_stream.Read($_buffer, 0, $_bufferSize)
+				$_bytesRead = $_stream.Read($_buffer, 0, $_buffer.Length)
 
 			    #Write from buffer to file
 				$_byteCount = $_fs.Write($_buffer, 0, $_bytesRead)
@@ -15617,17 +15617,17 @@ function Upload-File
 	Param 
 	(
 
-        [Parameter(Mandatory, HelpMessage = "Specify the upload URI.", Position = 0)]
+        [Parameter (Mandatory, HelpMessage = "Specify the upload URI.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('u')]
         [string]$uri,
 
-		[Parameter(Mandatory, HelpMessage = "Enter the path and file name to upload.", Position = 1)]
+		[Parameter (Mandatory, HelpMessage = "Enter the path and file name to upload.", Position = 1)]
         [Alias('f')]
         [ValidateScript({Test-Path $_})]
 		[string]$File,
 		
-		[Parameter(Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 2)]
+		[Parameter (Mandatory, HelpMessage = "Specify the Appliance Connection Name or OBject.", Position = 2)]
 		[Alias('Hostname')]
 		[ValidateNotNullorEmpty()]
 		[object]$ApplianceConnection = $null
@@ -15956,22 +15956,22 @@ function Get-HPOVScmbCertificates
 	Param
 	(
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
-	    [Parameter(Mandatory = $false, ParameterSetName = "convert", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
+	    [Parameter (Mandatory = $false, ParameterSetName = "convert", HelpMessage = "Specify the folder location to save the SSL certificates.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias("save")]
         [string]$Location = ($pwd).path,
 
-        [Parameter(Mandatory = $false , ParameterSetName = "convert", HelpMessage = "Convert rabbitmq_readonly client certificate to PFX format.")]
+        [Parameter (Mandatory = $false , ParameterSetName = "convert", HelpMessage = "Convert rabbitmq_readonly client certificate to PFX format.")]
         [ValidateNotNullOrEmpty()]
         [Alias("pfx")]
         [switch]$ConvertToPFx,
 	    
-		[Parameter(Mandatory, ValueFromPipeline = $true, ParameterSetName = "convert", HelpMessage = "Password for PFX file")]
+		[Parameter (Mandatory, ValueFromPipeline = $true, ParameterSetName = "convert", HelpMessage = "Password for PFX file")]
         [ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16243,7 +16243,7 @@ function Import-HPOVSslCertificate
     Param 
 	(
 	
-		[Parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16382,7 +16382,7 @@ function Restart-HPOVAppliance
     Param 
 	(
 	
-		[Parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16565,7 +16565,7 @@ function Stop-HPOVAppliance
     Param 
 	(
 	
-		[Parameter(ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (ValueFromPipeline, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16745,13 +16745,13 @@ function Get-HPOVServer
 	Param 
 	(
 		
-        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Position = 0, Mandatory = $false, ParameterSetName = "Default")]
 		[string]$Name,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [switch]$NoProfile,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16924,11 +16924,11 @@ function Get-HPOVIloSso
     Param 
 	(
 
-        [Parameter(ValueFromPipeline, Mandatory, HelpMessage = "Provide a Server resource object.", Position = 0, ParameterSetName = 'Default')]
+        [Parameter (ValueFromPipeline, Mandatory, HelpMessage = "Provide a Server resource object.", Position = 0, ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
         [Object]$Server,
 
-		[Parameter(ValueFromPipeline, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (ValueFromPipeline, Mandatory = $false, ParameterSetName = 'Default')]
 		[Switch]$RemoteConsoleOnly
 
     )
@@ -17069,30 +17069,30 @@ function Add-HPOVServer
     Param 
 	(
 
-        [Parameter(ValueFromPipeline = $True, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Monitored")]
-        [Parameter(ValueFromPipeline = $True, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Managed")]
+        [Parameter (ValueFromPipeline = $True, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Monitored")]
+        [Parameter (ValueFromPipeline = $True, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the server's iLO.", Position = 0, ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname = $Null,
          
-        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Monitored")]
-        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Managed")]
+        [Parameter (Mandatory, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Monitored")]
+        [Parameter (Mandatory, HelpMessage = "Enter the iLO administrative user name.", Position = 1, ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [string]$Username = $Null,
 
-        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Monitored")]
-        [Parameter(Mandatory, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Managed")]
+        [Parameter (Mandatory, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Monitored")]
+        [Parameter (Mandatory, HelpMessage = "Enter the iLO administrative account password.", Position = 2, ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-        [Parameter(Mandatory= $False, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position = 3, ParameterSetName = "Managed")]
+        [Parameter (Mandatory= $False, HelpMessage = "Enter licensing intent for the server being imported (OneView or OneViewNoiLO).", Position = 3, ParameterSetName = "Managed")]
         [ValidateSet("OneView", "OneViewNoiLO")]
         [string]$LicensingIntent = 'OneView',
 
-        [Parameter(Mandatory, ParameterSetName = "Monitored")]
+        [Parameter (Mandatory, ParameterSetName = "Monitored")]
         [switch]$Monitored,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Monitored")]
-		[Parameter(Mandatory = $False, ParameterSetName = "Managed")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Monitored")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Managed")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -17373,10 +17373,10 @@ function Remove-HPOVServer
         [Alias("uri","name")]
         [object]$Server,
 
-		[Parameter(Mandatory = $false)] 
+		[Parameter (Mandatory = $false)] 
 		[switch]$Force,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -17607,20 +17607,20 @@ function Set-HPOVServerPower
     Param 
     (
     
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0)]
         [ValidateNotNullOrEmpty()]
         [alias("name","uri","serverUri")]
         [object]$Server,
 
-        [Parameter(Mandatory = $false, position = 1)]
+        [Parameter (Mandatory = $false, position = 1)]
         [ValidateSet("On", "Off")]
         [string]$PowerState = "On",
 
-        [Parameter(Mandatory = $false, position = 2)]
+        [Parameter (Mandatory = $false, position = 2)]
         [ValidateSet("PressAndHold", "MomentaryPress", "ColdBoot", "Reset")]
         [string]$PowerControl = "MomentaryPress",
 
-        [Parameter(Mandatory, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -17910,14 +17910,14 @@ function Start-HPOVServer
     Param 
     (
     
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Provide the Server resource object.", position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Provide the Server resource object.", position = 0)]
         [ValidateNotNullOrEmpty()]
         [object]$Server,
 
-		[parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[switch]$Async,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -18173,20 +18173,20 @@ function Stop-HPOVServer
     Param 
     (
     
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Default')]
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Force')]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Default')]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Force')]
         [ValidateNotNullOrEmpty()]
         [object]$Server,
 		
-		[parameter(Mandatory, ParameterSetName = 'Force')]
+		[Parameter (Mandatory, ParameterSetName = 'Force')]
 		[switch]$Force,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'Force')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Force')]
 		[switch]$Async,
 
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Force')]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Force')]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -18474,20 +18474,20 @@ function Restart-HPOVServer
     Param 
     (
     
-        [parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Default')]
-		[parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'ColdBoot')]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'Default')]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the uri or name for the server resource.", position = 0, ParameterSetName = 'ColdBoot')]
         [ValidateNotNullOrEmpty()]
         [object]$Server,
 		
-		[parameter(Mandatory, ParameterSetName = 'ColdBoot')]
+		[Parameter (Mandatory, ParameterSetName = 'ColdBoot')]
 		[switch]$ColdBoot,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'ColdBoot')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'ColdBoot')]
 		[switch]$Async,
 		
-        [parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'ColdBoot')]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'ColdBoot')]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -18780,7 +18780,7 @@ function Update-HPOVServer
         [Alias("name")]
         [object]$Server,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -19029,11 +19029,11 @@ function Get-HPOVEnclosureGroup
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $false)]
+        [Parameter (Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 
-		[Parameter(Position = 1, Mandatory = $false)]
+		[Parameter (Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -19244,53 +19244,53 @@ function New-HPOVEnclosureGroup
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = "Enter a name for the new enclosure group.")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Enter a name for the new enclosure group.")]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = 'Default')]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
          
-        [Parameter(Position = 1, Mandatory, ValueFromPipeline, ParameterSetName = 'Default', HelpMessage = "Enter the Object or URI or Array of Objects or URIs of the Logical Interconnect Group to associate with the Enclosure Group.")]
+        [Parameter (Position = 1, Mandatory = $False, ValueFromPipeline, ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
         [alias('logicalInterconnectGroupUri','logicalInterconnectGroup')]
         [object]$LogicalInterconnectGroupMapping,
 
-        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Default')]
-		[Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
+        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Position = 2, Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateSet('RedundantPowerFeed','RedundantPowerSupply', IgnoreCase = $false)]
         [string]$PowerRedundantMode = "RedundantPowerFeed",
 
-        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Default')]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
+        [Parameter (Position = 3, Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullOrEmpty()]
         [string]$ConfigurationScript,
 
-		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
+		[Parameter (Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[switch]$DiscoverFromEnclosure,
 
-		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator IP Address or FQDN.")]
+		[Parameter (Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullorEmpty()]
 		[String]$OAAddress,
 
-		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide an Onboard Administrator admin username.")]
+		[Parameter (Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullorEmpty()]
 		[String]$Username,
 
-		[Parameter(Mandatory, ParameterSetName = 'DiscoverFromEnclosure', HelpMessage = "Provide the Onboard Administrator admin password.")]
+		[Parameter (Mandatory, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullorEmpty()]
 		[String]$Password,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullorEmpty()]
 		[String]$LigPrefix,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
-		[Parameter(Mandatory = $false, ParameterSetName = "importFile")]
-		[Parameter(Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default', ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ParameterSetName = "importFile")]
+		[Parameter (Mandatory = $false, ParameterSetName = 'DiscoverFromEnclosure')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[Parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
+		[Parameter (Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
 		[ValidateNotNullorEmpty()]
 		[string]$ImportFile
@@ -19319,7 +19319,6 @@ function New-HPOVEnclosureGroup
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
@@ -19344,7 +19343,6 @@ function New-HPOVEnclosureGroup
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -19682,12 +19680,12 @@ function Remove-HPOVEnclosureGroup
         [Alias("uri", "name", "EnclosureGroup")]
         [object]$Resource,
 
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [switch]$Force
 
     )
@@ -19976,47 +19974,47 @@ function Add-HPOVEnclosure
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Monitored")]
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Managed")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Monitored")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the primary OA.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("oa")]
         [string]$Hostname,
          
-        [Parameter(position = 1, Mandatory, HelpMessage = "Enter the enclosure group name with which to associate the new enclosure.", ParameterSetName = "Managed")]
+        [Parameter (position = 1, Mandatory, HelpMessage = "Enter the enclosure group name with which to associate the new enclosure.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("eg",'EnclGroupName')]
         [object]$EnclosureGroup,
 
-        [Parameter(position = 1,Mandatory, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Monitored")]
-        [Parameter(position = 2,Mandatory, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Managed")]
+        [Parameter (position = 1,Mandatory, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Monitored")]
+        [Parameter (position = 2,Mandatory, HelpMessage = "Enter the OA administrative user name.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("u", "user")]
         [string]$Username,
 
-        [Parameter(position = 2,Mandatory, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Monitored")]
-        [Parameter(position = 3,Mandatory, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Managed")]
+        [Parameter (position = 2,Mandatory, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Monitored")]
+        [Parameter (position = 3,Mandatory, HelpMessage = "Enter the OA administrative account password.", ParameterSetName = "Managed")]
         [ValidateNotNullOrEmpty()]
         [Alias("p", "pw")]
         [string]$Password,
 
-        [Parameter(position = 4,Mandatory, HelpMessage = "Enter licensing intent for servers in this enclosure (OneView, OneViewNoiLO, or OneViewStandard).", ParameterSetName = "Managed")]
+        [Parameter (position = 4,Mandatory, HelpMessage = "Enter licensing intent for servers in this enclosure (OneView, OneViewNoiLO, or OneViewStandard).", ParameterSetName = "Managed")]
         [ValidateSet('OneView', 'OneViewNoiLO', 'OneViewStandard', IgnoreCase = $False)]
         [Alias("license", "l")]
         [string]$LicensingIntent,
 
-        [Parameter(position = 5, Mandatory = $false, ParameterSetName = "Managed")]
+        [Parameter (position = 5, Mandatory = $false, ParameterSetName = "Managed")]
         [Alias("fwIso","fwBaselineIsoFilename")]
         [object]$Baseline = $NULL,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Managed")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Managed")]
         [alias('forceFw','forceInstall')]
         [switch]$ForceInstallFirmware,
 
-        [Parameter(Mandatory, ParameterSetName = "Monitored")]
+        [Parameter (Mandatory, ParameterSetName = "Monitored")]
         [switch]$Monitored,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Monitored")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Managed")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Monitored")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Managed")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -20483,24 +20481,24 @@ function Update-HPOVEnclosure
     Param 
 	(
         
-        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Reapply")]
-        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Refresh")]
+        [Parameter (Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Reapply")]
+        [Parameter (Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Enclosure Name, or an Array of names.", ParameterSetName = "Refresh")]
         [ValidateNotNullOrEmpty()]
         [object]$Enclosure,
 
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory, HelpMessage = "Refresh the Enclosure configuration.", ParameterSetName = "Refresh")]
+        [Parameter (Mandatory, HelpMessage = "Refresh the Enclosure configuration.", ParameterSetName = "Refresh")]
         [Switch]$Refresh,
 
-        [Parameter(Mandatory, HelpMessage = "Reapply Enclosure Configuration", ParameterSetName = "Reapply")]
+        [Parameter (Mandatory, HelpMessage = "Reapply Enclosure Configuration", ParameterSetName = "Reapply")]
         [Switch]$Reapply,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Reapply")]
-        [Parameter(Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Refresh")]
+        [Parameter (Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Reapply")]
+        [Parameter (Mandatory = $false, HelpMessage = "Monitor the progress.", ParameterSetName = "Refresh")]
         [switch]$Async
 
     )
@@ -20812,11 +20810,11 @@ function Get-HPOVLogicalEnclosure
     Param 
 	(
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 0)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", Position = 0)]
 		[validateNotNullorEmpty()]
         [string]$Name = $null,
 
-		[Parameter(Position = 1, Mandatory = $false)]
+		[Parameter (Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -21022,26 +21020,26 @@ function Update-HPOVLogicalEnclosure
     Param 
 	(
         
-        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Update")]
-        [Parameter(Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Reapply")]
+        [Parameter (Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Update")]
+        [Parameter (Position = 0, ValueFromPipeline = $True, Mandatory = $false, HelpMessage = "Enter the Logical Enclosure Object, Name, or an Array of names.", ParameterSetName = "Reapply")]
         [ValidateNotNullOrEmpty()]
 		[Alias('le')]
         [object]$LogicalEnclosure,
 
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory, HelpMessage = "Update Logical Enclosure configuration from Enclosure Group for compliance.", ParameterSetName = "Update")]
+        [Parameter (Mandatory, HelpMessage = "Update Logical Enclosure configuration from Enclosure Group for compliance.", ParameterSetName = "Update")]
         [Alias('UpdateFromGroup')]
         [Switch]$Update,
 
-        [Parameter(Mandatory, HelpMessage = "Reapply existing configuration only.", ParameterSetName = "Reapply")]
+        [Parameter (Mandatory, HelpMessage = "Reapply existing configuration only.", ParameterSetName = "Reapply")]
         [Switch]$Reapply,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
-        [Parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Reapply")]
+        [Parameter (Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
+        [Parameter (Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Reapply")]
         [Switch]$Async
 
     )
@@ -21349,44 +21347,44 @@ function Invoke-HPOVVcmMigration
 	param
 	(
 
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Report")]	
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "VCEMMigration")]
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Default")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Report")]	
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Onboard Administrator IP Address or FQDN", ParameterSetName = "Default")]
 		[alias('oip')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAIPAddress,
 
-        [Parameter(Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Report")]
-		[Parameter(Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "VCEMMigration")]
-        [Parameter(Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Default")]
+        [Parameter (Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Report")]
+		[Parameter (Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 1, Mandatory, HelpMessage = "Onboard Administrator Administrator account", ParameterSetName = "Default")]
 		[alias('ou')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAUserName,
 
-        [Parameter(Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Report")]
-		[Parameter(Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "VCEMMigration")]
-		[Parameter(Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Default")]
+        [Parameter (Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Report")]
+		[Parameter (Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "VCEMMigration")]
+		[Parameter (Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Default")]
 		[alias('op')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAPassword,
 
-        [Parameter(Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Report")]
-		[Parameter(Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "VCEMMigration")]
-		[Parameter(Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Default")]
+        [Parameter (Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Report")]
+		[Parameter (Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "VCEMMigration")]
+		[Parameter (Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Default")]
 		[alias('vu')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$VCMUserName,
 
-        [Parameter(Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Report")]
-		[Parameter(Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "VCEMMigration")]
-		[Parameter(Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Default")]
+        [Parameter (Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Report")]
+		[Parameter (Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "VCEMMigration")]
+		[Parameter (Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Default")]
 		[alias('vp')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$VCMPassword,
 
-		[Parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Report")]
-        [Parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
-        [Parameter(Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Default")]
+		[Parameter (Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Report")]
+        [Parameter (Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Default")]
 		[alias('eg')]
         [ValidateScript({
             if (($_ -is [String]) -and ($_.StartsWith('/rest/')) -and (-not ($_.StartsWith('/rest/enclosure-groups')))) { Throw "'$_' is not an allowed resource URI.  Enclosure Group Resource URI must start with '/rest/enclosure-groups'. Please check the value and try again." } 
@@ -21401,9 +21399,9 @@ function Invoke-HPOVVcmMigration
             else { $True } })]
 		[Object]$EnclosureGroup = $Null,
 
-		[Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Report")]
-        [Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
-        [Parameter(Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Default")]
+		[Parameter (Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Report")]
+        [Parameter (Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 6, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Logical Interconnect Group Resource Name, URI or Object", ParameterSetName = "Default")]
 		[alias('lig')]
         [ValidateScript({
             if (($_ -is [String]) -and ($_.StartsWith('/rest/')) -and (-not ($_.StartsWith('/rest/logical-interconnect-groups')))) { Throw "'$_' is not an allowed resource URI.  Logical Interconnect Group Resource URI must start with '/rest/logical-interconnect-groups'. Please check the value and try again." } 
@@ -21418,41 +21416,41 @@ function Invoke-HPOVVcmMigration
             else { $True } })]
 		[Object]$LogicalInterconnectGroup = $Null,
 
-		[Parameter(Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Report")]
-        [Parameter(Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "VCEMMigration")]
-        [Parameter(Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Default")]
+		[Parameter (Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Report")]
+        [Parameter (Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 7, Mandatory, HelpMessage = "Enclosure License Intent; OneView or OneViewNoIlo", ParameterSetName = "Default")]
 		[ValidateSet("OneView", "OneViewNoiLO", IgnoreCase = $false)]
 		[ValidateNotNullOrEmpty()]
         [Alias("license", "l")]
 	    [System.String]$licensingIntent,
 
-        [Parameter(Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "Report")]
-        [Parameter(Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "Report")]
+        [Parameter (Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "VCEMMigration")]
 		[String]$VCEMCMS,
 
-        [Parameter(Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "Report")]
-        [Parameter(Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "Report")]
+        [Parameter (Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "VCEMMigration")]
 		[String]$VCEMUser,
 
-        [Parameter(Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "Report")]
-        [Parameter(Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "VCEMMigration")]
+        [Parameter (Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "Report")]
+        [Parameter (Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "VCEMMigration")]
 		[String]$VCEMPassword,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Do not wait for task to complete", ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, HelpMessage = "Do not wait for task to complete", ParameterSetName = "Default")]
 		[Alias('NoWait')]
 		[Switch]$Async,
 
-		[Parameter(Mandatory, HelpMessage = "Generate report only", ParameterSetName = "Report")]
+		[Parameter (Mandatory, HelpMessage = "Generate report only", ParameterSetName = "Report")]
 		[Switch]$Report,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Save Report Only", ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, HelpMessage = "Save Report Only", ParameterSetName = "Report")]
         [ValidateScript({
             if ({split-path $_ | Test-Path}) { $True } 
             else { Throw "'$(Split-Path $_)' is not a valid directory.  Please verify $(Split-Path $_) exists and try again." } 
             })]
 		[System.String]$Export,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -22302,15 +22300,15 @@ function Get-HPOVEnclosure
     Param 
 	(
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 0)]
-		[Parameter(Mandatory = $false, ParameterSetName = "export", Position = 0)]
-		[Parameter(Mandatory = $false, ParameterSetName = "report", Position = 0)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", Position = 0)]
+		[Parameter (Mandatory = $false, ParameterSetName = "export", Position = 0)]
+		[Parameter (Mandatory = $false, ParameterSetName = "report", Position = 0)]
 		[validateNotNullorEmpty()]
         [string]$Name = $null,
 
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "export")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "report")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "export")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "report")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -22558,13 +22556,13 @@ function Enclosure-Report
     Param 
 	(
 
-        [Parameter(Mandatory,ValueFromPipeline = $true, Position = 0)]
+        [Parameter (Mandatory,ValueFromPipeline = $true, Position = 0)]
         [object]$Enclosure,
 	
-	    [Parameter(Mandatory = $false,Position = 1)]
+	    [Parameter (Mandatory = $false,Position = 1)]
         [object]$file = $null,
 	
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
         [switch]$fwreport
     )
 
@@ -22719,12 +22717,12 @@ function Remove-HPOVEnclosure
         [Alias("uri", "name", "Enclosure")]
         [object]$Resource,
 
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [switch]$Force
 
     )
@@ -23005,11 +23003,11 @@ function Get-HPOVServerHardwareType
 	Param
 	(
 
-		[Parameter(Position = 0, Mandatory = $false)]
+		[Parameter (Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[string]$Name,
 
-		[Parameter(Position = 1, Mandatory = $false)]
+		[Parameter (Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -23201,22 +23199,22 @@ function Show-HPOVFirmwareReport
 	Param 
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+		[Parameter (Mandatory, ValueFromPipeline, Position = 0)]
 		[validateNotNullorEmpty()]
 		[Object]$Resource,
 	
-		[Parameter(Mandatory = $false, Position = 1)]
+		[Parameter (Mandatory = $false, Position = 1)]
 		[validateNotNullorEmpty()]
 		[Object]$Baseline,
             
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[Switch]$Export,
             
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[validateNotNullorEmpty()]
 		[String]$Location = (get-location).Path,
 
-		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter (ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -23777,7 +23775,7 @@ function Get-EnclosureFirmware
     Param 
 	(
     
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Enclosure resource object")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Enclosure resource object")]
 		[ValidateScript({
 			if ($_.category -ne 'enclosures') 
 			{ 
@@ -23795,10 +23793,10 @@ function Get-EnclosureFirmware
 		})]
         [PsCustomObject]$Enclosure = $Null, 
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null,
 
-        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "Specify the level of the Write-Progress ID")]
+        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "Specify the level of the Write-Progress ID")]
         [int]$ProgressID = 0
         
     )
@@ -24260,10 +24258,10 @@ function Get-ServerFirmware
     Param 
 	(
     
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Server resource object")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Server resource object")]
         [PsCustomObject]$Server, 
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null
         
     )
@@ -24720,10 +24718,10 @@ function Get-InterconnectFirmware
     Param 
 	(
     
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Interconnect resource object")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Interconnect resource object")]
         [PsCustomObject]$Interconnect, 
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "Default", HelpMessage = "SPP Baseline resource object, Name or URI")]
         [object]$Baseline = $Null
         
     )
@@ -25033,7 +25031,7 @@ function Show-HPOVUtilization
     Param 
 	(
 
-        [Parameter(Mandatory, ValueFromPipeLine, Position = 0)]
+        [Parameter (Mandatory, ValueFromPipeLine, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Object]$Resource
 
@@ -25257,23 +25255,23 @@ function Get-HPOVStorageSystem
     Param 
 	(
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position = 0)]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$SystemName,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the Storage System serial number.", ParameterSetName = "Serial",Position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('SN')]
         [string]$SerialNumber,
 
-		[Parameter(Position = 1, Mandatory = $false)]
+		[Parameter (Position = 1, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
-        [Parameter(Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Serial")]
+        [Parameter (Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Name")]
+        [Parameter (Mandatory = $false, HelpMessage = "Display output in Table List format.", ParameterSetName = "Serial")]
         [Alias('Report')]
         [switch]$List
 
@@ -25585,12 +25583,12 @@ function Update-HPOVStorageSystem
     Param 
 	(
 
-        [Parameter(Mandatory = $false, ValueFromPipeLine = $True, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
+        [Parameter (Mandatory = $false, ValueFromPipeLine = $True, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$StorageSystem,
 		
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -25824,31 +25822,31 @@ function Add-HPOVStorageSystem
     Param 
 	(
 
-        [Parameter(Mandatory, position = 0, HelpMessage = "Enter the host name (FQDN) or IP of the Storage System.")]
+        [Parameter (Mandatory, position = 0, HelpMessage = "Enter the host name (FQDN) or IP of the Storage System.")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname,
          
-        [Parameter(Mandatory, position = 1, HelpMessage = "Enter the administrative user name (i.e. 3paradm).")]
+        [Parameter (Mandatory, position = 1, HelpMessage = "Enter the administrative user name (i.e. 3paradm).")]
         [ValidateNotNullOrEmpty()]
         [string]$Username,
 
-        [Parameter(Mandatory, position = 2, HelpMessage = "Enter the administrative account password (i.e. 3pardata).")]
+        [Parameter (Mandatory, position = 2, HelpMessage = "Enter the administrative account password (i.e. 3pardata).")]
         [ValidateNotNullOrEmpty()]
         [string]$Password,
 
-        [Parameter(Mandatory = $false, position = 3, HelpMessage = "Specify the HP 3PAR Virtual Domain Name to Import resources from.")]
+        [Parameter (Mandatory = $false, position = 3, HelpMessage = "Specify the HP 3PAR Virtual Domain Name to Import resources from.")]
         [ValidateNotNullOrEmpty()]
         [String]$Domain = 'NO DOMAIN',
 
-        [Parameter(Mandatory = $false, position = 4, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="Fabric A";"2:2:2"="Fabric B"}')]
+        [Parameter (Mandatory = $false, position = 4, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="Fabric A";"2:2:2"="Fabric B"}')]
         [ValidateNotNullOrEmpty()]
         [PsCustomObject]$Ports,
 
-		[Parameter(Mandatory = $false, position = 5, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="PG_1";"2:2:2"="Fabric B"}')]
+		[Parameter (Mandatory = $false, position = 5, HelpMessage = 'Specify the Host Ports and Expected Network in an Array of PSCustomObject entries. Example: @{"1:1:1"="PG_1";"2:2:2"="Fabric B"}')]
         [ValidateNotNullOrEmpty()]
         [Hashtable]$PortGroups,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -26378,10 +26376,10 @@ function Remove-HPOVStorageSystem
         [Alias("uri","name")]
         [object]$StorageSystem,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [switch]$force,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "ApplianceRequired", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -26619,17 +26617,17 @@ function Get-HPOVStoragePool
     Param 
 	(
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool name.", ParameterSetName = "Name", Position = 0)]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the Storage Pool name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('pool', 'PoolName')]
         [string]$Name,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the Storage System Name or provide the Resource Object.", ParameterSetName = "Name", Position = 1)]
+        [Parameter (Mandatory = $false, ValueFromPipeline, HelpMessage = "Enter the Storage System Name or provide the Resource Object.", ParameterSetName = "Name", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Alias('systemName', 'system')]
         [object]$StorageSystem,
 
-		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "Name")]
+		[Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "Name")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -26868,17 +26866,17 @@ function Add-HPOVStoragePool
     Param 
 	(
 
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage System name.", ParameterSetName = "Default", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Hostname', 'name')]
         [object]$StorageSystem,
 
-        [Parameter(Mandatory, HelpMessage = "Provide array of Storage Pool names.", ParameterSetName = "Default", Position = 1)]
+        [Parameter (Mandatory, HelpMessage = "Provide array of Storage Pool names.", ParameterSetName = "Default", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Alias('PoolName', 'spName', 'cpg')]
         [array]$Pool,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -27158,7 +27156,7 @@ function Remove-HPOVStoragePool
 		[parameter (Mandatory = $false)]
 		[switch]$Force,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -27396,12 +27394,12 @@ function Get-HPOVStorageVolumeTemplate
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Volume template name.")]
+        [Parameter (Position = 0, Mandatory = $false, HelpMessage = "Enter the Volume template name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('TemplateName')]
         [string]$Name,
 
-        [Parameter(Mandatory = $False)]
+        [Parameter (Mandatory = $False)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -27578,39 +27576,39 @@ function New-HPOVStorageVolumeTemplate
     Param 
 	(
 
-        [Parameter(Mandatory, HelpMessage = "Enter the Volume Template Name.", ParameterSetName = "default")]
+        [Parameter (Mandatory, HelpMessage = "Enter the Volume Template Name.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias('templateName')]
         [string]$Name,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[string]$Description = $null,
 
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage Pool Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the Storage Pool Name, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$StoragePool = $Null,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Storage Pool Name that will be used for snapshot storage, URI or provide the resource object.", ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Storage Pool Name that will be used for snapshot storage, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$SnapshotStoragePool = $Null,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the Storage System Name, URI or provide the resource object.", ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$StorageSystem = $Null,
 
-        [Parameter(Mandatory, HelpMessage = "Enter the requested capacity in GB.", ParameterSetName = "default")]
+        [Parameter (Mandatory, HelpMessage = "Enter the requested capacity in GB.", ParameterSetName = "default")]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
         [int64]$capacity,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [switch]$full,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [switch]$shared,
 
-		[Parameter(Mandatory, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -28002,7 +28000,7 @@ function Remove-HPOVStorageVolumeTemplate
         [Alias('uri', 'name', 'templateName')]
         [Object]$Template = $null,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -28309,7 +28307,7 @@ function Get-HPOVStorageVolumeTemplatePolicy
     Param 
 	(
 	
-		[parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -28450,14 +28448,14 @@ function Set-HPOVStorageVolumeTemplatePolicy
     Param 
 	(
     
-        [Parameter(Mandatory, HelpMessage = "Enable Storage Volume Template global policy.", ParameterSetName = "Enable")]
+        [Parameter (Mandatory, HelpMessage = "Enable Storage Volume Template global policy.", ParameterSetName = "Enable")]
         [switch]$Enable,
               
-        [Parameter(Mandatory, HelpMessage = "Disable Storage Volume Template global policy.", ParameterSetName = "Disable")]
+        [Parameter (Mandatory, HelpMessage = "Disable Storage Volume Template global policy.", ParameterSetName = "Disable")]
         [switch]$Disable,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = "Enable")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Disable")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Enable")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Disable")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -28623,15 +28621,15 @@ function Get-HPOVStorageVolume
     Param 
     (
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the Volume name.", ParameterSetName = "Name", Position = 0)]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the Volume name.", ParameterSetName = "Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$VolumeName = $Null,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Show only available storage volumes", ParameterSetName = "Name")]
+        [Parameter (Mandatory = $false, HelpMessage = "Show only available storage volumes", ParameterSetName = "Name")]
         [switch]$Available,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Name")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Name")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -28855,12 +28853,12 @@ function Get-HPOVStorageVolumeSnapShot
     Param 
     (
 
-        [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$Volume,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -29036,17 +29034,17 @@ function New-HPOVStorageVolumeSnapshot
     Param 
     (
 
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter (Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Object]$Volume,
 
-		[Parameter(Mandatory = $false, Position = 0)]
+		[Parameter (Mandatory = $false, Position = 0)]
 		[String]$Name = '{volumeName}_{timestamp}',
 
-		[Parameter(Mandatory = $false, Position = 1)]
+		[Parameter (Mandatory = $false, Position = 1)]
 		[String]$Description,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -29210,11 +29208,11 @@ function Remove-HPOVStorageVolumeSnapshot
     Param 
     (
 
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter (Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Object]$Snapshot,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -29392,23 +29390,23 @@ function ConvertTo-HPOVStorageVolume
     Param 
     (
 
-        [Parameter(Mandatory, ValueFromPipeline)]
+        [Parameter (Mandatory, ValueFromPipeline)]
         [ValidateNotNullOrEmpty()]
         [Object]$Snapshot,
 
-		[Parameter(Mandatory, Position = 0)]
+		[Parameter (Mandatory, Position = 0)]
 		[ValidateNotNullOrEmpty()]
 		[String]$Name,
 
-		[Parameter(Mandatory = $false, Position = 1)]
+		[Parameter (Mandatory = $false, Position = 1)]
 		[ValidateNotNullOrEmpty()]
 		[String]$Description,
 
-		[Parameter(Mandatory = $false, Position = 2)]
+		[Parameter (Mandatory = $false, Position = 2)]
 		[ValidateSet('Private', 'Shared')]
 		[String]$SharingMode,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -29608,43 +29606,43 @@ function New-HPOVStorageVolume
         [Alias("VolumeName")]
         [string]$Name,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
         [string]$Description,
 
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "default")]
+        [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias("pool","poolName")]
         [object]$StoragePool,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$SnapshotStoragePool,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
 		[object]$StorageSystem,
 
-        [Parameter(Mandatory, ParameterSetName = "template")]
+        [Parameter (Mandatory, ParameterSetName = "template")]
         [ValidateNotNullOrEmpty()]
         [Alias('template','svt')]
         [object]$VolumeTemplate,
 
-        [Parameter(Mandatory, ParameterSetName = "default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "template")]
+        [Parameter (Mandatory, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "template")]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
         [int64]$Capacity,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [switch]$Full,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "template")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "template")]
         [switch]$Shared,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "template")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "template")]
 		[ValidateNotNullorEmpty()]
 		[object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
@@ -30064,15 +30062,15 @@ function GetStoragePool
 	Param
 	(
 
-		[Parameter(Mandatory, Position = 0, ParameterSetName = "default")]
+		[Parameter (Mandatory, Position = 0, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
         [Alias("pool","poolName")]
         [Object]$StoragePool,
 
-        [Parameter(Mandatory = $False, Position = 1, ParameterSetName = "default")]
+        [Parameter (Mandatory = $False, Position = 1, ParameterSetName = "default")]
 		[object]$StorageSystem,
 
-		[Parameter(Mandatory, ParameterSetName = "default")]
+		[Parameter (Mandatory, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[object]$ApplianceConnection
 
@@ -30237,8 +30235,8 @@ function Add-HPOVStorageVolume
     Param 
 	(
 
-        [Parameter(Mandatory, ValueFromPipeline = $True, Position = 0, ParameterSetName = "default")]
-		[Parameter(Mandatory, ValueFromPipeline = $True, Position = 0, ParameterSetName = "StorageDeviceName")]
+        [Parameter (Mandatory, ValueFromPipeline = $True, Position = 0, ParameterSetName = "default")]
+		[Parameter (Mandatory, ValueFromPipeline = $True, Position = 0, ParameterSetName = "StorageDeviceName")]
         [ValidateNotNullOrEmpty()]
         [object]$StorageSystem,
 
@@ -30258,16 +30256,16 @@ function Add-HPOVStorageVolume
         [Alias("name")]
         [string]$VolumeName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 3)]
-		[Parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", Position = 3)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", Position = 3)]
+		[Parameter (Mandatory = $false, ParameterSetName = "StorageDeviceName", Position = 3)]
         [string]$Description = "",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
-		[Parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+		[Parameter (Mandatory = $false, ParameterSetName = "StorageDeviceName", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
         [switch]$Shared,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
-		[Parameter(Mandatory = $false, ParameterSetName = "StorageDeviceName", ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ParameterSetName = "StorageDeviceName", ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -30533,22 +30531,22 @@ function Set-HPOVStorageVolume
         [ValidateNotNullOrEmpty()]
         [String]$VolumeName,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 2)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", Position = 2)]
         [String]$Description = "",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", Position = 3)]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", Position = 3)]
         [ValidateScript({$_ -ge 1})]
         [Alias("size")]
         [int64]$Capacity,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default", Position = 2)]
+		[Parameter (Mandatory = $false, ParameterSetName = "default", Position = 2)]
         [ValidateNotNullOrEmpty()]
         [Object]$SnapShotStoragePool,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Allow the volume to be shared between hosts (i.e. shared datastore).")]
         [bool]$Shared,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ParameterSetName = "default", ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -30932,10 +30930,10 @@ function Remove-HPOVStorageVolume
         [Alias('uri', 'name')]
         [Object]$StorageVolume,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Specify whether to delete the export reference or export and provisioning volume.")]
+        [Parameter (Mandatory = $false, HelpMessage = "Specify whether to delete the export reference or export and provisioning volume.")]
         [Switch]$ExportOnly,
 	
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
         [ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -31270,12 +31268,12 @@ function Get-HPOVSanManager
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.")]
+        [Parameter (Position = 0, Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [string]$SanManager = $Null,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -31462,66 +31460,66 @@ function Add-HPOVSanManager
     Param 
 	(
 
-        [Parameter(Mandatory, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "HPCisco")]
-		[Parameter(Mandatory, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "BNA")]
+        [Parameter (Mandatory, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory, HelpMessage = "Specify the SAN Manager Type.  Accepted values are: BNA or HP.", Position = 0, ParameterSetName = "BNA")]
         [ValidateSet("Brocade","BNA","Brocade Network Advisor","HP","Cisco")]
         [string]$Type,
 
-		[Parameter(Mandatory, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
+		[Parameter (Mandatory, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname = $null,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(1,65535)]
         [int]$Port = 0,
          
-        [Parameter(Mandatory, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
+        [Parameter (Mandatory, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Username = $Null,
 
-        [Parameter(Mandatory, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
+        [Parameter (Mandatory, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-		[Parameter(Mandatory, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
 		[string]$SnmpUserName,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
 		[ValidateSet("None","AuthOnly","AuthAndPriv")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthLevel = "None",
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
 		[ValidateSet("sha","md5")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthProtocol,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthPassword,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
 		[ValidateSet("aes-128","des56","3des")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivProtocol,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivPassword,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "BNA")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "BNA")]
 	    [switch]$UseSsl,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = "HPCisco")]
-		[Parameter(Mandatory = $false, ParameterSetName = "BNA")]
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false, ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false)]
 		[switch]$Async,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "HPCisco")]
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "BNA")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -31835,67 +31833,67 @@ function Set-HPOVSanManager
     Param 
 	(
 
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "BNA")]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 0, ParameterSetName = "BNA")]
 		[Alias('name')]
         [ValidateNotNullOrEmpty()]
         [object]$Resource,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the SAN Manager Hostname or IP Address.", Position = 1, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname = $null,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the SAN Manager TCP Port (HTTPS port for BNA, SNMP Port for HP).", Position = 2, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [ValidateRange(1,65535)]
         [int]$Port = 0,
          
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the administrative user name (i.e. Administrator).", Position = 3, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Username = $Null,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "HPCisco")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "HPCisco")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the administrative account password (i.e. password).", Position = 4, ParameterSetName = "BNA")]
         [ValidateNotNullOrEmpty()]
         [string]$Password = $Null,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 User Account.", ParameterSetName = "HPCisco")]
 		[string]$SnmpUserName,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Level 'None', 'AuthOnly', or 'AuthAndPriv'", ParameterSetName = "HPCisco")]
 		[ValidateSet("None","AuthOnly","AuthAndPriv")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthLevel = "None",
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication Encryption Protocol SHA or MD5", ParameterSetName = "HPCisco")]
 		[ValidateSet("sha","md5")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthProtocol,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Authentication account password (i.e. password).", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpAuthPassword,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Protocol DES or AES", ParameterSetName = "HPCisco")]
 		[ValidateSet("aes-128","des56","3des")]	
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivProtocol,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the SNMPv3 Privacy Password", ParameterSetName = "HPCisco")]
 		[ValidateNotNullOrEmpty()]
 		[string]$SnmpPrivPassword,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "BNA")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "BNA")]
 	    [switch]$EnableSsl,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "BNA")]
+		[Parameter (Mandatory = $false, ParameterSetName = "BNA")]
 		[switch]$DisableSsl,
 
-		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "HPCisco")]
-		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "BNA")]
+		[Parameter (Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "HPCisco")]
+		[Parameter (Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = "BNA")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -32183,12 +32181,12 @@ function Update-HPOVSanManager
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Managed SAN Name.")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Managed SAN Name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [Object]$SANManager = $Null,
 		
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -32354,12 +32352,12 @@ function Remove-HPOVSanManager
     Param 
 	(
 
-        [Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Name, or provide SAN Manager Resource.", Position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the SAN Manager Name, or provide SAN Manager Resource.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Name')]
         [object]$SanManager = $Null,
 	
-		[Parameter(position = 1, Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (position = 1, Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -32596,12 +32594,12 @@ function Get-HPOVManagedSan
     Param 
 	(
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the Managed SAN Name.")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the Managed SAN Name.")]
         [ValidateNotNullOrEmpty()]
         [Alias('Fabric')]
         [string]$Name,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -32774,54 +32772,54 @@ function Set-HPOVManagedSan
     Param 
 	(
 
-        [Parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Enable", position=0)]
-        [Parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Disable", position=0)]
-        [Parameter(Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "DisableAlias", position=0)]
+        [Parameter (Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Enable", position=0)]
+        [Parameter (Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "Disable", position=0)]
+        [Parameter (Mandatory, HelpMessage = "Enter the Managed SAN Name.",ValueFromPipeline, ParameterSetName = "DisableAlias", position=0)]
         [ValidateNotNullOrEmpty()]
         [Alias('Fabric','Name','ManagedSan')]
         [object]$Resource,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Enable")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "DisableAlias")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enable Automated Zoning for the specified Managed SAN.", ParameterSetName = "DisableAlias")]
         [Alias('ZoningEnable','Enable')]
         [switch]$EnableAutomatedZoning,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Disable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Disable")]
+        [Parameter (Mandatory = $false, HelpMessage = "Disable Automated Zoning for the specified Managed SAN.", ParameterSetName = "Disable")]
         [Alias('ZoningDisable','Disable')]
         [switch]$DisableAutomatedZoning,
 
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Disable")]
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "DisableAlias")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Disable")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "DisableAlias")]
 		[ValidateSet('SingleInitiatorAllTargets','SingleInitiatorSingleStorageSystem','SingleInitiatorSingleTarget')]
 		[ValidateNotNullOrEmpty()]
 		[string]$ZoningPolicy = 'SingleInitiatorAllTargets',
       
-        [Parameter(Mandatory = $false, ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Enable")]
         [switch]$EnableAliasing,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "DisableAlias")]
+        [Parameter (Mandatory = $false, ParameterSetName = "DisableAlias")]
         [switch]$DisableAliasing,
 
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$InitiatorNameFormat,
 
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$TargetGroupNameFormat,
 
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$TargetNameFormat,
 
-        [Parameter(Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
+        [Parameter (Mandatory = $false, HelpMessage = "helpmsg", ParameterSetName = "Enable")]
 		[ValidateNotNullOrEmpty()]
 		[string]$ZoneNameFormat,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Enable")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Disable")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DisableAlias")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Enable")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Disable")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DisableAlias")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -33070,16 +33068,16 @@ function Show-HPOVSanEndpoint
     Param 
 	(
 
-        [Parameter(Mandatory = $False, ValueFromPipeline, ParameterSetName = 'Default')]
+        [Parameter (Mandatory = $False, ValueFromPipeline, ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
         [Object]$SAN,
 
-		[Parameter(Mandatory, ParameterSetName = 'WWN')]
+		[Parameter (Mandatory, ParameterSetName = 'WWN')]
         [ValidateNotNullOrEmpty()]
         [String]$WWN,
 
-		[parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[parameter(Mandatory = $false, ParameterSetName = 'WWN')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'WWN')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -33318,14 +33316,14 @@ function Get-HPOVUnmanagedDevice
     Param 
 	(
 
-        [Parameter(Mandatory = $false, Position = 0, ParameterSetName = 'Default', HelpMessage = "Enter the name of the unmanaged device.")]
+        [Parameter (Mandatory = $false, Position = 0, ParameterSetName = 'Default', HelpMessage = "Enter the name of the unmanaged device.")]
         [String]$Name,
 
-        [Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+        [Parameter (Mandatory = $false, ParameterSetName = 'Default')]
         [Alias('report')]
         [Switch]$List,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -33514,35 +33512,35 @@ function New-HPOVUnmanagedDevice
     Param 
 	(
 
-        [Parameter(Mandatory, Position = 0, ParameterSetName = 'Default', HelpMessage = "Enter the name of the unmanaged device.")]
+        [Parameter (Mandatory, Position = 0, ParameterSetName = 'Default', HelpMessage = "Enter the name of the unmanaged device.")]
         [ValidateNotNullOrEmpty()]
         [String]$Name,
 
-        [Parameter(Mandatory, Position = 1, ParameterSetName = 'Default', HelpMessage = "Provide a device model description (e.g. HPN 5900CP).")]
+        [Parameter (Mandatory, Position = 1, ParameterSetName = 'Default', HelpMessage = "Provide a device model description (e.g. HPN 5900CP).")]
         [ValidateNotNullOrEmpty()]
         [string]$Model,
 
-        [Parameter(Mandatory = $false, Position = 2, ParameterSetName = 'Default', HelpMessage = "Enter the Rack Unit height (e.g. 1).")]
+        [Parameter (Mandatory = $false, Position = 2, ParameterSetName = 'Default', HelpMessage = "Enter the Rack Unit height (e.g. 1).")]
         [ValidateNotNullOrEmpty()]
         [int]$Height = 1,
 
-        [Parameter(Mandatory, Position = 3, ParameterSetName = 'Default', HelpMessage = "Enter the max power consumption in WATTS (e.g. 300).")]
+        [Parameter (Mandatory, Position = 3, ParameterSetName = 'Default', HelpMessage = "Enter the max power consumption in WATTS (e.g. 300).")]
         [ValidateNotNullOrEmpty()]
         [int]$MaxPower,
 
-		[Parameter(Mandatory = $false, Position = 4, ParameterSetName = 'Default', HelpMessage = "Enter the device MAC Address(e.g. AA:BB:CC:DD:EE:FF).")]
+		[Parameter (Mandatory = $false, Position = 4, ParameterSetName = 'Default', HelpMessage = "Enter the device MAC Address(e.g. AA:BB:CC:DD:EE:FF).")]
         [ValidateNotNullOrEmpty()]
 		[string]$MacAddress,
 
-		[Parameter(Mandatory = $false, Position = 5, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPv4 Address (e.g. 10.1.1.10).")]
+		[Parameter (Mandatory = $false, Position = 5, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPv4 Address (e.g. 10.1.1.10).")]
         [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPv4Address value does not appear to be a valid IPv4 Address.' } else { $True }})]
 		[string]$IPv4Address,
 
-		[Parameter(Mandatory = $false, Position = 6, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPv6 Address (e.g. fe80::200:f8ff:fe21:67cf).")]
+		[Parameter (Mandatory = $false, Position = 6, ParameterSetName = 'Default', HelpMessage = "Enter the device's management IPv6 Address (e.g. fe80::200:f8ff:fe21:67cf).")]
         [ValidateScript({if (-not([IPAddress]::TryParse($_,[ref]$null))) { Throw 'The provided IPv6Address value does not appear to be a valid IPv6 Address.' } else { $True }})]
 		[string]$IPv6Address,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -33688,15 +33686,15 @@ function Remove-HPOVUnmanagedDevice
     Param 
 	(
 
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the Unmanaged Device to be removed.")]
+        [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the Unmanaged Device to be removed.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$UnmanagedDevice = $null,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "default")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "default")]
 	    [switch]$force,
 	
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -33933,10 +33931,10 @@ function Get-HPOVPowerDevice
 	Param 
 	(
 
-		[Parameter(Mandatory = $false, Position = 0)]
+		[Parameter (Mandatory = $false, Position = 0)]
 		[string]$Name,
         
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -34094,22 +34092,22 @@ function Add-HPOVPowerDevice
     Param 
 	(
 
-        [Parameter(Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the iPDU's management processor.", Position = 0)]
+        [Parameter (Mandatory, HelpMessage = "Enter the host name (FQDN) or IP of the iPDU's management processor.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]$Hostname,
          
-        [Parameter(Mandatory, HelpMessage = "Enter the iPDU administrative user name.", Position = 1)]
+        [Parameter (Mandatory, HelpMessage = "Enter the iPDU administrative user name.", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [string]$Username,
 
-        [Parameter(Mandatory, HelpMessage = "Enter the iPDU administrative account password.", Position = 2)]
+        [Parameter (Mandatory, HelpMessage = "Enter the iPDU administrative account password.", Position = 2)]
         [ValidateNotNullOrEmpty()]
         [string]$Password,
 
-	    [Parameter(Mandatory = $false)]
+	    [Parameter (Mandatory = $false)]
 	    [switch]$Force,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -34413,15 +34411,15 @@ function Remove-HPOVPowerDevice
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the power-device to be removed.")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Enter the the power-device to be removed.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$PowerDevice = $null,
 
-	    [Parameter(Mandatory = $false)]
+	    [Parameter (Mandatory = $false)]
 	    [switch]$force,
 	
-		[Parameter(position = 1, Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (position = 1, Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -34658,12 +34656,12 @@ function Get-HPOVPowerPotentialDeviceConnection
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Power Device to retrive potential power connections of resources.")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Power Device to retrive potential power connections of resources.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name")]
         [object]$PowerDevice = $null,
 	
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -34895,83 +34893,83 @@ function New-HPOVNetwork
     Param 
 	(
 
-		[Parameter(Mandatory, ParameterSetName = "FC",Position=0)]
-		[Parameter(Mandatory, ParameterSetName = "Ethernet",Position=0)]
-		[Parameter(Mandatory, ParameterSetName = "FCOE",Position=0)]
-		[Parameter(Mandatory, ParameterSetName = "VLANIDRange",Position=0)]
+		[Parameter (Mandatory, ParameterSetName = "FC",Position=0)]
+		[Parameter (Mandatory, ParameterSetName = "Ethernet",Position=0)]
+		[Parameter (Mandatory, ParameterSetName = "FCOE",Position=0)]
+		[Parameter (Mandatory, ParameterSetName = "VLANIDRange",Position=0)]
 		[string]$Name, 
 
-		[Parameter(Mandatory, ParameterSetName = "FC",Position=1)]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=1)]
-		[Parameter(Mandatory = $false, ParameterSetName = "FCOE",Position=1)]
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=1)]
+		[Parameter (Mandatory, ParameterSetName = "FC",Position=1)]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet",Position=1)]
+		[Parameter (Mandatory = $false, ParameterSetName = "FCOE",Position=1)]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange",Position=1)]
 		[ValidateSet("Ethernet", "FC", "FibreChannel", "Fibre Channel", "FCoE")]
 		[string]$Type = "Ethernet",
         
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=2)] 
-		[Parameter(Mandatory, ParameterSetName = "FCOE",Position=2)] 
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet",Position=2)] 
+		[Parameter (Mandatory, ParameterSetName = "FCOE",Position=2)] 
 		[int32]$VlanId,
 
-		[Parameter(Mandatory, ParameterSetName = "VLANIDRange",Position=1)]
+		[Parameter (Mandatory, ParameterSetName = "VLANIDRange",Position=1)]
 		[string]$VlanRange,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet",Position=3)] 
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange",Position=2)]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet",Position=3)] 
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange",Position=2)]
 		[ValidateSet('Untagged','Tagged','Tunnel')]
 		[string]$VLANType = "Tagged", 
 
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
 		[ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
 		[string]$Purpose = "General", 
 
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
 		[boolean]$SmartLink = $true, 
 
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
 		[boolean]$PrivateNetwork = $false, 
 
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "FCOE")]
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FCOE")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(2,20000)]
 		[int32]$TypicalBandwidth = 2500, 
         
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "FCOE")]
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FCOE")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(100,20000)]
 		[int32]$MaximumBandwidth = 10000, 
 
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[int32]$LinkStabilityTime = 30, 
 
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[boolean]$AutoLoginRedistribution = $False,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[ValidateSet("FabricAttach","FA", "DirectAttach","DA")]
 		[string]$FabricType = "FabricAttach",
 
-		[Parameter(Mandatory = $false, ParameterSetName = "FC", ValueFromPipeline = $True)]
-		[Parameter(Mandatory = $false, ParameterSetName = "FCOE", ValueFromPipeline = $True, Position = 3)] 
+		[Parameter (Mandatory = $false, ParameterSetName = "FC", ValueFromPipeline = $True)]
+		[Parameter (Mandatory = $false, ParameterSetName = "FCOE", ValueFromPipeline = $True, Position = 3)] 
 		[ValidateNotNullOrEmpty()]
 		[object]$ManagedSan = $Null,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
-		[Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "FCOE")]
-		[Parameter(Mandatory = $false, ParameterSetName = "VLANIDRange")]
-		[Parameter(Mandatory = $false, ParameterSetName = "importFile")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FCOE")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VLANIDRange")]
+		[Parameter (Mandatory = $false, ParameterSetName = "importFile")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[Parameter(Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
+		[Parameter (Mandatory, ParameterSetName = "importFile", HelpMessage = "Enter the full path and file name for the input file.")]
 		[Alias("i", "import")]
 		[string]$ImportFile
 
@@ -35569,7 +35567,7 @@ function Get-HPOVNetwork
 		[ValidateSet("Ethernet","FC","FibreChannel","FCOE")]
 		[String]$Type,
 		
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -35955,63 +35953,63 @@ function Set-HPOVNetwork
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "Ethernet")]
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "FibreChannel")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "Ethernet")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Provide the Network Name, URI or Resource Object to be modified.", ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [Alias('net')]
         [Object]$Network,
 
-        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "Ethernet")]
-        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "FibreChannel")]
+        [Parameter (Position = 1, Mandatory = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "Ethernet")]
+        [Parameter (Position = 1, Mandatory = $false, HelpMessage = "Enter the new Name of the network object.", ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-        [Parameter(Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter (Mandatory = $false, ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [string]$Prefix,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-        [Parameter(Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter (Mandatory = $false, ParameterSetName = "FibreChannel")]
         [ValidateNotNullOrEmpty()]
         [string]$Suffix,
 
-        [Parameter(Position = 2, Mandatory = $false, HelpMessage = "Enter the new Purpose of the network object.", ParameterSetName = "Ethernet")]
+        [Parameter (Position = 2, Mandatory = $false, HelpMessage = "Enter the new Purpose of the network object.", ParameterSetName = "Ethernet")]
         [ValidateNotNullOrEmpty()]
         [ValidateSet("General", "Management", "VMMigration", "FaultTolerance")]
         [string]$Purpose,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
         [Bool]$Smartlink, 
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
         [Bool]$PrivateNetwork, 
 
-        [Parameter(Position = 5, Mandatory = $false, ParameterSetName = "Ethernet")]
-        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "FibreChannel")]
-		[Parameter(Position = 2, Mandatory = $false, ParameterSetName = "FCoE")]
+        [Parameter (Position = 5, Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = "FibreChannel")]
+		[Parameter (Position = 2, Mandatory = $false, ParameterSetName = "FCoE")]
         [validaterange(2,20000)]
         [int32]$TypicalBandwidth, 
         
-        [Parameter(Position = 6, Mandatory = $false, ParameterSetName = "Ethernet")]
-        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter (Position = 6, Mandatory = $false, ParameterSetName = "Ethernet")]
+        [Parameter (Position = 3, Mandatory = $false, ParameterSetName = "FibreChannel")]
         [validaterange(100,20000)]
         [int32]$MaximumBandwidth, 
 
-        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter (Position = 4, Mandatory = $false, ParameterSetName = "FibreChannel")]
         [ValidateRange(1,1800)]
 		[Alias('lst')]
         [int32]$LinkStabilityTime, 
 
-        [Parameter(Position = 5, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter (Position = 5, Mandatory = $false, ParameterSetName = "FibreChannel")]
 		[Alias('ald')]
         [Bool]$AutoLoginRedistribution,
 
-        [Parameter(Position = 6, Mandatory = $false, ParameterSetName = "FibreChannel")]
+        [Parameter (Position = 6, Mandatory = $false, ParameterSetName = "FibreChannel")]
         [Object]$ManagedSan = $Null,
 
-		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "Ethernet")]
-		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "FibreChannel")]
+		[Parameter (ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "Ethernet")]
+		[Parameter (ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "FibreChannel")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -36484,17 +36482,17 @@ function Remove-HPOVNetwork
     Param
     (
 
-		[Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Specify the network to remove.", Position = 0)]
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Specify the network to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('uri', 'name', 'network')]
         [System.Object]$Resource,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Default", position = 1)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "Default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
 		[switch]$Force
 
     )
@@ -36777,7 +36775,7 @@ function New-HPOVNetworkSet
 		[parameter (Position = 4, Mandatory = $False)]
 		[int32]$maximumBandwidth = 10000,
 	
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -37508,15 +37506,15 @@ function Set-HPOVNetworkSet
         [ValidateNotNullorEmpty()]
         [Object]$UntaggedNetwork,
 
-        [Parameter(Position = 5, Mandatory = $false)]
+        [Parameter (Position = 5, Mandatory = $false)]
         [validaterange(2,20000)]
         [int32]$TypicalBandwidth, 
         
-        [Parameter(Position = 6, Mandatory = $false)]
+        [Parameter (Position = 6, Mandatory = $false)]
         [validaterange(100,20000)]
         [int32]$MaximumBandwidth,
 
-        [Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -38022,7 +38020,7 @@ function Remove-HPOVNetworkSet
         [Alias("uri","name")]
         [Object]$NetworkSet = $null,
 
-        [Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -38252,7 +38250,7 @@ function Get-HPOVAddressPool
         [parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Switch]$Report,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -38471,7 +38469,7 @@ function Get-HPOVAddressPoolRange
 		[ValidateSet('vmac', 'vwwn', 'vsn', 'all')]
         [Object]$Pool = 'all',
 		
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -38707,7 +38705,7 @@ function New-HPOVAddressRange
         [parameter (Mandatory, ParameterSetName = "Custom", position = 3)]
         [String]$End,
 	
-		[Parameter(Mandatory = $False)]
+		[Parameter (Mandatory = $False)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -39006,8 +39004,8 @@ function Get-HPOVInterconnectType
 		[ValidateNotNullorEmpty()]
         [string]$PartNumber = $null,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Name')]
-		[Parameter(Mandatory = $false, ParameterSetName = 'PartNumber')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Name')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'PartNumber')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -39203,11 +39201,11 @@ function Get-HPOVInterconnect
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false)]
+		[Parameter (Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[String]$Name,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -39427,7 +39425,7 @@ function Get-HPOVLogicalInterconnect
 		[ValidateNotNullorEmpty()]
 		[String]$Name = $null,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -39678,19 +39676,19 @@ function Update-HPOVLogicalInterconnect
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
-		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Reapply", HelpMessage = "Specify the Logical Interconnect to Update.")]
+		[Parameter (Position = 0, Mandatory = $false, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+		[Parameter (Position = 0, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Reapply", HelpMessage = "Specify the Logical Interconnect to Update.")]
 		[ValidateNotNullorEmpty()]
 		[Alias('uri', 'li','name')]
 		[object]$Resource = $null,
 		
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Reapply")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Reapply")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[Parameter(Mandatory, ParameterSetName = "Reapply", HelpMessage = "Reapply the Logical Interconnect configuration. Does not update from parent Logical Interconnect Group.")]
+		[Parameter (Mandatory, ParameterSetName = "Reapply", HelpMessage = "Reapply the Logical Interconnect configuration. Does not update from parent Logical Interconnect Group.")]
 		[switch]$Reapply
 
     )
@@ -40434,12 +40432,12 @@ function Download-MacTable
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Specify the URI of the object to download.")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Specify the URI of the object to download.")]
         [ValidateNotNullOrEmpty()]
         [ValidateScript({if ($_.startswith('/rest/logical-interconnects/')) { $true } else {throw "-URI must being with a '/rest/logical-interconnects/' in its value. Please correct the value and try again."}})]
         [string]$uri,
         
-		[Parameter(Position = 1, Mandatory, HelpMessage = "Appliance Hostname")]
+		[Parameter (Position = 1, Mandatory, HelpMessage = "Appliance Hostname")]
         [ValidateNotNullOrEmpty()]
 		[string]$Hostname
 
@@ -40589,43 +40587,43 @@ function Install-HPOVLogicalInterconnectFirmware
     Param 
 	(
         
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [Alias('name','uri', 'li')]
 		[ValidateNotNullorEmpty()]
         [object]$LogicalInterconnect,
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect udpate method: Update, Activate, Stage.")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect udpate method: Update, Activate, Stage.")]
         [ValidateSet('Update','Activate','Stage')]
         [string]$Method = "Update",
 
-        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [ValidateSet('OddEven','Parallel','Serial')]
         [Alias('Order','ActivateOrder')]
         [string]$EthernetActivateOrder = 'OddEven',
 
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
         [ValidateNotNullorEmpty()]
         [int]$EthernetActivateDelay = 5,
 
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect to Update.")]
         [ValidateSet('OddEven','Parallel','Serial')]
         [String]$FCActivateOrder = 'Serial',
 
-		[Parameter(Position = 5, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
+		[Parameter (Position = 5, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Delay in minutes")]
         [ValidateNotNullorEmpty()]
         [int]$FCActivateDelay = 5,
 
-        [Parameter(Mandatory, ParameterSetName = "default", HelpMessage = "Specify the SPP Baseline Object or Name.")]
+        [Parameter (Mandatory, ParameterSetName = "default", HelpMessage = "Specify the SPP Baseline Object or Name.")]
         [Alias('spp')]
         [object]$Baseline,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[switch]$Async,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "default", HelpMessage = "Force install firmware version from SPP Baseline; will downgrade or re-install.")]
+        [Parameter (Mandatory = $false, ParameterSetName = "default", HelpMessage = "Force install firmware version from SPP Baseline; will downgrade or re-install.")]
         [switch]$Force,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -41076,15 +41074,15 @@ function Show-HPOVPortStatistics
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline = $true, ParameterSetName = "Pipeline")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "InterconnectPort")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline = $true, ParameterSetName = "Pipeline")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "InterconnectPort")]
         [object]$Port,
 
-        [Parameter(Position = 0, Mandatory, ParameterSetName = "InterconnectPort")]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = "InterconnectPort")]
         [object]$Interconnect,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "InterconnectPort")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Pipeline")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "InterconnectPort")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Pipeline")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -41430,14 +41428,14 @@ function Get-HPOVLogicalInterconnectGroup
 	Param 
 	(
 
-		[Parameter(ValueFromPipeline, Mandatory, ParameterSetName = 'Pipeline')]
+		[Parameter (ValueFromPipeline, Mandatory, ParameterSetName = 'Pipeline')]
 		[Object]$Resource,
 
 		[parameter (Position = 0, Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[String]$Name = $null,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Pipeline')]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Pipeline')]
 		[parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
@@ -41726,66 +41724,66 @@ function New-HPOVLogicalInterconnectGroup
     param 
 	(
 
-        [Parameter(Mandatory, ParameterSetName = "Default",HelpMessage = "Please specify the Logical Interconnect Name", Position = 0)]
+        [Parameter (Mandatory, ParameterSetName = "Default",HelpMessage = "Please specify the Logical Interconnect Name", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('ligname')]
         [String]$Name,
         
-        [Parameter(Mandatory = $false, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Please specify the Interconnect Modules in Hashtable format for all Interconnect Bays", Position = 1)]
+        [Parameter (Mandatory = $false, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Please specify the Interconnect Modules in Hashtable format for all Interconnect Bays", Position = 1)]
         [Hashtable]$Bays,
 
-        [Parameter(Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Enable IGMP Snooping", Position = 2)]
+        [Parameter (Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Enable IGMP Snooping", Position = 2)]
 		[Alias("IGMPSnoop")]
         [bool]$EnableIgmpSnooping = $False,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "IGMP Idle Timeout Interval (1-3600 [sec])", Position = 3)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "IGMP Idle Timeout Interval (1-3600 [sec])", Position = 3)]
         [ValidateRange(1,3600)]
 		[Alias('IGMPIdle')]
 	    [int]$IgmpIdleTimeoutInterval = 260,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Fast MAC Cache Failover", Position = 4)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Fast MAC Cache Failover", Position = 4)]
 		[Alias('FastMAC')]
 	    [bool]$EnableFastMacCacheFailover = $True,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Fast MAC Cache Failover Interval (1-30 [sec])", Position = 5)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Fast MAC Cache Failover Interval (1-30 [sec])", Position = 5)]
         [ValidateRange(1,30)]
 		[Alias('FastMACRefresh')]
     	[int]$MacRefreshInterval = 5,
 		
-		[Parameter(Mandatory = $False , ParameterSetName = "Default",HelpMessage = "Enable Network Loop Protection on the Downlink Ports)", Position = 6)]
+		[Parameter (Mandatory = $False , ParameterSetName = "Default",HelpMessage = "Enable Network Loop Protection on the Downlink Ports)", Position = 6)]
 		[Alias('LoopProtect')]
 	    [bool]$EnableNetworkLoopProtection = $True,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Network Pause Flood Protection on the Downlink Ports)", Position = 7)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable Network Pause Flood Protection on the Downlink Ports)", Position = 7)]
 		[Alias('PauseProtect')]
 	    [bool]$EnablePauseFloodProtection = $True,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable SNMP Settings", Position = 8)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Enable SNMP Settings", Position = 8)]
 	    [Object]$SNMP = $null,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Array of Network Objects, Names or URIs", Position = 9)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "Array of Network Objects, Names or URIs", Position = 9)]
 		[Array]$InternalNetworks,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default",HelpMessage = "QoS Configurtion Object", Position = 10)]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default",HelpMessage = "QoS Configurtion Object", Position = 10)]
 		[Alias('qos','QosConfig')]
 		[Object]$QosConfiguration,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
 		[bool]$EnableLLDPTagging,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
 		[bool]$EnableEnhancedLLDPTLV,		
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Appliance Connection Object or Name")]
-		[Parameter(Mandatory = $False, ParameterSetName = "Import", HelpMessage = "Appliance Connection Object or Name")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Appliance Connection Object or Name")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Import", HelpMessage = "Appliance Connection Object or Name")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
 		[switch]$Async,
 
-        [Parameter(Mandatory, ParameterSetName = "Import",HelpMessage = "Specify JSON source file to create Logical Interconnect Group")]
+        [Parameter (Mandatory, ParameterSetName = "Import",HelpMessage = "Specify JSON source file to create Logical Interconnect Group")]
         [ValidateScript({split-path $_ | Test-Path})]
         [Alias('i')]
 	    [object]$Import
@@ -42328,19 +42326,19 @@ function New-HPOVSnmpConfiguration
     param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = 'Provide the Read Community value')]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = 'Default', HelpMessage = 'Provide the Read Community value')]
         [ValidateNotNullOrEmpty()]
         [String]$ReadCommunity,
         
-        [Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default", HelpMessage = 'Provide the System Contact name value')]
+        [Parameter (Position = 1, Mandatory = $False, ParameterSetName = "Default", HelpMessage = 'Provide the System Contact name value')]
         [ValidateNotNullOrEmpty()]
 		[String]$Contact,
 
-        [Parameter(Position = 2, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Provide an Array of Allowed IP Addresses (e.g. 192.168.1.10/32) or Subnet (192.168.1.0/24).")]
+        [Parameter (Position = 2, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Provide an Array of Allowed IP Addresses (e.g. 192.168.1.10/32) or Subnet (192.168.1.0/24).")]
         [ValidateNotNullOrEmpty()]
 		[Array]$AccessList,
 		
-		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Provide an array of TrapDestinations. Can be generated from New-HPOVSnmpTrapDestination")]
+		[Parameter (Position = 3, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Provide an array of TrapDestinations. Can be generated from New-HPOVSnmpTrapDestination")]
         [ValidateNotNullOrEmpty()]
 	    [Array]$TrapDestinations
 
@@ -42433,32 +42431,32 @@ function New-HPOVSnmpTrapDestination
     param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'Default')]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = 'Default')]
         [ValidateNotNullOrEmpty()]
         [String]$Destination,
         
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "Default")]
         [ValidateNotNullOrEmpty()]
 		[String]$Community = 'public',
 
-        [Parameter(Position = 2, Mandatory = $False, ParameterSetName = "Default")]
+        [Parameter (Position = 2, Mandatory = $False, ParameterSetName = "Default")]
         [ValidateNotNullOrEmpty()]
 		[ValidateSet('SNMPv1', 'SNMPv2', IgnoreCase = $False)]
 		[String]$SnmpFormat = 'SNMPv1',
 		
-		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Position = 3, Mandatory = $False, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 	    [Array]$TrapSeverities,
 
-		[Parameter(Position = 4, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Position = 4, Mandatory = $False, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Array]$VCMTrapCategories,
 
-		[Parameter(Position = 5, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Position = 5, Mandatory = $False, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Array]$EnetTrapCategories,
 
-		[Parameter(Position = 6, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Position = 6, Mandatory = $False, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Array]$FCTrapCategories
 
@@ -42622,20 +42620,20 @@ function New-HPOVQosConfig
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $False, ParameterSetName = "Passthrough", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "Custom", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
+        [Parameter (Position = 0, Mandatory = $False, ParameterSetName = "Passthrough", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "Custom", HelpMessage = "Specify the QOS Configuration Type; Passthrough, CustomNoFCoE, CustomWithFCoE.")]
 		[ValidateSet("Passthrough", "CustomNoFCoE", "CustomWithFCoE", IgnoreCase = $False)]
         [String]$ConfigType = "Passthrough",
 
-		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Specify the uplink ports ingress traffic classification based on the values of dot1p or DSCP or both in Ethernet and IP headers respectively.")]
+		[Parameter (Position = 1, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Specify the uplink ports ingress traffic classification based on the values of dot1p or DSCP or both in Ethernet and IP headers respectively.")]
 		[ValidateSet("DSCP", "DOT1P", "DOT1P_AND_DSCP", IgnoreCase = $False)]
 		[String]$UplinkClassificationType = "DOT1P",
 
-		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Specify the downlink ports ingress traffic classification based on the values of dot1p or DSCP or both.")]
+		[Parameter (Position = 2, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Specify the downlink ports ingress traffic classification based on the values of dot1p or DSCP or both.")]
 		[ValidateSet("DSCP", "DOT1P", "DOT1P_AND_DSCP", IgnoreCase = $False)]
 		[String]$DownlinkClassificationType = "DOT1P_AND_DSCP",
 
-		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Array of TrafficClassifiers Classes.")]
+		[Parameter (Position = 3, Mandatory = $False, ParameterSetName = "Custom", HelpMessage = "Array of TrafficClassifiers Classes.")]
 		[System.Collections.ArrayList]$TrafficClassifiers
 
     )
@@ -42812,27 +42810,27 @@ function New-HPOVQosTrafficClass
     Param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specify a unique name for the traffic class.")]
+		[Parameter (Position = 0, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specify a unique name for the traffic class.")]
 		[Alias('ClassName')]
 		[string]$Name,
 
-		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Maximum share the traffic class can use when other traffic classes are not using their guaranteed share")]
+		[Parameter (Position = 1, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Maximum share the traffic class can use when other traffic classes are not using their guaranteed share")]
 		[ValidateRange(1,100)]
         [int]$MaxBandwidth = $Null,
 
-		[Parameter(Position = 2, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Minimum guaranteed bandwidth for the traffic class.")]
+		[Parameter (Position = 2, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Minimum guaranteed bandwidth for the traffic class.")]
 		[string]$BandwidthShare,
 		
-		[Parameter(Position = 3, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the dot1p priority value to remark for the egressing packets")]
+		[Parameter (Position = 3, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the dot1p priority value to remark for the egressing packets")]
 		[int]$EgressDot1pValue,
 
-		[Parameter(Position = 4, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier")]
+		[Parameter (Position = 4, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier")]
 		[System.Collections.ArrayList]$IngressDot1pClassMapping,
 		
-		[Parameter(Position = 5, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier.")]
+		[Parameter (Position = 5, Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies the DSCP priority value to map for the QoS Traffic Classifier.")]
 		[System.Collections.ArrayList]$IngressDscpClassMapping,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies whether the traffic class is real time.")]
+		[Parameter (Mandatory = $False, ParameterSetName = "default", HelpMessage = "Specifies whether the traffic class is real time.")]
 		[switch]$RealTime,
 
 		[switch]$Enabled
@@ -42979,17 +42977,17 @@ function Remove-HPOVLogicalInterconnectGroup
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect Group(s) to remove.")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default", HelpMessage = "Specify the Logical Interconnect Group(s) to remove.")]
         [ValidateNotNullOrEmpty()]
         [Alias("uri","name","Lig")]
         [Object]$Resource,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "default")] 
+	    [Parameter (Mandatory = $false, ParameterSetName = "default")] 
         [switch]$force
 
     )
@@ -43281,31 +43279,31 @@ function Get-HPOVUplinkSet
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Name")]
+        [Parameter (Position = 0, Mandatory = $false, ParameterSetName = "Name")]
 		[ValidateNotNullorEmpty()]
         [string]$Name,
 
-        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Name")]
-        [Parameter(Position = 1, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Type")]
+        [Parameter (Position = 1, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Name")]
+        [Parameter (Position = 1, Mandatory = $false, ValueFromPipeline, ParameterSetName = "Type")]
 		[ValidateNotNullorEmpty()]
         [Alias('liname')]
 		[object]$LogicalInterconnect,
 
-        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Type")]
+        [Parameter (Position = 0, Mandatory = $false, ParameterSetName = "Type")]
         [ValidateSet('Ethernet','FibreChannel', IgnoreCase=$False)]
         [string]$Type,
 	
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[switch]$Report,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Name")]
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Type")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Name")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Type")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Name")]
-        [Parameter(Mandatory = $false, ParameterSetName = "Type")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Name")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Type")]
 		[alias("x", "export")]
 		[ValidateScript({split-path $_ | Test-Path})]
 		[String]$exportFile
@@ -43854,57 +43852,57 @@ function New-HPOVUplinkSet
     Param 
 	(
 
-        [Parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectEthernet")]
-		[Parameter(Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter (Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter (Mandatory = $false, ValueFromPipeline = $True, Position = 0, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [alias('li','lig')]
         [Object]$Resource,
 
-		[Parameter(Mandatory, Position = 1, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [Parameter(Mandatory, Position = 1, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter (Mandatory, Position = 1, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter (Mandatory, Position = 1, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usName')]
         [String]$Name,
 
-		[Parameter(Mandatory, Position = 2, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [Parameter(Mandatory, Position = 2, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter (Mandatory, Position = 2, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter (Mandatory, Position = 2, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usType')]
         [ValidateSet("Ethernet", "FibreChannel", "Untagged", "Tunnel", IgnoreCase=$false)]
         [String]$Type = $Null,
 
-		[Parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [Parameter(Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter (Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter (Mandatory = $false, Position = 3, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usNetworks')]
         [Array]$Networks = @(),
 
-        [Parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter (Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectEthernet")]
         [Alias ('usNativeEthNetwork','Native','PVID')]
         [Object]$NativeEthNetwork = $Null,
 
-		[Parameter(Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectFibreChannel")]
-        [Parameter(Mandatory = $false, Position = 5, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter (Mandatory = $false, Position = 4, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter (Mandatory = $false, Position = 5, ParameterSetName = "PipelineOrObjectEthernet")]
         [Alias ('usUplinkPorts')]
         [ValidateScript({($_.Split(","))[0].contains(":")})]
         [Array]$UplinkPorts = @(),
 
-        [Parameter(Mandatory = $false, Position = 6, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter (Mandatory = $false, Position = 6, ParameterSetName = "PipelineOrObjectEthernet")]
         [alias('usEthMode')]
         [ValidateSet("Auto", "Failover", IgnoreCase=$false)]
         [String]$EthMode = "Auto",
         
-        [Parameter(Mandatory = $false, Position = 7, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter (Mandatory = $false, Position = 7, ParameterSetName = "PipelineOrObjectEthernet")]
         [ValidateSet("Short", "Long", IgnoreCase=$false)]
         [String]$LacpTimer = "Short",
 
-        [Parameter(Mandatory = $false, Position = 8, ParameterSetName = "PipelineOrObjectEthernet")]
+        [Parameter (Mandatory = $false, Position = 8, ParameterSetName = "PipelineOrObjectEthernet")]
         [ValidateSet("Short", "Long", IgnoreCase=$false)]
         [ValidateScript({$_.contains(":")})]
         [String]$PrimaryPort = $Null,
 
-        [Parameter(Mandatory = $false, Position = 9, ParameterSetName = "PipelineOrObjectFibreChannel")]
+        [Parameter (Mandatory = $false, Position = 9, ParameterSetName = "PipelineOrObjectFibreChannel")]
         [ValidateSet("Auto", "2", "4", "8", IgnoreCase=$false)]
         [String]$fcUplinkSpeed = "Auto",
 		
-		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectEthernet")]
-		[Parameter(Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectFibreChannel")]
+		[Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectEthernet")]
+		[Parameter (Mandatory = $false, ValueFromPipelinebyPropertyName, ParameterSetName = "PipelineOrObjectFibreChannel")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -44526,10 +44524,10 @@ function GetNetworkUris
     Param 
 	(
 
-		[Parameter(Mandatory, Position = 0, ParameterSetName = "Default")]
+		[Parameter (Mandatory, Position = 0, ParameterSetName = "Default")]
 		[Array]$_Networks,
 
-		[Parameter(Mandatory, Position = 1, ParameterSetName = "Default")]
+		[Parameter (Mandatory, Position = 1, ParameterSetName = "Default")]
 		[Object]$_ApplianceConnection
 
 	)
@@ -44640,30 +44638,30 @@ function GetNetworkUris
     Param 
     (
 
-        [Parameter(ParameterSetName = "Default", Mandatory = $false, Position = 0)]
-        [Parameter(ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
-        [Parameter(ParameterSetName = "Export", Mandatory = $false, Position = 0)]
+        [Parameter (ParameterSetName = "Default", Mandatory = $false, Position = 0)]
+        [Parameter (ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
+        [Parameter (ParameterSetName = "Export", Mandatory = $false, Position = 0)]
         [Alias('profile')]
         [string]$name = $null,
 
-        [Parameter(ParameterSetName = "Detailed", Mandatory)]
+        [Parameter (ParameterSetName = "Detailed", Mandatory)]
         [switch]$detailed,
 
-        [Parameter(ParameterSetName = "Default", Mandatory = $false)]
-        [Parameter(ParameterSetName = "Export", Mandatory = $false)]
+        [Parameter (ParameterSetName = "Default", Mandatory = $false)]
+        [Parameter (ParameterSetName = "Export", Mandatory = $false)]
         [switch]$Unassigned,
 
-		[Parameter(ParameterSetName = "Default", Mandatory = $false)]
-        [Parameter(ParameterSetName = "Detailed", Mandatory = $false)]
-        [Parameter(ParameterSetName = "Export", Mandatory = $false)]
+		[Parameter (ParameterSetName = "Default", Mandatory = $false)]
+        [Parameter (ParameterSetName = "Detailed", Mandatory = $false)]
+        [Parameter (ParameterSetName = "Export", Mandatory = $false)]
 		[Alias('Appliance')]
 		[Array]$ApplianceConnection = ${Global:ConnectedSessions},
         
-        [Parameter(ParameterSetName = "Export", Mandatory)]
+        [Parameter (ParameterSetName = "Export", Mandatory)]
         [alias("x")]
         [switch]$export,
 
-        [Parameter(ParameterSetName = "Export", Mandatory)]
+        [Parameter (ParameterSetName = "Export", Mandatory)]
         [ValidateNotNullOrEmpty()]
         [alias("save")]
         [string]$location
@@ -45146,210 +45144,210 @@ function New-HPOVServerProfile
     Param 
     (
 
-        [Parameter(Mandatory, ParameterSetName = "Default")]
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
-		[Parameter(Mandatory, ParameterSetName = "SPT")]
-		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+        [Parameter (Mandatory, ParameterSetName = "Default")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory, ParameterSetName = "SPT")]
+		[Parameter (Mandatory, ParameterSetName = "SPTEmptyBay")]
 		[ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [Parameter(Mandatory, ParameterSetName = "Default")]
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory, ParameterSetName = "Default")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
 		[ValidateSet("bay", "server", "unassigned")]
         [alias('assign')]
         [string]$AssignmentType,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory, ParameterSetName = "SPTEmptyBay")]
         [ValidateNotNullOrEmpty()]
         [object]$Enclosure,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory, ParameterSetName = "SPTEmptyBay")]
         [ValidateRange(1,16)]
         [Alias('bay')]
         [int32]$EnclosureBay,
 
-        [Parameter(Mandatory = $false, valuefrompipeline, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, valuefrompipeline, ParameterSetName = "SANStorageAttach")]
-		[Parameter(Mandatory, valuefrompipeline, ParameterSetName = "SPT")]
+        [Parameter (Mandatory = $false, valuefrompipeline, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, valuefrompipeline, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory, valuefrompipeline, ParameterSetName = "SPT")]
         [ValidateNotNullOrEmpty()]
         [object]$Server,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")] 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-		[Parameter(Mandatory = $false, ParameterSetName = "SPT")]
-		[Parameter(Mandatory = $false, ParameterSetName = "SPTEmptyBay")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")] 
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPTEmptyBay")]
 		[string]$Description = $null,
 
-		[Parameter(Mandatory, ParameterSetName = "SPT")]
-		[Parameter(Mandatory, ParameterSetName = "SPTEmptyBay")]
+		[Parameter (Mandatory, ParameterSetName = "SPT")]
+		[Parameter (Mandatory, ParameterSetName = "SPTEmptyBay")]
 		[Object]$ServerProfileTemplate = $null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullOrEmpty()]
         [array]$Connections = @(),
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('eg')]
         [object]$EnclosureGroup = $Null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
 		[Alias('sht')]
         [object]$ServerHardwareType = $null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Firmware,
 	
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [object]$Baseline = $null,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('FirmwareOnly', 'FirmwareAndSoftware', 'FirmwareOffline')]
 		[string]$FirmwareMode = 'FirmwareAndSoftware',
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$ForceInstallFirmware,
 	
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Bios = $false,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [array]$BiosSettings = @(),
         
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("UEFI","UEFIOptimized","BIOS", IgnoreCase = $False)]
         [string]$BootMode = "BIOS",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("Auto","IPv4","IPv6","IPv4ThenIPv6","IPv6ThenIPv4", IgnoreCase = $False)]
         [string]$PxeBootPolicy = "Auto",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
         [switch]$ManageBoot,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [array]$BootOrder = @(),
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$LocalStorage,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[switch]$ImportLogicalDisk,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$Initialize,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateSet("HBA","RAID", IgnoreCase = $true)]
         [String]$ControllerMode,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
         [Object]$LogicalDisk,
 
 		#DEPRECATED
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [switch]$Bootable,
 
 		#DEPRECATED
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("RAID1","RAID0","NONE", IgnoreCase=$true)]
         [string]$RaidLevel = $Null,
 
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
         [switch]$SANStorage,
 
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
         [Alias('OS')]
         [string]$HostOStype = $Null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
         [object]$StorageVolume = $Null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Even')]
         [switch]$EvenPathDisabled,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Odd')]
         [switch]$OddPathDisabled,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Bay","BayAndServer", IgnoreCase=$false)]
         [string]$Affinity = "Bay",
 	
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$MacAssignment = "Virtual",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "'UserDefined", IgnoreCase=$true)]
         [string]$WwnAssignment = "Virtual",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$SnAssignment = "Virtual",
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [string]$SerialNumber = $Null,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [string]$Uuid = $Null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [bool]$HideUnusedFlexNics = $True,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")] 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SANStorageAttach")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SPT")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SPTEmptyBay")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")] 
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SPT")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "SPTEmptyBay")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory, ParameterSetName = "Import")]
+        [Parameter (Mandatory, ParameterSetName = "Import")]
         [switch]$Import,
         
-        [Parameter(Mandatory, ParameterSetName = "Import")]
+        [Parameter (Mandatory, ParameterSetName = "Import")]
         [alias("location","file")]
         [Object]$ProfileObj
 
@@ -47340,17 +47338,17 @@ function Update-HPOVServerProfile
     Param 
 	(
         
-        [Parameter(Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the Server Profile Object, Name, or an Array of names.", ParameterSetName = "Update")]
+        [Parameter (Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the Server Profile Object, Name, or an Array of names.", ParameterSetName = "Update")]
         [ValidateNotNullOrEmpty()]
 		[Alias('le')]
         [object]$ServerProfile,
 
-		[Parameter(Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = 'Update')]
+		[Parameter (Position = 1, ValueFromPipelineByPropertyName, Mandatory = $false, ParameterSetName = 'Update')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-        [Parameter(Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
+        [Parameter (Mandatory = $false, HelpMessage = "Return created task object without waiting for completion.", ParameterSetName = "Update")]
         [Switch]$Async
 
     )
@@ -47672,28 +47670,28 @@ function Get-HPOVServerProfileTemplate
     Param 
     (
 
-        [Parameter(ParameterSetName = "Default", Mandatory = $false, Position = 0)]
-        [Parameter(ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
-        [Parameter(ParameterSetName = "Export", Mandatory = $false, Position = 0)]
+        [Parameter (ParameterSetName = "Default", Mandatory = $false, Position = 0)]
+        [Parameter (ParameterSetName = "Detailed", Mandatory = $false, Position = 0)]
+        [Parameter (ParameterSetName = "Export", Mandatory = $false, Position = 0)]
         [Alias('profile')]
 		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 
-        [Parameter(ParameterSetName = "Detailed", Mandatory)]
+        [Parameter (ParameterSetName = "Detailed", Mandatory)]
         [switch]$Detailed,
 
-		[Parameter(ParameterSetName = "Default", Mandatory = $false)]
-        [Parameter(ParameterSetName = "Detailed", Mandatory = $false)]
-        [Parameter(ParameterSetName = "Export", Mandatory = $false)]
+		[Parameter (ParameterSetName = "Default", Mandatory = $false)]
+        [Parameter (ParameterSetName = "Detailed", Mandatory = $false)]
+        [Parameter (ParameterSetName = "Export", Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
         
-        [Parameter(ParameterSetName = "Export", Mandatory)]
+        [Parameter (ParameterSetName = "Export", Mandatory)]
         [alias("x")]
         [switch]$Export,
 
-        [Parameter(ParameterSetName = "Export", Mandatory)]
+        [Parameter (ParameterSetName = "Export", Mandatory)]
         [ValidateNotNullOrEmpty()]
         [alias("save")]
         [string]$Location
@@ -47928,154 +47926,154 @@ function New-HPOVServerProfileTemplate
     Param 
     (
 
-        [Parameter(Mandatory, ParameterSetName = "Default", Position = 0)]
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach", Position = 0)]
+        [Parameter (Mandatory, ParameterSetName = "Default", Position = 0)]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach", Position = 0)]
 		[ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default", position = 2)] 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 2)]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default", position = 2)] 
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 2)]
 		[string]$Description = $null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default", position = 3)]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 3)]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default", position = 3)]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 3)]
 		[ValidateNotNullOrEmpty()]
         [array]$Connections = @(),
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default",position = 4)]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 4)]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default",position = 4)]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 4)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('eg')]
         [object]$EnclosureGroup = $Null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default", position = 5)]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 5)]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default", position = 5)]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach", position = 5)]
         [ValidateNotNullOrEmpty()]
 		[Alias('sht')]
         [Object]$ServerHardwareType = $null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Firmware,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('FirmwareOnly', 'FirmwareAndSoftware', 'FirmwareOffline')]
 		[string]$FirmwareMode = 'FirmwareAndSoftware',
 	
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [object]$Baseline = $null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$ForceInstallFirmware,
 	
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [switch]$Bios = $false,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateNotNullOrEmpty()]
         [array]$BiosSettings=@(),
         
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("UEFI","UEFIOptimized","BIOS", IgnoreCase = $False)]
         [string]$BootMode = "BIOS",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [ValidateSet("Auto","IPv4","IPv6","IPv4ThenIPv6","IPv6ThenIPv4", IgnoreCase = $False)]
         [string]$PxeBootPolicy = "Auto",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('boot')]
         [switch]$ManageBoot,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [array]$BootOrder = @(),
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$LocalStorage,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [switch]$Initialize,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateSet("HBA","RAID", IgnoreCase = $true)]
         [String]$ControllerMode,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
         [Object]$LogicalDisk,
 
 		#DEPRECATED
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]        
         [switch]$Bootable,
 
 		#DEPRECATED
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("RAID1","RAID0","NONE", IgnoreCase=$true)]
         [string]$RaidLevel = $Null,
 
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
         [switch]$SANStorage,
 
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
         [ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
         [Alias('OS')]
         [string]$HostOStype = $Null,
 
-        [Parameter(Mandatory, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
         [object]$StorageVolume = $Null,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Even')]
         [switch]$EvenPathDisabled,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Alias('Odd')]
         [switch]$OddPathDisabled,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Bay","BayAndServer", IgnoreCase=$false)]
         [string]$Affinity = "Bay",
 	
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$MacAssignment = "Virtual",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "'UserDefined", IgnoreCase=$true)]
         [string]$WwnAssignment = "Virtual",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet("Virtual", "Physical", "UserDefined", IgnoreCase=$true)]
         [string]$SnAssignment = "Virtual",
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [bool]$HideUnusedFlexNics = $True,
 
-        [Parameter(Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -49296,11 +49294,11 @@ function Join-HPOVServerProfileToTemplate
         [Alias("t")]
         [object]$Template,
 
-	    [Parameter(Mandatory)]
+	    [Parameter (Mandatory)]
         [Alias("p", 'Profile')] 
         [object]$ServerProfile,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -49582,13 +49580,13 @@ function ConvertTo-HPOVServerProfileTemplate
         [Alias("source")]
         [Object]$ServerProfile,
 
-		[Parameter(Mandatory = $False)] 
+		[Parameter (Mandatory = $False)] 
 		[String]$Name,
 
-		[Parameter(Mandatory = $False)] 
+		[Parameter (Mandatory = $False)] 
 		[Switch]$Async,
 
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -49802,7 +49800,7 @@ function Generate-ServerProfileTemplate
     Param 
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, Position = 0)]
+		[Parameter (Mandatory, ValueFromPipeline, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Object]$Source = $Null
 
@@ -50072,20 +50070,20 @@ function New-HPOVServerProfileAssign
 	Param 
 	(
 
-		[Parameter(Mandatory, valuefrompipeline, ParameterSetName = "Unassigned", Position = 0)]
-		[Parameter(Mandatory, valuefrompipeline, ParameterSetName = "Default", Position = 0)]
+		[Parameter (Mandatory, valuefrompipeline, ParameterSetName = "Unassigned", Position = 0)]
+		[Parameter (Mandatory, valuefrompipeline, ParameterSetName = "Default", Position = 0)]
         [ValidateNotNullOrEmpty()]
 		[Alias('Profile')]
         [Object]$ServerProfile = $Null,
         
-		[Parameter(Mandatory, ParameterSetName = "Default", Position = 1)]
+		[Parameter (Mandatory, ParameterSetName = "Default", Position = 1)]
         [ValidateNotNullOrEmpty()]
         [Object]$Server = $Null,
         
-		[Parameter(Mandatory = $false, ParameterSetName = "Unassigned")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Unassigned")]
         [switch]$Unassigned,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -50356,19 +50354,19 @@ function Copy-HPOVServerProfile
     Param
 	(
 	
-        [Parameter(Mandatory, ValueFromPipeline = $true, position = 0)]
+        [Parameter (Mandatory, ValueFromPipeline = $true, position = 0)]
         [Alias('sname','src')]
         [ValidateNotNullOrEmpty()]
         [object]$SourceName = $null,
         
-        [Parameter(Mandatory = $false, position = 1)]
+        [Parameter (Mandatory = $false, position = 1)]
         [alias('dname','dst')]
         [string]$DestinationName = $null,
         
-        [Parameter(Mandatory = $false, position = 2)]
+        [Parameter (Mandatory = $false, position = 2)]
         [object]$Assign = "unassigned",
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -50905,7 +50903,7 @@ function Remove-HPOVServerProfile
         [Alias('uri','name','profile')]
         [Object]$ServerProfile,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
@@ -51153,11 +51151,11 @@ function Get-HPOVServerProfileConnectionList
 	[CmdLetBinding()]
     Param 
     (
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -51413,133 +51411,133 @@ function New-HPOVServerProfileConnection
     Param 
     (
 
-        [Parameter(Position = 0, Mandatory, ParameterSetName = "Ethernet")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "FC")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootEthernet")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootFC")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = "Ethernet")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "FC")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "bootEthernet")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "bootFC")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('id')]
         [int]$ConnectionID = 1,
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "FC")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootFC")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "FC")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [ValidateSet("Ethernet", "FibreChannel", IgnoreCase)]
 		[Alias('type')]
 		[string]$ConnectionType = "Ethernet",
 
-        [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "Ethernet")]
-	    [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "FC")]
-        [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedFC")]
-	    [Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootEthernet")]
-		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootFC")]
-		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "Ethernet")]
+	    [Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "FC")]
+        [Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "UserDefinedFC")]
+	    [Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootEthernet")]
+		[Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootFC")]
+		[Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Position = 2, Mandatory, ValueFromPipeline, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
         [object]$Network,
 
-        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "FC")]
-        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootFC")]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Position = 3, Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "FC")]
+        [Parameter (Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
         [string]$PortId = "Auto",
 
-        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "FC")]
-        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootFC")]
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Position = 4, Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "FC")]
+        [Parameter (Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
         [string]$Name = $Null,
 
-	    [Parameter(Mandatory = $false, ParameterSetName = "Ethernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "FC")]
-        [Parameter(Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Mandatory = $false, ParameterSetName = "bootEthernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "bootFC")]
-		[Parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
+	    [Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
+        [Parameter (Mandatory = $false, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "bootEthernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "bootFC")]
+		[Parameter (Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateRange(100,10000)]
         [int]$RequestedBW = 2500,
 	
-		[Parameter(Mandatory, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateNotNullOrEmpty()]
         [switch]$UserDefined,
 
-        [Parameter(Mandatory, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Mandatory, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:macAddressPattern})]
         [string]$MAC = $Null,
 	
-		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:wwnAddressPattern})]
         [string]$WWNN = $Null,
 		
-		[Parameter(Mandatory, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateScript({$_ -match $script:wwnAddressPattern})]
         [string]$WWPN = $Null,
 	
-	    [Parameter(Mandatory, ParameterSetName = "bootEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "bootFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+	    [Parameter (Mandatory, ParameterSetName = "bootEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "bootFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
         [ValidateNotNullOrEmpty()]
         [switch]$Bootable,
 	
-		[Parameter(Mandatory, ParameterSetName = "bootEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "bootFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "bootFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
 	    [ValidateSet("UseBIOS", "Primary","Secondary", IgnoreCase=$true)]
 		[string]$Priority = "NotBootable",
 	
-		[Parameter(Mandatory, ParameterSetName = "bootFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateScript({$_ -match $script:wwnAddressPattern})]
 		[string]$ArrayWwpn = $null,
 	
-		[Parameter(Mandatory, ParameterSetName = "bootFC")]
-		[Parameter(Mandatory, ParameterSetName = "bootUserDefinedFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootFC")]
+		[Parameter (Mandatory, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateRange(0,254)]
 		[int]$LUN = 0,
 
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Ethernet")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "FC")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedEthernet")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedFC")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootEthernet")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootFC")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedEthernet")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedFC")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Ethernet")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "FC")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedEthernet")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "UserDefinedFC")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootEthernet")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootFC")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedEthernet")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -51795,23 +51793,23 @@ function New-HPOVServerProfileLogicalDisk
     Param 
     (
 
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
         [string]$Name,
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateSet('RAID0','RAID1')]
         [string]$RAID = 'RAID1',
 
-        [Parameter(Position = 2, Mandatory = $false , ParameterSetName = "Default")]
+        [Parameter (Position = 2, Mandatory = $false , ParameterSetName = "Default")]
 		[ValidateRange(1,2)]
 		[int]$NumberofDrives = 2,
 
-        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Position = 3, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateSet('SAS','SATA','SASSSD','SATASSD','Auto')]
         [string]$DriveType = 'Auto',
 
-        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Position = 4, Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
         [bool]$Bootable = $False
 
@@ -51870,90 +51868,90 @@ function New-HPOVServerProfileAttachVolume
     Param 
     (
 
-		[Parameter(Mandatory, ParameterSetName = "ServerProfileObject")]
-		[Parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter (Mandatory, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
 		[ValidateScript({'server-profiles','server-profile-templates' -contains $_.category})]
 		[Object]$ServerProfile,
 		
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $False, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $False, ParameterSetName = "ManualLunIdType")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $False, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $False, ParameterSetName = "ManualLunIdType")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('id')]
         [int]$VolumeID = 1,
 
-		[Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ServerProfileObject")]
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
-        [Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "ManualLunIdType")]
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "ServerProfileObject")]
+        [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
+        [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "ManualLunIdType")]
 		[ValidateScript({$_ | ? { 'storage-volumes' -contains $_.category}})]
         [Array]$Volume,
 
-		[Parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [object]$Name,
 
-		[Parameter(Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [object]$StoragePool,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [object]$StorageSystem,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
         [int64]$Capacity,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto", HelpMessage = "Create Thick provisioned volume.")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual", HelpMessage = "Create Thick provisioned volume.")]
         [switch]$Full,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
         [switch]$Permanent,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $False, ParameterSetName = "Default")]
-        [Parameter(Mandatory, ParameterSetName = "ManualLunIdType")]
-        [Parameter(Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $False, ParameterSetName = "Default")]
+        [Parameter (Mandatory, ParameterSetName = "ManualLunIdType")]
+        [Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory, ParameterSetName = "DynamicVolAttachManual")]
 	    [ValidateSet("Auto","Manual", IgnoreCase=$true)]
 		[Alias('type')]
         [string]$LunIdType = "Auto",
 
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObject")]
-		[Parameter(Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory, ParameterSetName = "ManualLunIdType")]
-        [Parameter(Mandatory, ParameterSetName = "DynamicVolAttachManual")]		
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory, ParameterSetName = "ManualLunIdType")]
+        [Parameter (Mandatory, ParameterSetName = "DynamicVolAttachManual")]		
         [ValidateRange(0,254)]
         [int]$LunID,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "ServerProfileObject")]
-		[Parameter(Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
 		[ValidateSet('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform')]
         [Alias('OS')]
         [string]$HostOStype,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObject")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObjectEphmeralVol")]
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ManualLunIdType")]
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachAuto")]
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachManual")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ManualLunIdType")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachAuto")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "DynamicVolAttachManual")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -52799,7 +52797,7 @@ function Search-HPOVIndex
 		[ValidateNotNullorEmpty()]
 		[int]$start = 0,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullOrEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -52995,7 +52993,7 @@ function Search-HPOVAssociations
 		[ValidateNotNullorEmpty()]
 		[int]$Start = 0,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -53209,34 +53207,34 @@ function Get-HPOVTask
 	Param 
 	(
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "ResourceCategory")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the name of the Task", ParameterSetName = "ResourceCategory")]
 		[ValidateNotNullorEmpty()]
         [Alias("name")]
 		[string]$TaskName,
 
-        [Parameter(Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Enter the resource you want to find tasks associated with.", ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ValueFromPipeline = $true, HelpMessage = "Enter the resource you want to find tasks associated with.", ParameterSetName = "Default")]
         [ValidateNotNullorEmpty()]
 		[Object]$Resource,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Please specify the Resource Category the task (i.e. 'ethernet-networks', 'fc-networks', 'server-profiles', etc..)", ParameterSetName = "ResourceCategory")]
+        [Parameter (Mandatory = $false, HelpMessage = "Please specify the Resource Category the task (i.e. 'ethernet-networks', 'fc-networks', 'server-profiles', etc..)", ParameterSetName = "ResourceCategory")]
         [ValidateNotNullorEmpty()]
 		[Alias("Category")]
         [String]$ResourceCategory,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "ResourceCategory")]
+        [Parameter (Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, HelpMessage = "Please specify the State of the task (i.e. Completed.)", ParameterSetName = "ResourceCategory")]
         [ValidateNotNullorEmpty()]
 		[ValidateSet("Unknown","New","Running","Suspended","Terminated","Killed","Completed","Error","Warning")]
         [string]$State,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "ResourceCategory")]
+        [Parameter (Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, HelpMessage = "Please specify the amount of task objects to return.", ParameterSetName = "ResourceCategory")]
         [ValidateScript({ if ([int]$_ -gt -1) {$true} else {Throw "The Count Parameter value '$_' is invalid."}})]
         [Int]$Count = 0,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
-        [Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ResourceCategory")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ResourceCategory")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -53507,17 +53505,17 @@ function Wait-HPOVTaskStart
 	Param 
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the task URI or task object")]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the task URI or task object")]
 		[Alias('taskuri')]
         [object]$task,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Provide the resource name the task is for, which is displayed in the Write-Progress output.")]
+        [Parameter (Mandatory = $false, HelpMessage = "Provide the resource name the task is for, which is displayed in the Write-Progress output.")]
         [string]$resourceName,
 
-        [Parameter(Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
+        [Parameter (Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
         [timespan]$timeout = $script:defaultTimeout,
 
-		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -53808,14 +53806,14 @@ function Wait-HPOVTaskComplete
 	Param
 	(
 
-		[Parameter(Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the task URI or task object")]
+		[Parameter (Position = 0, ValueFromPipeline, Mandatory, HelpMessage = "Enter the task URI or task object")]
 		[Alias('TaskUri')]
         [Object]$Task,
 
-        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
+        [Parameter (Position = 1, Mandatory = $false, HelpMessage = "Enter the new value for the global parameter")]
         [timespan]$timeout = $script:defaultTimeout,
 
-		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -54192,11 +54190,11 @@ function Get-HPOVUser
     Param 
 	(
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
         [string]$Name = $null,
 		
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -54403,32 +54401,32 @@ function New-HPOVUser
 	Param 
 	(
 
-        [Parameter(Mandatory)]
+        [Parameter (Mandatory)]
         [string]$UserName, 
 
-        [Parameter(Mandatory)]
+        [Parameter (Mandatory)]
         [string]$Password, 
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [string]$FullName, 
 
-        [Parameter(Mandatory)]
+        [Parameter (Mandatory)]
         [Array]$Roles = @(),
 
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [validatescript({$_ -as [Net.Mail.MailAddress]})]
         [string]$EmailAddress = $null,
 
-        [Parameter(Mandatory = $false)] 
+        [Parameter (Mandatory = $false)] 
         [string]$officePhone = $null,
      
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [string]$mobilePhone = $null,
      
-        [Parameter(Mandatory = $false)]
+        [Parameter (Mandatory = $false)]
         [switch]$enabled,
 
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -54621,58 +54619,58 @@ function Set-HPOVUser
 	Param 
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = 'Pipeline')]
 		[ValidateNotNullorEmpty()]
 		[Object]$UserObject,
 
-        [Parameter(Position = 0, Mandatory, ParameterSetName = 'default')]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = 'default')]
 		[ValidateNotNullorEmpty()]
         [string]$UserName, 
 
-        [Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'default')]
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = 'Pipeline')]
+        [Parameter (Position = 1, Mandatory = $false, ParameterSetName = 'default')]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[string]$Password, 
 
-		[Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 2, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[string]$FullName, 
 
-		[Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 3, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 3, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 3, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[Array]$Roles,
 
-		[Parameter(Position = 4, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 4, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 4, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 4, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [validatescript({$_ -as [Net.Mail.MailAddress]})]
         [string]$EmailAddress,
 
-		[Parameter(Position = 5, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 5, Mandatory = $false, ParameterSetName = 'Pipeline')] 
+		[Parameter (Position = 5, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 5, Mandatory = $false, ParameterSetName = 'Pipeline')] 
         [ValidateNotNullorEmpty()]
 		[string]$OfficePhone,
      
-		[Parameter(Position = 6, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 6, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 6, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 6, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [ValidateNotNullorEmpty()]
 		[string]$MobilePhone,
      
-		[Parameter(Position = 7, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 7, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 7, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 7, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [alias('enable')]
 		[ValidateNotNullorEmpty()]
         [switch]$Enabled,
 
-		[Parameter(Position = 8, Mandatory = $false, ParameterSetName = 'default')]
-        [Parameter(Position = 8, Mandatory = $false, ParameterSetName = 'Pipeline')]
+		[Parameter (Position = 8, Mandatory = $false, ParameterSetName = 'default')]
+        [Parameter (Position = 8, Mandatory = $false, ParameterSetName = 'Pipeline')]
         [alias('disable')]
 		[ValidateNotNullorEmpty()]
         [switch]$Disabled,
 
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = 'default')]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = 'Pipeline')]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = 'default')]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, HelpMessage = "Enter the Appliance Name or Object", ParameterSetName = 'Pipeline')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -55042,17 +55040,17 @@ function Set-HPOVUserPassword
 	Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $false)]
+        [Parameter (Position = 0, Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('CurrentPassword')]
         [String]$Current,
 
-        [Parameter(Position = 1, Mandatory = $false)]
+        [Parameter (Position = 1, Mandatory = $false)]
         [ValidateNotNullorEmpty()]
 		[Alias('NewPassword')]
 		[String]$New,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
 
@@ -55272,12 +55270,12 @@ function Remove-HPOVUser
 	param
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the User Account Name to delete from the appliance", Position = 0, ParameterSetName = "default")]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the User Account Name to delete from the appliance", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias("u","user",'UserName')]
 		[Object]$Name,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -55558,7 +55556,7 @@ function Set-HPOVUserRole
         [alias('roleName')]
         [Array]$Roles,
 
-		[Parameter(ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
+		[Parameter (ValueFromPipelineByPropertyName, Mandatory = $false, HelpMessage = "Enter the Appliance Name or Object")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -55833,7 +55831,6 @@ function Set-HPOVInitialPassword
 			if (-not(${Global:ConnectedSessions}.Name -contains $Appliance) -and (-not(${Global:ConnectedSessions} | ? Name -eq $Appliance).SessionID))
 			{
 
-
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Appliance Session not found. Running FTS sequence?"
 
 				write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Creating temporary Session object"
@@ -55940,17 +55937,17 @@ function Get-HPOVLdap
 	param 
 	(
 
-        [Parameter(Mandatory, ParameterSetName = 'Export')]
+        [Parameter (Mandatory, ParameterSetName = 'Export')]
         [Alias('x')]
         [switch]$Export,
 
-        [Parameter(Position = 1, Mandatory, ParameterSetName = 'Export')]
+        [Parameter (Position = 1, Mandatory, ParameterSetName = 'Export')]
         [Alias('location')]
         [ValidateScript({split-path $_ | Test-Path})]
         [string]$Save,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Export')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -56110,17 +56107,17 @@ function Get-HPOVLdapDirectory
 	param 
 	(
 
-		[Parameter(Position = 0, Mandatory = $false, ParameterSetName='Default')]
+		[Parameter (Position = 0, Mandatory = $false, ParameterSetName='Default')]
         [Alias('directory','domain')]
 		[String]$Name,
 
-        [Parameter(Mandatory, ParameterSetName = 'Export')]
+        [Parameter (Mandatory, ParameterSetName = 'Export')]
         [Alias('x')]
 		[ValidateScript({split-path $_ | Test-Path})]
         [string]$Export,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Export')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -56320,51 +56317,51 @@ function New-HPOVLdapDirectory
 	param
 	(
 
-		[Parameter(Position=0, Mandatory, ParameterSetName = "AD")]
-        [Parameter(Position=0, Mandatory, ParameterSetName = "LDAP")]
+		[Parameter (Position=0, Mandatory, ParameterSetName = "AD")]
+        [Parameter (Position=0, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[String]$Name,
 
-		[Parameter(Mandatory, ParameterSetName = "AD")]
+		[Parameter (Mandatory, ParameterSetName = "AD")]
 		[Switch]$AD,
 
-		[Parameter(Mandatory, ParameterSetName = "LDAP")]
+		[Parameter (Mandatory, ParameterSetName = "LDAP")]
 		[Alias('LDAP')]
 		[Switch]$OpenLDAP,
 
-		[Parameter(Position = 2, Mandatory, ParameterSetName = "AD")]
-        [Parameter(Position = 2, Mandatory, ParameterSetName = "LDAP")]
+		[Parameter (Position = 2, Mandatory, ParameterSetName = "AD")]
+        [Parameter (Position = 2, Mandatory, ParameterSetName = "LDAP")]
 		[ValidateNotNullOrEmpty()]
 		[Alias('root','rootdn')]
         [String]$BaseDN,
 
-		[Parameter(Position = 3, Mandatory, ParameterSetName = "LDAP")]
+		[Parameter (Position = 3, Mandatory, ParameterSetName = "LDAP")]
         [ValidateSet('UID','CN')]
 		[String]$UserAttribute,
 
-        [Parameter(Position = 4, Mandatory, ParameterSetName = "LDAP")]
+        [Parameter (Position = 4, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Array]$OrganizationalUnits,
 
-        [Parameter(Position = 3, Mandatory, ParameterSetName = "AD")]
-        [Parameter(Position = 5, Mandatory, ParameterSetName = "LDAP")]
+        [Parameter (Position = 3, Mandatory, ParameterSetName = "AD")]
+        [Parameter (Position = 5, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Array]$Servers,
 
-        [Parameter(Position = 4, Mandatory, ParameterSetName = "AD")]
-        [Parameter(Position = 6, Mandatory, ParameterSetName = "LDAP")]
+        [Parameter (Position = 4, Mandatory, ParameterSetName = "AD")]
+        [Parameter (Position = 6, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Alias('u','user')]
         [String]$Username,
 
-        [Parameter(Position = 5, ValueFromPipeline = $true, Mandatory, ParameterSetName = "AD")]
-        [Parameter(Position = 7, ValueFromPipeline = $true, Mandatory, ParameterSetName = "LDAP")]
+        [Parameter (Position = 5, ValueFromPipeline = $true, Mandatory, ParameterSetName = "AD")]
+        [Parameter (Position = 7, ValueFromPipeline = $true, Mandatory, ParameterSetName = "LDAP")]
         [ValidateNotNullOrEmpty()]
 		[Alias('p','pass')]
         [Object]$Password,
 
-		[Parameter(Mandatory = $false, ParameterSetName = 'AD')]
-		[Parameter(Mandatory = $false, ParameterSetName = 'LDAP')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'AD')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'LDAP')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -56707,17 +56704,17 @@ function Remove-HPOVLdapDirectory
 	param
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory name", Position = 0, ParameterSetName = "default")]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory name", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias("d")]
 		[Object]$Directory,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default", position = 1)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default),
 
-		[Parameter(Mandatory = $False, ParameterSetName = "default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "default")]
 		[switch]$Force
 
     )
@@ -56961,14 +56958,14 @@ Function Set-HPOVLdapDefaultDirectory
 	param
 	(
 
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Please provide the LDAP/AD Directory Name or Object.")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, HelpMessage = "Please provide the LDAP/AD Directory Name or Object.")]
 		[ValidateNotNullOrEmpty()]
 		[Object]$Directory,
 		
-		[Parameter(Mandatory = $False)]
+		[Parameter (Mandatory = $False)]
 		[Switch]$DisableLocalLogin,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName)]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -57231,7 +57228,7 @@ Function Enable-HPOVLdapLocalLogin
 	param
 	(
 
-		[Parameter(Mandatory = $false, position = 0)]
+		[Parameter (Mandatory = $false, position = 0)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -57400,7 +57397,7 @@ Function Disable-HPOVLdapLocalLogin
 	param
 	(
 
-		[Parameter(Mandatory = $false, position = 0)]
+		[Parameter (Mandatory = $false, position = 0)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -57569,15 +57566,15 @@ function New-HPOVLdapServer
 	param
 	(
 		
-		[Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default")]
+		[Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default")]
 		[String]$Name,
 
-		[Parameter(Position = 1, Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "default")]
 		[Alias('port')]
         [ValidateRange(1,65535)]
         [Int32]$SSLPort = 636,
 
-        [Parameter(Position = 2, Mandatory = $false, ParameterSetName = "default")]
+        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = "default")]
         [Alias('cert')]
         [Object]$Certificate
 
@@ -57738,17 +57735,17 @@ function Show-HPOVLdapGroups
 	param
 	(
 
-         [Parameter(Mandatory,HelpMessage = "Enter the user name",Position=0)]
+         [Parameter (Mandatory,HelpMessage = "Enter the user name",Position=0)]
          [ValidateNotNullOrEmpty()]
          [alias("u")]
          [string]$UserName,
 
-         [Parameter(Mandatory,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=1)]
+         [Parameter (Mandatory,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=1)]
          [alias("p")]
          [ValidateNotNullOrEmpty()]
          [SecureString]$Password,
 
-         [Parameter(Mandatory,HelpMessage = "Enter the Directory name",Position=2)]
+         [Parameter (Mandatory,HelpMessage = "Enter the Directory name",Position=2)]
          [ValidateNotNullOrEmpty()]
          [alias("d","domain","directory")]
          [string]$AuthProvider
@@ -57806,18 +57803,18 @@ function Get-HPOVLdapGroup
 	param
 	(
 
-        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Enter the Directroy Group Name", ParameterSetName = 'Default')]
+        [Parameter (Position = 0, Mandatory = $false, HelpMessage = "Enter the Directroy Group Name", ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
         [alias("group","GroupName")]
         [string]$Name,
 
-        [Parameter(Mandatory, ParameterSetName = 'Export')]
+        [Parameter (Mandatory, ParameterSetName = 'Export')]
         [Alias('x')]
 		[ValidateScript({split-path $_ | Test-Path})]
         [string]$Export,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
-		[Parameter(Mandatory = $false, ParameterSetName = 'Export')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Export')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -57989,32 +57986,32 @@ function New-HPOVLdapGroup
 	param
 	(
 
-		[Parameter(Mandatory,HelpMessage = "Enter the Directory name",Position=0, ParameterSetName = 'Default')]
+		[Parameter (Mandatory,HelpMessage = "Enter the Directory name",Position=0, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("d","domain","directory")]
 		[string]$authProvider,
 
-		[Parameter(Mandatory,HelpMessage = "Enter the Directroy Group name in Distinguished Name format (i.e. CN=Admin Group,OU=Admins,DC=Domain,DC=com",Position=1, ParameterSetName = 'Default')]
+		[Parameter (Mandatory,HelpMessage = "Enter the Directroy Group name in Distinguished Name format (i.e. CN=Admin Group,OU=Admins,DC=Domain,DC=com",Position=1, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("g","group","name")]
 		[string]$GroupName,
 
-		[Parameter(Mandatory,Helpmessage = "Enter the Directroy Group roles in System.Array format",Position=2, ParameterSetName = 'Default')]
+		[Parameter (Mandatory,Helpmessage = "Enter the Directroy Group roles in System.Array format",Position=2, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("r","role")]
 		[Array]$Roles,
 
-		[Parameter(Mandatory,Helpmessage = "Enter the user name",Position=3, ParameterSetName = 'Default')]
+		[Parameter (Mandatory,Helpmessage = "Enter the user name",Position=3, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("u")]
 		[string]$UserName,
 
-		[Parameter(Mandatory,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=4, ParameterSetName = 'Default')]
+		[Parameter (Mandatory,ValueFromPipeline = $true,HelpMessage = "Enter the password",Position=4, ParameterSetName = 'Default')]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
 			
-		[Parameter(Mandatory = $false, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -58207,32 +58204,32 @@ function Set-HPOVLdapGroupRole
 	param
 	(
 
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Enter the Directory name", ParameterSetName = 'Default')]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Enter the Directory name", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("d","domain","directory")]
 		[string]$authProvider,
 
-		[Parameter(Position = 1, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directroy Group name", ParameterSetName = 'Default')]
+		[Parameter (Position = 1, Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directroy Group name", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("g","name",'GroupName')]
 		[Object]$Group,
 
-		[Parameter(Position = 2, Mandatory, HelpMessage = "Enter the Directroy Group roles in System.Array format", ParameterSetName = 'Default')]
+		[Parameter (Position = 2, Mandatory, HelpMessage = "Enter the Directroy Group roles in System.Array format", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("r","role")]
 		[Array]$Roles,
 
-		[Parameter(Position = 3, Mandatory, HelpMessage = "Enter the user name", ParameterSetName = 'Default')]
+		[Parameter (Position = 3, Mandatory, HelpMessage = "Enter the user name", ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[alias("u")]
 		[string]$UserName,
 
-		[Parameter(Position = 4, Mandatory, HelpMessage = "Enter the password", ParameterSetName = 'Default')]
+		[Parameter (Position = 4, Mandatory, HelpMessage = "Enter the password", ParameterSetName = 'Default')]
 		[alias("p")]
 		[ValidateNotNullOrEmpty()]
 		[SecureString]$Password,
 		
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -58498,12 +58495,12 @@ function Remove-HPOVLdapGroup
 	param 
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory Group name", Position = 0, ParameterSetName = "default")]
+		[Parameter (Mandatory, ValueFromPipeline, HelpMessage = "Enter the Directory Group name", Position = 0, ParameterSetName = "default")]
 		[ValidateNotNullOrEmpty()]
 		[alias('g','Group')]
 		[Object]$Name,
 	
-		[Parameter(Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -58749,7 +58746,7 @@ Function Get-HPOVAuditLog
     Param 
 	(
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -58900,12 +58897,12 @@ Function Get-HPOVAuditLogArchive
     Param 
 	(
 
-        [Parameter(Position = 0, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the audit log file.")]
+        [Parameter (Position = 0, Mandatory = $false, ParameterSetName = "default", HelpMessage = "Specify the folder location to save the audit log file.")]
 		[ValidateNotNullorEmpty()]
         [Alias("save")]
         [string]$Location = (get-location).Path,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = 'default')]
+		[Parameter (Mandatory = $false, ParameterSetName = 'default')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -59056,32 +59053,32 @@ function Get-HPOVAlert
     Param
 	(
 
-		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "ServerProfile")]
-		[Parameter(Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "ServerProfile")]
+		[Parameter (Position = 0, Mandatory = $false, ValueFromPipeline, HelpMessage = "Resource URI or Object (i.e. Get-HPOV*)", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Object]$Resource,
 
-		[Parameter(Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "ServerProfile")]
-		[Parameter(Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "Default")]
+		[Parameter (Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "ServerProfile")]
+		[Parameter (Position = 1, Mandatory = $false, HelpMessage = "Alert Severity 'OK','Critical','Disabled','Warning', or 'Unknown'.", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateSet('OK','Critical','Disabled','Warning','Unknown')]
 		[string]$Severity,
 
-		[Parameter(Position = 2, Mandatory = $false, HelpMessage = "Alert/Health Category", ParameterSetName = "Default")]
+		[Parameter (Position = 2, Mandatory = $false, HelpMessage = "Alert/Health Category", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[ValidateSet('Appliance', 'DeviceBay', 'Enclosure', 'Fan', 'Firmware', 'Host', 'Instance', 'InterconnectBay', 'LogicalSwitch', 'Logs', 'ManagementProcessor', 'Memory', 'Network', 'Operational', 'Power', 'Processor', 'RemoteSupport', 'Storage', 'Thermal', 'Unknown')]
 		[string]$HealthCategory,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Filter by User",Position=3, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, HelpMessage = "Filter by User",Position=3, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[String]$AssignedToUser,
 
-		[Parameter(Mandatory = $false,  HelpMessage = "Alert state",Position=4, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false,  HelpMessage = "Alert state",Position=4, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[String]$AlertState,
 		
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfile")]
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfile")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -59410,9 +59407,9 @@ function Set-HPOVAlert
         [parameter (Mandatory, ParameterSetName = 'Active')]
         [switch]$Active,
 
-		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
-		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Cleared')]
-		[Parameter(Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Active')]
+		[Parameter (Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[Parameter (Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Cleared')]
+		[Parameter (Mandatory, ValueFromPipelineByPropertyName, ParameterSetName = 'Active')]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -59661,21 +59658,21 @@ function Get-HPOVLicense
     param
 	(
 
-        [Parameter(Position = 0, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Please specify the type of license you wish to generate a report for. Accepted values are `"OneView`", `"OneViewNoiLO`", or `"all`".")]
+        [Parameter (Position = 0, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Please specify the type of license you wish to generate a report for. Accepted values are `"OneView`", `"OneViewNoiLO`", or `"all`".")]
         [ValidateSet("OneViewAdvanced", "OneView", "OneViewAdvancedNoiLO", "OneViewNoiLO","all")]
         [String]$Type,
         
-        [Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Please specify the license state you wish to generate a report for. Accepted values are `"Unlicensed`" or `"Permanent`".")]
+        [Parameter (Position = 1, Mandatory = $False, ParameterSetName = "Default", HelpMessage = "Please specify the license state you wish to generate a report for. Accepted values are `"Unlicensed`" or `"Permanent`".")]
         [ValidateSet("Unlicensed", "Permanent",$null)]
         [String]$State,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Switch]$Summary,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Switch]$Report,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -60000,16 +59997,16 @@ function New-HPOVLicense
     param
 	(
 
-        [Parameter(Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "licenseKey", HelpMessage = "Please specify the license you wish to install")]
+        [Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "licenseKey", HelpMessage = "Please specify the license you wish to install")]
         [ValidateNotNullOrEmpty()]
         [String]$LicenseKey,
         
-        [Parameter(Position = 0, Mandatory, ParameterSetName = "InputFile", HelpMessage = "Please specify the license file")]
+        [Parameter (Position = 0, Mandatory, ParameterSetName = "InputFile", HelpMessage = "Please specify the license file")]
         [ValidateScript({Test-Path $_})]
         [String]$File,
 		
-		[Parameter(Mandatory = $false, ParameterSetName = "licenseKey")]
-		[Parameter(Mandatory = $false, ParameterSetName = "InputFile")]
+		[Parameter (Mandatory = $false, ParameterSetName = "licenseKey")]
+		[Parameter (Mandatory = $false, ParameterSetName = "InputFile")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -60153,12 +60150,12 @@ function Remove-HPOVLicense
     param
 	(
 
-		[Parameter(Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Specify the license to remove.", Position = 0)]
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Default", HelpMessage = "Specify the license to remove.", Position = 0)]
         [ValidateNotNullOrEmpty()]
         [Alias('uri', 'name', 'license')]
         [System.Object]$Resource = $null,
     
-		[Parameter(Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -60446,37 +60443,37 @@ function Set-HPOVSMTPConfig
 	param
 	(
 	
-		[Parameter(Position = 0, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Disabled")]
-        [Parameter(Position = 0, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Disabled")]
+        [Parameter (Position = 0, Mandatory, HelpMessage = "Sender E-Mail address to assign to the appliance.", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
         [validatescript({if ($_ -as [Net.Mail.MailAddress]) {$true} else { Throw "The parameter value is not an email address. Please correct the value and try again." }})]
 		[System.String]$SenderEmailAddress,
 
-		[Parameter(Position = 0, Mandatory = $false, HelpMessage = "Provide SMTP Server name if ", ParameterSetName = "Disabled")]
-        [Parameter(Position = 0, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory = $false, HelpMessage = "Provide SMTP Server name if ", ParameterSetName = "Disabled")]
+        [Parameter (Position = 0, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
         [Alias('SmtpServer')]		
         [ValidateNotNullOrEmpty()]
 		[System.String]$Server,
 
-        [Parameter(Position = 1, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
-		[Parameter(Position = 1, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+        [Parameter (Position = 1, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
+		[Parameter (Position = 1, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[Alias('SmtpPort')]
 		[ValidateNotNull()]
 		[System.Int32]$Port = 25,
 
-		[Parameter(Position = 2, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
-        [Parameter(Position = 2, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter (Position = 2, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
+        [Parameter (Position = 2, Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Object]$Password,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
+		[Parameter (Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Disabled")]
 		[Switch]$AlertEmailDisabled,
 
-		[Parameter(Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, HelpMessage = "Help Message", ParameterSetName = "Default")]
 		[Switch]$AlertEmailEnabled,
     
-		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
-		[Parameter(Mandatory = $False, ParameterSetName = "Disabled")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Disabled")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -60664,7 +60661,7 @@ function Get-HPOVSMTPConfig
 	param
 	(	
 	
-		[Parameter(Mandatory = $false)]
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -60808,18 +60805,18 @@ function Add-HPOVSmtpAlertEmailFilter
 	param
 	(
 	
-		[Parameter(Position = 0, Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory = $false, ParameterSetName = "Default")]
 		[alias('query')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$Filter,
 
-        [Parameter(Position = 1, Mandatory, ParameterSetName = "Default")]
+        [Parameter (Position = 1, Mandatory, ParameterSetName = "Default")]
 		[Alias('recipients')]
         [ValidateNotNullOrEmpty()]
         [validatescript({$_ | foreach { if ($_ -as [Net.Mail.MailAddress]) {$true} else { Throw "The parameter value '$_' is not an email address. Please correct the value and try again." }}})]
 		[System.Array]$Emails,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61001,7 +60998,7 @@ function Get-HPOVLoginMessage
 	param
 	(
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61147,14 +61144,14 @@ function Set-HPOVLoginMessage
 	param
 	(
 	
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[String]$Message,
 
-		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Position = 1, Mandatory = $False, ParameterSetName = "Default")]
 		[Bool]$Acknowledgment = $False,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61307,7 +61304,7 @@ Function Get-HPOVRemoteSyslog
 	param
 	(
 	
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61448,7 +61445,7 @@ Function Set-HPOVRemoteSyslog
 	param
 	(
 	
-		[Parameter(Position = 0, Mandatory, ParameterSetName = "Default")]
+		[Parameter (Position = 0, Mandatory, ParameterSetName = "Default")]
 		[ValidateScript({ 
 		
 			[RegEx]::Match($_,$IPAddressPattern).Success
@@ -61456,14 +61453,14 @@ Function Set-HPOVRemoteSyslog
 		})]
 		[IPAddress]$Destination,
 
-		[Parameter(Position = 1, Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Position = 1, Mandatory = $False, ParameterSetName = "Default")]
 		[ValidateRange(1,65535)]
 		[Int]$Port = 514,
 
-		[Parameter(Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
 		[switch]$SendTestMessage,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61639,7 +61636,7 @@ function Enable-HPOVRemoteSyslog
 	param
 	(
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61810,7 +61807,7 @@ function Disable-HPOVRemoteSyslog
 	param
 	(
 
-		[Parameter(Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -61984,20 +61981,20 @@ function Enable-HPOVDebug
     param
 	(
 
-        [Parameter(Position=0, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
+        [Parameter (Position=0, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
         [ValidateNotNullOrEmpty()]
         [String]$Scope,
 
-        [Parameter(Position = 1, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
+        [Parameter (Position = 1, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
         [ValidateNotNullOrEmpty()]
         [String]$LoggerName,
 
-        [Parameter(Position = 2, Mandatory, ParameterSetName = "default",HelpMessage = "Specify the verbose log level (ERROR, WARN, DEBUG or TRACE are allowed).")]
+        [Parameter (Position = 2, Mandatory, ParameterSetName = "default",HelpMessage = "Specify the verbose log level (ERROR, WARN, DEBUG or TRACE are allowed).")]
         [ValidateNotNullOrEmpty()]
         [ValidateSet('ERROR','WARN','DEBUG','TRACE', IgnoreCase = $False)]
         [String]$Level,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -62155,15 +62152,15 @@ function Disable-HPOVDebug
     param
 	(
 
-        [Parameter(Position=0, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
+        [Parameter (Position=0, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the debug Scope.")]
         [ValidateNotNullOrEmpty()]
         [String]$Scope,
 
-        [Parameter(Position = 1, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
+        [Parameter (Position = 1, Mandatory, ParameterSetName = "default",HelpMessage = "Provide the component Logger Name.")]
         [ValidateNotNullOrEmpty()]
         [String]$LoggerName,
 
-		[Parameter(Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -62616,13 +62613,13 @@ if ((Test-Path $regkeyUser) -and ($UserUseMSDSC)) {
 	    Param
 		(
 
-	        [Parameter(Mandatory = $false, Position = 0)]
+	        [Parameter (Mandatory = $false, Position = 0)]
 	        [Object]$Object,
 
-			[Parameter(Mandatory = $false, Position = 1)]
+			[Parameter (Mandatory = $false, Position = 1)]
 	        [Object]$Object2,
 
-			[Parameter(Mandatory = $false, Position = 2)]
+			[Parameter (Mandatory = $false, Position = 2)]
 	        [Object]$Object3,
 
 	        [Switch]$NoNewLine,
@@ -62660,13 +62657,13 @@ if ($PesterTest)
 		Param
 		(
 
-			[Parameter(Mandatory = $false, Position = 0)]
+			[Parameter (Mandatory = $false, Position = 0)]
 			[Object]$Object,
 
-			[Parameter(Mandatory = $false, Position = 1)]
+			[Parameter (Mandatory = $false, Position = 1)]
 			[Object]$Object2,
 
-			[Parameter(Mandatory = $false, Position = 2)]
+			[Parameter (Mandatory = $false, Position = 2)]
 			[Object]$Object3,
 
 			[Switch]$NoNewLine,
@@ -62685,9 +62682,10 @@ if ($PesterTest)
 }
 
 # Import-Module Text
+$_WelcomeTitle = "Welcome to the HPE OneView POSH Library, v{0}_BETA" -f $ModuleVersion.ToString()
 write-host ""
-write-host ("         Welcome to the HP OneView POSH Library, v{0}" -f $script:ModuleVersion.ToString())
-write-host "         -----------------------------------------------------"
+write-host ("        {0}" -f $_WelcomeTitle)
+write-host ("        {0}" -f (New-Object System.String('-',$_WelcomeTitle.Length)))
 write-host ""
 write-host " To get a list of available CMDLETs in this library, type :  " -NoNewline
 write-host "Get-Command -module HPOneView.200" -foregroundcolor yellow

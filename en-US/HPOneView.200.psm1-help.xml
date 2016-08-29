@@ -17992,9 +17992,9 @@ PS C:\&gt; Get-HPOVBaseline -BaselineName 'MyBaseline' | New-HPOVCustomBaseline 
 					<maml:name>Name</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="1" isDynamic="false" parameterSetName="Default" aliases="logicalInterconnectGroupUri, logicalInterconnectGroup">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="1" isDynamic="false" parameterSetName="Default" aliases="logicalInterconnectGroupUri, logicalInterconnectGroup">
 					<maml:name>LogicalInterconnectGroupMapping</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Default" aliases="None">
 					<maml:name>PowerRedundantMode</maml:name>
@@ -18089,7 +18089,7 @@ No Uplink Sets will be created. They will need to be added using the New-HPOVUpl
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="1" isDynamic="false" parameterSetName="DiscoverFromEnclosure, importFile, Default" aliases="logicalInterconnectGroupUri, logicalInterconnectGroup">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="1" isDynamic="false" parameterSetName="DiscoverFromEnclosure, importFile, Default" aliases="logicalInterconnectGroupUri, logicalInterconnectGroup">
 				<maml:name>LogicalInterconnectGroupMapping</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-logicalInterconnectGroupUri, -logicalInterConnectGroup]
@@ -18102,9 +18102,11 @@ PS C:\&gt; $LogicalInterConnectGroupMapping = @{ 1 = "MyLIg1"; 2 = "MyLig1"; 5 =
 
 PS C:\&gt; $MyLig1 = Get-HPOVLogicalInterconnectGroup MyLig1
 PS C:\&gt; $OtherLIG = Get-HPOVLogicalInterconnectGroup OtherLIG
-PS C:\&gt; $LogicalInterConnectGroupMapping = @{ 1 = $MyLig1; 2 = $MyLig1; 5 = $OtherLIG; 6 = $OtherLIG"</maml:para>
+PS C:\&gt; $LogicalInterConnectGroupMapping = @{ 1 = $MyLig1; 2 = $MyLig1; 5 = $OtherLIG; 6 = $OtherLIG"
+
+Omit this parameter to create an Enclosure Group without a Logical Interconnect Group (necessary for non-HPE Virtual Connect or HPE B22 Fabric Extender environments.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
