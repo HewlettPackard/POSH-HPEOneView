@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$ModuleVersion = "2.0.621.0"
+[version]$ModuleVersion = "2.0.630.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -15441,126 +15441,127 @@ function Download-File
         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Filename: $($_fileName)"
 	    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Filesize: $($_fileSize)"
 		
-		Try
+		if($_rs.StatusCode -eq 200) 
 		{
 
-			#Read from response and write to file
-			$_stream = $_rs.GetResponseStream() 
+			Try
+			{
+
+				#Read from response and write to file
+				$_stream = $_rs.GetResponseStream() 
 			    
-			#Define buffer and buffer size
-			[byte[]]$_buffer   = New-Object byte[] (4096*1024)
-			[int] $_bytesRead  = 0
+				#Define buffer and buffer size
+				#[byte[]]$_buffer   = New-Object byte[] (8192*1024)
+				write-Verbose ('Creating Buffer of size: {0}' -f $_fileSize)
+				[byte[]]$_buffer   = New-Object byte[] $_fileSize
+				[int] $_bytesRead  = 0
 
-			#This is used to keep track of the file upload progress.
-			$_numBytesRead     = 0
-			$_numBytesWrote    = 0
+				write-Verbose ('Buffer size: {0}' -f $_buffer.length)
+
+				#This is used to keep track of the file upload progress.
+				$_numBytesRead     = 0
+				$_numBytesWrote    = 0
 	 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Saving to $($saveLocation)\$($_fileName)"
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Saving to $($saveLocation)\$($_fileName)"
 
-			$_fs = New-Object IO.FileStream ($saveLocation + "\" + $_fileName),'Create','Write','Read'
+				$_fs = New-Object IO.FileStream ($saveLocation + "\" + $_fileName),'Create' #,'Write','Read'
 
-			$_sw = New-Object System.Diagnostics.StopWatch
-			$_sw.Start()
+				#Throughput Stopwatch
+				$_sw = New-Object System.Diagnostics.StopWatch
+				$_progresssw = New-Object System.Diagnostics.StopWatch
+				$_sw.Start()
+				$_progresssw.Start()
 
-			do
+				while (($_bytesRead = $_stream.Read($_buffer, 0, $_buffer.Length)) -gt 0)
+				{
+
+					#Write from buffer to file
+					$_fs.Write($_buffer, 0, $_bytesRead)
+				
+					#Keep track of bytes written for progress meter
+					$_total += $_bytesRead
+
+					#Elapsed time to calculate throughput
+					$_transferrate = ($_total / $_sw.Elapsed.TotalSeconds) / 1MB
+
+					#Use the Write-Progress cmd-let to show the progress of uploading the file.
+					[int]$_percent = (($_total / $_fileSize)  * 100)
+
+					$_status = '{0:0}MB of {1:0}MB @ {2:N2}MB/s' -f ($_total / 1MB), ($_fileSize / 1MB), $_transferrate
+
+					#Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+			    
+						if ($_progresssw.Elapsed.TotalMilliseconds -ge 500)
+						{
+							
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Downloading file: $_fileName, status: $_status, Percent: $_percent"
+
+							$_progresssw.Restart()
+
+						}
+			        
+					}
+			      
+					else 
+					{ 
+					
+						if ($_progresssw.Elapsed.TotalMilliseconds -ge 500)
+						{
+
+							Write-Progress -id 0 -Activity "Downloading file $_fileName" -Status $_status -percentComplete $_percent 
+
+							$_progresssw.Restart()
+
+						}						
+				
+					}
+
+				} #while ($_bytesRead -gt 0)
+
+				Write-Progress -id 0 -Activity "Downloading file $_fileName" -Completed
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] File saved to $($saveLocation)"
+
+				$_downloadfilestatus.status              = 'Completed'
+				$_downloadfilestatus.file                = "$saveLocation\$_fileName"
+				$_downloadfilestatus.ApplianceConnection = $ApplianceConnection.Name
+
+				Return $_downloadfilestatus
+
+			}
+
+			Catch
 			{
 
-				$_bytesRead = $_stream.Read($_buffer, 0, $_buffer.Length)
+				$PSCmdlet.ThrowTerminatingError($_)
 
-			    #Write from buffer to file
-				$_byteCount = $_fs.Write($_buffer, 0, $_bytesRead)
-				
-				#Keep track of bytes written for progress meter
-				$_numBytesWrote += $_bytesRead
+			}
 
-			    #Use the Write-Progress cmd-let to show the progress of uploading the file.
-			    [int]$_percent = (($_numBytesWrote / $_fileSize)  * 100)
+			finally
+			{
 
-			    if ($_percent -gt 100) 
-				{ 
-					
-					$_percent = 100 
-				
-				}
+				#Clean up our work
+				if ($_stream) { $_stream.Close() }
+				if ($_rs) { $_rs.Close() }
+				if ($_fs) { $_fs.Close() }
 
-			    #Elapsed time to calculate throughput
-				[int]$_elapsed = $_sw.ElapsedMilliseconds / 1000
-                
-				if ($_elapsed -ne 0 ) 
-				{
-
-					$_transferrate = ($_numBytesWrote / $_sw.Elapsed.TotalSeconds) / 1MB
-				
-				} 
-				
-				else 
-				{
-
-					[single]$_transferrate = 0.0
-				
-				}
-
-				$_status = "({0:0}MB of {1:0}MB transferred @ {2:N2}MB/s) Completed {3}%" -f ($_numBytesWrote / 1MB), ($_fileSize / 1MB), $_transferrate, $_percent
-
-				#Handle the call from -Verbose so Write-Progress does not get borked on display.
-				if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
-				{ 
-            
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Skipping Write-Progress display."
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Downloading file $fileName, status: $_status"
-                
-				}
-              
-				else 
-				{ 
-            
-					if ($_numBytesRead % 1mb -eq 0) { Write-Progress -activity "Upload File" -status "Downloading file $fileName" -CurrentOperation $_status -PercentComplete $_percent }
-                
-				}
-
-			} while ($_bytesRead -ne 0)
-
-			Write-Progress -activity "Downloading file $_fileName" -Completed
-
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] File saved to $($saveLocation)"
-
-			#Clean up our work
-
-			$_sw.Stop()
-			$_stream.Close()
-			$_rs.Close()
-			$_fs.Close()
-
-			$_downloadfilestatus.status              = 'Completed'
-			$_downloadfilestatus.file                = "$saveLocation\$_fileName"
-			$_downloadfilestatus.ApplianceConnection = $ApplianceConnection.Name
-
-			Return $_downloadfilestatus
+			}
 
 		}
 
-		Catch
+		else
 		{
 
 			#Clean up
-			if ($_rs)
-			{
+			if ($_rs) { $_rs.Close() }
+			if ($_fs) { $_fs.Close() }
 
-				$_rs.Close()
+			Throw 'Unhandled download exception'
 
-			}
-
-			#Clean up
-			if ($_fs)
-			{
-
-				$_fs.Close()
-
-			}
-
-			$PSCmdlet.ThrowTerminatingError($_)
-
-		}
+		}	
 	    
     }
 
@@ -15978,37 +15979,29 @@ function Get-HPOVScmbCertificates
 
     )
 	
-    Begin 
+	Begin 
 	{
 
-		if ($PSBoundParameters['$ConvertToPFx'])
-		{
-
-			Write-Warning '-$ConvertToPFx is currently not enabled in this release until a proper solution can be found to convert the SCMB Public Cert and Private key to PKCS#12 (aka PFX) format.'
-
-		}
-        
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
 
 		$Caller = (Get-PSCallStack)[1].Command
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Verify auth"
+		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
 		{
 
-			$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
-			$PSCmdlet.ThrowTerminatingError($errorRecord)
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
 
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
-			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++) 
 			{
 
 				Try 
@@ -16021,8 +16014,8 @@ function Get-HPOVScmbCertificates
 				Catch [HPOneview.Appliance.AuthSessionException] 
 				{
 
-					$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
-					$PSCmdlet.ThrowTerminatingError($errorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
@@ -16032,7 +16025,6 @@ function Get-HPOVScmbCertificates
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -16051,8 +16043,8 @@ function Get-HPOVScmbCertificates
 			Catch [HPOneview.Appliance.AuthSessionException] 
 			{
 
-				$errorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($errorRecord)
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -16066,48 +16058,41 @@ function Get-HPOVScmbCertificates
 		}
 		
 		$TaskCollection = New-Object System.Collections.ArrayList
-        
-        #Validate the path exists.  If not, create it.
+		
+		#Validate the path exists.  If not, create it.
 		if (-not(Test-Path $Location))
 		{ 
 
-            Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory does not exist.  Creating directory..."
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Directory does not exist.  Creating directory..."
 
-            New-Item -path $Location -ItemType Directory
+			New-Item -path $Location -ItemType Directory
 
-        }
+		}
 
-    }
+	}
 
-    Process
+	Process
 	{
 		
-		ForEach ($_connection in $ApplianceConnection)
+		ForEach ($_appliance in $ApplianceConnection)
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_connection.Name)' appliance connection (of $($ApplianceConnection.count))"
-
-			if ($Password)
-			{
-
-				$_dp = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($password))
-
-			}
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_appliance.Name)' appliance connection (of $($ApplianceConnection.count))"		
 
 			#Appliance CA
-			$caFile = $Location + "\" + "$($_connection.Name)_ca.cer"
-        
+			$caFile = '{0}\{1}_ca.cer' -f $Location, $_appliance.Name
+		
 			#Appliance Public Key
-			$publicKeyFile = $Location + "\" + "$($_connection.Name)_cert.cer"
-        
+			$publicKeyFile = '{0}\{1}_cert.cer' -f $Location, $_appliance.Name
+		
 			#Rabbit Client Private Key
-			$privateKeyFile = $Location + "\" + "$($_connection.Name)_privateKey.key"
+			$privateKeyFile = '{0}\{1}_privateKey.key' -f $Location, $_appliance.Name #$Location + "\" + "$($_appliance.Name)_privateKey.key"
 
 			#Check to see if the Rabbit client cert was already created
 			Try
 			{
 
-				$_keys = Send-HPOVRequest $applKeypairURI -Hostname $_connection.Name
+				$_keys = Send-HPOVRequest $applKeypairURI -Hostname $_appliance.Name
 
 			}
 
@@ -16124,10 +16109,10 @@ function Get-HPOVScmbCertificates
 					#Generate the client private key request
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Body: $($_rabbitbody | out-string)"
 
-					$_task = Send-HPOVRequest $applRabbitmqUri POST $_rabbitbody -Hostname $_connection.Name | Wait-HPOVTaskComplete
+					$_task = Send-HPOVRequest $applRabbitmqUri POST $_rabbitbody -Hostname $_appliance.Name | Wait-HPOVTaskComplete
 
 					#Retrieve generated keys
-					$_keys = Send-HPOVRequest $applKeypairURI -Hostname $_connection.Name
+					$_keys = Send-HPOVRequest $applKeypairURI -Hostname $_appliance.Name
 
 				}
 
@@ -16146,28 +16131,15 @@ function Get-HPOVScmbCertificates
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-        
+		
 			try 
 			{
 
-				New-Item $privateKeyFile -type file -force -value $_keys.base64SSLKeyData | Out-Null
+				New-Item $PrivateKeyFile -type file -force -value $_keys.base64SSLKeyData | write-verbose
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Created rabbitmq_readonly user $($privateKeyFile)"
+				$PrivateKeyFile = [System.IO.FileInfo]$PrivateKeyFile
 
-				#If ($ConvertToPFx)
-				#{
-				#
-				#	$_privatecert = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($privateKeyFile)
-				#
-				#	$bytes = $_privatecert.Export("Pfx",$decryptPassword)
-				#
-				#	$privateKeyFile = $privateKeyFile.Replace(".cer",".pfx")
-				#
-				#	[System.IO.File]::WriteAllBytes($privateKeyFile, $bytes)
-				#
-				#	Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Created PFX certificate $($privateKeyFile)"
-				#
-				#}
+				"[{0}] Created rabbitmq_readonly user Private Key: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PrivateKeyFile.Name | Write-Verbose 
 
 			}
 
@@ -16181,24 +16153,11 @@ function Get-HPOVScmbCertificates
 			try 
 			{
 
-				New-Item $publicKeyFile -type file -force -value $_keys.base64SSLCertData | Write-Verbose
+				New-Item $PublicKeyFile -type file -force -value $_keys.base64SSLCertData | Write-Verbose
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Created rabbitmq_readonly user $($publicKeyFile)"
+				$PublicKeyFile = [System.IO.FileInfo]$PublicKeyFile
 
-				#If ($ConvertToPFx)
-				#{
-				#
-				#	$c = New-Object System.Security.Cryptography.X509Certificates.X509Certificate2($publicKeyFile)
-				#
-				#	$bytes = $c.Export("Pfx",$decryptPassword)
-				#
-				#	$publicKeyFile = $publicKeyFile.Replace(".pem",".pfx")
-				#
-				#	[System.IO.File]::WriteAllBytes($publicKeyFile, $bytes)
-				#
-				#	Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Created PFX certificate $($publicKeyFile)"
-				#
-				#}
+				"[{0}] Created rabbitmq_readonly user Public Key: {0}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PublicKeyFile.FullName | Write-Verbose 
 
 			}
 
@@ -16209,15 +16168,22 @@ function Get-HPOVScmbCertificates
 
 			}
 
+			If ($PSBoundParameters['ConvertToPFx'])
+			{
+			
+				ConvertTo-Pfx -PrivateKeyFile $PrivateKeyFile -PublicKeyFile $PublicKeyFile -Password $Password
+			
+			}
+
 			try 
 			{
 
-				$_ca = Send-HPOVRequest $applCaURI -Hostname $_connection.Name
+				$_ca = Send-HPOVRequest $applCaURI -Hostname $_appliance.Name
 
 				New-Item $caFile -type file -force -value $_ca | Write-Verbose
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Created $($caFile)"
-        
+		
 			}
 
 			catch 
@@ -16229,7 +16195,77 @@ function Get-HPOVScmbCertificates
 
 		}
 
-    }
+	}
+
+}
+
+function ConvertTo-Pfx
+{
+
+	[CmdletBinding()]
+	param
+	( 
+
+		[Parameter (Mandatory)]
+		[System.IO.FileSystemInfo]$PrivateKeyFile,
+
+		[Parameter (Mandatory)]
+		[System.IO.FileSystemInfo]$PublicKeyFile,
+	
+		[Parameter (Mandatory = $false)]
+		[SecureString]$Password
+	
+	)
+
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		if ($PSBoundPArameters['Password'])
+		{
+
+			$_dp = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
+
+		}
+
+	}
+
+	Process
+	{
+
+		$PfxFileName = $PrivateKeyFile.FullName.Replace(".key",".pfx")
+
+		#Merge Public and Private Key file contents together
+		$PrivateKeyFileContents = [System.IO.File]::ReadAllLines($PrivateKeyFile.FullName)
+		$PublicKeyFileContents = [System.IO.File]::ReadAllLines($PublicKeyFile.FullName)
+		$JoinedKeyContents = [String]::Join("`n",($PublicKeyFileContents + $PrivateKeyFileContents))
+
+		#Convert To Byte Array
+		[Byte[]]$ByteArray = [System.Text.Encoding]::UTF8.GetBytes($JoinedKeyContents)
+
+		$_privatecert = [System.Security.Cryptography.X509Certificates.X509Certificate2] $ByteArray
+
+		$bytes = $_privatecert.Export("Pfx", $_dp)
+
+		[System.IO.File]::WriteAllBytes($PfxFileName, $bytes)
+
+		[System.IO.FileInfo]$PfxFileName
+
+		"[{0}] Created PFX certificate: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PfxFileName | Write-Verbose
+
+	}
+
+	End
+	{
+
+		"[{0}] done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
 
 }
 
@@ -16604,7 +16640,6 @@ function Stop-HPOVAppliance
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-
 				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 				{
 
@@ -16629,7 +16664,6 @@ function Stop-HPOVAppliance
 						$PSCmdlet.ThrowTerminatingError($_)
 
 					}
-
 
 				}
 
@@ -16746,12 +16780,17 @@ function Get-HPOVServer
 	(
 		
         [Parameter (Position = 0, Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
 		[string]$Name,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [switch]$NoProfile,
 
-        [Parameter (Mandatory = $false)]
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullorEmpty()]
+        [Object]$ServerHardwareType,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Alias('Appliance')]
 		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
@@ -16780,7 +16819,6 @@ function Get-HPOVServer
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
@@ -16805,7 +16843,6 @@ function Get-HPOVServer
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -16850,7 +16887,7 @@ function Get-HPOVServer
 
             $uri = $ServerHardwareUri + "?sort=name:asc"
 
-            if ($NoProfile) 
+            if ($PSBoundParameters['NoProfile']) 
 			{ 
                 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Filtering for server hardware with no assigned profiles."
@@ -16858,6 +16895,50 @@ function Get-HPOVServer
                 $uri += "&filter=serverProfileUri=null"
             
             }
+
+			if ($PSBoundParameters['ServerHardwareType'])
+			{
+
+				switch ($ServerHardwareType.GetType().Name)
+				{
+
+					'String'
+					{
+
+						Try
+						{
+
+							$ServerHardwareType = Get-HPOVServerHardwareType -Name $ServerHardwareType -ApplianceConnection $ApplianceConnection
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+					}
+
+					'PSCustomObject'
+					{
+
+						if ($ServerHardwareType.category -ne 'server-hardware-types')
+						{
+
+
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
+
+					}
+
+				}
+
+				$uri += "&filter=serverHardwareTypeUri EQ '{0}'" -f $ServerHardwareType.uri
+
+			}
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
 
@@ -20282,6 +20363,7 @@ function Add-HPOVEnclosure
 						$_import.firmwareBaselineUri = $fwBaseLine.uri
 						
 					}
+					
 					"PSCustomObject" 
 					{
 
@@ -33105,7 +33187,6 @@ function Show-HPOVSanEndpoint
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
@@ -33130,7 +33211,6 @@ function Show-HPOVSanEndpoint
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -34943,7 +35023,7 @@ function New-HPOVNetwork
 		[Parameter (Mandatory = $false, ParameterSetName = "FCOE")]
 		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[validaterange(100,20000)]
-		[int32]$MaximumBandwidth = 10000, 
+		[int32]$MaximumBandwidth = 20000, 
 
 		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[int32]$LinkStabilityTime = 30, 
@@ -36657,10 +36737,21 @@ function Remove-HPOVNetwork
 				    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Received Network Name $($net)"
 
 				    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Network object from Get-HPOVNetwork"
-				    
-					# // NEED APPLIANCE NAME HERE with If Condition
-				    $net = Get-HPOVNetwork $net -ApplianceConnection $ApplianceConnection
 
+					Try
+					{
+
+						$net = Get-HPOVNetwork -Name $net -ApplianceConnection $ApplianceConnection
+
+					}
+
+					Catch
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+				    
 				    if ($network.count -gt 1 ) 
 					{ 
 
@@ -36687,7 +36778,7 @@ function Remove-HPOVNetwork
 
 				}
 
-				[void]$_NetworkCollection.Add($Resource)
+				[void]$_NetworkCollection.Add($net)
 
 			}
 
@@ -36704,7 +36795,7 @@ function Remove-HPOVNetwork
 		ForEach ($_network in $_NetworkCollection)
 		{
 
-			if ($pscmdlet.ShouldProcess($_network.name,"Remove Network from appliance '$($_network.ApplianceConnection.Name)'?'")) 
+			if ($pscmdlet.ShouldProcess($_network.ApplianceConnection.Name,"Remove Network '$($_network.name)' from appliance")) 
 			{
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Removing Network '$($_network.name)' from appliance '$($_network.ApplianceConnection.Name)'."
@@ -51478,7 +51569,7 @@ function New-HPOVServerProfileConnection
 		[Parameter (Mandatory = $false, ParameterSetName = "bootUserDefinedEthernet")]
 		[Parameter (Mandatory = $false, ParameterSetName = "bootUserDefinedFC")]
 		[ValidateNotNullOrEmpty()]
-		[ValidateRange(100,10000)]
+		[ValidateRange(100,20000)]
         [int]$RequestedBW = 2500,
 	
 		[Parameter (Mandatory, ParameterSetName = "UserDefinedEthernet")]
@@ -62682,7 +62773,7 @@ if ($PesterTest)
 }
 
 # Import-Module Text
-$_WelcomeTitle = "Welcome to the HPE OneView POSH Library, v{0}_BETA" -f $ModuleVersion.ToString()
+$_WelcomeTitle = "Welcome to the HPE OneView POSH Library, v{0}" -f $ModuleVersion.ToString()
 write-host ""
 write-host ("        {0}" -f $_WelcomeTitle)
 write-host ("        {0}" -f (New-Object System.String('-',$_WelcomeTitle.Length)))

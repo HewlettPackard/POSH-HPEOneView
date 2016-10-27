@@ -10954,7 +10954,11 @@ Directory to store the SSL certificates.  If the directory doesn't exist, it wil
 					<maml:name>NoProfile</maml:name>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+					<maml:name>ServerHardwareType</maml:name>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -10962,7 +10966,7 @@ Directory to store the SSL certificates.  If the directory doesn't exist, it wil
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -10978,7 +10982,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the server hardware resource to be returned.  All server hardware resources will be returned if omitted.  Supports * wildcard character.</maml:para>
@@ -10990,7 +10994,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
 				<maml:name>NoProfile</maml:name>
 				<maml:description>
 					<maml:para>Optional parameter that can be used with the report parameter to display Servers without a Server Profile assigned.</maml:para>
@@ -11002,6 +11006,18 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+				<maml:name>ServerHardwareType</maml:name>
+				<maml:description>
+					<maml:para>Provide the Server Hardware Type Name or Object to filter for available server hardware.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
 			<!--Input Types-->
@@ -11011,9 +11027,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None.  You cannot pipe objects to this Cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -11149,6 +11163,24 @@ Encl2, bay 8   Disabled Off     SGH111X8RN     BL460c Gen8 I31 08/02/2014 iLO4 2
 </dev:code>
 				<dev:remarks>
 					<dev:para>Display all server hardware resources without an assigned Server Profile.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $sht = Get-HPOVServerHardwareType -Name "BL460c Gen9 1"
+$AvailableServer = Get-HPOVServer -NoProfile -ServerHardwareType $sht | Select -first 1
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return the first available server hardware of the type requested.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -18213,8 +18245,7 @@ Allowed Values:
 					<maml:para />
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $mylig = Get-HPOVLogicalInterconnectGroup -name "myLogicalInterconnectGroup"
-PS C:\&gt; New-HPOVEnclosureGroup -name "MyGroup" -logicalInterConnectGroup $mylig.uri
-
+PS C:\&gt; New-HPOVEnclosureGroup -name "MyGroup" -logicalInterConnectGroup $mylig
 </dev:code>
 				<dev:remarks>
 					<dev:para>Get the "myLogicalInterconnectGroup" object and pass it to create the "MyGroup" Enclosure Group.</dev:para>
@@ -19996,7 +20027,7 @@ False: Login redistribution must be initiated manually.</maml:para>
 					<maml:name>Int32</maml:name>
 					<maml:uri />
 				</dev:type>
-				<dev:defaultValue>10000</dev:defaultValue>
+				<dev:defaultValue>20000</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="importFile, VLANIDRange, FCOE, Ethernet, FC" aliases="None">
 				<maml:name>Name</maml:name>
@@ -29822,9 +29853,9 @@ PS C:\&gt; Remove-HPOVLogicalInterconnectGroup $lig -confirm:$false
 					<maml:name>Resource</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="1" isDynamic="false" parameterSetName="Default" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="1" isDynamic="false" parameterSetName="Default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
 					<maml:name>Force</maml:name>
@@ -29842,7 +29873,7 @@ PS C:\&gt; Remove-HPOVLogicalInterconnectGroup $lig -confirm:$false
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -29851,7 +29882,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />

@@ -31,7 +31,13 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW 
-
+    Release 2.0.630.0
+     -- Enhanced Download-File internal helper function to improve file download speeds.
+     -- Updated New-HPOVNetwork to default MaximumBandwidth to 20000. 
+     -- Updated New-HPOVServerProfileConnection to allow maximum 20000 -RequestedBW value.
+     -- Enhanced Get-HPOVServer to return hardware inventory based on a Server Hardware Type value.
+     -- [#173] Fixed Remove-HPOVNetwork were resource name was not handled correctly.
+     
     Release 2.0.621.0
      -- [#168] Enhanced New-HPOVEnclosureGroup to allow empty Logical Interconnect Group mapping.
      -- [#169] Fixed internal Download-File function where the FileStream.IO Buffer was not being created
