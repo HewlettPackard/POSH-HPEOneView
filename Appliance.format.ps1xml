@@ -1,6 +1,197 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 	<ViewDefinitions>
+    <!--HPOneView.Appliance.ScopeCollection FT-->
+    <View>
+      <Name>ScopeCollection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ScopeCollection</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Description</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Members</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Description</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Members</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.ScopeCollectionMemberEntry FT-->
+    <View>
+      <Name>ScopeCollectionMemberEntry</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ScopeCollectionMemberEntry</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>    
+    <!--ComposerNode FT-->
+    <View>
+      <Name>ComposerNode</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ComposerNode</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Version</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Role</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+            <TableColumnItem>
+                <PropertyName>modelNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>version</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>role</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ComposerNode FL-->
+    <View>
+      <Name>ComposerNode</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ComposerNode</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>modelNumber</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Version</Label>
+                <PropertyName>version</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Role</Label>
+                <PropertyName>role</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
     <!--RemoteSyslog FT-->
     <View>
       <Name>RemoteSyslog</Name>
@@ -79,103 +270,6 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--IndexResource FT-->
-    <View>
-      <Name>IndexResource</Name>
-      <ViewSelectedBy>
-        <TypeName>HPOneView.Appliance.IndexResource</TypeName>
-      </ViewSelectedBy>
-      <TableControl>
-        <AutoSize/>
-        <TableHeaders>
-          <TableColumnHeader>
-            <Label>Appliance</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Name</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Description</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Status</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-        <TableColumnHeader>
-            <Label>State</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-        </TableHeaders>
-        <TableRowEntries>
-          <TableRowEntry>
-            <Wrap/>
-            <TableColumnItems>
-              <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>name</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>description</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>status</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>state</PropertyName>
-              </TableColumnItem>
-            </TableColumnItems>
-          </TableRowEntry>
-        </TableRowEntries>
-      </TableControl>
-    </View>
-    <!--IndexResource FL-->
-    <View>
-      <Name>IndexResource</Name>
-      <ViewSelectedBy>
-        <TypeName>HPOneView.Appliance.IndexResource</TypeName>
-      </ViewSelectedBy>
-      <ListControl>
-        <ListEntries>
-          <ListEntry>
-            <ListItems>
-              <ListItem>
-                <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
-              </ListItem>
-              <ListItem>
-                <Label>Name</Label>
-                <PropertyName>name</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Description</Label>
-                <PropertyName>description</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Status</Label>
-                <PropertyName>status</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>State</Label>
-                <PropertyName>state</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Created</Label>
-                <PropertyName>created</PropertyName>
-              </ListItem>
-                <ListItem>
-                <Label>Modified</Label>
-                <PropertyName>modified</PropertyName>
-              </ListItem>
-            </ListItems>
-          </ListEntry>
-        </ListEntries>
-      </ListControl>
-    </View>  
     <!--LoginMessage FL-->
     <View>
       <Name>LoginMessage</Name>
@@ -332,6 +426,409 @@
         </ListEntries>
       </ListControl>
     </View>
+    <!--RemoteSupportConfig FT-->
+    <View>
+      <Name>RemoteSupportConfig</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupportConfig</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Company</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AutoEnableDevices</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MarketingOptIn</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>InsightOnlineEnabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enableRemoteSupport</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>companyName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>autoEnableDevices</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>marketingOptIn</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>InsightOnlineEnabled</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--RemoteSupportConfig FL-->
+    <View>
+      <Name>RemoteSupportConfig</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupportConfig</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enabled</Label>
+                <PropertyName>enableRemoteSupport</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Company</Label>
+                <PropertyName>companyName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Auto Enable Devices</Label>
+                <PropertyName>autoEnableDevices</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Marketing Opt-In</Label>
+                <PropertyName>marketingOptIn</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Appliance.RemoteSupport.Contact FT-->
+    <View>
+      <Name>RemoteSupportContact</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupport.Contact</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Email Address</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Primary Phone</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Default</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0} {1}' -f $_.firstName, $_.lastName</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>email</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>primaryPhone</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>default</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View> 
+    <!--HPOneView.Appliance.RemoteSupport.Partner FT-->
+    <View>
+      <Name>RemoteSupportPartner</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupport.Partner</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PartnerType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>City</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Country</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Default</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>partnerType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>city</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>country</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>default</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>  
+    <!--HPOneView.Appliance.RemoteSupport.ResourceSetting FT-->
+    <View>
+      <Name>RemoteSupportResourceSetting</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupport.ResourceSetting</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ResourceName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SalesChannelPartner</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SupportChannelPartner</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PrimaryContact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SecondaryContact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ResourceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.SalesChannelPartner.name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.SupportChannelPartner.name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0} {1}' -f $_.PrimaryContact.firstName,$_.PrimaryContact.lastName</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0} {1}' -f $_.SecondaryContact.firstName,$_.SecondaryContact.lastName</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>      
+    <!--HPOneView.Appliance.RemoteSupport.Schedule FT-->
+    <View>
+      <Name>RemoteSupportSchedule</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupport.Schedule</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ScheduleName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RepeatOption</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>HourOfDay</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Minute</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DayOfMonth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DayOfWeek</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>scheduleName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>repeatOption</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>hourOfDay</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>minute</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>dayOfMonth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>if ($_.dayOfWeek) { '{0}' -f [DayOfWeek]$_.dayOfWeek }</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.RemoteSupport.DefaultSite FT-->
+    <View>
+      <Name>RemoteSupportDefaultSite</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.RemoteSupport.DefaultSite</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>StreetAddress1</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>StreetAddress2</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ProvinceState</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PostalCode</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CountryCode</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>TimeZone</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>streetAddress1</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>streetAddress2</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>provinceState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>postalCode</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>countryCode</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>timeZone</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>  
+
     <!--APPLIANCE_SMTPALERTS-->
 		<View>
 			<Name>SmtpConfigurationObject</Name>
@@ -381,7 +878,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>SNMP Community Name</Label>
+            <Label>CommunityString</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -438,7 +935,7 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--Appliance.TaskResource FT-->
+        <!--Appliance.TaskResource FT-->
     <View>
       <Name>TaskResource</Name>
       <ViewSelectedBy>
@@ -532,7 +1029,7 @@
                 <PropertyName>created</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Duratuon</Label>
+                <Label>Duration</Label>
                 <ScriptBlock>"{0:hh\:mm\:ss}" -f ((Get-Date $_.modified) - (Get-Date $_.created))</ScriptBlock>
               </ListItem>
 							<ListItem>
@@ -560,6 +1057,7 @@
 				</ListEntries>
 			</ListControl>
 		</View>
+
     <!--APPLIANCE_LICENSE FL-->
 		<View>
 			<Name>License</Name>
@@ -629,10 +1127,6 @@
 			<TableControl>
         <AutoSize/>
 				<TableHeaders>
-          <TableColumnHeader>
-            <Label>Appliance</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
 					<TableColumnHeader>
 						<Label>Name</Label>
 						<Alignment>Left</Alignment>
@@ -661,9 +1155,6 @@
 				<TableRowEntries>
 					<TableRowEntry>
 						<TableColumnItems>
-              <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
-              </TableColumnItem>
 							<TableColumnItem>
 								<PropertyName>userName</PropertyName>
 							</TableColumnItem>
@@ -909,18 +1400,21 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--APPLIANCE_AUTHDIRECTORYGROUPS-->
+    <!--LdapDirectoryGroup-->
     <View>
-      <Name>AuthDirectoryGroup</Name>
+      <Name>LdapDirectoryGroup</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Appliance.AuthDirectoryGroup</TypeName>
+        <TypeName>HPOneView.Appliance.LdapDirectoryGroup</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
             <Label>Name</Label>
-            <!--<AutoSize/>-->
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Directory</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
          </TableHeaders>
@@ -928,7 +1422,10 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_</ScriptBlock>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Directory</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -945,6 +1442,10 @@
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Name</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -960,6 +1461,9 @@
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>egroup</PropertyName>
               </TableColumnItem>
@@ -1500,7 +2004,122 @@
         </ListEntries>
       </ListControl>
     </View>
-
+    <!--IPV4AddressSubnet FT-->
+    <View>
+      <Name>IPV4AddressSubnet</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.IPV4AddressSubnet</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Subnet Mask</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Gateway</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DNS Server</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Domain Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Ranges</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>networkId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>subnetMask</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>gateway</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>dnsServers</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>domain</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $ac = $_.ApplianceConnection.Name
+                  $_.rangeUris | % { (Send-HPOVRequest $_ -Hostname $ac).name }
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--IPV4AddressSubnet FL-->
+    <View>
+      <Name>IPV4AddressSubnet</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.IPV4AddressSubnet</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Network ID</Label>
+                <PropertyName>networkId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Subnet Mask</Label>
+                <PropertyName>subnetMask</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Gateway</Label>
+                <PropertyName>gateway</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>DNS Server</Label>
+                <PropertyName>dnsServers</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Domain</Label>
+                <PropertyName>domain</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Ranges</Label>
+                <ScriptBlock>
+                  $ac = $_.ApplianceConnection.Name
+                  $_.rangeUris | % { (Send-HPOVRequest $_ -Hostname $ac).name }
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
     <!--APPLIANCE_ADDRESSPOOLRANGE FT-->
     <View>
       <Name>AddressPoolRange</Name>
@@ -1510,6 +2129,10 @@
       <TableControl>
         <AutoSize/>
         <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>Name</Label>
             <Alignment>Left</Alignment>
@@ -1550,6 +2173,9 @@
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
@@ -1593,6 +2219,10 @@
           <ListEntry>
             <ListItems>
               <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
                 <Label>Name</Label>
                 <PropertyName>name</PropertyName>
               </ListItem>
@@ -1633,8 +2263,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
     <!--APPLIANCE_HealthStatus FT-->
     <View>
       <Name>HealthStatus</Name>
@@ -1793,7 +2421,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
     <!--ApplianceServerDateTime FT-->
     <View>
       <Name>ApplianceServerDateTime</Name>
@@ -2023,5 +2650,262 @@
         </ListEntries>
       </ListControl>
     </View>
+    
+    <!--HPOneView.Appliance.AutomaticBackupConfig FT-->
+    <View>
+      <Name>AutomaticBackupConfig</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AutomaticBackupConfig</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Protocol</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Directory</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Interval</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Days</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Time</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>remoteServerName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>protocol</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>remoteServerDir</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>scheduleInterval</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>scheduleDays</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>scheduleTime</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--AutomaticBackupConfig FL-->
+    <View>
+      <Name>AutomaticBackupConfig</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AutomaticBackupConfig</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <PropertyName>hostname</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enabled</Label>
+                <PropertyName>ipv4Type</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Server</Label>
+                <PropertyName>app1Ipv4Addr</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Protocol</Label>
+                <PropertyName>ipv4Subnet</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Directory</Label>
+                <PropertyName>ipv4Gateway</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Interval</Label>
+                <PropertyName>ipv4NameServers</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Days</Label>
+                <PropertyName>ipv6Type</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Time</Label>
+                <PropertyName>app1Ipv6Addr</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Last Downlaoded Backup</Label>
+                <PropertyName>ipv6Subnet</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Last Created Backup</Label>
+                <PropertyName>ipv6Gateway</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Current Backup Created</Label>
+                <PropertyName>ipv6NameServers</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    
+    <!--HPOneView.Appliance.OsDeploymentServer FT-->
+    <View>
+      <Name>OsDeploymentServer</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.OsDeploymentServer</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Version</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Bay</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>imageStreamerVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0}' -f (Send-HPOVRequest -Uri $_.cimEnclosureUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>cimBay</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--OsDeploymentServer FL-->
+    <View>
+      <Name>OsDeploymentServer</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.OsDeploymentServer</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <PropertyName>hostname</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>ipv4Type</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Server</Label>
+                <PropertyName>app1Ipv4Addr</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Protocol</Label>
+                <PropertyName>ipv4Subnet</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Directory</Label>
+                <PropertyName>ipv4Gateway</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Interval</Label>
+                <PropertyName>ipv4NameServers</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Days</Label>
+                <PropertyName>ipv6Type</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Time</Label>
+                <PropertyName>app1Ipv6Addr</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Last Downlaoded Backup</Label>
+                <PropertyName>ipv6Subnet</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Last Created Backup</Label>
+                <PropertyName>ipv6Gateway</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Current Backup Created</Label>
+                <PropertyName>ipv6NameServers</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    
   </ViewDefinitions>
 </Configuration>

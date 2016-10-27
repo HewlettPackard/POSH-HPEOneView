@@ -125,6 +125,7 @@
         </ListEntries>
       </ListControl>
     </View>
+    
     <!--ServerHardwareType FT-->
     <View>
       <Name>ServerHardwareType</Name>
@@ -772,7 +773,7 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--ENCLOSURE FL-->
+    <!--LogicalEnclosure FL-->
     <View>
       <Name>LogicalEnclosure</Name>
       <ViewSelectedBy>
@@ -852,7 +853,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  ((send-hpovrequest "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_LOGICAL_ENCLOSURE'&amp;parentUri='$($_.uri)'" -Hostname $_.ApplianceConnection.Name).members | % { $_.childResource.name}) -join ","
+                  ((send-hpovrequest "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_ENCLOSURE'&amp;parentUri='$($_.uri)'" -Hostname $_.ApplianceConnection.Name).members | % { $_.childResource.name}) -join ","
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
@@ -997,44 +998,27 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--FirmwareReport FT-->
+
+
+    <!--ServerProfileMessage FT-->
     <View>
-      <Name>FirmwareReport.FirmwareReport</Name>
+      <Name>ServerProfileMessage</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.FirmwareReport</TypeName>
+        <TypeName>HPOneView.ServerProfileMessage</TypeName>
       </ViewSelectedBy>
       <TableControl>
+        <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Appliance</Label>
+            <Label>Server Profile</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Name</Label>
+            <Label>Status</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Device</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Component</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Installed</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Baseline</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Policy</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Compliance</Label>
+            <Label>Message</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1042,75 +1026,48 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>ApplianceConnection</PropertyName>              
+                <PropertyName>ServerProfileName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>name</PropertyName>
+                <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>device</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>component</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>installed</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>Baseline</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>BaselinePolicy</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>Compliance</PropertyName>
+                <PropertyName>message</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--FirmwareReport FL-->
+    <!--ServerProfileMessage FL-->
     <View>
-      <Name>FirmwareReport</Name>
+      <Name>ServerProfileMessage</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.FirmwareReport</TypeName>
+        <TypeName>HPOneView.ServerProfileMessage</TypeName>
       </ViewSelectedBy>
       <ListControl>
         <ListEntries>
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>Appliance</Label>
-                <PropertyName>ApplianceConnection</PropertyName>
+                <Label>Server Profile</Label>
+                <PropertyName>ServerProfileName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Name</Label>
-                <PropertyName>name</PropertyName>
+                <Label>Created</Label>
+                <PropertyName>createdTime</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Device</Label>
-                <PropertyName>device</PropertyName>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Component</Label>
-                <PropertyName>component</PropertyName>
+                <Label>Message</Label>
+                <PropertyName>message</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Installed</Label>
-                <PropertyName>installed</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Baseline</Label>
-                <PropertyName>Baseline</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Policy</Label>
-                <PropertyName>BaselinePolicy</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Compliance</Label>
-                <PropertyName>Compliance</PropertyName>
+                <Label>Recommended Actions</Label>
+                <PropertyName>recommendedActions</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>

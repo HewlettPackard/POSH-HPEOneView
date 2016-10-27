@@ -9,9 +9,9 @@
 # - Configure 2 FC connections to the Production Fabric A and B            
 # - Set requested bandwidth
 #
-#   VERSION 1.0
+#   VERSION 3.0
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,10 +33,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+if (-not (get-module HPOneview.300)) 
+{
 
-# First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+    Import-Module HPOneView.300
+
+}
+
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
+
+}
 
 # Now view what enclosures have been imported
 Write-Host "Here is the list of enclosures managed by this appliance"
@@ -45,27 +58,18 @@ Get-HPOVEnclosure
 # Now list all the servers that have been imported with their current state
 $servers = Get-HPOVServer
 Write-Host "There are" $servers.Count "servers managed by this appliance."
-$servers | Sort-Object name | format-table -Property name, powerState, state, serverProfileUri -AutoSize
+$servers
 
 # Make sure all the servers are powered off
 ForEach ($server in $servers) {
     if ($server.powerState -ne "Off") {
         Write-Host "Server" $server.name "is" $server.powerState ".  Powering it off..."
-        Set-HPOVServerPower -serverUri $server.uri -powerState "Off"
+        $Server | Stop-HPOVServer -Confirm:$false
     }
 }
 
 # Now create a server profile for the first available server
-ForEach ($server in $servers) {
-    if (($server.state -eq "NoProfileApplied") -and ($server.powerState -eq "Off")) { 
-        break; 
-    }
-}
-
-if ($server.state -ne "NoProfileApplied") {
-    Write-Host "No suitable server found."
-    return;
-}
+$Server = Get-HPOVServer -NoProfile | Select -First 1
 
 $profileName = "Profile-" + $server.serialNumber
 Write-Host "Creating" $profileName "for server" $server.name
@@ -89,9 +93,9 @@ $conSet1 = New-HPOVProfileConnection -id 7 -type Ethernet -requestedBW 3000 -net
 $conSet2 = New-HPOVProfileConnection -id 8 -type Ethernet -requestedBW 3000 -network $netSetProd
 
 $conList = @($conRed1, $conRed2, $conBlack1, $conBlack2, $conSet1, $conSet2, $conFC1, $conFC2)
-$task = New-HPOVProfile -name $profileName -server $server -connections $conList
+$task = New-HPOVProfile -name $profileName -server $server -connections $conList -Async
 Write-Host $task.name $task.taskStatus
-$task = Wait-HPOVTaskComplete -taskUri $task.uri
+$task = $task | Wait-HPOVTaskComplete
 
 
 # Change Connection ID 5 and 6 to "green" in the profile we just created
@@ -101,7 +105,7 @@ Write-Host "Adding network to" $profile.name
 #Validate the Server Power is off prior to modifying Connections (Requirement for 1.00 and 1.01)
 if ($server.powerState -ne "Off") {
     Write-Host "Server" $server.name "is" $server.powerState ".  Powering it off..."
-    Set-HPOVServerPower -serverUri $server.uri -powerState "Off"
+    $Server | Stop-HPOVServer -Confirm:$false
 }
 
 $netGreen = Get-HPOVNetwork "green"
@@ -149,17 +153,17 @@ $profile = Send-HPOVRequest $task.associatedResource.resourceUri
 
 # Now update the firmware of the profile.  
 # List available SPP's on the appliance
-Get-HPOVSppFile | sort-object baselineShortName | format-table -property name,baselineShortName,version -autosize
+Get-HPOVBaseline
 
 $sppFileName = Read-Host "Which SPP file do you want to select ('SPP*.iso'), or <Enter> to skip firmware"
 if ($sppFileName) {
-    $fw = Get-HPOVSppFile $sppFileName
+    $fw = Get-HPOVBaseline -FileName $sppFileName
     # Now select the firmware SPP in the server profile
     if ($serverType.firmwareUpdateSupported) {
         $profile.firmwareSettings.manageFirmware = $true
         $profile.firmwareSettings.firmwareBaselineUri = $fw.uri
         $task = Set-HPOVResource $profile
-        $task = Wait-HPOVTaskComplete -taskUri $task.uri -timeout (New-TimeSpan -Minutes 30)
+        $task = Wait-HPOVTaskComplete -Task $task -timeout (New-TimeSpan -Minutes 30)
 
     } else {
         Write-Host "Firmware update not supported for" $serverType.model

@@ -1,9 +1,9 @@
 ﻿##############################################################################
 # ApplianceConfig_Sample.ps1
-# - Example scripts for configuring the HP OneView appliance (networking, NTP, 
+# - Example scripts for configuring an HPE OneView appliance (networking, NTP, 
 #   etc.).
 #
-#   VERSION 2.3
+#   VERSION 3.0
 #
 # (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -32,52 +32,75 @@ THE SOFTWARE.
 param
 (
 
-    [Parameter(Position = 0, Mandatory, HelpMessage = "Please provide the Appliances DHCP Address.")]
+    [Parameter (Mandatory, HelpMessage = "Please provide the Appliances DHCP Address.")]
     [ValidateNotNullorEmpty()]
-	[string]$vm_ipaddr,
+	[IPAddress]$vm_ipaddr,
 
-	[Parameter(Position = 1, Mandatory, HelpMessage = "Please provide the Appliances NEW Hostname or FQDN.")]
-	[String]$Hostname = "hpov.domain.local",
+	[Parameter (Mandatory, HelpMessage = "Please provide the Appliances NEW Hostname or FQDN.")]
+	[String]$Hostname,
 
-	[Parameter(Position = 2, Mandatory, HelpMessage = "Provide a [SecureString] object representing the new appliance Administrator password.")]
+	[Parameter (Mandatory, HelpMessage = "Provide a [SecureString] pr [String] object representing the new appliance Administrator password.")]
 	[ValidateNotNullorEmpty()]
-	[SecureString]$NewPassword,
+	[Object]$NewPassword,
 
-	[Parameter(Position = 3, Mandatory, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+	[Parameter (Mandatory, HelpMessage = "Please provide the Appliances NEW Static IPv4 Address.")]
     [ValidateNotNullorEmpty()]
-	[String]$IPv4Address,
+	[IPAddress]$IPv4Address,
 
-	[Parameter(Position = 4, Mandatory, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+	[Parameter (Mandatory, HelpMessage = "Please provide the Appliances NEW IPv4 Subnet.")]
     [ValidateNotNullorEmpty()]
 	[String]$IPv4SubnetMask,
 
-	[Parameter(Position = 5, Mandatory, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+	[Parameter (Mandatory, HelpMessage = "Please provide the Appliances NEW IPv4 Default Gateway.")]
     [ValidateNotNullorEmpty()]
-	[String]$IPv4Gateway,
+	[IPAddress]$IPv4Gateway,
 
-	[Parameter(Position = 6, Mandatory, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+	[Parameter (Mandatory, HelpMessage = "Please provide the Appliances NEW IPv4 DNS Servers.")]
     [ValidateNotNullorEmpty()]
 	[Array]$IPv4DnsServers,
 
-	[Parameter(Position = 6, Mandatory = $False, HelpMessage = "Please provide the Appliances NEW Static IP Address.")]
+	[Parameter (Mandatory, HelpMessage = "Please provide the Appliances NEW DNS Domain Name.")]
     [ValidateNotNullorEmpty()]
-	[Array]$IPv4NtpServer
+	[String]$DnsDomainName,
+
+	[Parameter (Mandatory = $false, HelpMessage = "Please provide the Appliances NEW IPv4 NTP Servers.")]
+    [ValidateNotNullorEmpty()]
+	[Array]$IPv4NtpServers,
+
+    [Parameter (Mandatory = $False, HelpMessage = "Please provide the Appliances NEW IPv6 Static Address.")]
+    [ValidateNotNullorEmpty()]
+    [IPAddress]$IPv6Address,
+
+    [Parameter (Mandatory = $False, HelpMessage = "Please provide the Appliances NEW IPv6 Static Address CIDR Subnet Mask.")]
+    [ValidateNotNullorEmpty()]
+    [Int]$IPv6CidrMask
 
 )
 
-if (-not (get-module HPOneview.200)) 
+if (-not (get-module HPOneview.300)) 
 {
 
-    Import-Module HPOneView.200
+    Import-Module POneView.300
 
 }
 
 #region 
 
+	Write-Host 'Waiting for appliance to respond to network test.' -NoNewline
+
+	While (-not (Test-Connection -ComputerName $vm_ipaddr.IPAddressToString -Quiet))
+	{
+
+		Write-Host '.' -NoNewline
+
+	}
+
+	Write-Host ""
+
 	#Core Appliance Setup
 
     # Accept the EULA
-    if (Get-HPOVEulaStatus -Appliance $vm_ipaddr) 
+    if (-not (Get-HPOVEulaStatus -Appliance $vm_ipaddr.IPAddressToString).Accepted ) 
 	{
 
         Write-Host "Accepting EULA..."
@@ -85,13 +108,12 @@ if (-not (get-module HPOneview.200))
 		Try
 		{
 
-			$ret = Set-HPOVEulaStatus -SupportAccess "yes" -Appliance $vm_ipaddr
+			$ret = Set-HPOVEulaStatus -SupportAccess "yes" -Appliance $vm_ipaddr.IPAddressToString
 
 		}
 
 		Catch
 		{
-
 
 			$PSCMdlet.ThrowTerminatingError($_)
 		}
@@ -102,7 +124,7 @@ if (-not (get-module HPOneview.200))
     Try 
 	{ 
 		
-		Connect-HPOVMgmt -appliance $vm_ipaddr -user "Administrator" -password "admin"
+		Connect-HPOVMgmt -appliance $vm_ipaddr.IPAddressToString -user "Administrator" -password "admin"
 	
 	}
 
@@ -114,7 +136,7 @@ if (-not (get-module HPOneview.200))
 		Try
 		{
 
-			Set-HPOVInitialPassword -UserName "Administrator" -OldPassword "admin" -NewPassword "hpinvent" -Appliance $vm_ipaddr
+			Set-HPOVInitialPassword -OldPassword "admin" -NewPassword $NewPassword -Appliance $vm_ipaddr.IPAddressToString
 
 		}
 
@@ -124,7 +146,6 @@ if (-not (get-module HPOneview.200))
 			$PSCMdlet.ThrowTerminatingError($_)
 
 		}
-
     
     }
 
@@ -140,7 +161,7 @@ if (-not (get-module HPOneview.200))
 	Try
 	{
 
-		Connect-HPOVMgmt -appliance $vm_ipaddr -user Administrator -password "hpinvent"
+		$ApplianceConnection = Connect-HPOVMgmt -appliance $vm_ipaddr.IPAddressToString -user Administrator -password $NewPassword
 
 	}
     
@@ -155,26 +176,28 @@ if (-not (get-module HPOneview.200))
 
     $params = @{
 
-        hostname        = $Hostname;
-        ipv4Type        = "STATIC";
-        ipv4Addr        = $IPv4Address;
-        ipv4Subnet      = $IPv4SubnetMask;
-        ipv4Gateway     = $IPv4Gateway;
-        ipv6Type        = "UNCONFIGURE";
-        ipv6Addr        = "";
-        ipv6Subnet      = "";
-        ipv6Gateway     = "";
-        domainName      = "domain.local";
-        searchDomains   = "domain.local";
-        ipV4nameServers = $IPv4DnsServers;
-        ipV6nameServers = @()
+        Hostname        = $Hostname;
+        IPv4Addr        = $IPv4Address.IPAddressToString;
+        IPv4Subnet      = $IPv4SubnetMask;
+        IPv4Gateway     = $IPv4Gateway.IPAddressToString;
+        DomainName      = $DnsDomainName;
+        IPv4NameServers = $IPv4DnsServers
+
+    }
+
+	if ($IPv6Address)
+    {
+
+		$params.Add('IPv6Type','STATIC')
+        $params.Add('IPv6Addr', $IPv6Address)
+		$params.Add('IPv6Subnet', $IPv6CidrMask)
 
     }
 
 	Try
 	{
 
-		$task = Set-HPOVApplianceNetworkConfig @params -ApplianceConnection $vm_ipaddr | Wait-HPOVTaskComplete
+		$task = Set-HPOVApplianceNetworkConfig @params
 
 	}
     
@@ -191,7 +214,7 @@ if (-not (get-module HPOneview.200))
 		Try
 		{
 
-			$ApplianceConnection = Connect-HPOVMgmt -appliance $Hostname -user Administrator -password "hpinvent" 
+			$ApplianceConnection = Connect-HPOVMgmt -appliance $Hostname -user Administrator -password $NewPassword
 
 		}	
 		
@@ -204,25 +227,22 @@ if (-not (get-module HPOneview.200))
 	
 	}
 
-	if ($PSBoundParameters['IPv4NtpServer'])
+	try
 	{
 
-		Try
-		{
+		Write-Host 'Setting Appliance NTP Servers'
 
-			Set-HPOVApplianceDateTime -NTPServers $IPv4NtpServer -ApplianceConnection $Hostname | Wait-HPOVTaskComplete
-
-		}
-    
-		Catch
-		{
-
-			$PSCMdlet.ThrowTerminatingError($_)
-
-		}
+        $Results = Set-HPOVApplianceDateTime -NtpServers $IPv4NtpServers
 
 	}
-	
+
+	catch
+	{
+
+		$PSCmdlet.ThrowTerminatingError($_)
+
+	}
+
     Write-Host "Completed appliance networking configuration"
 
     $template = "WebServer" # must always use concatenated name format
@@ -262,7 +282,7 @@ if (-not (get-module HPOneview.200))
 
 	}
 
-    $baseName = $Hostname
+    $baseName    = $Hostname
     $csrFileName = "$Hostname.csr"
     $cerFileName = "$Hostname.cer"
 
@@ -270,9 +290,9 @@ if (-not (get-module HPOneview.200))
 
     $csr = Get-ChildItem $csrdir | ? name -eq $csrFileName
 
-    $parameters = "-config $CA -submit -attrib CertificateTemplate:$template $csrdir\$baseName.csr $csrdir\$baseName.cer $csrdir\$basename.p7b"
+    $parameters = "-config {0} -submit -attrib CertificateTemplate:{1} {2}\{3}.csr {2}\{3}.cer {2}\{3}.p7b" -f $CA, $template, $csrdir, $baseName 
 
-    $request = [System.Diagnostics.Process]::Start( "certreq",$parameters )
+    $request = [System.Diagnostics.Process]::Start("certreq", $parameters)
     
     $request.WaitForExit()
 
@@ -284,19 +304,24 @@ if (-not (get-module HPOneview.200))
 
     $AuthParams = @{
 
-        UserName = "UserAdmin@domain.local"
-        password = convertto-securestring -asplaintext "HP1nvent" -force
+        UserName = "ftoomey@domain.local"
+        Password = convertto-securestring -asplaintext "HPinv3nt" -force
 
     }
 
 	Try
 	{
 
-		New-HPOVLdapDirectory -name Domain1 -AD -rootdn 'dc=domain,dc=local' -SearchContext 'OU=Admins,OU=Corp' -servers $dc1,$dc2 @AuthParams
-		New-HPOVLdapGroup -d Domain1 -GroupName "CI Manager Full Admins"    -Roles "Infrastructure administrator" @AuthParams
-		New-HPOVLdapGroup -d Domain1 -GroupName "CI Manager Network Admins" -Roles "Network administrator"  @AuthParams
-		New-HPOVLdapGroup -d Domain1 -GroupName "CI Manager Server Admins"  -Roles "Server administrator"  @AuthParams
-		New-HPOVLdapGroup -d Domain1 -GroupName "CI Manager Storage Admins" -Roles "Storage administrator"  @AuthParams
+		$LdapAuthDirectory = New-HPOVLdapDirectory -Name 'domain.local' -AD -BaseDN 'dc=domain,dc=local' -servers $dc1,$dc2 @AuthParams
+		$LdapGroups = $LdapAuthDirectory | Show-HPOVLdapGroups @AuthParams
+		$InfrastructureAdminGroup = $LdapGroups | ? Name -match 'CI Manager Full'
+		$ServerAdminGroup = $LdapGroups | ? Name -match 'CI Manager Server'
+		$StorageAdminGroup = $LdapGroups | ? Name -match 'CI Manager Storage'
+		$NetworkAdminGroup = $LdapGroups | ? Name -match 'CI Manager Network'
+		New-HPOVLdapGroup -d $LdapAuthDirectory -GroupName $InfrastructureAdminGroup -Roles "Infrastructure administrator" @AuthParams
+		New-HPOVLdapGroup -d $LdapAuthDirectory -GroupName $NetworkAdminGroup -Roles "Network administrator"  @AuthParams
+		New-HPOVLdapGroup -d $LdapAuthDirectory -GroupName $ServerAdminGroup  -Roles "Server administrator"  @AuthParams
+		New-HPOVLdapGroup -d $LdapAuthDirectory -GroupName $StorageAdminGroup -Roles "Storage administrator"  @AuthParams
 
 	}
     
@@ -311,7 +336,7 @@ if (-not (get-module HPOneview.200))
 	{
 
 		#Upload custom SPP Baseline
-	    Add-HPOVBaseline \\FileServer\shared\HP_Firmware\spp_2015.04.1-Custom.iso
+	    gci \\Server\SPP\bp-Default-Baseline-0-1.iso | Add-HPOVBaseline
 
 	}
 
@@ -326,7 +351,7 @@ if (-not (get-module HPOneview.200))
 	{
 
 		write-host "Adding OneView license."
-		New-HPOVLicense 'ARTC A9MA H9PA 8HW3 V7V5 HWWB Y9JL KMPL 8Q2E 4CB9 DXAU 2CSM GHTG L762 6BF6 HFN9 KJVT D5KM EFVW DT5J LHTZ PXKC AK2P 3EW2 QKQU HURN TZZ7 9B5X 82Z5 WHEF GE4C LUE3 BKT8 WXDG NK6Y C4GA HZL4 XBE7 3VJ6 2MSU 4ZU9 9WGG CZU7 WE4X YN44 CH55 KZLG 2F4N A8RJ UKEC 3F9V JQY5 "423450022 HPOV-NFR1 HP_OneView_16_Seat_NFR HEUAJUUYTTG3"_3M9BK-DPHH2-LSGC5-NSRB3-7T3H2' -ApplianceConnection $ApplianceConnection
+		New-HPOVLicense -License '9CDC D9MA H9P9 KHVY V7B5 HWWB Y9JL KMPL FE2H 5BP4 DXAU 2CSM GHTG L762 EG4Z X3VJ KJVT D5KM EFVW DW5J G4QM M6SW 9K2P 3E82 AJYM LURN TZZP AB6X 82Z5 WHEF D9ED 3RUX BJS2 XFXC T84U R42A 58S5 XA2D WXAP GMTQ 4YLB MM2S CZU7 2E4X E8EW BGB5 BWPD CAAR YT9J 4NUG 2NJN J9UF "424710048 HPOV-NFR1 HP_OneView_16_Seat_NFR 64HTAYJH92EY"_3KB73-R2JV9-V9HS6-LYGTN-6RLYW'
 
 	}
 
@@ -339,7 +364,7 @@ if (-not (get-module HPOneview.200))
     
 	# Create the new users
     New-HPOVUser Nat   -fullName "Nat Network Admin"  -password hpinvent -roles "Network administrator"
-    New-HPOVUser Sarah -fullName "Sarah Server Admin" -password hpinvent -roles "Server administrator"
+    New-HPOVUser Sally -fullName "Sally Server Admin" -password hpinvent -roles "Server administrator"
     New-HPOVUser Sandy -fullName "Sandy SAN Admin"    -password hpinvent -roles "Storage administrator"
     New-HPOVUser Rheid -fullName "Rheid Read-Only"	  -password hpinvent -roles "Read only"
     New-HPOVUser Bob   -fullName "Bob Backup"	      -password hpinvent -roles "Backup administrator"
@@ -353,15 +378,16 @@ if (-not (get-module HPOneview.200))
 
     $params = @{
 
-        hostname  = "bna.domain.local";
-        type = "BNA";
-        username = "Administrator";
-    	password = "password";
-        UseSsl = $True
+        hostname  = "172.18.15.1";
+        type      = "BNA";
+        username  = "administrator";
+    	password  = "password";
+        UseSsl    = $True
 
     }
     
     write-host "Importing BNA SAN Manager"
+
 	Try
 	{
 
@@ -382,31 +408,40 @@ if (-not (get-module HPOneview.200))
 	Try
 	{
 
-		New-HPOVNetwork -name "VLAN 1-A" -type "Ethernet" -vlanId 1 -smartlink $true -purpose Management
-		New-HPOVNetwork -name "VLAN 1-B" -type "Ethernet" -vlanId 1 -smartlink $true -purpose Management
-		# VMMigration Network
-		New-HPOVNetwork -name "VMMigration Network" -type "Ethernet" -vlanId 10 -smartlink $true -purpose VMMigration
+		New-HPOVNetwork -Name "VLAN 1-A" -type "Ethernet" -vlanId 1 -smartlink $true -purpose Management
+		New-HPOVNetwork -Name "VLAN 1-B" -type "Ethernet" -vlanId 1 -smartlink $true -purpose Management
+		
+        # Internal Networks
+		New-HPOVNetwork -Name "Live Migration" -type "Ethernet" -vlanId 100 -smartlink $true -purpose VMMigration
+        New-HPOVNetwork -Name "Heartbeat" -type "Ethernet" -vlanId 101 -smartlink $true -purpose Management
+        New-HPOVNetwork -Name "iSCSI Network" -type "Ethernet" -vlanId 3000 -smartlink $true -purpose ISCSI
     
 		# VM Networks
-		20,30,40,50,101,102,103,104,105 | % { New-HPOVNetwork -name "VLAN $_-A" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
-		20,30,40,50,101,102,103,104,105 | % { New-HPOVNetwork -name "VLAN $_-B" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
+		10,20,30,40,50 | % { New-HPOVNetwork -Name "VLAN $_-A" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
+		10,20,30,40,50 | % { New-HPOVNetwork -Name "VLAN $_-B" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
+		101,102,103,104,105 | % { New-HPOVNetwork -Name "Dev VLAN $_-A" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
+		101,102,103,104,105 | % { New-HPOVNetwork -Name "Dev VLAN $_-B" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
+
+        #Misc networks
+        New-HPOVNetwork -Name "My Vlan 501" -type "Ethernet" -vlanId 3000 -smartlink $true -purpose General
     
-		$ProdNetsA = 20,30,40,50 | % { Get-HPOVNetwork "PROD VLAN $_-A" }
-		$ProdNetsB = 20,30,40,50 | % { Get-HPOVNetwork "PROD VLAN $_-B" }
-		$DevNetsA  = 101,102,103,104,105 | % { Get-HPOVNetwork "DEV VLAN $_-A" }
-		$DevNetsB  = 101,102,103,104,105 | % { Get-HPOVNetwork "DEV VLAN $_-B" }
+		$ProdNetsA = Get-HPOVNetwork -Name "VLAN *0-A"
+		$ProdNetsB = Get-HPOVNetwork -Name "VLAN *0-B"
+		$DevNetsA  = Get-HPOVNetwork -Name "Dev VLAN *-A" 
+		$DevNetsB  = Get-HPOVNetwork -Name "Dev VLAN *-B"
+        $InternalNetworks = 'Live Migration','Heartbeat' | % { Get-HPOVNetwork -Name $_ }
     
 		# Create the network sets
-		New-HPOVNetworkSet -name "Production Networks A" -networks $ProdNetsA -untaggedNetwork $ProdNetsA[0] -typicalBandwidth 2500 -maximumBandwidth 10000 -ApplianceConnection $ApplianceConnection
-		New-HPOVNetworkSet -name "Production Networks B" -networks $ProdNetsB -untaggedNetwork $ProdNetsB[0] -typicalBandwidth 2500 -maximumBandwidth 10000 -ApplianceConnection $ApplianceConnection
-		New-HPOVNetworkSet -name "Dev Networks A"       -networks $DevNetsA  -untaggedNetwork $DevNetsA[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 -ApplianceConnection $ApplianceConnection
-		New-HPOVNetworkSet -name "Dev Networks B"       -networks $DevNetsB  -untaggedNetwork $DevNetsB[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 -ApplianceConnection $ApplianceConnection
+		New-HPOVNetworkSet -Name "Prod NetSet1 A" -networks $ProdNetsA -untaggedNetwork $ProdNetsA[0] -typicalBandwidth 2500 -maximumBandwidth 10000 
+		New-HPOVNetworkSet -Name "Prod NetSet1 B" -networks $ProdNetsB -untaggedNetwork $ProdNetsB[0] -typicalBandwidth 2500 -maximumBandwidth 10000 
+		New-HPOVNetworkSet -Name "Dev Networks A" -networks $DevNetsA  -untaggedNetwork $DevNetsA[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 
+		New-HPOVNetworkSet -Name "Dev Networks B" -networks $DevNetsB  -untaggedNetwork $DevNetsB[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 
     
 		# Create the FC networks:
-		New-HPOVNetwork -name "3PAR SAN Fabric A" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -managedSan "Fabric_A"
-		New-HPOVNetwork -name "3PAR SAN Fabric B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -managedSan "Fabric_B"
-		New-HPOVNetwork -name "3PAR SAN DA A"     -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
-		New-HPOVNetwork -name "3PAR SAN DA B"     -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
+		New-HPOVNetwork -Name "Fabric A" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -managedSan "SAN1_0"
+		New-HPOVNetwork -Name "Fabric B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -managedSan "SAN1_1"
+		New-HPOVNetwork -Name "DirectAttach A" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
+		New-HPOVNetwork -Name "DirectAttach B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
 
 	}
     
@@ -420,33 +455,30 @@ if (-not (get-module HPOneview.200))
 	Try
 	{
 
-		$LigName = "VC FF Virt Prod"
+		$LigName = "Default VC FF LIG"
+		$Bays = @{ 1 = 'Flex2040f8'; 2 = 'Flex2040f8'}
 
-		$Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
-		$Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-		$SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.150/22' -TrapDestinations $Dest1,$Dest2
+		$SnmpDest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
+		$SnmpDest2 = New-HPOVSnmpTrapDestination -Destination 10.44.120.9 -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning -VCMTrapCategories legacy -EnetTrapCategories Other,PortStatus,PortThresholds -FCTrapCategories Other,PortStatus
+		$SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22' -TrapDestinations $SnmpDest1,$SnmpDest2
 
-		$CreatedLig = New-HPOVLogicalInterconnectGroup -Name $LigName -bays @{1 = "FlexFabric";2 = "FlexFabric"} -EnableIgmpSnooping $True -InternalNetworks 'VMMigration Network' -SNMP $SnmpConfig | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-
-		# Create an active/active network config
-		$aNetworks = Get-HPOVNetwork *-A
-		$bNetworks = Get-HPOVNetwork *-B
+		$CreatedLig = New-HPOVLogicalInterconnectGroup -Name $LigName -Bays $Bays -Snmp $SnmpConfig -EnableIgmpSnooping $True -InternalNetworks $InternalNetworks | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
 		# Get FC Network Objects
-		$FabricA   = Get-HPOVNetwork -name "3PAR SAN Fabric A"
-		$FabricB   = Get-HPOVNetwork -name "3PAR SAN Fabric B"
-		$DAFabricA = Get-HPOVNetwork -name "3PAR SAN DA A"    
-		$DAFabricB = Get-HPOVNetwork -name "3PAR SAN DA B"    
+		$FabricA   = Get-HPOVNetwork -Name "Fabric A"
+		$FabricB   = Get-HPOVNetwork -Name "Fabric B"
+		$DAFabricA = Get-HPOVNetwork -Name "DirectAttach A"    
+		$DAFabricB = Get-HPOVNetwork -Name "DirectAttach B"    
 
 		# Create Ethernet Uplink Sets
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1 A" -Type "Ethernet" -Networks $aNetworks -nativeEthNetwork "VLAN 1-A" -UplinkPorts "BAY1:X5","BAY1:X6" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1 B" -Type "Ethernet" -Networks $bNetworks -nativeEthNetwork "VLAN 1-B" -UplinkPorts "BAY2:X5","BAY2:X6" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1" -Type "Ethernet" -Networks $ProdNetsA -nativeEthNetwork $ProdNetsA[0] -UplinkPorts "BAY1:X1","BAY1:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 2" -Type "Ethernet" -Networks $ProdNetsB -nativeEthNetwork $ProdNetsB[0] -UplinkPorts "BAY2:X1","BAY2:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
     
 		# FC Uplink Sets
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN DA A"     -Type "FibreChannel" -Networks $DAFabricA -UplinkPorts "BAY1:X1" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "3PAR SAN DA B"     -Type "FibreChannel" -Networks $DAFabricB -UplinkPorts "BAY2:X1" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "DA Fabric A" -Type "FibreChannel" -Networks $DAFabricA -UplinkPorts "BAY1:X3",'BAY1:X4' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "DA Fabric B" -Type "FibreChannel" -Networks $DAFabricB -UplinkPorts "BAY2:X3",'BAY2:X4' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
 	}
 
@@ -464,15 +496,37 @@ if (-not (get-module HPOneview.200))
 
 		$EGParams = @{
 
-			Name                     = "Prod Enclosure Group 1"
+			Name                     = "Default EG 1"
 			LogicalInterConnectGroup = $CreatedLig
-			ConfigurationScript      = '#Configure Insight Remote Support CentralConnect
-ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
-			ApplianceConnection      = $ApplianceConnection
-
+			ConfigurationScript      = 'ADD USER "admin" "Supersecretpassword"
+SET USER CONTACT "admin" ""
+SET USER FULLNAME "admin" ""
+SET USER ACCESS "admin" ADMINISTRATOR
+ASSIGN SERVER 1-16 "admin"
+ASSIGN INTERCONNECT 1-8 "admin"
+ASSIGN OA "admin"
+ENABLE USER "admin"
+hponcfg all >> end_marker
+<RIBCL VERSION="2.0">
+   <LOGIN USER_LOGIN="admin" PASSWORD="passthrough">
+      <USER_INFO MODE="write">
+         <ADD_USER
+           USER_NAME="admin"
+           USER_LOGIN="admin"
+           PASSWORD="Supersecretpassword">
+            <ADMIN_PRIV value ="N"/>
+            <REMOTE_CONS_PRIV value ="Y"/>
+            <RESET_SERVER_PRIV value ="N"/>
+            <VIRTUAL_MEDIA_PRIV value ="N"/>            
+            <CONFIG_ILO_PRIV value="Yes"/>
+         </ADD_USER>
+      </USER_INFO>
+   </LOGIN>
+</RIBCL>
+end_marker'
 		}
 
-		$eg = New-HPOVEnclosureGroup @EGParams
+		$EnclosureGroup = New-HPOVEnclosureGroup @EGParams
 
 	}
 
@@ -483,41 +537,27 @@ ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
 
 	}
     
-    Write-host "Sleeping 90sec"
-    start-sleep -Seconds 90
+    Write-host "Sleeping 30 seconds"
+    start-sleep -Seconds 30
 
     $params = @{
     
         username  = "3paradm";
         password  = "3pardata";
-        hostname  = "3par-array.domain.local";
-        domain    = "NODOMAIN"
-        Ports = @{
-        
-            "0:1:1" = "3PAR SAN DA A"; 
-            "0:1:2" = "3PAR SAN Fabric A"; 
-            "1:1:1" = "3PAR SAN Fabric B"; 
-            "1:1:2" = "3PAR SAN DA B"
-        
-        };
-		PortGroups = @{
-
-			"0:1:1" = "PG_1"; 
-            "0:1:2" = "PG_2"; 
-            "1:1:1" = "PG_1"; 
-            "1:1:2" = "PG_2"
-
-		}
+        hostname  = "172.18.11.11";
+        domain    = "NO DOMAIN"
     
     }
     
-    Write-Host "Importing POD storage array: $($params.hostname)"
+    Write-Host "Importing storage array: $($params.hostname)"
 	Try
 	{
 
-		Add-HPOVStorageSystem @params | Wait-HPOVTaskComplete
+		$Results = Add-HPOVStorageSystem @params | Wait-HPOVTaskComplete
 
-		Add-HPOVStoragePool HP-P7400-1 -poolName R1_FC_CPG | Wait-HPOVTaskComplete
+        $Results = Get-HPOVStorageSystem | Add-HPOVStoragePool -Pool 'FST_CPG1','FST_CPG2' | Wait-HPOVTaskComplete
+
+		$StorageVolume = Get-HPOVStoragePool -Pool 'FST_CPG1' | New-HPOVStorageVolume -Name 'DO NOT DELETE' -Capacity 1
 
 	}
 
@@ -528,207 +568,32 @@ ENABLE REMOTE_SUPPORT IRS 80.80.1.14 7906'
 
 	}
 
-	#Create a base Server Hardware Type    
-	Try
-	{
+    #Add Encl1
+    Try
+    {
 
-		$sht = '{
-    "type":  "server-hardware-type-3",
-    "category":  "server-hardware-types",
-    "name":  "BL460c Gen8 1",
-    "description":  null,
-    "model":  "ProLiant BL460c Gen8",
-    "formFactor":  "HalfHeight",
-    "pxeBootPolicies":  [
-                            "IPv4"
-                        ],
-    "bootModes":  [
-                      "BIOS"
-                  ],
-    "storageCapabilities":  [
-                                "RAID0",
-                                "RAID1"
-                            ],
-    "adapters":  [
-                     {
-                         "model":  "HP FlexFabric 10Gb 2-port 554FLB Adapter",
-                         "oaSlotNumber":  9,
-                         "ports":  [
-                                       {
-                                           "mapping":  1,
-                                           "maxSpeedMbps":  10000,
-                                           "physicalFunctionCount":  4,
-                                           "type":  "Ethernet",
-                                           "number":  1
-                                       },
-                                       {
-                                           "mapping":  2,
-                                           "maxSpeedMbps":  10000,
-                                           "physicalFunctionCount":  4,
-                                           "type":  "Ethernet",
-                                           "number":  2
-                                       }
-                                   ],
-                         "capabilities":  [
-                                              "PXE",
-                                              "Ethernet",
-                                              "FibreChannel"
-                                          ],
-                         "location":  "Flb",
-                         "slot":  1
-                     }
-                 ],
-    "bootCapabilities":  [
-                             "CD",
-                             "Floppy",
-                             "USB",
-                             "HardDisk",
-                             "FibreChannelHba",
-                             "PXE"
-                         ],
-    "capabilities":  [
-                         "ManageBIOS",
-                         "VirtualUUID",
-                         "ManageLocalStorage",
-                         "VirtualWWN",
-                         "ManageBootOrder",
-                         "VCConnections",
-                         "VirtualMAC",
-                         "FirmwareUpdate"
-                     ]
-}'
+        $EnclosureAddParams = @{
 
-		Send-HPOVRequest /rest/server-hardware-types POST ($sht | ConvertFrom-Json)
+            Hostname       = '172.18.1.11';
+            Username       = 'administrator';
+            Password       = 'password';
+            EnclosureGroup = $EnclosureGroup
 
-	}
+        }
 
-	Catch
-	{
+		$Results = Add-HPOVEnclosure @EnclosureAddParams
 
-		$PSCMdlet.ThrowTerminatingError($_)
+    }
 
-	}
-    
-	Write-Host "Creating vSphere Server Profile Template"
+    Catch
+    {
 
-	Try
-	{
+        $PSCMdlet.ThrowTerminatingError($_)
 
-		New-HPOVStorageVolume -volumeName "VMware Hypervisor Cluster Shared Disk 1" -StorageSystem "HP-P7400-1" -StoragePool R1_FC_CPG -capacity 500 -shared | Wait-HPOVTaskComplete
-
-		#Create Server Profiles
-		$con1 = New-HPOVProfileConnection -id 1 -type Ethernet -requestedBW 1000 -network "VLAN 1-A" -bootable -priority Primary
-		$con2 = New-HPOVProfileConnection -id 2 -type Ethernet -requestedBW 1000 -network "VLAN 1-B" -bootable -priority Secondary
-
-		$conFC1 = New-HPOVProfileConnection -id 3 -type FibreChannel -requestedBW 4000 -network "3PAR SAN Fabric A"
-		$conFC2 = New-HPOVProfileConnection -id 4 -type FibreChannel -requestedBW 4000 -network "3PAR SAN Fabric B"
-
-		$con5 = New-HPOVProfileConnection -id 5 -type Ethernet -requestedBW 2000 -network "VLAN 10-A"
-		$con6 = New-HPOVProfileConnection -id 6 -type Ethernet -requestedBW 2000 -network "VLAN 10-A"
-
-		$con7 = New-HPOVProfileConnection -id 7 -type Ethernet -requestedBW 3000 -network "Production Networks A"
-		$con8 = New-HPOVProfileConnection -id 8 -type Ethernet -requestedBW 3000 -network "Production Networks B"
-
-		#Attach Volumes
-		$VMwareSharedVolume = Get-HPOVStorageVolume "VMware Hypervisor Cluster Shared VMFS 1" | New-HPOVProfileAttachVolume -volumeid 1
-
-		#Set Local Storage Policy
-		$LogicalDisk = New-HPOVServerProfileLogicalDisk 'MyDisk' -Bootable
-
-		#Submit profile to the appliance
-		$params = @{
-
-			name               = "vSphere Compute Node Template"
-			description        = "vSphere Compute Node"
-			serverHardwareType = "BL460c Gen8 1" 
-			enclosureGroup     = $eg
-			connections        = $con1, $con2, $conFC1, $conFC2, $con5, $con6, $con7, $con8
-			localStorage       = $true
-			initialize         = $true
-			LogicalDisk        = $LogicalDisk
-			SANStorage         = $True
-			HostOStype         = "VMware"
-			StorageVolume      = $VMwareSharedVolume 
-			hideUnusedFlexNics = $True
-			manageBoot         = $True
-			bootOrder          = ’PXE’,‘CD’,’Floppy’,’USB’,’HardDisk’
-			bios               = $True		
-			biosSettings       = @(@{id=210;value=3},@{id=140;value=3},@{id=208;value=2},@{id=204;value=4},@{id=247;value=3},@{id=308;value=3},@{id=293;value=1})
-
-		}
-
-		New-HPOVServerProfileTemplate @Params | Wait-HPOVTaskComplete
-
-	}
-
-	Catch
-	{
-
-		$PSCMdlet.ThrowTerminatingError($_)
-
-	}
-    
-	Write-Host "Creating Windows Server 2012 R2 Hyper-V Server Profile Template"
-
-	Try
-	{
-
-		New-HPOVStorageVolume -volumeName "Hyper-V Hypervisor Cluster Shared Disk 1" -StorageSystem "HP-P7400-1" -StoragePool R1_FC_CPG -capacity 500 -shared | Wait-HPOVTaskComplete
-
-		#Create Server Profiles
-		$con1 = New-HPOVProfileConnection -id 1 -type Ethernet -requestedBW 1000 -network "VLAN 1-A" -bootable -priority Primary
-		$con2 = New-HPOVProfileConnection -id 2 -type Ethernet -requestedBW 1000 -network "VLAN 1-B" -bootable -priority Secondary
-
-		$conFC1 = New-HPOVProfileConnection -id 3 -type FibreChannel -requestedBW 4000 -network "3PAR SAN Fabric A"
-		$conFC2 = New-HPOVProfileConnection -id 4 -type FibreChannel -requestedBW 4000 -network "3PAR SAN Fabric B"
-
-		$con5 = New-HPOVProfileConnection -id 5 -type Ethernet -requestedBW 2000 -network "VLAN 10-A"
-		$con6 = New-HPOVProfileConnection -id 6 -type Ethernet -requestedBW 2000 -network "VLAN 10-A"
-
-		$con7 = New-HPOVProfileConnection -id 7 -type Ethernet -requestedBW 3000 -network "Production Networks A"
-		$con8 = New-HPOVProfileConnection -id 8 -type Ethernet -requestedBW 3000 -network "Production Networks B"
-
-		#Attach Volumes
-		$HyperVSharedVolume = Get-HPOVStorageVolume "Hyper-V Hypervisor Cluster Shared VMFS 1" | New-HPOVProfileAttachVolume -volumeid 1
-
-		#Set Local Storage Policy
-		$LogicalDisk = New-HPOVServerProfileLogicalDisk 'MyDisk' -Bootable
-
-		#Submit profile to the appliance
-		$params = @{
-
-			name               = "Hyper-V Compute Node Template"
-			description        = "Hyper-V Compute Node"
-			serverHardwareType = "BL460c Gen8 1" 
-			enclosureGroup     = $eg
-			connections        = $con1, $con2, $conFC1, $conFC2, $con5, $con6, $con7, $con8
-			localStorage       = $true
-			initialize         = $true
-			LogicalDisk        = $LogicalDisk
-			SANStorage         = $True
-			HostOStype         = "Win2k12"
-			StorageVolume      = $VMwareSharedVolume 
-			hideUnusedFlexNics = $True
-			manageBoot         = $True
-			bootOrder          = ’PXE’,‘CD’,’Floppy’,’USB’,’HardDisk’
-			bios               = $True		
-			biosSettings       = @(@{id=210;value=3},@{id=140;value=3},@{id=208;value=2},@{id=204;value=4},@{id=247;value=3},@{id=308;value=3},@{id=293;value=1})
-
-		}
-
-		New-HPOVServerProfileTemplate @Params | Wait-HPOVTaskComplete
-
-	}
-	
-	Catch
-	{
-
-		$PSCMdlet.ThrowTerminatingError($_)
-
-	}
+    }
 
     Disconnect-HPOVMgmt
 
-	Remove-Module HPOneView.200
+	Remove-Module HPOneView.300
 
 #endregion

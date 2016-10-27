@@ -2,7 +2,7 @@
 # Appliance_Backup_Sample.ps1
 # - Example script to automate appliance backup
 #
-#   VERSION 1.0
+#   VERSION 3.0
 #
 # (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
 ##############################################################################
@@ -59,7 +59,8 @@ Execute the backup of an appliance, specifying an alternate directory.
 #>
 
 [CmdletBinding()]
-Param (
+Param 
+(
         
 	[parameter(Mandatory = $false, Position = 0)]
 	[String]$Location = 'C:\HPOneView_Backup'
@@ -77,18 +78,26 @@ if (-not(Test-Path $Location))
 
 }
 
-import-module HPOneView.200
+if (-not (get-module HPOneview.300)) 
+{
 
-# First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) 
-{ 
+    Import-Module HPOneView.300
 
-    Connect-HPOVMgmt myappliance.domain.com backupadmin MyPassword
+}
+
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
 
 }
 
 #Execute the backup
-New-HPOVBackup $Location
+New-HPOVBackup -Location $Location
 
 "Backup Complete $(Get-Date)"
 

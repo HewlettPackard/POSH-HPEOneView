@@ -12,7 +12,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,10 +34,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+if (-not (get-module HPOneview.300)) 
+{
 
-# First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+    Import-Module HPOneView.300
+
+}
+
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
+
+}
 
 # Now view what enclosures have been imported
 Write-Host "Here is the list of enclosures managed by this appliance"
@@ -117,16 +130,15 @@ $powerProfile = $serverType.biosSettings | where { $_.name -match "HP Power Prof
 $maxPower = $powerProfile.options | where { $_.name -match "Maximum Performance" }
 
 #Save the setting
-$biosSettings.add(@{ id = $powerProfile.id ; value = $maxPower.id}) | out-null
+[Void]$biosSettings.add(@{ id = $powerProfile.id ; value = $maxPower.id})
 
 #Check to see if there are additional BIOS Options that should be modified.
 #NOTE: Setting the HP Power Profile will modify the HP Power Regulator BIOS Setting.
 if ($maxPower.optionLinks) { 
 
     foreach ($option in $maxPower.optionLinks) { 
-    
-  
-        $biosSettings.add(@{ id = $option.settingId ; value = $option.optionId}) | Out-Null 
+
+        [Void]$biosSettings.add(@{ id = $option.settingId ; value = $option.optionId}) 
     
     }
 
@@ -140,7 +152,7 @@ Get-HPOVProfileConnectionList $profileName
 
 # Now update the firmware of the profile.  
 # List available SPP's on the appliance
-Get-HPOVSppFile | sort-object baselineShortName | format-table -property name,baselineShortName,version -autosize
+Get-HPOVBaseline
 
 $sppFileName = Read-Host "Which SPP file do you want to select ('SPP*.iso'), or <Enter> to skip firmware"
 if ($sppFileName) {

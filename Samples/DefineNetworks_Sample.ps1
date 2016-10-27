@@ -2,9 +2,9 @@
 # DefineNetworks_Sample.ps1
 # - Example scripts for defining networks to be deployed with HP OneView.
 #
-#   VERSION 1.0
+#   VERSION 3.0
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,10 +26,23 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+if (-not (get-module HPOneview.300)) 
+{
 
-# First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+    Import-Module HPOneView.300
+
+}
+
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
+
+}
 
 # List any existing networks and network sets
 write-host "Existing Networks:"
@@ -61,7 +74,7 @@ $network30 = Get-HPOVNetwork -name "green" -type "Ethernet"
 $network40 = Get-HPOVNetwork -name "yellow" -type "Ethernet"
 
 # Now, create a "network set", grouping 3 of these networks for convenience:
-New-HPOVNetworkSet -name "Production Networks" -untaggedNetworkUri $network20.uri -networkUris $network20.uri,$network30.uri,$network40.uri
+New-HPOVNetworkSet -name "Production Networks" -UntaggedNetwork $network20 -Networks $network20,$network30,$network40
 
 # Create some FC networks:
 New-HPOVNetwork -name "Production Fabric A" -type FC -typicalBandwidth 4000 -autoLoginRedistribution $true
@@ -69,7 +82,4 @@ New-HPOVNetwork -name "Production Fabric B" -type FC -typicalBandwidth 4000 -aut
 New-HPOVNetwork -name "DirectAttach Fabric A" -type FC -typicalBandwidth 4000 -autoLoginRedistribution $true -fabrictype "DirectAttach"
 New-HPOVNetwork -name "DirectAttach Fabric B" -type FC -typicalBandwidth 4000 -autoLoginRedistribution $true -fabrictype "DirectAttach"
 
-Get-HPOVNetwork -list
-
-
-read-host "Press enter to continue"
+Get-HPOVNetwork

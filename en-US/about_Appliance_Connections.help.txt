@@ -9,15 +9,20 @@ SHORT DESCRIPTION
 	
 LONG DESCRIPTION
 
-    New in the HPE OneView2.0 PowerShell library is the ability to initiate 
-    multiple appliance connections to script or automate operations.  To 
-    support this capability, the library utilizes two new features:
+    In the HPE OneView 2.0 or newer PowerShell library is the ability to 
+    initiate multiple appliance connections to script or automate operations.  
+    To support this capability, the library utilizes three features:
     
-    -- When using Connect-HPOVMgmt, an HPOneView.Appliance.Connection object 
+    -- When using Connect-HPOVMgmt, an [HPOneView.Appliance.Connection] object 
        is returned to the caller.
     
-    -- The HPOneView.ApplianceConnection object is stored in a global variable
+    -- The [HPOneView.Appliance.Connection] object is stored in a global variable
        accessible by any caller: $ConnectedSessions
+
+    -- Within the [HPOneView.Appliance.Connection] object is a property called
+       Default.  This boolean value is what controls which appliance
+       to execute against if the caller does not specify which appliance
+       connection to use.
     
 GLBOAL CONNECTION TRACKING OBJECT
     
@@ -32,6 +37,8 @@ GLBOAL CONNECTION TRACKING OBJECT
     -- UserName - Username that was authenticated with to the appliance
     -- AuthLoginDomain - Authentication Directory resource used to
        authenticate user.
+    -- Default - Boolean value that tracks which connection is the default.
+       Use the Set-HPOVApplianceDefaultConnection Cmdlet to control the value
     -- SSLChecked - library specific property to handle SSL certificate
        verification.
     -- Default - used to define which connection is the 'default' for Cmdlet
@@ -89,15 +96,15 @@ HOW TO USE CONNECTION IN CMDLETS
 
 SETTING DEFAULT APPLIANCE CONNECTION
 
-    When authenticating to your first appliance, the 'Default' property is automatically
-    set to True.  Additional Appliance Connections are candidates to set as your new
-    default appliance connection.  To do this, use the Set-HPOVApplianceDefaultConnection
-    Cmdlet.	You will specify either an HPOneView.Appliance.Connection object (either from
-    ${Global:ConnectedSessions} or the saved object returned from Connect-HPOVMgmt) or
-    connection Name.
-    
-    This example shows how to modify your default appliance connection after successfully
-    authenticating to them:
+	When authenticating to your first appliance, the 'Default' property is automatically
+	set to True.  Additional Appliance Connections are candidates to set as your new
+	default appliance connection.  To do this, use the Set-HPOVApplianceDefaultConnection
+	Cmdlet.	You will specify either an HPOneView.Appliance.Connection object (either from
+	${Global:ConnectedSessions} or the saved object returned from Connect-HPOVMgmt) or
+	connection Name.
+	
+	This example shows how to modify your default appliance connection after successfully
+	authenticating to them:
 	
 	PS C:\> $Connection1 = Connect-HPOVMgmt hpov1.domain.com administrator MyPassw0rd
 	PS C:\> $Connection2 = Connect-HPOVMgmt hpov2.domain.com administrator MyPassw0rd
@@ -118,18 +125,18 @@ SETTING DEFAULT APPLIANCE CONNECTION
 CUSTOM NOTEPROPERTY VALUE IN OBJECTS
 
     When using the various CMDLETs, the returned resource object(s) will contain a custom 
-    NoteProperty, called ApplianceConnection:
+	NoteProperty, called ApplianceConnection:
 
 	-----------------------
 	| ApplianceConnection |
 	-----------------------
-		|
-		|   ----------------------
-		|---| [int] ConnectionID |
-		|   ----------------------
-		|   -----------------
-		|---| [string] Name |
-		|   -----------------
+			|
+			|   ----------------------
+			|---| [int] ConnectionID |
+			|   ----------------------
+			|   -----------------
+			|---| [string] Name |
+			|   -----------------
 
     The 'ConnectionID' and 'Name' sub-properties reference the Appliance Connection
     contained within ${Global:ConnectedSessions}.  These are used to identify resources

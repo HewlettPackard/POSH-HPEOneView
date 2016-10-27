@@ -1,6 +1,174 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <ViewDefinitions>
+    <!--ManagedSan.Zone FT-->
+    <View>
+      <Name>ManagedSanZone</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.ManagedSan.Zone</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SAN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Members</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ManagedSan</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.Members.Name</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ManagedSan.Zone FL-->
+    <View>
+      <Name>ManagedSanZone</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.ManagedSan.Zone</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>SAN</Label>
+                <PropertyName>ManagedSAN</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>State</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>Status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>WWN</Label>
+                <PropertyName>wwn</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Members</Label>
+                <PropertyName>Members</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Created</Label>
+                <PropertyName>Created</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Modified</Label>
+                <PropertyName>Modified</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ManagedSan.Zone.Alias FT-->
+    <View>
+      <Name>ManagedSanZoneAlias</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.ManagedSan.Zone.Alias</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>WWN</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ManagedSan.Zone.Alias FL-->
+    <View>
+      <Name>ManagedSanZoneAlias</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.ManagedSan.Zone.Alias</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>WWN</Label>
+                <PropertyName>WWN</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
     <!--Storage.San.Endpoint FT-->
     <View>
       <Name>Endpoint</Name>
@@ -199,22 +367,22 @@
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>(Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(send-hpovrequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>(Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
                <TableColumnItem>
                 <ScriptBlock>
                 if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
                 {
-                  (send-hpovrequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                  (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
                 }  
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes") -Hostname $_.ApplianceConnection.Name).members
+                  $associationProfileToVol = (Send-HPOVRequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes") -Hostname $_.ApplianceConnection.Name).members
                   if ($associationProfileToVol) {
                   $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri -Hostname $_.ApplianceConnection.Name).name }
                   [Array]::Sort([array]$profileNames)
@@ -275,15 +443,15 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Stroage System</Label>
+                <Label>Storage System</Label>
                 <ScriptBlock>
-                  (send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name
+                  (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Storage Pool</Label>
                 <ScriptBlock>
-                  (send-hpovrequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name
+                  (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>
@@ -291,7 +459,7 @@
                 <ScriptBlock>
                   if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
                   {
-                    (send-hpovrequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                    (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
                   }  
                 </ScriptBlock>
               </ListItem>                
@@ -306,7 +474,7 @@
               <ListItem>
                 <Label>Used By</Label>
                 <ScriptBlock>
-                  $associationProfileToVol = (send-hpovrequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes") -Hostname $_.ApplianceConnection.Name).members
+                  $associationProfileToVol = (Send-HPOVRequest ("/rest/index/associations?childUri=$($_.uri)&amp;name=server_profiles_to_storage_volumes") -Hostname $_.ApplianceConnection.Name).members
                   if ($associationProfileToVol) {
                   $profileNames = $associationProfileToVol | % { (Send-HPOVRequest $_.parentUri -Hostname $_.ApplianceConnection.Name).name }
                   [Array]::Sort([array]$profileNames)
@@ -315,6 +483,145 @@
 
                   else { "No server profiles" }
                 </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--Storage.VolumeTemplate FT-->
+    <View>
+      <Name>VolumeTemplate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.VolumeTemplate</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Capacity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ProvisionedType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Sharing</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Storage System</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Storage Pool</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Snapshot Pool</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0:N2} GB' -f ($_.provisioning.capacity / 1GB)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0}' -f $_.provisioning.provisionType</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.shareable) { "Shared"}
+                  else              { "Private" }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.provisioning.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+               <TableColumnItem>
+                <ScriptBlock>
+                if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
+                {
+                  (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                }  
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.VolumeTemplate FL-->
+    <View>
+      <Name>VolumeTemplate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.VolumeTemplate</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.state, $_.stateReason</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ProvisioningType</Label>
+                <ScriptBlock>'{0}' -f $_.provisioning.provisionType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Provisioned capacity</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.provisioning.provisionedCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Sharing</Label>
+                <ScriptBlock>
+                  if ($_.shareable) { "Shared"}
+                  else              { "Private" }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Storage System</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Storage Pool</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Snapshot Pool</Label>
+                <ScriptBlock>
+                  if (-not([String]::IsNullOrWhiteSpace($_.snapshotPoolUri)))
+                  {
+                    "{0}" -f (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                  }  
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Storage System Volume Name</Label>
+                <PropertyName>deviceVolumeName</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>
@@ -467,7 +774,7 @@
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>if ($_.storageSystemUri) { (send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
+                <ScriptBlock>if ($_.storageSystemUri) { (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>domain</PropertyName>
@@ -518,7 +825,7 @@
               </ListItem>
               <ListItem>
                 <Label>Storage System</Label>
-                <ScriptBlock>if ($_.storageSystemUri) { (send-hpovrequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
+                <ScriptBlock>if ($_.storageSystemUri) { (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Domain</Label>
@@ -870,6 +1177,10 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>DomainName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>WWN</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -892,6 +1203,9 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>managedDomain</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>model</PropertyName>
@@ -1026,7 +1340,7 @@
                 <ScriptBlock>
                   if ($_.actualNetworkUri -and "unknown",'none' -notcontains $_.actualNetworkUri)
                   {
-                  $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
+                  $net = Send-HPOVRequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
                   if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
                   else {" $($net.name) [DA]"}
                   }
@@ -1076,7 +1390,7 @@
                 <ScriptBlock>
                   if ($_.actualNetworkUri -and (-not($_.actualNetworkUri -eq "unknown")))
                   {
-                  $net = send-hpovrequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
+                  $net = Send-HPOVRequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
                   if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
                   else {" $($net.name) [DA]"}
                   }
@@ -1086,6 +1400,491 @@
               <ListItem>
                 <Label>Port Group</Label>
                 <PropertyName>groupName</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--Storage.DriveEnclosure FT-->
+    <View>
+      <Name>DriveEnclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drive Bays</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>I/O Adapters</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>powerState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ioAdapterCount</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.DriveEnclosure FL-->
+    <View>
+      <Name>DriveEnclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>powerState</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>SerialNumber</Label>
+                <PropertyName>serialNumber</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Drive Bays</Label>
+                <ScriptBlock>
+                  '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>I/O Adapters</Label>
+                <PropertyName>ioAdapterCount</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+    <!--Storage.DriveEnclosure.IoAdapter FT-->
+    <View>
+      <Name>DriveEnclosureIoAdapter</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure.IoAdapter</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drive Bays</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>I/O Adapters</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>powerState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ioAdapterCount</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.DriveEnclosure.IoAdapter FL-->
+    <View>
+      <Name>DriveEnclosureIoAdapter</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure.IoAdapter</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>powerState</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>SerialNumber</Label>
+                <PropertyName>serialNumber</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Drive Bays</Label>
+                <ScriptBlock>
+                  '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>I/O Adapters</Label>
+                <PropertyName>ioAdapterCount</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    
+    <!--Storage.DriveEnclosure.DriveBay FT-->
+    <View>
+      <Name>DriveBay</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure.DriveBay</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drive</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  [int64]$_value = [int64]$_.drive.capacity * 1024 * 1024 * 1024
+
+                  If ($_value -ge 1TB) { [string]::Format("{0:0.#}TB", [math]::Round($_value / 1TB,1)) }
+                  ElseIf ($_value -ge 1GB) { [string]::Format("{0:0}GB", $_value / 1GB) }
+                  ElseIf ($_value -ge 1MB) { [string]::Format("{0:0}MB", $_value / 1MB) }
+                  ElseIf ($_value -ge 1KB) { [string]::Format("{0:0}KB", $_value / 1KB) }
+                  ElseIf ($_value -gt 0) { [string]::Format("{0:0.00}B", $_value) }
+                  Else {""}
+
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.DriveEnclosure.DriveBay FL-->
+    <View>
+      <Name>DriveBay</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure.DriveBay</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Drive</Label>
+                <ScriptBlock>
+
+                  [int64]$_value = [int64]$_.drive.capacity * 1024 * 1024 * 1024
+
+                  If ($_value -ge 1TB) { [string]::Format("{0:0.#}TB", [math]::Round($_value / 1TB,1)) }
+                  ElseIf ($_value -ge 1GB) { [string]::Format("{0:0}GB", $_value / 1GB) }
+                  ElseIf ($_value -ge 1MB) { [string]::Format("{0:0}MB", $_value / 1MB) }
+                  ElseIf ($_value -ge 1KB) { [string]::Format("{0:0}KB", $_value / 1KB) }
+                  ElseIf ($_value -gt 0) { [string]::Format("{0:0.00}B", $_value) }
+                  Else {""}
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--Storage.DriveEnclosure.DriveBay.Drive FT-->
+    <View>
+      <Name>DriveBayDiskDrive</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure.DriveBay.Drive</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Capacity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Firmware</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  [int64]$_value = [int64]$_.capacity * 1024 * 1024 * 1024
+
+                  If ($_value -ge 1TB) { [string]::Format("{0:0.#}TB", [math]::Round($_value / 1TB,1)) }
+                  ElseIf ($_value -ge 1GB) { [string]::Format("{0:0}GB", $_value / 1GB) }
+                  ElseIf ($_value -ge 1MB) { [string]::Format("{0:0}MB", $_value / 1MB) }
+                  ElseIf ($_value -ge 1KB) { [string]::Format("{0:0}KB", $_value / 1KB) }
+                  ElseIf ($_value -gt 0) { [string]::Format("{0:0.00}B", $_value) }
+                  Else {""}
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>firmwareVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.DriveEnclosure.DriveBay.Drive FL-->
+    <View>
+      <Name>DriveBayDiskDrive</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.DriveEnclosure.DriveBay.Drive</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Interface</Label>
+                <PropertyName>deviceInterface</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>driveMedia</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Connectivity</Label>
+                <ScriptBlock>'{0}Gbps' -f $_.linkRateInGbs</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>rotationalRpms</Label>
+                <ScriptBlock>'{0:00}K' -f ($_.rotationalRpms / 1000)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Drive</Label>
+                <ScriptBlock>
+
+                  [int64]$_value = [int64]$_.capacity * 1024 * 1024 * 1024
+
+                  If ($_value -ge 1TB) { [string]::Format("{0:0.#}TB", [math]::Round($_value / 1TB,1)) }
+                  ElseIf ($_value -ge 1GB) { [string]::Format("{0:0}GB", $_value / 1GB) }
+                  ElseIf ($_value -ge 1MB) { [string]::Format("{0:0}MB", $_value / 1MB) }
+                  ElseIf ($_value -ge 1KB) { [string]::Format("{0:0}KB", $_value / 1KB) }
+                  ElseIf ($_value -gt 0) { [string]::Format("{0:0.00}B", $_value) }
+                  Else {""}
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Firmware</Label>
+                <PropertyName>firmwareVersion</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <PropertyName>serialNumber</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>

@@ -3,7 +3,7 @@
 # - Example script for adding a supported Storage System, creating Storage Pools
 #   and Storage Volumes
 #
-#   VERSION 2.0
+#   VERSION 3.0
 #
 # (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -28,29 +28,28 @@ THE SOFTWARE.
 #>
 ##############################################################################
 
-if (-not (get-module HPOneview.200)) 
+if (-not (get-module HPOneview.300)) 
 {
 
-    Import-Module HPOneView.200
+    Import-Module HPOneView.300
 
 }
 
+if (-not $ConnectedSessions) 
+{
 
-# First connect to the HP OneView appliance.
-if (-not($global:ConnectedSessions))
-{ 
-	
-	$MyApplianceConnection = Connect-HPOVMgmt 
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
 
 }
 
 #Connect a Storage System using OneView Expected Connectivity
-$myStorageSystem      	= "172.18.11.11" #NOTE: IP/Hostname of the 3PAR. Change to your own value.
-$myStorageSystemName  	= "ThreePAR7200-4310" #NOTE: Name of the 3PAR. Change to your own value.
-$myStorageSystemAdmin 	= "3paradm" 
-$myStorageSystemPass  	= "3pardata"
-$myStorageSystemPool    = "FST_CPG1" 
-$myStorageSystemDomain  = "TestDomain" #NOTE: The value is case sensitive. Use "NODOMAIN" if no domains are defined on the 3PAR
+$myStorageSystem      = "HP3Par_1-array.contoso.com"
+$myStorageSystemAdmin = "3paradm"
+$myStorageSystemPass  = "3pardata"
 
 
 #Add Storage System specifying the Virtual Domain and Storage Host Ports
@@ -59,7 +58,7 @@ $params = @{
     hostname  = $myStorageSystem;    
     username  = $myStorageSystemAdmin;
     password  = $myStorageSystemPass;
-    domain    = $myStorageSystemDomain
+    domain    = "NODOMAIN"
     Ports = @{
         
         "0:1:1" = "3PAR SAN DA A"; 
@@ -86,7 +85,7 @@ Try
 
 	Add-HPOVStorageSystem @params | Wait-HPOVTaskComplete
 
-	Get-HPOVStorageSystem $myStorageSystemName | Add-HPOVStoragePool -poolName $myStorageSystemPool | Wait-HPOVTaskComplete
+	Add-HPOVStoragePool HP-P7400-1 -poolName R1_FC_CPG | Wait-HPOVTaskComplete
 
 }
 
@@ -98,12 +97,11 @@ Catch
 }
 
 #Add a second Storage System specifying the Virtual Domain and Storage Host Ports
-$myStorageSystem2       = "HP3Par_2-array.contoso.com"
-$myStorageSystemName2  	= "ThreePAR7200-4400"
-$myStorageSystemAdmin   = "3paradm"
-$myStorageSystemPass    = "3pardata"
-$myStorageSystemDomain  = "VirtualDomain1" #NOTE: The value is case sensitive.
-$myStorageSystemPorts   = @{
+$myStorageSystem       = "HP3Par_2-array.contoso.com"
+$myStorageSystemAdmin  = "3paradm"
+$myStorageSystemPass   = "3pardata"
+$myStorageSystemDomain = "VirtualDomain1" #NOTE: The value is case sensitive.
+$myStorageSystemPorts  = @{
 	
 	"1:1:1" = "Fabric A"; 
 	"2:1:1" = "FabricA"; 
@@ -122,7 +120,7 @@ $myStorageSystemPG     = @{
 
 $params = @{
 
-    hostname   = $myStorageSystem2;    
+    hostname   = $myStorageSystem;    
     username   = $myStorageSystemAdmin;
     password   = $myStorageSystemPass;
     domain     = $myStorageSystemDomain;
@@ -138,7 +136,7 @@ Try
 
 	Add-HPOVStorageSystem @params | Wait-HPOVTaskComplete
 
-	Get-HPOVStorageSystem $myStorageSystem | Add-HPOVStoragePool -poolName R1_FC_CPG | Wait-HPOVTaskComplete
+	Add-HPOVStoragePool -StorageSystem $myStorageSystem -PoolName R1_FC_CPG | Wait-HPOVTaskComplete
 
 }
 
@@ -152,8 +150,8 @@ Catch
 Get-HPOVStorageSystem
 
 #Get Storage System Details
-$myStorageSystem1 = Get-HPOVStorageSystem $myStorageSystemName
-$myStorageSystem2 = Get-HPOVStorageSystem $myStorageSystemName2
+$myStorageSystem1 = Get-HPOVStorageSystem -Name HP3Par_1
+$myStorageSystem2 = Get-HPOVStorageSystem -Name HP3Par_2
 
 
 #Add Storage Pools in order to provision Storage Volumes
@@ -162,8 +160,8 @@ $myStorageSystem2 = Get-HPOVStorageSystem $myStorageSystemName2
 Try
 {
 
-	$myStorageSystem1 | New-HPOVStoragePool -poolName "FST_CPG1"
-	$myStorageSystem1 | New-HPOVStoragePool -poolName "FST_CPG2"
+	$myStorageSystem1 | New-HPOVStoragePool -PoolName "FST_CPG1"
+	$myStorageSystem1 | New-HPOVStoragePool -PoolName "FST_CPG2"
 
 }
 
@@ -181,7 +179,7 @@ Try
 {
 
 	$myPools = @("FST_CPG3","FST_CPG4")
-	$myStorageSystem2 | New-HPOVStoragePool -poolName $myPools
+	$myStorageSystem2 | New-HPOVStoragePool -PoolName $myPools
 
 }
 
@@ -194,12 +192,14 @@ Catch
 
 Get-HPOVStoragePool
 
+$StroagePool1 = Get-HPOVStoragePool -Name FST_CPG1
+
 #Create some volumes
 
 Try
 {
 
-	1..10 | % { Get-HPOVStoragePool FST_CPG1 -ApplianceConnection $myApplianceConnection | New-HPOVStorageVolume -name Vol$_ -Size 60 }
+	1..10 | % { New-HPOVStorageVolume -name Vol$_ -Pool $StroagePool1 -Size 60 }
 
 }
 
@@ -213,7 +213,7 @@ Catch
 Try
 {
 
-	1..5 | % { Get-HPOVStoragePool FST_CPG2 -ApplianceConnection $myApplianceConnection | New-HPOVStorageVolume -name SharedVol$_ -Size 250 -shared }
+	1..5 | % { New-HPOVStorageVolume -name SharedVol$_ -StoragePool FST_CPG2 -Size 250 -shared }
 
 }
 

@@ -47,10 +47,10 @@ if (-not(Test-Path $CSV -PathType Leaf))
 
 }
 
-if (-not (get-module HPOneview.200)) 
+if (-not (get-module HPOneview.300)) 
 {
 
-    Import-Module HPOneView.200
+    Import-Module HPOneView.300
 
 }
 
@@ -102,7 +102,7 @@ $ServersList | % {
 
 	Write-Progress -ID 1 -Activity ("Adding Servers to {0}" -f $ApplianceConnection.Name) -Status ("Processing {0}" -f $_.hostname) -PercentComplete ($i / $ServersList.Count * 100)
 
-	$Resp = Add-HPOVServer -hostname $_.hostname -username $_.username -password $_.password -Monitored -ApplianceConnection $ApplianceConnection
+	$Resp = Add-HPOVServer -hostname $_.hostname -username $_.username -password $_.password -Monitored
 
 	$Resp
 
@@ -116,4 +116,4 @@ Write-Host 'We are all done.'
 Write-Host ("{0} async tasks were created." -f $AsyncTaskCollection.Count)
 Write-Host 'Displaying final status of tasks.'
 
-$AsyncTaskCollection | % { Send-HPOVRequest $_.uri -Hostname $_.ApplianceConnection.Name } | Sort status -Descending | Format-Table
+$AsyncTaskCollection | % { Send-HPOVRequest $_.uri } | Sort status -Descending | Format-Table

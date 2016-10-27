@@ -2,9 +2,9 @@
 # DefineLogicalInterconnectGroup_Sample.ps1
 # - Example script for creating Logical Interconnect Groups.
 #
-#   VERSION 2.0
+#   VERSION 1.0
 #
-# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,23 +26,48 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.200
+if (-not (get-module HPOneview.300)) 
+{
 
-# First connect to the HP OneView appliance.
-if (-not ($global:ConnectionSessions)) { Connect-HPOVMgmt }
+    Import-Module HPOneView.300
 
-$LIGName = "MyLIG" 
+}
+
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
+
+}
+
+#Verify some Ethernet Networks exist
+$networks = Get-HPOVNetwork -type Ethernet
+
+if ($networks -eq $null) 
+{
+
+    write-host "There are no defined Ethernet Networks. Please create some.";
+
+    break
+
+}
+
+$LIGName = "LIG Prod" 
 $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
-$Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
-$Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-$SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.150/22' -TrapDestinations $Dest1,$Dest2
-$CreatedLig = New-HPOVLogicalInterconnectGroup -name $LIGName -bays $bays -snmp $SnmpConfig | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+$SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Network Admin"; snmpAccess = @("192.168.1.2/32","10.1.1.0/24");trapDestinations = @(@{trapDestination="myhost.local";communityString="MyTr@p2";trapFormat="SNMPv1";trapSeverities=@("Critical", "Major", "Minor", "Warning", "Normal", "Info", "Unknown");fcTrapCategories=@("PortStatus", "Other")})}
 
-Write-Host "New LIG Object: " $CreatedLig
+$NewLig = New-HPOVLogicalInterconnectGroup -Name $LIGName -bays $bays -snmp $snmp | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
-# Create Ethernet Uplink Set
-$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1" -Type "Ethernet" -Networks "red","blue","green" -nativeEthNetwork "red" -UplinkPorts "BAY1:X5","BAY2:X5" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-
-# Create FC Uplink Set
-$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Fabric A" -Type "FibreChannel" -Networks "Production Fabric A" -UplinkPorts "BAY1:X1","BAY1:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Fabric B" -Type "FibreChannel" -Networks "Production Fabric A" -UplinkPorts "BAY2:X1","BAY2:X2" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+#Create an Ethernet Uplink Set
+$Networks = "red","blue","green" | Get-HPOVNetwork -Type Ethernet
+$FabricA = Get-HPOVNetwork -Name "Production Fabric A" -Type FibreChannel
+$FabricB = Get-HPOVNetwork -Name "Production Fabric B" -Type FibreChannel
+$newUT = $NewLig | New-HPOVUplinkSet -Name LUT1 -Type "Ethernet" -Networks $Networks -NativeEthNetwork $Networks[0] -UplinkPorts "BAY1:X4","BAY1:X5","BAY2:X4","BAY2:X5" -EthMode "Auto"
+$NewLig = Get-HPOVLogicalInterconnectGroup -Name $LIGName
+$newUT = $NewLig | New-HPOVUplinkSet -Name "Fabric A" -Type "FibreChannel" -Networks $FabricA -UplinkPorts "BAY1:X1,BAY1:X2"
+$NewLig = Get-HPOVLogicalInterconnectGroup -Name $LIGName
+$newUT = $NewLig | New-HPOVUplinkSet -Name "Fabric B" -Type "FibreChannel" -Networks $FabricB -UplinkPorts "BAY2:X1,BAY2:X2"

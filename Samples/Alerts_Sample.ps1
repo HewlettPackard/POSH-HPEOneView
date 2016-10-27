@@ -3,7 +3,7 @@
 # - Example scripts for creating a user account, and retrieving alerts specific
 #   to the new user.
 #
-#   VERSION 1.1
+#   VERSION 3.0
 #
 # (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -28,18 +28,22 @@ THE SOFTWARE.
 
 #>
 ##############################################################################
-if (-not (get-module HPOneview.200)) 
+if (-not (get-module HPOneview.300)) 
 {
 
-    Import-Module HPOneView.200
+    Import-Module HPOneView.300
 
 }
 
 # First connect to the HP OneView appliance.
-if (-not($global:ConnectedSessions))
-{ 
-	
-	Connect-HPOVMgmt 
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
 
 }
 
@@ -47,7 +51,7 @@ if (-not($global:ConnectedSessions))
 Try
 {
 
-	$sally = Get-HPOVUser Sally
+	$sally = Get-HPOVUser -Name Sally
 
 }
 
@@ -59,7 +63,7 @@ Catch [HPOneView.Appliance.UserResourceException]
 	Try
 	{
 
-		New-HPOVUser Sally -fullName "Sally Test User" -password SallyPassword -roleNames ("Network administrator")
+		New-HPOVUser -Username Sally -fullName "Sally Test User" -password SallyPassword -Roles "Network administrator"
 
 	}
 
@@ -118,7 +122,7 @@ foreach ($alert in $alerts)
 	Try
 	{
 
-		$updatedAlert = Set-HPOVAlert $alert "Sally"
+		$updatedAlert = Set-HPOVAlert -InputObject $alert -AssignToUser Sally
 
 		"Assigned to Sally: {0}" -f $updatedAlert.description | Write-Host
 
@@ -134,7 +138,7 @@ foreach ($alert in $alerts)
 }
 
 # Clear any alerts older than one week
-$alerts = Get-HPOVAlert -alertState Active
+$alerts = Get-HPOVAlert -AlertState Active
 
 foreach ($alert in $alerts) 
 {
@@ -167,4 +171,4 @@ foreach ($alert in $alerts)
 #Display the active alerts for Sally, most recent first
 Write-Host "Sally's active alerts:"
 
-Get-HPOVAlert -assignedToUser Sally -alertState Active
+Get-HPOVAlert -AssignedToUser Sally -AlertState Active

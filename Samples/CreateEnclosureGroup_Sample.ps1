@@ -3,7 +3,7 @@
 # - Example script for creating Enclosure Group, Logical Interconnect Group,
 #   Logical Uplinks.
 #
-#   VERSION 2.0
+#   VERSION 3.0
 #
 # (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -27,13 +27,21 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.200
-
-# First connect to the HP OneView appliance.
-if (-not($ConnectSessions))
+if (-not (get-module HPOneview.300)) 
 {
-	
-	Connect-HPOVMgmt 
+
+    Import-Module HPOneView.300
+
+}
+
+if (-not $ConnectedSessions) 
+{
+
+	$Appliance = Read-Host 'ApplianceName'
+	$Username  = Read-Host 'Username'
+	$Password  = Read-Host 'Password' -AsSecureString
+
+    $ApplianceConnection = Connect-HPOVMgmt -Hostname $Appliance -Username $Username -Password $Password
 
 }
 
@@ -52,16 +60,19 @@ if ($networks -eq $null)
 #Create the Logical Interconnect Group
 $LIGName = "LIG Prod" 
 $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
-$Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
-$Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-$SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.150/22' -TrapDestinations $Dest1,$Dest2
+$SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Network Admin"; snmpAccess = @("192.168.1.2/32","10.1.1.0/24");trapDestinations = @(@{trapDestination="myhost.local";communityString="MyTr@p2";trapFormat="SNMPv1";trapSeverities=@("Critical", "Major", "Minor", "Warning", "Normal", "Info", "Unknown");fcTrapCategories=@("PortStatus", "Other")})}
 
-$NewLig = New-HPOVLogicalInterconnectGroup -name $LIGName -bays $bays -snmp $SnmpConfig | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+$NewLig = New-HPOVLogicalInterconnectGroup -Name $LIGName -bays $bays -snmp $snmp | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
 #Create an Ethernet Uplink Set
-$newUT = $NewLig | New-HPOVUplinkSet -usName "LUT1" -usType "Ethernet" -usNetworks "red","blue","green" -usNativeEthNetwork "red" -usUplinkPorts @("BAY1:X1","BAY2:X5") -usEthMode "Auto"
-$newUT = $NewLig | New-HPOVUplinkSet -usName "Fabric A" -usType "FibreChannel" -usNetworks "Production Fabric A" -usUplinkPorts "BAY1:X1,BAY1:X2"
-$newUT = $NewLig | New-HPOVUplinkSet -usName "Fabric B" -usType "FibreChannel" -usNetworks "Production Fabric B" -usUplinkPorts "BAY2:X1,BAY2:X2"
+$Networks = "red","blue","green" | Get-HPOVNetwork -Type Ethernet
+$FabricA = Get-HPOVNetwork -Name "Production Fabric A" -Type FibreChannel
+$FabricB = Get-HPOVNetwork -Name "Production Fabric B" -Type FibreChannel
+$newUT = $NewLig | New-HPOVUplinkSet -Name LUT1 -Type "Ethernet" -Networks $Networks -NativeEthNetwork $Networks[0] -UplinkPorts "BAY1:X4","BAY1:X5","BAY2:X4","BAY2:X5" -EthMode "Auto"
+$NewLig = Get-HPOVLogicalInterconnectGroup -Name $LIGName
+$newUT = $NewLig | New-HPOVUplinkSet -Name "Fabric A" -Type "FibreChannel" -Networks $FabricA -UplinkPorts "BAY1:X1,BAY1:X2"
+$NewLig = Get-HPOVLogicalInterconnectGroup -Name $LIGName
+$newUT = $NewLig | New-HPOVUplinkSet -Name "Fabric B" -Type "FibreChannel" -Networks $FabricB -UplinkPorts "BAY2:X1,BAY2:X2"
 
-# Create an enclosure group with this LST
-$enclGroup = New-HPOVEnclosureGroup -name "Prod VC FlexFabric Group 1" -logicalInterconnectGroup $NewLig
+# Create an enclosure group with this LIG
+$enclGroup = New-HPOVEnclosureGroup -Name "Prod VC FlexFabric Group 1" -LogicalInterconnectGroup $NewLig
