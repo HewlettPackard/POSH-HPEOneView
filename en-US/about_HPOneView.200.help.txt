@@ -30,7 +30,20 @@ SHORT DESCRIPTION
 
     PowerShell library for HP OneView 2.00
 	
-WHAT'S NEW 
+WHAT'S NEW
+
+    Release 2.0.650.0
+     -- [#177] Enhanced New-HPOVServerProfileConnection to allow null -MAC parameter for FC only type
+        connection (for non-CNA connections).
+     -- Fixed Add-HPOVServer and Add-HPOVEnclosure where if resource was being managed by another external Manager
+        and a DNS PTR record didn't exist, would cause an exception with System.Net.Dns.GetHostByName() method.
+     -- Added Remove-HPOVScmbCertificate Cmdlet to remove generated SCMB certificates from an appliance.
+     -- Enhanced Update-HPOVLogicalEnclosure and Update-HPOVLogicalInterconnect -WhatIf parameters to return
+        a compare object with what the child Logical Interconnect is different from parent Logical Interconnect
+        Group.
+     -- Fixed Add-HPOVServer and Add-HPOVEnclosure where if resource was being managed by another external Manager
+        and a DNS PTR record didn't exist, would cause an exception with System.Net.Dns.GetHostByName() method.
+
     Release 2.0.630.0
      -- Enhanced Download-File internal helper function to improve file download speeds.
      -- Updated New-HPOVNetwork to default MaximumBandwidth to 20000. 

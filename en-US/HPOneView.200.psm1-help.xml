@@ -10914,6 +10914,10 @@ Directory to store the SSL certificates.  If the directory doesn't exist, it wil
 		<maml:relatedLinks>
 			<!--Related Links-->
 			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVScmbCertificate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVScmbCertificates</maml:uri>
 			</maml:navigationLink>
@@ -42604,7 +42608,7 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 				<maml:name>WhatIf</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -42659,6 +42663,31 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 </maml:para>
 				</maml:description>
 			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Library.CompareObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The Cmdlet will return a compare object with the Parent and Child object and settings that are different.  Otherwise, no object is returned.
+
+	Property Name | Description
+	==========================================================
+	InputObject   | Compared Object Property or Setting Value
+	----------------------------------------------------------
+	ParentSetting | Name of Property or Setting
+	----------------------------------------------------------
+	ChildSetting  | Name of Property or Setting
+	----------------------------------------------------------
+	Parent        | Name of Parent Object
+	----------------------------------------------------------
+	Child         | Name of Child Object
+	----------------------------------------------------------
+	Description   | Description Name of difference
+	----------------------------------------------------------
+</maml:para>
+				</maml:description>
+			</command:returnValue>
 		</command:returnValues>
 		<command:examples>
 			<!--Examples-->
@@ -42705,6 +42734,38 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 </dev:code>
 				<dev:remarks>
 					<dev:para>Refresh 'Enclosure1' Logical Enclosure.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLogicalEnclosure -Name Encl1 | Update-HPOVLogicalEnclosure -Update -WhatIf
+What if: Performing the operation "Update Logical Enclosure configuration. WARNING: Depending on this action, there might be a brief outage." on target "Encl1".
+
+InputObject                SideIndicator ParentSetting  ChildSetting Parent            Child                   Description
+-----------                ------------- -------------  ------------ ------            -----                   -----------
+macRefreshInterval         &lt;=&gt;           7              5            Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enablePauseFloodProtection &lt;=&gt;           False          True         Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableRichTLV              &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableTaggedLldp           &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+ActiveQosConfig            &lt;=            CustomWithFCoE Passthrough  Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+Uplink Set 2               &lt;=            Heartbeat                   Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+FC Fabric B                =&gt;                           Bay2:X8      Default VC FF LIG Encl1-Default VC FF LIG ADDITIONAL_UPLINKPORT
+FC Fabric B:Bay2:X7        &lt;=&gt;           Auto           2Gb          Default VC FF LIG Encl1-Default VC FF LIG LINKSPEED_MISMATCH
+UplinkSets                 &lt;=            New Uplink Set              Default VC FF LIG Encl1-Default VC FF LIG MISSING_UPLINKSET
+InternalNetworks           =&gt;                           Heartbeat    Default VC FF LIG Encl1-Default VC FF LIG EXTRA_NETWORK
+InternalNetworks           &lt;=            Dev VLAN 103-A              Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+</dev:code>
+				<dev:remarks>
+					<dev:para>Refresh 'LogicalEnclosure1' Logical Enclosure.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -42772,9 +42833,9 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 					<maml:name>Resource</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Reapply, default" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Reapply, default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
@@ -42795,9 +42856,9 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 					<maml:name>Reapply</maml:name>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Reapply, default" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Reapply, default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
@@ -42811,7 +42872,7 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -42820,7 +42881,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -42867,7 +42928,7 @@ The Logical Interconnect object(s), name(s) or uris(s) to be updated.</maml:para
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 				<maml:name>WhatIf</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -42932,6 +42993,31 @@ The Logical Interconnect object(s), name(s) or uris(s) to be updated.</maml:para
 </maml:para>
 				</maml:description>
 			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Library.CompareObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The Cmdlet will return a compare object with the Parent and Child object and settings that are different.  Otherwise, no object is returned.
+
+	Property Name | Description
+	==========================================================
+	InputObject   | Compared Object Property or Setting Value
+	----------------------------------------------------------
+	ParentSetting | Name of Property or Setting
+	----------------------------------------------------------
+	ChildSetting  | Name of Property or Setting
+	----------------------------------------------------------
+	Parent        | Name of Parent Object
+	----------------------------------------------------------
+	Child         | Name of Child Object
+	----------------------------------------------------------
+	Description   | Description Name of difference
+	----------------------------------------------------------
+</maml:para>
+				</maml:description>
+			</command:returnValue>
 		</command:returnValues>
 		<command:examples>
 			<!--Examples-->
@@ -42980,6 +43066,38 @@ PS C:\&gt; Wait-HPOVTaskComplete $task
 </dev:code>
 				<dev:remarks>
 					<dev:para>Search for all Logical Interconnects and update them.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLogicalInterconnect -Name Encl1-Default VC FF LIG | Update-HPOVLogicalInterconnect -WhatIf
+What if: Performing the operation "Update Logical Interconnect from Group 'Default VC FF LIG'. WARNING: Depending on the Update, there might be a brief outage." on target "Encl1-Default VC FF LIG".
+
+InputObject                SideIndicator ParentSetting  ChildSetting Parent            Child                   Description
+-----------                ------------- -------------  ------------ ------            -----                   -----------
+macRefreshInterval         &lt;=&gt;           7              5            Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enablePauseFloodProtection &lt;=&gt;           False          True         Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableRichTLV              &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableTaggedLldp           &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+ActiveQosConfig            &lt;=            CustomWithFCoE Passthrough  Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+Uplink Set 2               &lt;=            Heartbeat                   Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+FC Fabric B                =&gt;                           Bay2:X8      Default VC FF LIG Encl1-Default VC FF LIG ADDITIONAL_UPLINKPORT
+FC Fabric B:Bay2:X7        &lt;=&gt;           Auto           2Gb          Default VC FF LIG Encl1-Default VC FF LIG LINKSPEED_MISMATCH
+UplinkSets                 &lt;=            New Uplink Set              Default VC FF LIG Encl1-Default VC FF LIG MISSING_UPLINKSET
+InternalNetworks           =&gt;                           Heartbeat    Default VC FF LIG Encl1-Default VC FF LIG EXTRA_NETWORK
+InternalNetworks           &lt;=            Dev VLAN 103-A              Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+</dev:code>
+				<dev:remarks>
+					<dev:para>Refresh 'LogicalEnclosure1' Logical Enclosure.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -43821,9 +43939,7 @@ Specify the appliance FQDN or IP Address without a valid connection created by u
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>
- None.  You cannot pipe objects to this Cmdlet.
- </maml:para>
+					<maml:para />
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>

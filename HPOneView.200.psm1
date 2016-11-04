@@ -134,6 +134,160 @@ namespace HPOneView
     namespace Library
     {
 
+		public class CompareObject
+        {
+
+            private string _inputobject;
+            private string _sideindicator;
+            private string _parentsetting;
+            private string _childsetting;
+            private string _parent;
+            private string _child;
+            private string _description;
+
+            public string InputObject
+            {
+
+                get
+                {
+                    return _inputobject;
+                }
+
+                set
+                {
+                    _inputobject = value;
+                }
+
+            }
+
+            public string SideIndicator
+            {
+
+                get
+                {
+                    return _sideindicator;
+                }
+
+                set
+                {
+                    _sideindicator = value;
+                }
+
+            }
+
+            public string ParentSetting
+            {
+
+                get
+                {
+                    return _parentsetting;
+                }
+
+                set
+                {
+                    _parentsetting = value;
+                }
+
+            }
+
+            public string ChildSetting
+            {
+
+                get
+                {
+                    return _childsetting;
+                }
+
+                set
+                {
+                    _childsetting = value;
+                }
+
+            }
+
+            public string Parent
+            {
+
+                get
+                {
+                    return _parent;
+                }
+
+                set
+                {
+                    _parent = value;
+                }
+
+            }
+
+            public string Child
+            {
+
+                get
+                {
+                    return _child;
+                }
+
+                set
+                {
+                    _child = value;
+                }
+
+            }
+
+            public string Description
+            {
+
+                get
+                {
+                    return _description;
+                }
+
+                set
+                {
+                    _description = value;
+                }
+
+            }
+
+            public CompareObject() {}
+
+            public CompareObject (string InputObject, string SideIndicator, string Parent, string Child)
+            {
+
+                this.InputObject = InputObject;
+                this.SideIndicator = SideIndicator;
+                this.Parent = Parent;
+                this.Child = Child;
+
+            }
+
+            public CompareObject (string InputObject, string SideIndicator, string ParentSetting, string ChildSetting, string Parent, string Child, string Description)
+            {
+
+                this.InputObject = InputObject;
+                this.SideIndicator = SideIndicator;
+                this.ParentSetting = ParentSetting;
+                this.ChildSetting = ChildSetting;
+                this.Parent = Parent;
+                this.Child = Child;
+                this.Description = Description;
+
+            }
+
+            public CompareObject (string InputObject, string SideIndicator, string ParentSetting, string ChildSetting, string Description)
+            {
+
+                this.InputObject = InputObject;
+                this.SideIndicator = SideIndicator;
+                this.ParentSetting = ParentSetting;
+                this.ChildSetting = ChildSetting;
+                this.Description = Description;
+
+            }
+
+        }
+
         public class ApiCallException : Exception
         {
             public ApiCallException() : base() { }
@@ -2365,6 +2519,7 @@ ${Global:ResponseErrorObject}    = New-Object System.Collections.ArrayList
 [String]$script:applHealthStatus           = "/rest/appliance/health-status"
 [String]$script:applRabbitmqUri            = "/rest/certificates/client/rabbitmq"
 [String]$script:applKeypairUri             = "/rest/certificates/client/rabbitmq/keypair/default"
+[String]$RabbitMQKeyPairCertUri            = '/rest/certificates/ca/rabbitmq_readonly'
 [String]$script:applCaUri                  = "/rest/certificates/ca"
 [String]$script:applUpdate                 = "/rest/appliance/firmware/image"
 [String]$script:applUpdatePending          = "/rest/appliance/firmware/pending"
@@ -16269,6 +16424,180 @@ function ConvertTo-Pfx
 
 }
 
+
+function Remove-HPOVScmbCertificate
+{
+	
+	# .ExternalHelp HPOneView.300.psm1-help.xml
+
+	[CmdLetBinding (DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = 'High')]
+	Param
+	(
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
+	)
+	
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+	}
+
+	Process
+	{
+		
+		ForEach ($_appliance in $ApplianceConnection)
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_appliance.Name)' appliance connection (of $($ApplianceConnection.count))"
+
+			Try
+			{
+
+				$_keys = Send-HPOVRequest $RabbitMQKeyPairUri -Hostname $_appliance
+
+			}
+
+			Catch [HPOneview.ResourceNotFoundException]
+			{
+
+				$ExceptionMessage = 'The SCMB certificate key pair has not bee generated on the appliance "{0}".  Please use Get-HPOVScmbCertificates to generate a new certificate key pair.' -f $_appliance.Name
+				$ErrorRecord = New-ErrorRecord HPOneview.ResourceNotFoundException ResourceNotFound ObjectNotFound "ScmbCertifcateKeyPait" -Message $ExceptionMessage
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			if ($PSCmdlet.ShouldProcess($_appliance.Name, "Remove SCMB (RabbitMQ) rabbit_readonly user certificates"))
+			{   
+			 
+				Try
+				{
+
+					Send-HPOVRequest $RabbitMQKeyPairCertUri DELETE -Hostname $_appliance
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+			elseif ($PSBoundParameters['WhatIf'])
+			{
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caller passed -WhatIf Parameter."
+
+			}
+
+			else
+			{
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Caller selected NO to confirmation prompt."
+
+			}
+
+		}
+
+	}
+
+	End
+	{
+
+		'Done.' | Write-Verbose
+
+	}
+
+}
+
 function Import-HPOVSslCertificate 
 {
 
@@ -17202,7 +17531,6 @@ function Add-HPOVServer
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
@@ -17227,7 +17555,6 @@ function Add-HPOVServer
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -17354,7 +17681,8 @@ function Add-HPOVServer
 						Catch
 						{
 
-							$PSCmdlet.ThrowTerminatingError($_)
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unable to resolve IP Address to DNS A Record."
+							$externalManagerFQDN = [PSCustomObject]@{HostName = 'UnknownFqdn'; Aliases = @(); AddressList = @($externalManagerIP.Clone())}
 
 						}
 						
@@ -20051,7 +20379,7 @@ function Add-HPOVEnclosure
     
     # .ExternalHelp HPOneView.200.psm1-help.xml
 
-    [CmdletBinding(DefaultParameterSetName = "Managed", SupportsShouldProcess = $true,ConfirmImpact = "High")]
+    [CmdletBinding (DefaultParameterSetName = "Managed", SupportsShouldProcess = $true,ConfirmImpact = "High")]
     Param 
 	(
 
@@ -20124,7 +20452,6 @@ function Add-HPOVEnclosure
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
 			{
 
@@ -20149,7 +20476,6 @@ function Add-HPOVEnclosure
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -20456,7 +20782,21 @@ function Add-HPOVEnclosure
 
                     $externalManagerType = $errorMessage.data.managementProduct
                     $externalManagerIP   = $errorMessage.data.managementUrl.Replace("https://","")
-                    $externalManagerFQDN = [System.Net.DNS]::GetHostByAddress($externalManagerIP)
+
+					Try
+					{
+
+						 $externalManagerFQDN = [System.Net.DNS]::GetHostByAddress($externalManagerIP)
+
+					}
+
+					Catch
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Unable to resolve IP Address to DNS A Record."
+						$externalManagerFQDN = [PSCustomObject]@{HostName = 'UnknownFqdn'; Aliases = @(); AddressList = @($externalManagerIP.Clone())}
+
+					}
 
                     write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Found enclosure '$hostname' is already being managed by $externalManagerType at $externalManagerIP."
                     write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - $externalManagerIP resolves to $($externalManagerFQDN | out-string)"
@@ -21345,8 +21685,11 @@ function Update-HPOVLogicalEnclosure
 		{
 
             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Logical Enclosure: '$($_leObject.name) [$($_leObject.uri)]'"
+
+			$NothingToDo = $false
             
-            switch ($PSCmdlet.ParameterSetName) {
+            switch ($PSCmdlet.ParameterSetName) 
+			{
 
                 "Reapply" 
 				{ 
@@ -21363,12 +21706,19 @@ function Update-HPOVLogicalEnclosure
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Update from Group."
 					
 					$uri = $_leObject.uri + "/updateFromGroup" 
+
+					if ($_leObject.state -eq 'Consistent')
+					{
+
+						$NothingToDo = $true
+
+					}
 				
 				}
                 
             }
 
-			if ($pscmdlet.ShouldProcess($_leObject.name,"$($PSCmdlet.ParameterSetName) Logical Enclosure configuration. WARNING: Depending on this action, there might be a brief outage."))
+			if ((-not $NothingToDo) -and $pscmdlet.ShouldProcess($_leObject.name,"$($PSCmdlet.ParameterSetName) Logical Enclosure configuration. WARNING: Depending on this action, there might be a brief outage."))
 			{ 
 
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request to $($PSCmdlet.ParameterSetName) configuration"
@@ -21376,7 +21726,7 @@ function Update-HPOVLogicalEnclosure
 				Try
 				{
 
-					$_task = Send-HPOVRequest $uri PUT -Hostname $_letoprocess.ApplianceConnection.Name
+					$_task = Send-HPOVRequest $uri PUT -Hostname $_leObject.ApplianceConnection.Name
 
 				}
 
@@ -21390,7 +21740,7 @@ function Update-HPOVLogicalEnclosure
 				if (-not($PSBoundParameters['Async']))
 				{
 					
-					 $_task = Wait-HPOVTaskComplete $_task -ApplianceConnection $_letoprocess.ApplianceConnection.Name
+					 $_task = Wait-HPOVTaskComplete $_task -ApplianceConnection $_leObject.ApplianceConnection.Name
 				
 				}
 
@@ -21398,7 +21748,14 @@ function Update-HPOVLogicalEnclosure
                     
             }
 
-            elseif ($PSBoundParameters['WhatIf'])
+            elseif ($NothingToDo)
+			{
+
+				Write-Warning ("The {0} Logical Enclosure is already consistent.  There is nothing to do." -f $_leObject.Name)
+
+			}
+
+			elseif ($PSBoundParameters['WhatIf'])
 			{
 				
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
@@ -35505,6 +35862,12 @@ function New-HPOVNetwork
 
 							$ct = Send-HPOVRequest $ctUri -Hostname $_appliance
 
+							if ($typicalBandwidth) { $ct.bandwidth.typicalBandwidth = $typicalBandwidth }
+
+			                if ($maximumBandwidth) { $ct.bandwidth.maximumBandwidth = $maximumBandwidth }
+
+			                Send-HPOVRequest $ct.uri PUT $ct -Hostname $_appliance | Out-Null
+
 						}
 
 						Catch
@@ -35512,18 +35875,7 @@ function New-HPOVNetwork
 
 							$PSCmdlet.ThrowTerminatingError($_)
 
-						}        
-
-			            if ($ct -and $ct.bandwidth) 
-						{
-
-			                if ($typicalBandwidth) { $ct.bandwidth.typicalBandwidth = $typicalBandwidth }
-
-			                if ($maximumBandwidth) { $ct.bandwidth.maximumBandwidth = $maximumBandwidth }
-
-			                Send-HPOVRequest $ct.uri PUT $ct -Hostname $_appliance | Out-Null
-
-			            }
+						}
 
 			        }
 
@@ -40040,60 +40392,85 @@ function Update-HPOVLogicalInterconnect
 
             else 
 			{
-                
-                Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Update '$($liDisplayName)' Logical Interconnect from parent $($parentLig.name)."
 
-				Try
+				#Do not process LI if consistencyStatus is good.
+				if ($_liobject.consistencyStatus -eq 'CONSISTENT')
 				{
 
-					$_ligname = (Send-HPOVRequest $_liobject.logicalInterconnectGroupUri -HostName $_liobject.ApplianceConnection.Name).Name
+					Write-Warning 'Logical Interconnect is Consistent with Policy.  Nothing to do.'
+
 				}
-                
-				Catch
+
+				else
 				{
+                
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Update '$($liDisplayName)' Logical Interconnect from parent $($parentLig.name)."
 
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-				    
-                if ($pscmdlet.ShouldProcess($_liobject.name,"Update Logical Interconnect from Group '$_ligname'. WARNING: Depending on the Update, there might be a brief outage."))
-				{    
-                    
 					Try
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
-
-						$uri = $_liobject.uri + "/compliance"
-
-						$task = Send-HPOVRequest $uri PUT -Hostname $_liobject.ApplianceConnection.Name
-
-						[void]$_returntasks.Add($task)
-
+						$_ligname = (Send-HPOVRequest $_liobject.logicalInterconnectGroupUri -HostName $_liobject.ApplianceConnection.Name).Name
 					}
-
+					
 					Catch
 					{
 
 						$PSCmdlet.ThrowTerminatingError($_)
 
 					}
+						
+					if ($pscmdlet.ShouldProcess($_liobject.name,"Update Logical Interconnect from Group '$_ligname'. WARNING: Depending on the Update, there might be a brief outage."))
+					{    
+						
+						Try
+						{
 
-                }
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
 
-                elseif ($PSBoundParameters['WhatIf'])
-				{
+							$uri = $_liobject.uri + "/compliance"
+
+							$task = Send-HPOVRequest $uri PUT -Hostname $_liobject.ApplianceConnection.Name
+
+							[void]$_returntasks.Add($task)
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+					}
+
+					elseif ($PSBoundParameters['WhatIf'])
+					{
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
+
+						Try
+						{
+
+							Compare-LogicalInterconnect -InputObject $_liobject
+
+						} 
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
 					
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User included -WhatIf."
+					}
 
-					Write-Host "WhatIf: Update Logical Interconnect '$($_liobject.name)' from Parent Group '$_ligname'." -ForegroundColor Yellow
-				
-				}
+					else
+					{
 
-				else
-				{
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User cancelled."
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User cancelled."
+					}
 
 				}
 
@@ -40106,6 +40483,980 @@ function Update-HPOVLogicalInterconnect
     }
 
 }
+
+
+Function Compare-LogicalInterconnect
+{
+
+    [CmdletBinding()]
+    param
+    (
+
+        [Parameter (Mandatory, HelpMessage = "Please provide the Encloure or Logical Interconnect object.")]
+        [ValidateNotNullorEmpty()]
+        [Object]$InputObject
+
+    )
+
+    Begin
+    {
+
+        Try
+        {
+        
+            $UplinkSets        = Get-HPOVUplinkSet
+            $InterconnectTypes = Get-HPOVInterconnectType
+        
+        }
+        
+        Catch
+        {
+        
+            PSCmdlet.ThrowTerminatingError($_)
+        
+        }
+
+    }
+
+    Process
+    {
+
+
+        $CompareObject            = New-Object System.Collections.ArrayList
+        $_LogicalInterconnects    = New-Object System.Collections.ArrayList   #Logical Interconnect Uris; not sure what this is used for yet.
+        $Interconnects            = New-Object System.Collections.ArrayList   #Collection of Interconnects?
+        $InterconnectMapTemplate  = New-Object System.Collections.ArrayList
+        $SideIndicator            = @{ Parent = '<='; Child = '=>'; NotEqual = '<=>'}
+
+        function GetUplinkSets ($_LI, $_LIG) 
+        {
+
+            'Processing Uplink Set objects' | Write-Verbose #-Verbose
+            'LI: {0} [{1}]' -f $_LI.name,$_LI.uri | Write-Verbose #-Verbose
+            'LIG: {0}' -f $_LIG.name | Write-Verbose #-Verbose
+            'Number of LIG Uplink Sets: {0}' -f $_LIG.uplinkSets.count | Write-Verbose #-Verbose
+            'Number of matched Uplink Sets to LI: {0}' -f ($UplinkSets | ? logicalInterconnectUri -eq $_LI.uri).Count | Write-Verbose #-Verbose
+            
+            $myLUs = New-Object System.Collections.ArrayList
+            
+            foreach ($lu in ($UplinkSets | ? logicalInterconnectUri -eq $_LI.uri)) 
+            {
+
+                    "Match on: {0}" -f $lu.logicalInterconnectUri | Write-Verbose #-Verbose
+
+                    Add-Member -InputObject $lu -MemberType NoteProperty -Name UplinkSetGroup -Value $null -Force
+                    Add-Member -InputObject $lu -NotePropertyName LogicalInterconnectName -NotePropertyValue $_LI.name
+                    $lu.UplinkSetGroup = $_LIG.uplinkSets | ? name -eq $lu.name
+                    Add-Member -InputObject $lu.UplinkSetGroup -NotePropertyName LogicalInterconnectGroupName -NotePropertyValue $_LIG.name
+                    [void]$myLUs.Add($lu)
+
+            }
+
+            ForEach ($_LigUplinkSet in $_LIG.uplinkSets)
+            {
+
+                'Looking for unprovisioned uplink set: {0}' -f $_LigUplinkSet.name | Write-Verbose #-Verbose
+
+                if (($UplinkSets | ? logicalInterconnectUri -eq $_LI.uri).name -notcontains $_LigUplinkSet.name)
+                {
+
+                    '{0} is not provisioned.' -f $_LigUplinkSet.name | Write-Verbose #-Verbose
+
+                    $MissingUplinkSet = MissingUplinkSetFromLIG
+                    $MissingUplinkSet.UplinkSetGroup               = $_LigUplinkSet
+                    $MissingUplinkSet.LogicalInterconnectUri       = $_LI.uri
+                    $MissingUplinkSet.LogicalInterconnectName      = $_LI.name
+                    $MissingUplinkSet.LogicalInterconnectGroupName = $_Lig.name
+                    
+                    [void]$myLUs.Add($MissingUplinkSet)
+                    
+                }
+
+            }
+
+            #Need to add a check here for when the LIG Uplink Set(s) differe from LI, not what matches from LI to global Uplink Sets
+            return $myLUs
+        }
+
+        function GetPortName ($bay, $portNumber) 
+        {
+            
+            'Getting name for port Bay: {0}; Port Number: {1}' -f $Bay, $PortNumber | Write-Verbose #-Verbose
+            
+
+            # This function uses the Interconnect map Group set up in CompareInterconnects
+            $InterconnectMapEntry = $InterconnectMapTemplate | ? bayNumber -eq $bay
+            "InterconnectType: {0}" -f ($InterconnectMapEntry | FL *) | Write-Verbose #-Verbose
+
+            $InterconnectModuleType = $InterconnectTypes | ? uri -eq $InterconnectMapEntry.InterconnectTypeUri
+            "Interconnect Module Type: {0}" -f ($InterconnectModuleType | FL *) | Write-Verbose #-Verbose
+
+            "Uplink Port Name: {0}" -f ($InterconnectModuleType.portInfos | ? portNumber -eq $PortNumber).portName | Write-Verbose #-Verbose
+            Return ($InterconnectModuleType.portInfos | ? portNumber -eq $PortNumber).portName
+
+        }
+
+        function CompareNetworks ($lu, $lut) 
+        {
+
+            'Examining Networks associated with Uplink Set "{0}"' -f $lu.name | Write-Verbose #-Verbose
+
+            switch ($lu.networkType)
+            {
+
+                'FibreChannel'
+                {
+
+                    'Processing Fibre Channel Uplink Set' | Write-Verbose #-Verbose
+
+                    if ($lu.fcNetworkUris.Count -ne $lut.networkUris.Count) 
+                    {
+
+                        '{0} currently has {1} FC networks, Group has {2}' -f $lu.name, $lu.fcNetworkUris.Count, $lut.networkUris.Count | Write-Verbose
+                    
+                    }
+
+                    $diff = Compare-Object -ReferenceObject $lu.fcNetworkUris -DifferenceObject $lut.networkUris
+
+                }
+
+                'Ethernet'
+                {
+
+                    'Processing Ethernet Uplink Set' | Write-Verbose #-Verbose
+
+                    if ($lu.networkUris.Count -ne $lut.networkUris.Count) 
+                    {
+                        
+                        '{0} currently has {1} Ethernet networks, Group has {2}' -f $lu.name, $lu.networkUris.Count, $lut.networkUris.Count | Write-Verbose
+                        
+                    }
+
+                    $diff = Compare-Object -ReferenceObject $lu.networkUris -DifferenceObject $lut.networkUris
+
+                }
+
+            }
+            
+            foreach ($d in $diff) 
+            {
+
+                Try
+                {
+                
+                    $net = Send-HPOVRequest $d.InputObject
+                
+                }
+                
+                Catch
+                {
+                
+                    PSCmdlet.ThrowTerminatingError($_)
+                
+                }
+                
+                if ($d.SideIndicator -eq $SideIndicator.Child)
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject($lu.name, 
+                                                                        $SideIndicator.Parent, 
+                                                                        $net.name,
+                                                                        $null, 
+                                                                        $lut.LogicalInterconnectGroupName,
+                                                                        $lu.LogicalInterconnectName,
+                                                                        'MISSING_NETWORK')
+
+                    [void]$CompareObject.Add($_diff)
+
+                    '{0} is currently missing network {1} VLAN {2}' -f $lu.name, $net.name, $net.vlanId | Write-Verbose
+
+                } 
+                
+                else 
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject($lu.name, 
+                                                                        $SideIndicator.Child, 
+                                                                        $null,
+                                                                        $net.name, 
+                                                                        $lut.LogicalInterconnectGroupName,
+                                                                        $lu.LogicalInterconnectName,
+                                                                        'EXTRA_NETWORK')
+                    [void]$CompareObject.Add($_diff)
+
+                    '{0} currently has extra network {1} VLAN {2}' -f $lu.name, $net.name, $net.vlanId | Write-Verbose
+
+                }
+
+            }
+
+        }
+
+		function CompareLocalNetworks ($li, $lig) 
+        {
+
+            'Examining Internal Networks' | Write-Verbose #-Verbose
+
+			if ($li.internalNetworkUris.Count -ne $lig.internalNetworkUris.Count) 
+			{
+				
+				'{0} currently has {1} Internal Ethernet networks, Group has {2}' -f $li.name, $li.internalNetworkUris.Count, $lig.internalNetworkUris.Count | Write-Verbose
+				
+			}
+
+			$diff = Compare-Object -ReferenceObject $lig.internalNetworkUris -DifferenceObject $li.internalNetworkUris
+
+            
+            foreach ($d in $diff) 
+            {
+
+                Try
+                {
+                
+                    $net = Send-HPOVRequest $d.InputObject
+                
+                }
+                
+                Catch
+                {
+                
+                    PSCmdlet.ThrowTerminatingError($_)
+                
+                }
+                
+                if ($d.SideIndicator -eq $SideIndicator.Parent) 
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject('InternalNetworks', 
+                                                                        $SideIndicator.Child, 
+																		$net.name,
+                                                                        $null,                                                                         
+                                                                        $lig.name,
+                                                                        $li.name,
+                                                                        'MISSING_NETWORK')
+
+                    [void]$CompareObject.Add($_diff)
+
+                    '{0} is currently missing internal network {1} VLAN {2}' -f $li.name, $net.name, $net.vlanId | Write-Verbose
+
+                } 
+                
+                else 
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject('InternalNetworks', 
+                                                                        $SideIndicator.Parent, 
+                                                                        $null,
+                                                                        $net.name, 
+                                                                        $lig.name,
+                                                                        $li.name,
+                                                                        'EXTRA_NETWORK')
+                    [void]$CompareObject.Add($_diff)
+
+                    '{0} currently has extra network {1} VLAN {2}' -f $li.name, $net.name, $net.vlanId | Write-Verbose
+
+                }
+
+            }
+
+        }
+
+        function ComparePorts ($lu, $lut) 
+        {
+
+            "Comparing ports" | Write-Verbose #-Verbose
+
+            "Uplink Set Port count: {0}" -f $lu.portConfigInfos.Count | Write-Verbose #-Verbose
+            "LIG Uplink Set Port count: {0}" -f $lut.logicalPortConfigInfos.Count | Write-Verbose #-Verbose
+
+            if ($lu.portConfigInfos.Count -ne $lut.logicalPortConfigInfos.Count) 
+            {
+
+                '{0} currently has {1} ports, Group has {2}' -f $lu.name, $lu.portConfigInfos.Count, $lut.logicalPortConfigInfos.Count | Write-Verbose
+
+            }
+
+            #Build array of LU ports
+            $luPorts = New-Object System.Collections.ArrayList
+            $lutPorts = New-Object System.Collections.ArrayList
+
+            #Process LIG Uplink Set Uplink Ports
+            foreach ($upPorts in $lut.logicalPortConfigInfos) 
+            {
+
+                $Port = [PSCustomObject]@{ type = 'lut.portConfigInfos';bayNumber = $null; portNumber = $null; portName = $null; Speed = $null }
+
+                foreach ($loc in $upPorts.logicalLocation.locationEntries) 
+                {
+
+                    $Port.Speed = $upPorts.desiredSpeed
+
+                    if ($loc.type -eq "BAY") { $Port.bayNumber = $loc.relativeValue }
+
+                    if ($loc.type -eq "PORT") { $Port.portNumber = $loc.relativeValue }
+
+                }
+
+                $Port.portName = GetPortName $Port.bayNumber $Port.portNumber
+
+                [void]$lutPorts.Add($Port)
+
+            }
+
+            #Process LI Uplink Set Uplink Ports
+            foreach ($upPorts in $lu.portConfigInfos) 
+            {
+
+                $Port = [PSCustomObject]@{ type = 'lu.portConfigInfos';bayNumber = $null; portNumber = $null; portName = $null; Speed = $null }
+
+                foreach ($loc in $upPorts.Location.locationEntries) 
+                {
+
+                    $Port.Speed = $upPorts.desiredSpeed
+
+                    if ($loc.type -eq "BAY") { $Port.bayNumber = $loc.Value }
+
+                    if ($loc.type -eq "PORT") { $Port.portName = $loc.Value }
+
+                }
+
+                [void]$luPorts.Add($Port)
+
+            }
+
+            $PortLocationDiff = Compare-Object -ReferenceObject $lutPorts -DifferenceObject $luPorts -Property bayNumber, portName
+
+            'PortLocationDiff Object: {0}' -f ($PortLocationDiff | Out-String) | Write-Verbose #-Verbose
+
+            foreach ($d in $PortLocationDiff) 
+            {
+
+                $Property = 'Bay{0}:{1}' -f $d.bayNumber, $d.portName
+
+                if ($d.SideIndicator -eq $SideIndicator.Parent) 
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject($lu.name, 
+                                                                        $SideIndicator.Child, 
+                                                                        $Property, 
+                                                                        $null, 
+                                                                        $lut.LogicalInterconnectGroupName,
+                                                                        $lu.LogicalInterconnectName,
+                                                                        'MISSING_UPLINKPORT')
+                    
+                    [void]$CompareObject.Add($_diff)
+                    
+                    '{0} is currently missing port bay {1} port ' -f $lu.name, $d.bayNumber, $d.portName | Write-Verbose
+                
+                } 
+                
+                elseif ($d.SideIndicator -eq $SideIndicator.Child)  
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject($lu.name, 
+                                                                        $SideIndicator.Parent, 
+                                                                        $null, 
+                                                                        $Property, 
+                                                                        $lut.LogicalInterconnectGroupName,
+                                                                        $lu.LogicalInterconnectName,
+                                                                        'ADDITIONAL_UPLINKPORT')
+                    
+                    [void]$CompareObject.Add($_diff)
+                    
+                    '{0} currently has extra port on bay {1} port {2}' -f $lu.name, $d.bayNumber, $d.portName | Write-Verbose
+
+                }
+
+            }
+
+            $PortSpeedDiff = Compare-Object -ReferenceObject $lutPorts -DifferenceObject $luPorts -Property Speed -PassThru
+
+            'PortSpeedDiff Object: {0}' -f ($PortSpeedDiff | Out-String) | Write-Verbose #-Verbose
+
+            foreach ($d in $PortSpeedDiff) 
+            {
+
+                if ($luPorts | ? { $_.bayNumber -eq $d.bayNumber -and $_.portName -eq $d.portName} )
+                {
+
+                    $Property = '{0}:Bay{1}:{2}' -f $lut.name,$d.bayNumber, $d.portName
+
+                    'luPort Object: {0}' -f (($luPorts | ? { $_.bayNumber -eq $d.bayNumber -and $_.portName -eq $d.portName}) | Out-String) | Write-Verbose #-Verbose
+
+                    if ($d.SideIndicator -eq '=>')
+                    {
+
+                        $ParentValue = '{0}' -f $GetUplinkSetPortSpeeds[($lutPorts | ? { $_.bayNumber -eq $d.bayNumber -and $_.portName -eq $d.portName}).Speed]
+                        $ChildValue = '{0}' -f $GetUplinkSetPortSpeeds[$d.Speed]
+
+                    }
+                
+                    elseif ($d.SideIndicator -eq '<=')
+                    {
+
+                        $ParentValue = '{0}' -f $GetUplinkSetPortSpeeds[$d.Speed]
+                        $ChildValue = '{0}' -f $GetUplinkSetPortSpeeds[($luPorts | ? { $_.bayNumber -eq $d.bayNumber -and $_.portName -eq $d.portName}).Speed]
+
+                    }
+
+                    $_diff = New-Object HPOneView.Library.CompareObject($Property, 
+                                                                        $SideIndicator.NotEqual, 
+                                                                        $ParentValue, 
+                                                                        $ChildValue, 
+                                                                        $lut.LogicalInterconnectGroupName,
+                                                                        $lu.LogicalInterconnectName,
+                                                                        'LINKSPEED_MISMATCH')
+                    
+                    [void]$CompareObject.Add($_diff)
+
+                    '{0} Uplink Port {1}:{2} has different link speed {3} than Group {4}' -f $lut.name, $d.bayNumber, $d.portName, $ParentValue, $ChildValue | Write-Verbose
+
+                }
+
+            }
+
+        }
+
+        function CompareUplinksWithGroup ($lu) 
+        {
+
+            $lut = $lu.UplinkSetGroup
+
+            if (! $lut) 
+            {
+                
+                '"{0}" Uplink Set has no matching LIG Uplink Set. Skipping.' -f $lu.name | Write-Verbose
+                
+            }
+
+            if ($lu.name -eq 'missing')
+            {
+
+                '"{0}" Uplink Set within Logical Interconnect Group "{1}" is not provisioned or missing from Logical Interconnect "{2}"' -f $lut.name, $lu.LogicalInterconnectGroupName, $lu.LogicalInterconnectName | Write-Verbose
+
+                $_diff = New-Object HPOneView.Library.CompareObject('UplinkSets',
+                                                                    $SideIndicator.Child, 
+                                                                    $lut.name, 
+                                                                    $null, 
+                                                                    $lu.LogicalInterconnectGroupName,
+                                                                    $lu.LogicalInterconnectName,
+                                                                    'MISSING_UPLINKSET')
+                
+                [void]$CompareObject.Add($_diff)
+
+            }
+
+            else 
+            {
+
+                'Comparing {0} Uplink Set with Group' -f $lu.name | Write-Verbose #-Verbose 
+
+                'LU: {0}' -f ($lu | FL * | Out-String) | Write-Verbose #-Verbose
+                'LUT: {0}' -f ($lut | FL * | Out-String) | Write-Verbose #-Verbose
+
+                if ($lu.networkType -ne $lut.networkType) 
+                {
+                    
+                    $_diff = New-Object HPOneView.Library.CompareObject(($lu.name + ':networkType'), 
+                                                                        $SideIndicator.Parent, 
+                                                                        $lut.networkType, 
+                                                                        $lu.networkType,
+                                                                        $lut.LogicalInterconnectGroupName,
+                                                                        $lu.LogicalInterconnectName,
+                                                                        'NETWORKTYPE_MISMATCH')
+                    
+                    [void]$CompareObject.Add($_diff)
+                    
+                    '"{0}" current Type "{1}" differs from Group Type "{2}"' -f $lu.name, $lu.networkType, $lut.networkType | Write-Verbose
+                
+                }
+
+                if ($lu.connectionMode -ne $lut.mode) 
+                {
+
+                    $_diff = New-Object HPOneView.Library.CompareObject('connectionMode', 
+                                                                        $SideIndicator.Parent, 
+                                                                        $lut.mode, 
+                                                                        $lu.connectionMode, 
+                                                                        ($lut.LogicalInterconnectGroupName + ":" + $lut.name),
+                                                                        ($lu.LogicalInterconnectName + ":" + $lu.name),
+                                                                        'CONNECTIONMODE_MISMATCH')
+
+                    [void]$CompareObject.Add($_diff)
+
+                    '"{0}" current Connection Mode "{1}" differs from Group Connection Mode "{2}"' -f $lu.name, $lu.connectionMode, $lut.mode | Write-Verbose
+                }
+
+                if ( $lut.mode -ne 'Auto' -or $lu.connectionMode -ne 'Auto')
+                {
+
+                    $LutPrimaryPort = [PSCustomObject]@{ bayNumber = $null; portNumber = $null; portName = $null; Speed = $null }
+                    $LutPrimaryPort.bayNumber = ($lut.primaryPort.locationEntries | ? { $_.type -eq 'Bay' } ).relativeValue
+                    $LutPrimaryPort.portNumber = ($lut.primaryPort.locationEntries | ? { $_.type -eq 'Port' } ).relativeValue
+                    $LutPrimaryPort.portName = GetPortName $LutPrimaryPort.bayNumber $LutPrimaryPort.portNumber
+
+                    $LuPrimaryPort = [PSCustomObject]@{ bayNumber = $null; portNumber = $null; portName = $null; Speed = $null }
+                    $LuPrimaryPort.bayNumber = ($lu.primaryPortLocation.locationEntries | ? type -eq 'Bay').value
+                    $LuPrimaryPort.portName = ($lu.primaryPortLocation.locationEntries | ? type -eq 'Port').value
+
+                    $PrimaryPortDiff = Compare-Object -ReferenceObject $LutPrimaryPort -DifferenceObject $LuPrimaryPort -Property portName -PassThru
+
+                    'PrimaryPortDiff Object: {0}' -f ($PrimaryPortDiff | Out-String) | Write-Verbose #-Verbose
+
+                    if ($PrimaryPortDiff)
+                    {
+
+                        $_SideIndicator = '<=>'
+
+                        $_ParentPrimaryPort = ('BAY{0}:{1}' -f $LutPrimaryPort.bayNumber, $LutPrimaryPort.portName)
+                        $_ChildPrimaryPort = ('BAY{0}:{1}' -f $LuPrimaryPort.bayNumber, $LuPrimaryPort.portName)
+
+                        if (! $LuPrimaryPort.portName)
+                        {
+
+                            $_SideIndicator = '<='
+                            $_ChildPrimaryPort = $null
+
+                        }
+
+                        elseif (! $LutPrimaryPort.portName)
+                        {
+
+                            $_SideIndicator = '=>'
+                            $_ParentPrimaryPort = $null
+
+                        }
+
+                        $_diff = New-Object HPOneView.Library.CompareObject('PrimaryPort',
+                                                                            $_SideIndicator,
+                                                                            $_ParentPrimaryPort,
+                                                                            $_ChildPrimaryPort, 
+                                                                            ($lut.LogicalInterconnectGroupName + ":" + $lut.name),
+                                                                            ($lu.LogicalInterconnectName + ":" + $lu.name),
+                                                                            'PRIMARYPORT_MISMATCH')
+
+                        [void]$CompareObject.Add($_diff)
+
+                        '"{0}" current Primary Port "{1}" differs from Group "{2}"' -f $lu.name, $_ChildPrimaryPort, $_ParentPrimaryPort | Write-Verbose                
+
+                    }
+
+                }
+
+
+                if ($lu.nativeNetworkUri -ne $lut.nativeNetworkUri) 
+                {
+
+                    'LU NativeNetworkUri: {0}' -f $lu.nativeNetworkUri | Write-Verbose #-Verbose
+                    'LUT NativeNetworkUri: {0}' -f $lut.nativeNetworkUri | Write-Verbose #-Verbose
+
+                    $_SideIndicator = $SideIndicator.NotEqual
+
+                    if ($lu.nativeNetworkUri) 
+                    { 
+                        
+                        $luNativeNetwork = (Send-HPOVRequest $lu.nativeNetworkUri).name 
+                    
+                    }
+
+                    else
+                    {
+                    
+                        $luNativeNetwork = "None"
+                        $_SideIndicator = $SideIndicator.Parent
+                    
+                    }
+
+                    if ($lut.nativeNetworkUri) 
+                    {
+
+                        $lutNativeNetwork = (Send-HPOVRequest $lut.nativeNetworkUri).name
+
+                    }
+
+                    else
+                    {
+                    
+                        $lutNativeNetwork = "None"
+                        $_SideIndicator = $SideIndicator.Child
+                    
+                    }
+
+                    $_diff = New-Object HPOneView.Library.CompareObject(($lu.name + ':nativeNetworkUri'), 
+                                                                        $_SideIndicator,
+                                                                        $lutNativeNetwork, 
+                                                                        $luNativeNetwork, 
+																		$lut.LogicalInterconnectGroupName,
+																		$lu.LogicalInterconnectName,
+                                                                        'NATIVENETWORK_MISMATCH')
+                    
+                    [void]$CompareObject.Add($_diff)
+                    
+                    '"{0}" current Native Network "{1}" differs from Group Native Network "{2}"' -f $lu.name, $luNativeNetwork, $lutNativeNetwork | Write-Verbose
+
+                }
+
+                CompareNetworks $lu $lut
+
+                ComparePorts $lu $lut
+
+            }
+
+        }
+
+        function CompareInterconnects ($_LogicalInterconnect, $_LogicalInterconnectGroup) 
+		{
+
+            "Processing Logical Interconnect '{0}' and LIG '{1}'" -f $_LogicalInterconnect.name, $_LogicalInterconnectGroup.name | Write-Verbose #-Verbose
+
+            #Build array of Interconnects in Group
+            
+            foreach ($InterconnectMapEntryGroup in $_LogicalInterconnectGroup.interconnectMapTemplate.interconnectMapEntryTemplates) 
+            {
+
+                if ($InterconnectMapEntryGroup.permittedInterconnectTypeUri) 
+                {
+
+                    [void]$InterconnectMapTemplate.Add([PSCustomObject]@{
+                        bayNumber           = ($InterconnectMapEntryGroup.logicalLocation.locationEntries | ? type -eq "BAY").relativeValue; 
+                        InterconnectTypeUri = $InterconnectMapEntryGroup.permittedInterconnectTypeUri
+                    })
+            
+                }
+
+            }
+
+            #Build array of Interconnects in logical Interconnect
+            $InterconnectMap = New-Object System.Collections.ArrayList
+
+            foreach ($_InterconnectMapEntry in $_LogicalInterconnect.InterconnectMap.interconnectMapEntries) 
+            {
+
+                if ($_InterconnectMapEntry.permittedInterconnectTypeUri) 
+                {
+
+                    [void]$InterconnectMap.Add([PSCustomObject]@{
+                        bayNumber           = ($_InterconnectMapEntry.location.locationEntries | ? type -eq "Bay").value; 
+                        InterconnectTypeUri = $_InterconnectMapEntry.permittedInterconnectTypeUri
+                    })
+
+                }
+
+            }
+
+            $diff = Compare-Object -ReferenceObject $InterconnectMapTemplate -DifferenceObject $InterconnectMap -Property bayNumber, InterconnectTypeUri -IncludeEqual
+
+            foreach ($d in $diff) 
+			{
+
+                'Processing LI with LIG DIFF' | Write-Verbose #-Verbose
+
+                $InterconnectType = $InterconnectTypes | Where-Object { $_.uri -eq $d.InterconnectTypeUri }
+
+                if ($d.SideIndicator -eq "==") 
+				{
+
+                    'Expected Interconnect in "{0}" matches Group for Interconnect bay "{1}" type "{2}"' -f $_LogicalInterconnect.name,  $d.bayNumber, $InterconnectType.name | Write-Verbose #-Verbose
+               
+				} 
+				
+				else 
+				{
+
+                    if ($d.SideIndicator -eq $SideIndicator.Parent) 
+					{
+
+                        $_diff = New-Object HPOneView.Library.CompareObject($d.bayNumber,
+																			$SideIndicator.Child,
+																			$InterconnectType.name,
+																			$null,
+                                                                            $_LogicalInterconnectGroup.name,
+                                                                            $_LogicalInterconnect.name,
+																			'MISSING_MODULE')
+
+                        [void]$CompareObject.Add($_diff)
+
+                        '"{0}" Logical Interconnect is currently missing expected module "{1}" within Interconnect bay "{2}" ' -f $_LogicalInterconnect.name, $InterconnectType.name, $d.bayNumber | Write-Verbose
+                    }
+					
+					elseif ($d.SideIndicator -eq $SideIndicator.Child)  
+					{
+
+						$_diff = New-Object HPOneView.Library.CompareObject($d.bayNumber,
+																			$SideIndicator.Parent,
+																			$InterconnectType.name,
+																			$null,
+																			$_LogicalInterconnectGroup.name,
+																			$_LogicalInterconnect.name,
+																			'EXTRA_MODULE')
+
+						[void]$CompareObject.Add($_diff)
+
+						'"{0}" Logical Interconnect contains an extra module "{1}" within Interconnect bay "{2}" ' -f $_LogicalInterconnect.name, $InterconnectType.name, $d.bayNumber | Write-Verbose
+					}
+
+                }
+
+            }
+
+            #Process Ethernet Settings
+            $EthernetSettingsProperties = "enableIgmpSnooping", "igmpIdleTimeoutInterval", "enableFastMacCacheFailover", "macRefreshInterval", "enableNetworkLoopProtection", "enablePauseFloodProtection", "enableRichTLV", "enableTaggedLldp"
+            $EthernetSettingsDiff = New-Object System.Collections.Arraylist
+
+            if ($_LogicalInterconnectGroup.category -ne 'sas-logical-interconnect-groups')
+            {
+
+                ForEach ($Property in $EthernetSettingsProperties)
+                {
+
+                    if ($_LogicalInterconnectGroup.ethernetSettings.$Property -ne $_LogicalInterconnect.ethernetSettings.$Property)
+                    {
+
+                        $_diff = New-Object HPOneView.Library.CompareObject($Property, 
+                                                                            $SideIndicator.NotEqual, 
+                                                                            $_LogicalInterconnectGroup.ethernetSettings.$Property, 
+                                                                            $_LogicalInterconnect.ethernetSettings.$Property, 
+                                                                            $_LogicalInterconnectGroup.name,
+                                                                            $_LogicalInterconnect.name,
+                                                                            'SETTING_MISMATCH')
+
+                        [void]$EthernetSettingsDiff.Add($_diff)
+                        [void]$CompareObject.Add($_diff)
+
+                    }
+
+                }
+
+                ForEach ($diff in $EthernetSettingsDiff)
+                {
+
+                    'Logical Interconnect "{0}" Ethernet Setting "{1}" does not match the parent "{2}" setting.' -f $diff.InputObject, $diff.ChildSetting, $diff.ParentSetting | Write-Verbose
+
+                }
+
+            }
+
+			if ($_LogicalInterconnectGroup.category -ne 'sas-logical-interconnect-groups')
+			{
+
+				$_diff = Compare-Object -ReferenceObject $_LogicalInterconnectGroup.qosConfiguration.activeQosConfig.configType -DifferenceObject $_LogicalInterconnect.qosConfiguration.activeQosConfig.configType -PassThru
+
+				if ($_diff.SideIndicator -eq $SideIndicator.Parent)
+				{
+
+					$_diff = New-Object HPOneView.Library.CompareObject('ActiveQosConfig', 
+																		$SideIndicator.Parent, 
+																		$_LogicalInterconnectGroup.qosConfiguration.activeQosConfig.configType, 
+																		$_LogicalInterconnect.qosConfiguration.activeQosConfig.configType, 
+																		$_LogicalInterconnectGroup.name,
+																		$_LogicalInterconnect.name,
+																		'SETTING_MISMATCH')
+
+					[void]$CompareObject.Add($_diff)
+
+				}
+
+				elseif ($_diff.SideIndicator -eq $SideIndicator.Child)
+				{
+
+					$_diff = New-Object HPOneView.Library.CompareObject('ActiveQosConfig', 
+																		$SideIndicator.Child, 
+																		$_LogicalInterconnectGroup.qosConfiguration.activeQosConfig.configType, 
+																		$_LogicalInterconnect.qosConfiguration.activeQosConfig.configType, 
+																		$_LogicalInterconnectGroup.name,
+																		$_LogicalInterconnect.name,
+																		'SETTING_MISMATCH')
+
+					[void]$CompareObject.Add($_diff)
+					
+				}
+
+			}
+
+        }
+
+        Function MissingUplinkSetFromLIG 
+        {
+
+            Return [PSCustomObject] @{
+
+                Name                         = "missing";
+                UplinkSetGroup               = $null;
+                LogicalInterconnectUri       = $null;
+                LogicalInterconnectName      = $null;
+                LogicalInterconnectGroupName = $null
+
+            }
+
+        }
+
+        ##################################################################
+        # If InputObject is not a PSCustomObject, assume it is an Enclosure Name
+        if ($InputObject -IsNot [System.Management.Automation.PSCustomObject])
+        {
+
+            Try
+            {
+            
+                $InputObject = Get-HPOVEnclosure -Name $InputObject
+            
+            }
+            
+            Catch
+            {
+            
+                PSCmdlet.ThrowTerminatingError($_)
+            
+            }    
+
+        }
+
+        "InputObject resource: {0} [{1}]" -f $InputObject.name, $InputObject.category | Write-Verbose
+
+        #Loop through all ICM bays of the Enclosure object
+        if ($InputObject.category -eq 'enclosures')
+        {
+
+            '{0} has {1} interconnect bays which are configured as {2} logical Interconnects' -f $InputObject.name, ($InputObject.interconnectBays | ? interconnectUri).Count, $_LogicalInterconnectUris.Count | Write-Verbose
+
+            $UniqueLIUris = $InputObject.interconnectBays | Select -Property logicalInterconnectUri -Unique | ? { $_.logicalInterconnectUri }  
+
+            ForEach ($_uri in $UniqueLIUris.logicalInterconnectUri)
+            {
+
+                'Processing LI URI: {0}' -f $_uri | Write-Verbose
+
+                Try
+                {
+                
+                    $_LIObject = Send-HPOVRequest -Uri $_uri
+                    $_LigObject = Send-HPOVRequest -Uri $_LIObject.logicalInterconnectGroupUri
+                    
+                    $_LIObject | Add-Member -NotePropertyName LogicalInterconnectGroup -NotePropertyValue $_LigObject -Force
+                    [void]$_LogicalInterconnects.Add($_LIObject)
+                
+                }
+                
+                Catch
+                {
+                
+                    $PSCmdlet.ThrowTerminatingError($_)
+                
+                }
+
+            }
+
+        }
+
+        elseif ($InputObject.category -eq 'logical-enclosures')
+        {
+
+            #Is this even right?  There is a logicalInterconnectUris property.  Should that be used, even for C-Class and Synergy?
+            ForEach ($_LogicalInterconnectUri in $InputObject.logicalInterconnectUris)
+            {
+
+                Try
+                {
+                
+                    $_LogicalInterconnect = Send-HPOVRequest -Uri $_LogicalInterconnectUri -Hostname $InputObject.ApplianceConnection
+                
+                }
+                
+                Catch
+                {
+                
+                    PSCmdlet.ThrowTerminatingError($_)
+                
+                }
+
+                '{0} has {1} interconnect bays which are configured within the Logical Interconnect' -f $InputObject.name, $InputObject.interconnects.Count | Write-Verbose
+
+                Try
+                {
+                
+                    $_LigObject = Send-HPOVRequest -Uri $_LogicalInterconnect.logicalInterconnectGroupUri
+                    
+                    $_LogicalInterconnect | Add-Member -NotePropertyName LogicalInterconnectGroup -NotePropertyValue $_LigObject -Force
+                    [void]$_LogicalInterconnects.Add($_LogicalInterconnect)
+                
+                }
+                
+                Catch
+                {
+                
+                    $PSCmdlet.ThrowTerminatingError($_)
+                
+                }                
+
+            }
+
+        }
+
+        elseif ($InputObject.category -eq 'logical-interconnects')
+        {
+
+            '{0} has {1} interconnect bays which are configured within the Logical Interconnect' -f $InputObject.name, $InputObject.interconnects.Count | Write-Verbose
+
+            Try
+            {
+            
+                $_LIObject = $InputObject.PSObject.Copy()
+                $_LigObject = Send-HPOVRequest -Uri $_LIObject.logicalInterconnectGroupUri
+                
+                $_LIObject | Add-Member -NotePropertyName LogicalInterconnectGroup -NotePropertyValue $_LigObject -Force
+                [void]$_LogicalInterconnects.Add($_LIObject)
+            
+            }
+            
+            Catch
+            {
+            
+                $PSCmdlet.ThrowTerminatingError($_)
+            
+            }
+
+        }
+
+        else
+        {
+
+            Write-Error "Unsupported InputObject.  Only Enclosure or Logical Interconnect resources are permitted." -ErrorAction Stop
+
+        }
+
+        foreach ($_LI in $_LogicalInterconnects) 
+        {
+
+            "Logical Interconnect '{0}' has '{1}' Interconnects and is based on Group '{2}'" -f $_LI.name, $_LogicalInterconnect.Interconnects.Count, $_LI.LogicalInterconnectGroup.name | Write-Verbose
+
+            CompareInterconnects $_LI $_LI.LogicalInterconnectGroup
+
+            $lus = GetUplinkSets $_LI $_LI.LogicalInterconnectGroup
+
+            foreach ($lu in $lus) 
+            {
+
+                CompareUplinksWithGroup $lu
+
+            }
+
+			CompareLocalNetworks $_LI $_LI.LogicalInterconnectGroup
+            
+        }
+
+        $CompareObject | FT
+
+    }
+
+    End
+    {
+
+        'Done.' | Write-Verbose
+
+    }
+
+}
+
 
 function Show-HPOVLogicalInterconnectMacTable 
 {
@@ -51847,8 +53198,14 @@ function New-HPOVServerProfileConnection
 				if ($connectionType -eq "FibreChannel")
 				{
 
-					$_conn.macType  = "UserDefined" 
-					$_conn.mac      = $mac 
+					if($PSBoundParameters['mac'])
+					{
+
+						$_conn.macType  = "UserDefined" 
+						$_conn.mac      = $mac 
+						
+					}
+
 					$_conn.wwpnType = "UserDefined" 
 					$_conn.wwnn     = $wwnn
 					$_conn.wwpn     = $wwpn 
