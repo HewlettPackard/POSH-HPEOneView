@@ -9049,6 +9049,222 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--GET-HPOVILOSSO-->
+		<command:details>
+			<command:name>Get-HPOVIloSso</command:name>
+			<maml:description>
+				<maml:para>Generate iLO SSO Token</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVIloSso</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Obtain an iLO SSO Token URL to authenticate to an iLO.  If the server hardware is unsupported, the resulting URL will not use SSO and the iLO web interface will prompt for credentials. Note, this is not supported on G7/iLO3 or earlier servers.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Get-HPOVIloSso</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Server">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The Server Hardware or Server Profile resource object from Get-HPOVServer or Get-HPOVServerProfile.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+					<maml:name>RemoteConsoleOnly</maml:name>
+					<maml:description>
+						<maml:para>Generate an SSO URL Token for accessing the Remote Console.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Server">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The Server Hardware or Server Profile resource object from Get-HPOVServer or Get-HPOVServerProfile.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+				<maml:name>RemoteConsoleOnly</maml:name>
+				<maml:description>
+					<maml:para>Generate an SSO URL Token for accessing the Remote Console.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerHardware [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Server Hardware resource object.
+</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerProfile [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Server Profile resource object.
+</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>SSO Url Object
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Multiple SSO URL objects.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $SSOObjects = Get-HPOVServer | Get-HPOVIloSso
+</dev:code>
+				<dev:remarks>
+					<dev:para>Generate iLO SSO Objects for all managed server resources.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $SSOObject = Get-HPOVServer -Name 'Enc1, bay 1' | Get-HPOVIloSso
+</dev:code>
+				<dev:remarks>
+					<dev:para>Generate iLO SSO Object for the specified managed server resource.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $SSOObject = Get-HPOVServerProfile -Name 'My Server Profile' | Get-HPOVIloSso
+</dev:code>
+				<dev:remarks>
+					<dev:para>Generate iLO SSO Object for the specified managed server resource.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVServerPower</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Update-HPOVServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVIloSso</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--GET-HPOVINTERCONNECT-->
 		<command:details>
 			<command:name>Get-HPOVInterconnect</command:name>
@@ -14948,6 +15164,10 @@ Directory to store the SSL certificates.  If the directory doesn't exist, it wil
 			<!--Related Links-->
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>Remove-HPOVScmbCertificate</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVScmbCertificates</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
@@ -15461,6 +15681,10 @@ $AvailableServer = Get-HPOVServer -NoProfile -ServerHardwareType $sht | Select -
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Get-HPOVIloSso</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVServer</maml:uri>
 			</maml:navigationLink>
@@ -15880,58 +16104,7 @@ Location where to save the Server Profile</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $profiles = Get-HPOVServerProfile
-</dev:code>
-				<dev:remarks>
-					<dev:para>Return all the server profiles managed by the appliance.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; $profile = Get-HPOVServerProfile "SA"
-</dev:code>
-				<dev:remarks>
-					<dev:para>Return the server profile resource with name "SA".</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; $profiles = Get-HPOVServerProfile profile*
-</dev:code>
-				<dev:remarks>
-					<dev:para>Return server profile resources that match 'profile*'.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>PS C:\&gt; Get-HPOVServerProfile -list
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile 
 Profile Name   Managing BIOS Managing Firmware Assigned      State
 ------------   ------------- ----------------- --------      -----
 Copy of test 2         False             False Unassigned    Normal
@@ -15956,7 +16129,41 @@ test 3                 False             False Unassigned    Normal
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $profile = Get-HPOVServerProfile -Name "SA"
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return the server profile resource with name "SA".</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $profiles = Get-HPOVServerProfile -Name profile*
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return server profile resources that match 'profile*'.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -15976,11 +16183,11 @@ Test 1                 False             False Unassigned    Normal
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Get-HPOVServerProfile -list -unassigned
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile -unassigned
 Profile Name   Managing BIOS Managing Firmware Assigned      State
 ------------   ------------- ----------------- --------      -----
 Copy of test 2         False             False Unassigned    Normal
@@ -15998,7 +16205,7 @@ test 3                 False             False Unassigned    Normal
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 6 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -16015,7 +16222,7 @@ test 3                 False             False Unassigned    Normal
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 8 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -16048,6 +16255,10 @@ test 3                 False             False Unassigned    Normal
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVIloSso</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -44127,6 +44338,168 @@ Managed SAN resource object or name to remove.</maml:para>
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--REMOVE-HPOVSCMBCERTIFICATE-->
+		<command:details>
+			<command:name>Remove-HPOVScmbCertificate</command:name>
+			<maml:description>
+				<maml:para>Remove State Change Message Bus certificate from appliance.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVScmbCertificate</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>Remove the State Change Message Bus (SCMB) and Metric Streaming Message Bug (MSMB) read only account (rabbitmq_readonly) certificate key pair from an appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVScmbCertificate</maml:name>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="cf">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVScmbCertificate</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="Appliance">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="cf">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="cf">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Resource deleted response.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Remove-HPOVScmbCertificates
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the SCMB (rabbitmq_readonly) certificate key pair from an appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>Get-HPOVScmbCertificate</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVScmbCertificates</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--REMOVE-HPOVSCOPE-->
 		<command:details>
 			<command:name>Remove-HPOVScope</command:name>
@@ -49016,8 +49389,8 @@ In order for an Administrator to change the status of an Alert, the Administrato
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Set-HPOVAlert</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri">
-					<maml:name>Alert</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri, Alert">
+					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
 					</maml:description>
@@ -49051,8 +49424,8 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Set-HPOVAlert</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri">
-					<maml:name>Alert</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri, Alert">
+					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
 					</maml:description>
@@ -49079,8 +49452,8 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Set-HPOVAlert</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri">
-					<maml:name>Alert</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri, Alert">
+					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
 					</maml:description>
@@ -49119,18 +49492,6 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri">
-				<maml:name>Alert</maml:name>
-				<maml:description>
-					<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
-				<dev:type>
-					<maml:name>Object</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
@@ -49171,6 +49532,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Active, Cleared, Default" aliases="alertUri, Alert">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The alert to be cleared.  Can be URI or resource object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
 				<maml:name>Notes</maml:name>
@@ -49225,7 +49598,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Set-HPOVAlert -Alert /rest/alerts/11 -cleared
+				<dev:code>PS C:\&gt; Set-HPOVAlert -InputObject $Alert -Cleared
 </dev:code>
 				<dev:remarks>
 					<dev:para>Clears the alert.</dev:para>
@@ -60871,7 +61244,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -60890,7 +61263,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:description>
 						<maml:para>Aliases [-UpdateFromEG]
 
-Useing this switch will update the Logical Enclosure to be compliant with the Parent Enclosure Group.</maml:para>
+Useing this switch will update the Logical Enclosure to be compliant with the Parent Enclosure Group.  Can be combined with the -WhatIf parameter to perform a Compare with group and return object with differences.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -60924,7 +61297,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -61010,7 +61383,7 @@ Provide the Logical Enclosure name, URI or Object, or [System.Collections.ArrayL
 				<maml:description>
 					<maml:para>Aliases [-UpdateFromEG]
 
-Useing this switch will update the Logical Enclosure to be compliant with the Parent Enclosure Group.</maml:para>
+Useing this switch will update the Logical Enclosure to be compliant with the Parent Enclosure Group.  Can be combined with the -WhatIf parameter to perform a Compare with group and return object with differences.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -61022,7 +61395,7 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 				<maml:name>WhatIf</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -61045,11 +61418,36 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 			</command:inputType>
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.Collections.ArrayList </maml:name>
+					<maml:name>System.Collections.ArrayList</maml:name>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
 					<maml:para>Multiple Logical Enclosure resources</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Library.CompareObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The Cmdlet will return a compare object with the Parent and Child object and settings that are different.  Otherwise, no object is returned.
+
+	Property Name | Description
+	==========================================================
+	InputObject   | Compared Object Property or Setting Value
+	----------------------------------------------------------
+	ParentSetting | Name of Property or Setting
+	----------------------------------------------------------
+	ChildSetting  | Name of Property or Setting
+	----------------------------------------------------------
+	Parent        | Name of Parent Object
+	----------------------------------------------------------
+	Child         | Name of Child Object
+	----------------------------------------------------------
+	Description   | Description Name of difference
+	----------------------------------------------------------
+</maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -61107,6 +61505,38 @@ Useing this switch will update the Logical Enclosure to be compliant with the Pa
 					<maml:para />
 				</maml:introduction>
 				<dev:code>PS C:\&gt; Get-HPOVLogicalEnclosure -Name LogicalEnclosure1 | Update-HPOVLogicalEnclosure -Refresh
+</dev:code>
+				<dev:remarks>
+					<dev:para>Refresh 'LogicalEnclosure1' Logical Enclosure.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLogicalEnclosure -Name Encl1 | Update-HPOVLogicalEnclosure -Update -WhatIf
+What if: Performing the operation "Update Logical Enclosure configuration. WARNING: Depending on this action, there might be a brief outage." on target "Encl1".
+
+InputObject                SideIndicator ParentSetting  ChildSetting Parent            Child                   Description
+-----------                ------------- -------------  ------------ ------            -----                   -----------
+macRefreshInterval         &lt;=&gt;           7              5            Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enablePauseFloodProtection &lt;=&gt;           False          True         Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableRichTLV              &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableTaggedLldp           &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+ActiveQosConfig            &lt;=            CustomWithFCoE Passthrough  Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+Uplink Set 2               &lt;=            Heartbeat                   Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+FC Fabric B                =&gt;                           Bay2:X8      Default VC FF LIG Encl1-Default VC FF LIG ADDITIONAL_UPLINKPORT
+FC Fabric B:Bay2:X7        &lt;=&gt;           Auto           2Gb          Default VC FF LIG Encl1-Default VC FF LIG LINKSPEED_MISMATCH
+UplinkSets                 &lt;=            New Uplink Set              Default VC FF LIG Encl1-Default VC FF LIG MISSING_UPLINKSET
+InternalNetworks           =&gt;                           Heartbeat    Default VC FF LIG Encl1-Default VC FF LIG EXTRA_NETWORK
+InternalNetworks           &lt;=            Dev VLAN 103-A              Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
 </dev:code>
 				<dev:remarks>
 					<dev:para>Refresh 'LogicalEnclosure1' Logical Enclosure.</dev:para>
@@ -61203,7 +61633,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -61246,7 +61676,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -61317,7 +61747,7 @@ The Logical Interconnect object(s), name(s) or uris(s) to be updated.</maml:para
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 				<maml:name>WhatIf</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use this parameter to identify what is different or changed from the parent group policy.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -61370,6 +61800,31 @@ The Logical Interconnect object(s), name(s) or uris(s) to be updated.</maml:para
 					<maml:para>Multiple async Update Tasks</maml:para>
 				</maml:description>
 			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Library.CompareObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The Cmdlet will return a compare object with the Parent and Child object and settings that are different.  Otherwise, no object is returned.
+
+	Property Name | Description
+	==========================================================
+	InputObject   | Compared Object Property or Setting Value
+	----------------------------------------------------------
+	ParentSetting | Name of Property or Setting
+	----------------------------------------------------------
+	ChildSetting  | Name of Property or Setting
+	----------------------------------------------------------
+	Parent        | Name of Parent Object
+	----------------------------------------------------------
+	Child         | Name of Child Object
+	----------------------------------------------------------
+	Description   | Description Name of difference
+	----------------------------------------------------------
+</maml:para>
+				</maml:description>
+			</command:returnValue>
 		</command:returnValues>
 		<command:examples>
 			<!--Examples-->
@@ -61418,6 +61873,38 @@ PS C:\&gt; Wait-HPOVTaskComplete $task
 </dev:code>
 				<dev:remarks>
 					<dev:para>Search for all Logical Interconnects and update them.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLogicalInterconnect -Name Encl1-Default VC FF LIG | Update-HPOVLogicalInterconnect -WhatIf
+What if: Performing the operation "Update Logical Interconnect from Group 'Default VC FF LIG'. WARNING: Depending on the Update, there might be a brief outage." on target "Encl1-Default VC FF LIG".
+
+InputObject                SideIndicator ParentSetting  ChildSetting Parent            Child                   Description
+-----------                ------------- -------------  ------------ ------            -----                   -----------
+macRefreshInterval         &lt;=&gt;           7              5            Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enablePauseFloodProtection &lt;=&gt;           False          True         Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableRichTLV              &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+enableTaggedLldp           &lt;=&gt;           True           False        Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+ActiveQosConfig            &lt;=            CustomWithFCoE Passthrough  Default VC FF LIG Encl1-Default VC FF LIG SETTING_MISMATCH
+Uplink Set 2               &lt;=            Heartbeat                   Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+FC Fabric B                =&gt;                           Bay2:X8      Default VC FF LIG Encl1-Default VC FF LIG ADDITIONAL_UPLINKPORT
+FC Fabric B:Bay2:X7        &lt;=&gt;           Auto           2Gb          Default VC FF LIG Encl1-Default VC FF LIG LINKSPEED_MISMATCH
+UplinkSets                 &lt;=            New Uplink Set              Default VC FF LIG Encl1-Default VC FF LIG MISSING_UPLINKSET
+InternalNetworks           =&gt;                           Heartbeat    Default VC FF LIG Encl1-Default VC FF LIG EXTRA_NETWORK
+InternalNetworks           &lt;=            Dev VLAN 103-A              Default VC FF LIG Encl1-Default VC FF LIG MISSING_NETWORK
+</dev:code>
+				<dev:remarks>
+					<dev:para>Refresh 'LogicalEnclosure1' Logical Enclosure.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -62949,5 +63436,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2016-10-25T05:22:46:64.648Z-->
+	<!--Edited on: 2016-11-04T00:11:50:38.389Z-->
 </helpItems>

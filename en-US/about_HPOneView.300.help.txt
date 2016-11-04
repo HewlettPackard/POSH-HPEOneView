@@ -44,6 +44,21 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
+    Release 3.0.1128.2242
+     -- [#177] Enhanced New-HPOVServerProfileConnection to allow null -MAC parameter for FC only type
+        connection (for non-CNA connections).
+     -- [#178] Fixed New-HPOVLogicalInterconnectGroup where when building the LIG object, an array index number would
+        inadvertantly return back to the Cmdlet caller.
+     -- [#179] Fixed regression in New-HPOVNetwork where TypicalBandwidth or MaximumBandwidth would not be set.
+     -- Fixed Add-HPOVServer and Add-HPOVEnclosure where if resource was being managed by another external Manager
+        and a DNS PTR record didn't exist, would cause an exception with System.Net.Dns.GetHostByName() method.
+     -- Fixed installer where modifying the PSModulePath system environment variable would require a reboot is no longer
+        necessary in order to use module short hand name when using Import-Module.
+     -- Added Remove-HPOVScmbCertificate Cmdlet to remove generated SCMB certificates from an appliance.
+     -- Enhanced Update-HPOVLogicalEnclosure and Update-HPOVLogicalInterconnect -WhatIf parameters to return
+        a compare object with what the child Logical Interconnect is different from parent Logical Interconnect
+        Group.
+
     Release 3.0.1121.2161
      -- Initial 3.00 release.
 
@@ -70,7 +85,7 @@ SEE ALSO
 
     https://github.com/HewlettPackard/POSH-HPOneView
     http://hpe.com/info/oneviewcommunity
-    Update-Help HPOneview.200
+    Update-Help HPOneview.300
     Help about_Appliance_Connections
     Connect-HPOVmgmt
     Send-HPOVRequest
