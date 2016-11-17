@@ -1011,7 +1011,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Principle Switch</Label>
+            <Label>PrincipleSwitch</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1023,15 +1023,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Automate Zoning</Label>
+            <Label>AutomateZoning</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Zoning Policy</Label>
+            <Label>ZoningPolicy</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Use Aliases</Label>
+            <Label>UseAliases</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1063,17 +1063,7 @@
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-
-                  switch ($_.sanPolicy.zoningPolicy) {
-
-                  "SingleInitiatorAllTargets" { "Single initiator / all targets" }
-                  "SingleInitiatorSingleStorageSystem" { "Single initiator / single storage system" }
-                  default { $_.sanPolicy.zoningPolicy }
-
-                  }
-
-                </ScriptBlock>
+                <ScriptBlock>$_.sanPolicy.zoningPolicy</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>$_.sanPolicy.enableAliasing</ScriptBlock>
@@ -1106,7 +1096,7 @@
                 <PropertyName>state</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Principal Switch</Label>
+                <Label>PrincipalSwitch</Label>
                 <PropertyName>principalSwitch</PropertyName>
               </ListItem>
               <ListItem>
@@ -1118,25 +1108,15 @@
                 <PropertyName>zoningState</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Automate Zoning</Label>
+                <Label>AutomateZoning</Label>
                 <ScriptBlock>
                   if ($_.sanPolicy.zoningPolicy -eq "NoZoning") { "No" }
                   else { "Yes" }
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Zoning Policy</Label>
-                <ScriptBlock>
-
-                  switch ($_.sanPolicy.zoningPolicy) {
-
-                  "SingleInitiatorAllTargets" { "Single initiator / all targets" }
-                  "SingleInitiatorSingleStorageSystem" { "Single initiator / single storage system" }
-                  default { $_.sanPolicy.zoningPolicy }
-
-                  }
-
-                </ScriptBlock>
+                <Label>ZoningPolicy</Label>
+                <ScriptBlock>$_.sanPolicy.zoningPolicy</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Use Aliases</Label>
@@ -1169,7 +1149,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Serial Number</Label>
+            <Label>SerialNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1244,7 +1224,7 @@
                 <PropertyName>state</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>serialNumber</Label>
+                <Label>SerialNumber</Label>
                 <PropertyName>serialNumber</PropertyName>
               </ListItem>
               <ListItem>
@@ -1260,19 +1240,19 @@
                 <PropertyName>firmware</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Total Capacity</Label>
+                <Label>TotalCapacity</Label>
                 <ScriptBlock>'{0:N2} TB' -f ($_.totalCapacity / 1TB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Allocated Capacity</Label>
+                <Label>AllocatedCapacity</Label>
                 <ScriptBlock>'{0:N2} TB' -f ($_.allocatedCapacity / 1TB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Free Capacity</Label>
+                <Label>FreeCapacity</Label>
                 <ScriptBlock>'{0:N2} TB' -f ($_.freeCapacity / 1TB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Use Aliases</Label>
+                <Label>UseAliases</Label>
                 <ScriptBlock>$_.sanPolicy.enableAliasing</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -1306,11 +1286,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Expected Network</Label>
+            <Label>ExpectedNetwork</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Actual Network</Label>
+            <Label>ActualNetwork</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1382,11 +1362,11 @@
                 <PropertyName>portWwn</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Expected Network</Label>
+                <Label>ExpectedNetwork</Label>
                 <PropertyName>expectedNetworkName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Actual Network</Label>
+                <Label>ActualNetwork</Label>
                 <ScriptBlock>
                   if ($_.actualNetworkUri -and (-not($_.actualNetworkUri -eq "unknown")))
                   {
@@ -1398,7 +1378,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Port Group</Label>
+                <Label>PortGroup</Label>
                 <PropertyName>groupName</PropertyName>
               </ListItem>
             </ListItems>
@@ -1432,15 +1412,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Serial Number</Label>
+            <Label>SerialNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Drive Bays</Label>
+            <Label>DriveBays</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>I/O Adapters</Label>
+            <Label>I/OAdapters</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1510,13 +1490,13 @@
                 <PropertyName>serialNumber</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Drive Bays</Label>
+                <Label>DriveBays</Label>
                 <ScriptBlock>
                   '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>I/O Adapters</Label>
+                <Label>I/OAdapters</Label>
                 <PropertyName>ioAdapterCount</PropertyName>
               </ListItem>
             </ListItems>
@@ -1551,15 +1531,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Serial Number</Label>
+            <Label>SerialNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Drive Bays</Label>
+            <Label>DriveBays</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>I/O Adapters</Label>
+            <Label>I/OAdapters</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1629,13 +1609,13 @@
                 <PropertyName>serialNumber</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Drive Bays</Label>
+                <Label>DriveBays</Label>
                 <ScriptBlock>
                   '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>I/O Adapters</Label>
+                <Label>I/OAdapters</Label>
                 <PropertyName>ioAdapterCount</PropertyName>
               </ListItem>
             </ListItems>
@@ -1777,7 +1757,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Serial Number</Label>
+            <Label>SerialNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1883,7 +1863,7 @@
                 <PropertyName>firmwareVersion</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Serial Number</Label>
+                <Label>SerialNumber</Label>
                 <PropertyName>serialNumber</PropertyName>
               </ListItem>
             </ListItems>

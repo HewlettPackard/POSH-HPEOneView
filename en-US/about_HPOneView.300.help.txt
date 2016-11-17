@@ -39,11 +39,27 @@ WHAT'S NEW
     The HPE OneView 3.0 PowerShell library is removing Positional Parameters, which will break
     existing scripts.  This change is needed to address ongoing support issues with PowerShell scripts
     and to conform to Microsoft's Best Practice to not use Positional Parameters.
+    
+    Starting with 3.0.1142.2291, Exception Handling will change only for Get-HPOV* and Disconnect-HPOVMgmt 
+    Cmdlets when providing the -Name parameter.  Instead of generating a TerminatingError, these Cmdlets 
+    will support -ErrorAction.  To trap those errors, use the -ErrorAction Stop parameter value.  To ignore 
+    the error, instead use -ErrorAction SilentlyContinue.  Authentication errors are still TerminatingErrors
+    with those Cmdlets.
 
     !!!!!!!!!!!!!!!!!
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
+    Release 3.0.1142.2291
+     -- Fixed Get-HPOVAlert where passing in object via pipeline would generate an API exception.
+     -- Fixed Set-HPOVAlert where alertState was being set to null.
+     -- Fixed New-HPOVUplinkSet where incorrect validation ocurred for Synergy ImageStreamer during pipeline operation.
+     -- Fixed New-HPOVUplinkSet where an incorrect property was set for Synergy ImageStreamer causing an API exception.
+     -- Fixed Set-HPOVManagedSAN to properly handle SANs via pipeline.
+     -- Fixed Get-HPOVScmbCertificates where the appliance root CA was not being handled correctly when 
+        -ImportApplianceCA parameter was used.
+     -- Changed error behavior for Get-HPOV and Disconnect-HPOVMgmt Cmdlets so -ErrorAction parameter can be used.
+     
     Release 3.0.1128.2242
      -- [#177] Enhanced New-HPOVServerProfileConnection to allow null -MAC parameter for FC only type
         connection (for non-CNA connections).

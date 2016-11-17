@@ -425,11 +425,11 @@ if (-not (get-module HPOneview.300))
         #Misc networks
         New-HPOVNetwork -Name "My Vlan 501" -type "Ethernet" -vlanId 3000 -smartlink $true -purpose General
     
-		$ProdNetsA = Get-HPOVNetwork -Name "VLAN *0-A"
-		$ProdNetsB = Get-HPOVNetwork -Name "VLAN *0-B"
-		$DevNetsA  = Get-HPOVNetwork -Name "Dev VLAN *-A" 
-		$DevNetsB  = Get-HPOVNetwork -Name "Dev VLAN *-B"
-        $InternalNetworks = 'Live Migration','Heartbeat' | % { Get-HPOVNetwork -Name $_ }
+		$ProdNetsA = Get-HPOVNetwork -Name "VLAN *0-A" -ErrorAction Stop
+		$ProdNetsB = Get-HPOVNetwork -Name "VLAN *0-B" -ErrorAction Stop
+		$DevNetsA  = Get-HPOVNetwork -Name "Dev VLAN *-A" -ErrorAction Stop
+		$DevNetsB  = Get-HPOVNetwork -Name "Dev VLAN *-B" -ErrorAction Stop
+        $InternalNetworks = 'Live Migration','Heartbeat' | % { Get-HPOVNetwork -Name $_ -ErrorAction Stop }
     
 		# Create the network sets
 		New-HPOVNetworkSet -Name "Prod NetSet1 A" -networks $ProdNetsA -untaggedNetwork $ProdNetsA[0] -typicalBandwidth 2500 -maximumBandwidth 10000 
@@ -465,20 +465,20 @@ if (-not (get-module HPOneview.300))
 		$CreatedLig = New-HPOVLogicalInterconnectGroup -Name $LigName -Bays $Bays -Snmp $SnmpConfig -EnableIgmpSnooping $True -InternalNetworks $InternalNetworks | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
 
 		# Get FC Network Objects
-		$FabricA   = Get-HPOVNetwork -Name "Fabric A"
-		$FabricB   = Get-HPOVNetwork -Name "Fabric B"
-		$DAFabricA = Get-HPOVNetwork -Name "DirectAttach A"    
-		$DAFabricB = Get-HPOVNetwork -Name "DirectAttach B"    
+		$FabricA   = Get-HPOVNetwork -Name "Fabric A" -ErrorAction Stop
+		$FabricB   = Get-HPOVNetwork -Name "Fabric B" -ErrorAction Stop
+		$DAFabricA = Get-HPOVNetwork -Name "DirectAttach A" -ErrorAction Stop
+		$DAFabricB = Get-HPOVNetwork -Name "DirectAttach B" -ErrorAction Stop
 
 		# Create Ethernet Uplink Sets
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1" -Type "Ethernet" -Networks $ProdNetsA -nativeEthNetwork $ProdNetsA[0] -UplinkPorts "BAY1:X1","BAY1:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 2" -Type "Ethernet" -Networks $ProdNetsB -nativeEthNetwork $ProdNetsB[0] -UplinkPorts "BAY2:X1","BAY2:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1" -Type "Ethernet" -Networks $ProdNetsA -nativeEthNetwork $ProdNetsA[0] -UplinkPorts "BAY1:X1","BAY1:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 2" -Type "Ethernet" -Networks $ProdNetsB -nativeEthNetwork $ProdNetsB[0] -UplinkPorts "BAY2:X1","BAY2:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
     
 		# FC Uplink Sets
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "DA Fabric A" -Type "FibreChannel" -Networks $DAFabricA -UplinkPorts "BAY1:X3",'BAY1:X4' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
-		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "DA Fabric B" -Type "FibreChannel" -Networks $DAFabricB -UplinkPorts "BAY2:X3",'BAY2:X4' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "DA Fabric A" -Type "FibreChannel" -Networks $DAFabricA -UplinkPorts "BAY1:X3",'BAY1:X4' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
+		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "DA Fabric B" -Type "FibreChannel" -Networks $DAFabricB -UplinkPorts "BAY2:X3",'BAY2:X4' | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
 
 	}
 
@@ -555,9 +555,9 @@ end_marker'
 
 		$Results = Add-HPOVStorageSystem @params | Wait-HPOVTaskComplete
 
-        $Results = Get-HPOVStorageSystem | Add-HPOVStoragePool -Pool 'FST_CPG1','FST_CPG2' | Wait-HPOVTaskComplete
+        $Results = Get-HPOVStorageSystem -ErrorAction Stop | Add-HPOVStoragePool -Pool 'FST_CPG1','FST_CPG2' | Wait-HPOVTaskComplete
 
-		$StorageVolume = Get-HPOVStoragePool -Pool 'FST_CPG1' | New-HPOVStorageVolume -Name 'DO NOT DELETE' -Capacity 1
+		$StorageVolume = Get-HPOVStoragePool -Pool 'FST_CPG1' -ErrorAction Stop | New-HPOVStorageVolume -Name 'DO NOT DELETE' -Capacity 1
 
 	}
 

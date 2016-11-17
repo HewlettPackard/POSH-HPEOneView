@@ -3,9 +3,9 @@
 # - Example scripts for creating a user account, and retrieving alerts specific
 #   to the new user.
 #
-#   VERSION 3.0
+#   VERSION 3.1
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -48,14 +48,9 @@ if (-not $ConnectedSessions)
 }
 
 # Make sure we have a local user 'Sally'
-Try
-{
+$sally = Get-HPOVUser -Name Sally -ErrorAction SilentlyContinue
 
-	$sally = Get-HPOVUser -Name Sally
-
-}
-
-Catch [HPOneView.Appliance.UserResourceException]
+If (-not $sally)
 {
 
 	Write-Host 'User Sally does not exist. Creating user account.'

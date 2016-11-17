@@ -6501,7 +6501,7 @@ Alerts for the specified resource will be returned.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="State">
 					<maml:name>AlertState</maml:name>
 					<maml:description>
 						<maml:para>Alerts with given alert state will be returned.  State values include Active and Cleared</maml:para>
@@ -6523,7 +6523,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="State">
 				<maml:name>AlertState</maml:name>
 				<maml:description>
 					<maml:para>Alerts with given alert state will be returned.  State values include Active and Cleared</maml:para>
@@ -14374,13 +14374,12 @@ appliance1.domain.com                  False
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVSanManager</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="Name">
-					<maml:name>SanManager</maml:name>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="SanManager">
+					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-Name]
-Provide the name of the SAN Manager to display.</maml:para>
+						<maml:para />
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="" variableLength="False" />
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
@@ -14413,15 +14412,14 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="Name">
-				<maml:name>SanManager</maml:name>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="SanManager">
+				<maml:name>Name</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-Name]
-Provide the name of the SAN Manager to display.</maml:para>
+					<maml:para />
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="" variableLength="False" />
 				<dev:type>
-					<maml:name>String</maml:name>
+					<maml:name />
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -22609,7 +22607,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:&gt; New-HPOVAddressPoolRange vwwn Custom 10:00:6C:9F:06:B0:00:00 10:00:6C:9F:06:BF:FF:FF
+				<dev:code>PS C:&gt; New-HPOVAddressPoolRange -PoolType vwwn -RangeType Custom -Start 10:00:6C:9F:06:B0:00:00 -End 10:00:6C:9F:06:BF:FF:FF
 </dev:code>
 				<dev:remarks>
 					<dev:para>Create a new VWWN Address Pool Range with the custom addresses, for the MyAppliance1.domain.com appliance connection.</dev:para>
@@ -22626,10 +22624,10 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:&gt; Get-HPOVAddressPool 192.168.20.0  | New-HPOVAddressPoolRange -Name 'VLAN20 Mgmt' -Start 192.168.20.100 -end 192.168.20.200
+				<dev:code>PS C:&gt; Get-HPOVAddressPoolSubnet -NetworkId 192.168.20.0 | New-HPOVAddressPoolRange -Name 'VLAN20 Mgmt' -Start 192.168.20.100 -end 192.168.20.200
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create a new IPv4 Address Pool Range , for the MyAppliance1.domain.com appliance connection.</dev:para>
+					<dev:para>Create a new IPv4 Address Pool Range, for the MyAppliance1.domain.com appliance connection.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -24195,7 +24193,15 @@ PS C:\&gt; Get-HPOVBaseline -BaselineName 'MyBaseline' | New-HPOVCustomBaseline 
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>Create a new Enclosure Group.  An existing Logical Interconnect Group must be created prior to creating an Enclosure Group.</maml:para>
+			<maml:para>An enclosure group is a logical resource that defines a standard configuration for member logical enclosures. The network connectivity for an enclosure group is defined by the logical interconnect groups associated with the enclosure group. When configuring an HPE Synergy enclosure group, it may contain up to five enclosures.  When configuring an HPE BladeSystem C-Class enclosure group, it will only contain a single enclosure.
+
+Enclosure groups and logical interconnect groups
+
+* A logical interconnect group that is assigned to a bay within an enclosure group must have that bay populated within the logical interconnect group.
+* All populated bays in a logical interconnect group must be assigned to the enclosure group. For example, a logical interconnect group that has bays 1 and 2 populated must be assigned to bays 1 and 2 of the enclosure group in order for the enclosure group to be created.
+* An enclosure group can contain logical interconnect groups that are highly available, redundant, A-side only, or A-side and B-side. See About interconnect bay sets.
+* Synergy multiple-enclosure logical interconnect groups must have the proper bays populated in all enclosures in the interconnect link topology.
+* Synergy single-enclosure logical interconnect groups, such as a Serial Attached SCSI (SAS) logical interconnect group, can be applied to individual bays in individual enclosures in the interconnect link topology.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -24258,11 +24264,11 @@ Allowed Values:
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, C7000" aliases="None">
 					<maml:name>ConfigurationScript</maml:name>
 					<maml:description>
-						<maml:para>An Onboard Administrator CLI Script.</maml:para>
+						<maml:para>An Onboard Administrator CLI Script. Only applicable for HPE BladeSystem C-Class.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24271,7 +24277,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -24328,7 +24334,7 @@ Allowed Values:
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, C7000" aliases="None">
 					<maml:name>ConfigurationScript</maml:name>
 					<maml:description>
-						<maml:para>An Onboard Administrator CLI Script.</maml:para>
+						<maml:para>An Onboard Administrator CLI Script. Only applicable for HPE BladeSystem C-Class.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -24339,7 +24345,7 @@ Allowed Values:
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24348,7 +24354,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -24419,9 +24425,9 @@ Allowed Values:
 					<maml:description>
 						<maml:para>Use to specify how the IPv4 Addresses will be assigned to Synergy resources management interface(s).  Allowed values:
 
-* External -  The IPv4 address is managed externally. 
+* External -  The IPv4 address is managed externally, static assignment. 
 * DHCP -  The IPv4 address is assigned using DHCP. 
-* AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter. 
+* AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter, similar to HPE BladeSystem C-Class 'Enclosure Bay IP Addressing' (aka EBIPA). 
 
 Default: DHCP</maml:para>
 					</maml:description>
@@ -24430,7 +24436,7 @@ Default: DHCP</maml:para>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Synergy" aliases="None">
 					<maml:name>AddressPool</maml:name>
 					<maml:description>
-						<maml:para>The IPv4 Address Pool object from Get-HPOVAddressPoolSubnet.</maml:para>
+						<maml:para>The IPv4 Address Pool object from Get-HPOVAddressPoolRange.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -24439,7 +24445,7 @@ Default: DHCP</maml:para>
 					<maml:description>
 						<maml:para>Specify the Synergy Image Stream deployment network type.  Allowed values:
 
-* Internal - Deployment network is an internal, managed by the Frame links.
+* Internal - Deployment network is an internal, managed by the Frame links, which Logical Intercoonect Group must have an ImageStreamer Uplink Set.
 * External - Deployment network is connected to an External management switch.
 * None - No deployment network will be configured.
 
@@ -24450,11 +24456,11 @@ Default: None</maml:para>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Synergy" aliases="None">
 					<maml:name>DeploymentNetwork</maml:name>
 					<maml:description>
-						<maml:para>The Ethernet Network with the purpose property set to Management.</maml:para>
+						<maml:para>The Ethernet Network with the purpose property set to Management.  Must also include DeploymentNetworkType parameter, value must be 'External', with the Ethernet Network associated with a non-ImageStreamer Uplink Set.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24463,7 +24469,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -24475,7 +24481,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -24484,7 +24490,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
@@ -24493,7 +24499,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Synergy" aliases="None">
 				<maml:name>AddressPool</maml:name>
 				<maml:description>
-					<maml:para>The IPv4 Address Pool object from Get-HPOVAddressPoolSubnet.</maml:para>
+					<maml:para>The IPv4 Address Pool object from Get-HPOVAddressPoolRange.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -24502,7 +24508,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, Synergy, ImportFile, C7000" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -24511,7 +24517,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -24521,7 +24527,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="DiscoverFromEnclosure, C7000" aliases="None">
 				<maml:name>ConfigurationScript</maml:name>
 				<maml:description>
-					<maml:para>An Onboard Administrator CLI Script.</maml:para>
+					<maml:para>An Onboard Administrator CLI Script. Only applicable for HPE BladeSystem C-Class.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -24533,7 +24539,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Synergy" aliases="None">
 				<maml:name>DeploymentNetwork</maml:name>
 				<maml:description>
-					<maml:para>The Ethernet Network with the purpose property set to Management.</maml:para>
+					<maml:para>The Ethernet Network with the purpose property set to Management.  Must also include DeploymentNetworkType parameter, value must be 'External', with the Ethernet Network associated with a non-ImageStreamer Uplink Set.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -24547,7 +24553,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				<maml:description>
 					<maml:para>Specify the Synergy Image Stream deployment network type.  Allowed values:
 
-* Internal - Deployment network is an internal, managed by the Frame links.
+* Internal - Deployment network is an internal, managed by the Frame links, which Logical Intercoonect Group must have an ImageStreamer Uplink Set.
 * External - Deployment network is connected to an External management switch.
 * None - No deployment network will be configured.
 
@@ -24591,9 +24597,9 @@ No Uplink Sets will be created. They will need to be added using the New-HPOVUpl
 				<maml:description>
 					<maml:para>Use to specify how the IPv4 Addresses will be assigned to Synergy resources management interface(s).  Allowed values:
 
-* External -  The IPv4 address is managed externally. 
+* External -  The IPv4 address is managed externally, static assignment. 
 * DHCP -  The IPv4 address is assigned using DHCP. 
-* AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter. 
+* AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter, similar to HPE BladeSystem C-Class 'Enclosure Bay IP Addressing' (aka EBIPA). 
 
 Default: DHCP</maml:para>
 				</maml:description>
@@ -24872,6 +24878,45 @@ PS C:\&gt; New-HPOVEnclosureGroup -name "My Synergy Enclosure Group 1" -LogicalI
 					</command:commandLine>
 				</command:commandLines>
 			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $AddressPool = Get-HPOVAddressPoolSubnet -NetworkId '10.140.51.0' -ErrorAction Stop | Get-HPOVAddressPoolRange
+PS C:\&gt; $MySynergyLig1 = Get-HPOVLogicalInterconnectGroup -Name MySynergyLig1
+PS C:\&gt; New-HPOVEnclosureGroup -name "My Synergy Enclosure Group 1" -LogicalInterconnectGroupMapping @{Frame1 = $3FrameVCLIG,$SasLIG; Frame2 = $3FrameVCLIG,$SasLIG; Frame3 = $3FrameVCLIG } -EnclosureCount 3 -IPv4AddressType AddressPool -AddressPool $AddressPool -DeploymentNetworkType Internal
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a 3-Frame Synergy Enclosure Group using multiple Logical Interconnect Groups specific to each Frame, with ImageStreamer support using a LIG with an ImageStreamer Uplink Set (aka Internal)..</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 8 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $AddressPool = Get-HPOVAddressPoolSubnet -NetworkId '10.140.51.0' -ErrorAction Stop | Get-HPOVAddressPoolRange
+PS C:\&gt; $DeploymentNetwork = Get-HPOVNetwork -Name 'Deployment Network' -ErrorAction Stop
+PS C:\&gt; $MySynergyLig1 = Get-HPOVLogicalInterconnectGroup -Name MySynergyLig1
+PS C:\&gt; New-HPOVEnclosureGroup -name "My Synergy Enclosure Group 1" -LogicalInterconnectGroupMapping @{Frame1 = $3FrameVCLIG,$SasLIG; Frame2 = $3FrameVCLIG,$SasLIG; Frame3 = $3FrameVCLIG } -EnclosureCount 3 -IPv4AddressType AddressPool -AddressPool $AddressPool -DeploymentNetworkType External -DeploymentNetwork $DeploymentNetwork
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a 3-Frame Synergy Enclosure Group using multiple Logical Interconnect Groups specific to each Frame, with ImageStreamer support using a LIG without an ImageStreamer Uplink Set and specifying which Ethernet Network object is the deployment network (aka External).</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
 		</command:examples>
 		<maml:relatedLinks>
 			<!--Related Links-->
@@ -24884,7 +24929,19 @@ PS C:\&gt; New-HPOVEnclosureGroup -name "My Synergy Enclosure Group 1" -LogicalI
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVLogicalInterconnectGroup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Get-HPOVEnclosureGroup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVEnclosureGroup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVEnclosure</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -39679,6 +39736,23 @@ PS C:\&gt; Get-HPOVLogicalInterconnectGroup -Name 'My Synergy Prod LIG' | New-HP
 					</command:commandLine>
 				</command:commandLines>
 			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 7 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $ImageStreamerDeploymentNetworkObject = Get-HPOVNetwork -Name 'Deployment Network' -ErrorAction Stop
+PS C:\&gt; Get-HPOVLogicalInterconnectGroup -Name 'My Synergy VC+ImageStreamer LIG' -ErrorAction Stop | New-HPOVUplinkSet -Name 'Image Streamer Uplink Set' -Type ImageStreamer -Networks $ImageStreamerDeploymentNetworkObject -UplinkPorts "Enclosure1:Bay3:Q3.1","Enclosure1:Bay3:Q4.1","Enclosure2:Bay6:Q3.1","Enclosure2:Bay6:Q4.1"</dev:code>
+				<dev:remarks>
+					<dev:para>Create a Synergy ImageStreamer Uplink Set.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
 		</command:examples>
 		<maml:relatedLinks>
 			<!--Related Links-->
@@ -53038,43 +53112,70 @@ Managed SAN Name or Object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 					<maml:name>InitiatorNameFormat</maml:name>
 					<maml:description>
 						<maml:para>Format to use for initiator alias names. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}.
 
 Example: "initiator_{hostname}_{initiatorName}"</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 					<maml:name>TargetGroupNameFormat</maml:name>
 					<maml:description>
 						<maml:para>Format to use for target group (ex. storage system port group) alias names. The following built-in variables can be used: {storageSystemName}, {targetGroupName}.
 
 Example: "TargetGroup_{storageSystemName}_{targetGroupName}"</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 					<maml:name>TargetNameFormat</maml:name>
 					<maml:description>
 						<maml:para>Format to use for target (ex. storage system port) alias names. The following built-in variables can be used: {storageSystemName}, {targetName}.
 
 Example: "Target_{storageSystemName}_{targetName}"</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 					<maml:name>ZoneNameFormat</maml:name>
 					<maml:description>
 						<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
 
 Example: "{initiatorWwn}_{initiatorName}"</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+					<maml:name>UpdateZoneNames</maml:name>
+					<maml:description>
+						<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+					<maml:name>UpdateInitiatorAliases</maml:name>
+					<maml:description>
+						<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+					<maml:name>UpdateTargetAliases</maml:name>
+					<maml:description>
+						<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -53083,7 +53184,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -53122,7 +53223,7 @@ Managed SAN Name or Object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -53131,7 +53232,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -53145,12 +53246,12 @@ Managed SAN Name or Object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disable" aliases="ZoningDisable, Disable">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disable" aliases="ZoningDisable, Disable">
 					<maml:name>DisableAutomatedZoning</maml:name>
 					<maml:description>
 						<maml:para>(DEPRICATED - Please use -ZoningPolicy parameter.) Disable Automated Zoning for the specified Managed SAN.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="None">
 					<maml:name>ZoningPolicy</maml:name>
@@ -53163,7 +53264,7 @@ Managed SAN Name or Object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -53172,13 +53273,13 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="DisableAlias, Disable, Enable" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -53187,7 +53288,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -53204,14 +53305,14 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
 				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
+				<dev:defaultValue>false</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disable" aliases="ZoningDisable, Disable">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Disable" aliases="ZoningDisable, Disable">
 				<maml:name>DisableAutomatedZoning</maml:name>
 				<maml:description>
 					<maml:para>(DEPRICATED - Please use -ZoningPolicy parameter.) Disable Automated Zoning for the specified Managed SAN.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
 					<maml:uri />
@@ -53242,14 +53343,14 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 				<maml:name>InitiatorNameFormat</maml:name>
 				<maml:description>
 					<maml:para>Format to use for initiator alias names. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}.
 
 Example: "initiator_{hostname}_{initiatorName}"</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -53270,42 +53371,84 @@ Managed SAN Name or Object.</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 				<maml:name>TargetGroupNameFormat</maml:name>
 				<maml:description>
 					<maml:para>Format to use for target group (ex. storage system port group) alias names. The following built-in variables can be used: {storageSystemName}, {targetGroupName}.
 
 Example: "TargetGroup_{storageSystemName}_{targetGroupName}"</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 				<maml:name>TargetNameFormat</maml:name>
 				<maml:description>
 					<maml:para>Format to use for target (ex. storage system port) alias names. The following built-in variables can be used: {storageSystemName}, {targetName}.
 
 Example: "Target_{storageSystemName}_{targetName}"</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<maml:name>UpdateInitiatorAliases</maml:name>
+				<maml:description>
+					<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<maml:name>UpdateTargetAliases</maml:name>
+				<maml:description>
+					<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
+				<maml:name>UpdateZoneNames</maml:name>
+				<maml:description>
+					<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
+
+Example: "{initiatorWwn}_{initiatorName}"</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Enable" aliases="None">
 				<maml:name>ZoneNameFormat</maml:name>
 				<maml:description>
 					<maml:para>Format to use when naming new and updated zones. The following built-in variables can be used: {hostName}, {initiatorName}, {initiatorWwn}, {storageSystemName}, {targetName}, {targetGroupName} 
 
 Example: "{initiatorWwn}_{initiatorName}"</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -63436,5 +63579,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2016-11-04T00:11:50:38.389Z-->
+	<!--Edited on: 2016-11-16T23:02:27:47.472Z-->
 </helpItems>
