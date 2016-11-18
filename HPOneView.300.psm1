@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[version]$ModuleVersion = '3.0.1142.2291'
+[version]$ModuleVersion = '3.0.1144.2035'
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -14544,7 +14544,7 @@ function Set-HPOVRemoteSupportDefaultSite
 			Catch 
 			{
 
-				if ($_.FullyQualifiedErrorId -eq 'ResourceNotFound')
+				if ($_.FullyQualifiedErrorId -match 'ResourceNotFound')
 				{
 
 					$_method      = 'POST'
@@ -39979,7 +39979,6 @@ function Get-HPOVUnmanagedDevice
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++) 
 			{
 
@@ -40004,7 +40003,6 @@ function Get-HPOVUnmanagedDevice
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -40097,8 +40095,9 @@ function Get-HPOVUnmanagedDevice
 
 				Write-verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($_UnmanagedDevices | Out-String)"
 
-				$ErrorRecord = New-ErrorRecord HPOneview.UnmanagedDeviceResourceException UnmangedDeviceResouceNotFound ObjectNotFound 'Name' -Message "The '$($Name)' Unmanaged Device resource was not found on '$($_appliance.Name)' Appliance. Please check the name and try again."
-				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+				$ExceptionMessage = "The '{0}' Unmanaged Device resource was not found on '{1}' Appliance. Please check the name and try again." -f $Name, $_appliance.Name
+				$ErrorRecord = New-ErrorRecord HPOneview.UnmanagedDeviceResourceException UnmangedDeviceResouceNotFound ObjectNotFound 'Name' -Message $ExceptionMessage
+				$PSCmdlet.WriteError($ErrorRecord)
 
 			}
 
@@ -42411,13 +42410,6 @@ function Get-HPOVNetwork
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($Connection.Name)' Appliance (of $($ApplianceConnection.Count))"
 
-			if ($name)
-			{
-				
-				$name = $name -replace ("[*]","%25") -replace ("[&]","%26")
-
-			}
-			
 			switch($type) 
 			{
 
@@ -42426,28 +42418,21 @@ function Get-HPOVNetwork
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing FibreChannel Networks."
 
-					if ($name) 
+					$Uri = $fcNetworksUri + "?sort=name:ascending"
+
+					if ($Name) 
 					{ 
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for '$($name)' Fibre Channel Network resources."
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for '$($Name)' Fibre Channel Network resources."
 
-						$FcNetsUri = $script:fcNetworksUri + "?filter=`"name matches '$name'`"&sort=name:ascending"
+						$Uri =  "{0}&filter=name matches '{1}'" -f $Uri, $Name.replace("*","%25").Replace("&","%26")
 
-					}
-
-					else 
-					{
-						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for all Fibre Channel Network resources."
-
-						$FcNetsUri = $script:fcNetworksUri + "?sort=name:ascending"
-					
 					}
 
 					Try
 					{
 
-						$Networks = Send-HPOVRequest -uri $FcNetsUri -Hostname $Connection
+						$Networks = Send-HPOVRequest -uri $Uri -Hostname $Connection
 
 					}
 					
@@ -42481,28 +42466,21 @@ function Get-HPOVNetwork
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Ethernet Network resources."
 
-					if ($name) 
+					$Uri = $ethNetworksUri + "?sort=name:ascending"
+
+					if ($Name) 
 					{ 
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for '$($name)' Ethernet Network resources."
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for '$($Name)' Fibre Channel Network resources."
 
-						$EnetsUri = $script:ethNetworksUri + "?filter=`"name matches '$name'`"&sort=name:ascending"
+						$Uri =  "{0}&filter=name matches '{1}'" -f $Uri, $Name.replace("*","%25").Replace("&","%26")
 
-					}
-
-					else 
-					{  
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for all Ethernet Network resources."
-
-						$EnetsUri = $script:ethNetworksUri + "?sort=name:ascending" 
-						
 					}
 
 					Try
 					{
 
-						$Networks = Send-HPOVRequest -uri $EnetsUri -Hostname $Connection
+						$Networks = Send-HPOVRequest -uri $Uri -Hostname $Connection
 
 					}
 
@@ -42536,28 +42514,21 @@ function Get-HPOVNetwork
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for FCoE Network resources."
 
-					if ($name) 
+					$Uri = $FCoENetworksUri + "?sort=name:ascending"
+
+					if ($Name) 
 					{ 
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for '$($name)' FCoE Network resources."
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for '$($Name)' Fibre Channel Network resources."
 
-						$FCoEUri = $script:FCoENetworksUri + "?filter=`"name matches '$name'`"&sort=name:desc"
+						$Uri =  "{0}&filter=name matches '{1}'" -f $Uri, $Name.replace("*","%25").Replace("&","%26")
 
-					}
-
-					else 
-					{  
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking for all FCOE Network resources."
-
-						$FCoEUri = $script:FCoENetworksUri + "?sort=name:desc" 
-						
 					}
 
 					Try
 					{
 
-						$FCoENets = Send-HPOVRequest -uri $FCoEUri -Hostname $Connection
+						$Networks = Send-HPOVRequest -uri $Uri -Hostname $Connection
 
 					}
 
@@ -42594,7 +42565,8 @@ function Get-HPOVNetwork
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Network Resource Name was provided, yet no results were found.  Generate Error."
 
-				$ErrorRecord = New-ErrorRecord HPOneView.NetworkResourceException NetworkResourceNotFound ObjectNotFound "Name" -Message "The specified '$name' Network resource was not found.  Please check the name and try again."
+				$ExceptionMessage = "The specified '{0}' Network resource was not found on '{1}' appliance connection.  Please check the name and try again." -f $Name, $Connection.Name 
+				$ErrorRecord = New-ErrorRecord HPOneView.NetworkResourceException NetworkResourceNotFound ObjectNotFound "Name" -Message $ExceptionMessage
 				$PSCmdlet.WriteError($ErrorRecord)
 
 			}
@@ -53217,7 +53189,7 @@ function Get-HPOVUplinkSet
 				Try
 				{
 
-					$_uplinksets = Send-HPOVRequest $uri GET -Hostname $_appliance
+					$_uplinksets = Send-HPOVRequest -Uri $uri -Method GET -Hostname $_appliance
 
 				}
 
@@ -53228,12 +53200,20 @@ function Get-HPOVUplinkSet
 
 				}				
 
-				if ($_uplinksets.count -eq 0)
+				if ($_uplinksets.count -eq 0 -and $Name)
 				{
 
 					#Generate Error if no name was found
-					$ErrorRecord = New-ErrorRecord InvalidOperationException UplinkSetResourceNameNotFound ObjectNotFound 'Name' -Message "Specified Uplink Set '$name' was not found on '$($_appliance.Name)'.  Please check the name and try again."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+					$ExceptionMessage = "Specified Uplink Set '{0}' was not found on '{1}'.  Please check the name and try again." -f $Name, $_appliance.Name
+					$ErrorRecord = New-ErrorRecord InvalidOperationException UplinkSetResourceNameNotFound ObjectNotFound 'Name' -Message $ExceptionMessage
+					$PSCmdlet.WriteError($ErrorRecord)  
+
+				}
+
+				elseif ($_uplinksets.count -eq 0)
+				{
+
+					"[{0}] No Uplink Sets found for {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name | Write-Verbose
 
 				}
 
@@ -53342,7 +53322,6 @@ function Get-HPOVUplinkSet
 
 					}
 					
-					
 					if ($_indexassociatedulinksets.count -gt 0)
 					{
 
@@ -53405,7 +53384,7 @@ function Get-HPOVUplinkSet
 						
 						#Generate Error if no name was found
 						$ErrorRecord = New-ErrorRecord InvalidOperationException UplinkSetResourceNameNotFound ObjectNotFound 'Name' -Message "Specified Uplink Set '$name' was not found associated with '$($LogicalInterconnect.name)' on '$($_appliance.Name)'.  Please check the name and try again."
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+						$PSCmdlet.WriteError($ErrorRecord)  
 
 					}
 
@@ -53413,7 +53392,7 @@ function Get-HPOVUplinkSet
 					{
 
 						$ErrorRecord = New-ErrorRecord InvalidOperationException UplinkSetResourceTypeNotFound ObjectNotFound 'Type' -Message "Specified Uplink Set Type '$type' was not found associated with '$($LogicalInterconnect.name)' on '$($_appliance.Name)'.  Please check the name and try again."
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+						$PSCmdlet.WriteError($ErrorRecord)  
 					
 					}
 
@@ -55795,7 +55774,7 @@ function Get-HPOVLogicalSwitch
 					$InputObject
 
 					$ErrorRecord = New-ErrorRecord HPOneView.LogicalSwitchGroupResourceException TaskFailure InvalidOperation 'InputObject' -Message "The Task object provided by the pipeline did not complete successfully.  Please validate the task object resource and try again."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+					$PSCmdlet.WriteError($ErrorRecord)  
 
 				}
 
@@ -55804,8 +55783,9 @@ function Get-HPOVLogicalSwitch
 			else
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneView.LogicalSwitchResourceException LogicalSwitchNotFound ObjectNotFound 'InputObject' -Message "The Logical Switch associated with the pipeline input task object was not found on '$($InputObject.ApplianceConnection.Name)'.  Please check the value and try again."
-				$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+				$ExceptionMessage = "The Logical Switch associated with the pipeline input task object was not found on '{0}'.  Please check the value and try again." -f $InputObject.ApplianceConnection.Name 
+				$ErrorRecord = New-ErrorRecord HPOneView.LogicalSwitchResourceException LogicalSwitchNotFound ObjectNotFound 'InputObject' -Message $ExceptionMessage
+				$PSCmdlet.WriteError($ErrorRecord)  
 
 			}
 
@@ -55862,7 +55842,18 @@ function Get-HPOVLogicalSwitch
 
 				}
 	
-				if ($_LogicalSwitches.count -eq 0) 
+				if ($_LogicalSwitches.count -eq 0 -and $Name) 
+				{ 
+
+					"[{0}] No Logical Switch resources found on {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name | Write-Verbose
+
+					$ExceptionMessage = "The Logical Switch '{0}' was not found on '{1}' appliance connection." -f $Name, $_appliance.Name 
+					$ErrorRecord = New-ErrorRecord HPOneView.LogicalSwitchResourceException LogicalSwitchNotFound ObjectNotFound 'InputObject' -Message $ExceptionMessage
+					$PSCmdlet.WriteError($ErrorRecord)  
+
+				}
+
+				elseif ($_LogicalSwitches.count -eq 0) 
 				{ 
 
 					"[{0}] No Logical Switch resources found on {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name | Write-Verbose
@@ -55895,16 +55886,6 @@ function Get-HPOVLogicalSwitch
 	{
 
 		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Done. $($_Collection.count) logical switch(es) found."
-		
-		if ($_Collection.count -eq 0 -and $Name) 
-		{ 
-
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Logical Switch '$Name' resource not found. Generating error"
-
-			$ErrorRecord = New-ErrorRecord InvalidOperationException LogicalSwitchNotFound ObjectNotFound 'Name' -Message "Specified Logical Switch '$Name' was not found on any appliance connection.  Please check the name and try again."
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
-
-		}       
 
 		if ($exportFile)
 		{
@@ -67976,15 +67957,15 @@ function Get-HPOVTask
 
 	# .ExternalHelp HPOneView.300.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName = "Default")]
+	[CmdletBinding (DefaultParameterSetName = "Default")]
 	Param 
 	(
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "ResourceCategory")]
 		[ValidateNotNullorEmpty()]
-		[Alias ("name")]
-		[string]$TaskName,
+		[Alias ("TaskName")]
+		[string]$Name,
 
 		[Parameter (Mandatory = $false, ValueFromPipeline, ParameterSetName = "Default")]
 		[Alias('Resource')]
@@ -68037,7 +68018,6 @@ function Get-HPOVTask
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++) 
 			{
 
@@ -68062,7 +68042,6 @@ function Get-HPOVTask
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -68107,12 +68086,12 @@ function Get-HPOVTask
 
 			$uri = $allNonHiddenTaskUri
 
-			if ($PSBoundParameters['TaskName']) 
+			if ($PSBoundParameters['Name']) 
 			{ 
 		
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Name Parameter value: $($TaskName)"
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Name Parameter value: $($Name)"
 
-				$Uri += "&filter=name='$TaskName'" 
+				$Uri += "&filter=name='$Name'" 
 		
 			}
 
@@ -68145,7 +68124,7 @@ function Get-HPOVTask
 
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Resource value:  $InputObject"
 					
-					if ($PSBoundParameters['Resource']) 
+					if ($PSBoundParameters['InputObject']) 
 					{
 
 						#If the Resource value is a Name
@@ -68184,7 +68163,7 @@ function Get-HPOVTask
 						else 
 						{
 							 
-							$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'Get-HPOVTask' -Message "The Resource input Parameter was not recognized as a valid type or format."
+							$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'InputObject' -Message "The Resource input Parameter was not recognized as a valid type or format."
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 							
 						}
@@ -68220,7 +68199,6 @@ function Get-HPOVTask
 		
 			}
 
-
 			try 
 			{
 		
@@ -68230,6 +68208,15 @@ function Get-HPOVTask
 				{ 
 				
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No tasks found on Appliance '$($_appliance.Name)'."
+
+					if ($Name)
+					{
+
+						$ExceptionMessage = "Task '{0}' name was not found on '{1}' appliance connection." -f $Name, $_appliance.Name
+						$ErrorRecord = New-ErrorRecord InvalidOperationException ResourceNotFound ObjectNotFound 'Name' -Message $ExceptionMessage
+						$PSCmdlet.WriteError($ErrorRecord)
+
+					}
 					
 				}
 

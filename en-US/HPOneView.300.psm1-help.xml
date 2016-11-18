@@ -259,7 +259,7 @@ $Name = "HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Managed, Monitored" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Managed, Monitored" aliases="None">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -268,7 +268,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
@@ -328,7 +328,7 @@ Administrator Account password of the OA specified.  Value can be [String] or [S
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Managed, Monitored" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Managed, Monitored" aliases="None">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -337,7 +337,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
 					<maml:name>WhatIf</maml:name>
@@ -357,7 +357,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Managed, Monitored" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Managed, Monitored" aliases="None">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -366,7 +366,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -698,7 +698,7 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="3" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="3" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -707,7 +707,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value.
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="None">
 					<maml:name>Force</maml:name>
@@ -734,7 +734,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="3" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="3" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -743,7 +743,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value.
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -1136,12 +1136,12 @@ Please see the HPE OneView Support Matrix for supported versions.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="None">
 					<maml:name>Port</maml:name>
 					<maml:description>
 						<maml:para>TCP Port of the SAN Manager.  The default port for Brocade Network Advisor is '5989'.  The default port for HPN 5900CP is '161'.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA" aliases="None">
 					<maml:name>UseSsl</maml:name>
@@ -1157,7 +1157,7 @@ Please see the HPE OneView Support Matrix for supported versions.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -1166,7 +1166,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -1196,12 +1196,12 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="None">
 					<maml:name>Port</maml:name>
 					<maml:description>
 						<maml:para>TCP Port of the SAN Manager.  The default port for Brocade Network Advisor is '5989'.  The default port for HPN 5900CP is '161'.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="HPCisco" aliases="None">
 					<maml:name>SnmpAuthLevel</maml:name>
@@ -1255,7 +1255,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -1264,13 +1264,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -1279,7 +1279,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 					<maml:uri />
@@ -1322,12 +1322,12 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="BNA, HPCisco" aliases="None">
 				<maml:name>Port</maml:name>
 				<maml:description>
 					<maml:para>TCP Port of the SAN Manager.  The default port for Brocade Network Advisor is '5989'.  The default port for HPN 5900CP is '161'.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 					<maml:uri />
@@ -14374,14 +14374,15 @@ appliance1.domain.com                  False
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVSanManager</maml:name>
-				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="SanManager">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="SanManager">
 					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Aliases [-SanManager]
+Provide the name of the SAN Manager to display.</maml:para>
 					</maml:description>
-					<command:parameterValue required="" variableLength="False" />
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -14390,13 +14391,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -14405,21 +14406,22 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="SanManager">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="SanManager">
 				<maml:name>Name</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Aliases [-SanManager]
+Provide the name of the SAN Manager to display.</maml:para>
 				</maml:description>
-				<command:parameterValue required="" variableLength="False" />
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
-					<maml:name />
+					<maml:name>String</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -14542,14 +14544,14 @@ bna2.domain.com OK     Managed Brocade Network Advisor 12.3.4.5 {Fabric_C, Fabri
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVSanZone</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
 					<maml:name>ManagedSan</maml:name>
 					<maml:description>
 						<maml:para>The Managed SAN Resource Object.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -14558,13 +14560,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -14573,19 +14575,19 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="None">
 				<maml:name>ManagedSan</maml:name>
 				<maml:description>
 					<maml:para>The Managed SAN Resource Object.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
@@ -18157,15 +18159,15 @@ hpov.domain.com Shared 1 Snapshot Converted_20160225214317 Shared 1 Snapshot Con
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVStorageVolumeTemplate</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="TemplateName">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="TemplateName">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-templateName]
 The Storage Volume Template name.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -18174,13 +18176,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -18189,20 +18191,20 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="TemplateName">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="TemplateName">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-templateName]
 The Storage Volume Template name.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -18333,7 +18335,7 @@ The Storage Volume Template name.</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVStorageVolumeTemplatePolicy</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -18342,13 +18344,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -18357,7 +18359,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 					<maml:uri />
@@ -18863,22 +18865,22 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVTask</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="name">
-					<maml:name>TaskName</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="TaskName">
+					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-Name]
+						<maml:para>Aliases [-TaskName]
 The name of the task resource to be returned.  All names will match if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Resource">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Resource">
 					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>Related resource Name, URI or Object to the task. To be used for filtering tasks specific to a resource object (i.e. Server Profile).</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
 					<maml:name>State</maml:name>
 					<maml:description>
 						<maml:para>The state of the task resource a to be returned. May be one of the following strings:
@@ -18895,16 +18897,16 @@ The name of the task resource to be returned.  All names will match if omitted.<
 	
 All states will match if omitted.  All tasks will be returned if both names and state are omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
 					<maml:name>Count</maml:name>
 					<maml:description>
 						<maml:para>Specify the maximum amount of task objects to return.  0 will return all found task objects.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -18913,20 +18915,20 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVTask</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="name">
-					<maml:name>TaskName</maml:name>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="TaskName">
+					<maml:name>Name</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-Name]
+						<maml:para>Aliases [-TaskName]
 The name of the task resource to be returned.  All names will match if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory" aliases="Category">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory" aliases="Category">
 					<maml:name>ResourceCategory</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Category]
@@ -18948,9 +18950,9 @@ Some examples are:
 * appliance
 * firmware-drivers</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
 					<maml:name>State</maml:name>
 					<maml:description>
 						<maml:para>The state of the task resource a to be returned. May be one of the following strings:
@@ -18967,16 +18969,16 @@ Some examples are:
 	
 All states will match if omitted.  All tasks will be returned if both names and state are omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
 					<maml:name>Count</maml:name>
 					<maml:description>
 						<maml:para>Specify the maximum amount of task objects to return.  0 will return all found task objects.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="Appliance">
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="Appliance">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -18985,13 +18987,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -19000,38 +19002,51 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
 				<maml:name>Count</maml:name>
 				<maml:description>
 					<maml:para>Specify the maximum amount of task objects to return.  0 will return all found task objects.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Resource">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Resource">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
 					<maml:para>Related resource Name, URI or Object to the task. To be used for filtering tasks specific to a resource object (i.e. Server Profile).</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory" aliases="Category">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="TaskName">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-TaskName]
+The name of the task resource to be returned.  All names will match if omitted.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory" aliases="Category">
 				<maml:name>ResourceCategory</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Category]
@@ -19053,14 +19068,14 @@ Some examples are:
 * appliance
 * firmware-drivers</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="None">
 				<maml:name>State</maml:name>
 				<maml:description>
 					<maml:para>The state of the task resource a to be returned. May be one of the following strings:
@@ -19077,20 +19092,7 @@ Some examples are:
 	
 All states will match if omitted.  All tasks will be returned if both names and state are omitted.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				<dev:type>
-					<maml:name>String</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="ResourceCategory, Default" aliases="name">
-				<maml:name>TaskName</maml:name>
-				<maml:description>
-					<maml:para>Aliases [-Name]
-The name of the task resource to be returned.  All names will match if omitted.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 					<maml:uri />
@@ -19164,7 +19166,7 @@ The name of the task resource to be returned.  All names will match if omitted.<
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Get-HPOVServerProfile "Server 1" | Get-HPOVTask -State Completed
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile -Name "Server 1" | Get-HPOVTask -State Completed
 </dev:code>
 				<dev:remarks>
 					<dev:para>Return completed (successful) tasks associated with the 'Server 1' Server Profile.</dev:para>
@@ -63579,5 +63581,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2016-11-16T23:02:27:47.472Z-->
+	<!--Edited on: 2016-11-18T21:22:43:55.559Z-->
 </helpItems>

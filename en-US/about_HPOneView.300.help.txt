@@ -50,6 +50,12 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
+    Release 3.0.1143.1768
+     -- [#181] Fixed Get-HPOVUplinkSet where an exception was generated if no Uplink Sets were found when -Name is omitted.
+     -- [#182] Fixed Get-HPOVNetwork where FCoE types were not returned as part of the collection.
+     -- Fixed Set-HPOVRemoteSupportDefaultSite where if the Default Site wasn't created, exception was not handled correctly
+        and Default site was not created.
+
     Release 3.0.1142.2291
      -- Fixed Get-HPOVAlert where passing in object via pipeline would generate an API exception.
      -- Fixed Set-HPOVAlert where alertState was being set to null.
