@@ -1559,6 +1559,66 @@
         </ListEntries>
       </ListControl>
     </View>
+    <!--APPLIANCE_ALERTS FT-->
+    <View>
+      <Name>ApplianceAlert</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Alert</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Severity</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Resource</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Created</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Modified</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AssignedToUser</Label>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Description</Label>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>severity</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.associatedResource.resourceName</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.created | Get-Date -UFormat %c</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.modified | Get-Date -UFormat %c</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>alertState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>assignedToUser</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>description</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--APPLIANCE_ALERTS-->
     <View>
       <Name>ApplianceAlert</Name>
@@ -1579,10 +1639,14 @@
               </ListItem>
               <ListItem>
                 <Label>Resource</Label>
-                <ScriptBlock>(Send-HPOVRequest $_.resourceUri -hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>$_.associatedResource.resourceName</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Date</Label>
+                <Label>Created</Label>
+                <ScriptBlock>$_.created | Get-Date -UFormat %c</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Modified</Label>
                 <ScriptBlock>$_.modified | Get-Date -UFormat %c</ScriptBlock>
               </ListItem>
               <ListItem>
@@ -1590,11 +1654,11 @@
                 <PropertyName>alertState</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Owner</Label>
+                <Label>AssignedToUser</Label>
                 <PropertyName>assignedToUser</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Notes</Label>
+                <Label>ChangeLog</Label>
                 <ScriptBlock>$_.changeLog | % { "[{0}] {1}" -f (Get-Date $_.created),$_.notes }</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -2808,15 +2872,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Version</Label>
+            <Label>State</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Enclosure</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Bay</Label>
+            <Label>PrimaryIPv4</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2834,13 +2894,10 @@
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>imageStreamerVersion</PropertyName>
+                <PropertyName>state</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>'{0}' -f (Send-HPOVRequest -Uri $_.cimEnclosureUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>cimBay</PropertyName>
+                <PropertyName>primaryIPV4</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -2859,47 +2916,121 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <PropertyName>hostname</PropertyName>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
-                <PropertyName>ipv4Type</PropertyName>
+                <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Server</Label>
-                <PropertyName>app1Ipv4Addr</PropertyName>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Protocol</Label>
-                <PropertyName>ipv4Subnet</PropertyName>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Directory</Label>
-                <PropertyName>ipv4Gateway</PropertyName>
+                <Label>PrimaryIPv4</Label>
+                <PropertyName>primaryIPv4</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Interval</Label>
-                <PropertyName>ipv4NameServers</PropertyName>
+                <Label>PrimaryClusterName</Label>
+                <PropertyName>primaryClusterName</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
+
+
+    
+    <!--HPOneView.Appliance.OsDeploymentPlan FT-->
+    <View>
+      <Name>OsDeploymentPlan</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.OsDeploymentPlan</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>OsdpSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>osdpSize</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--OsDeploymentPlan FL-->
+    <View>
+      <Name>OsDeploymentPlan</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.OsDeploymentPlan</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Days</Label>
-                <PropertyName>ipv6Type</PropertyName>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Time</Label>
-                <PropertyName>app1Ipv6Addr</PropertyName>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Last Downlaoded Backup</Label>
-                <PropertyName>ipv6Subnet</PropertyName>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Last Created Backup</Label>
-                <PropertyName>ipv6Gateway</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Current Backup Created</Label>
-                <PropertyName>ipv6NameServers</PropertyName>
+                <Label>OsdpSize</Label>
+                <PropertyName>osdpSize</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>

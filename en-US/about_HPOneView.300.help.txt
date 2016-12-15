@@ -50,7 +50,17 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
-    Release 3.0.1143.1768
+    Release 3.0.1170.1773
+     -- [#189] Fixed New-HPOVAddressPoolRange where custom Serial Number validation used an invalid method generating a
+        terminating error.
+     -- [#188] Fixed New-HPOVServerProfileTemplate where BIOS Settings were not being set when requested.
+     -- Fixed New-HPOVServerProfileTemplate where attempting to create a SPT for a DL Gen9 server would cause UI Editor
+        issues.
+     -- Fixed New-HPOVServerProfile where creating one from a Template would cause the child profile to be immediately
+        non-compliant due to misconfiguring Connections.
+     -- [#184] Enhanced Get-HPOVAlert to allow the caller to return a set number of alerts and specify date range. 
+
+    Release 3.0.1144.2035
      -- [#181] Fixed Get-HPOVUplinkSet where an exception was generated if no Uplink Sets were found when -Name is omitted.
      -- [#182] Fixed Get-HPOVNetwork where FCoE types were not returned as part of the collection.
      -- Fixed Set-HPOVRemoteSupportDefaultSite where if the Default Site wasn't created, exception was not handled correctly
