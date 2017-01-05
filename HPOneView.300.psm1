@@ -63402,7 +63402,7 @@ function New-HPOVServerProfileTemplate
 			Try
 			{
 
-				$availStorageSystems = (Send-HPOVRequest -Uri ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$($_spt.enclosureGroupUri)&serverHardwareTypeUri=$($serverHardwareType.uri)") -Hppliance $ApplianceConnection).members
+				$availStorageSystems = (Send-HPOVRequest -Uri ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$($_spt.enclosureGroupUri)&serverHardwareTypeUri=$($serverHardwareType.uri)") -Hostname $ApplianceConnection).members
 
 			}
 

@@ -77,7 +77,7 @@ Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile
 $eg                = Get-HPOVEnclosureGroup -Name "Default EG1"
 $Baseline          = Get-HPOVBaseline -FileName 'baseline_name.iso' -ErrorAction Stop
 $con1              = Get-HPOVNetwork -Name "VLAN 1-A" | New-HPOVServerProfileConnection -ConnectionID 1 -Name 'VLAN 1-A Connection' -Bootable -Priority Primary
-$con2              = Get-HPOVNetwork -Name "VLAN 1-B" | New-HPOVServerProfileConnection -ConnectionID 2 -Name 'VLAN 1-B Connection' -Network $Vlan1B
+$con2              = Get-HPOVNetwork -Name "VLAN 1-B" | New-HPOVServerProfileConnection -ConnectionID 2 -Name 'VLAN 1-B Connection'
 $con3              = Get-HPOVNetworkSet -Name 'Prod NetSet A' | New-HPOVProfileConnection -connectionId 3
 $con4              = Get-HPOVNetworkSet -Name 'Prod NetSet B' | New-HPOVProfileConnection -connectionId 4
 $LogicalDisk1      = New-HPOVServerProfileLogicalDisk -Name 'Disk 1' -RAID RAID1 -Bootable
@@ -87,7 +87,7 @@ $params = @{
 	Name               = $TemplateName;
 	ServerHardwareType = $BL460Gen9SHT;
 	EnclosureGroup     = $eg;
-	Connections        = $con1, $con2,$con3,$con4;
+	Connections        = $con1,$con2,$con3,$con4;
 	Firmware           = $true;
 	Baseline           = $Baseline;
 	FirmwareMode       = 'FirmwareAndSoftware'
