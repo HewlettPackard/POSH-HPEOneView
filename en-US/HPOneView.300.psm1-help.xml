@@ -16744,14 +16744,21 @@ This will also provide the ability to export Server Profile Template objects to 
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVServerProfileTemplate</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the specific Server Profile Template resource to retrieve</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>ServerHardwareType</maml:name>
+					<maml:description>
+						<maml:para>Provide the Server Hardware Type resource object or name to return Server Profile Templates designed for it.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -16760,7 +16767,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -16773,22 +16780,29 @@ Switch used to export Server Profile Template object to JSON encoded file.</maml
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export">
 					<maml:name>Location</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-save]
 Location where to save the Server Profile Template file.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the specific Server Profile Template resource to retrieve</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>ServerHardwareType</maml:name>
+					<maml:description>
+						<maml:para>Provide the Server Hardware Type resource object or name to return Server Profile Templates designed for it.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -16797,7 +16811,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -16809,14 +16823,21 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the specific Server Profile Template resource to retrieve</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>ServerHardwareType</maml:name>
+					<maml:description>
+						<maml:para>Provide the Server Hardware Type resource object or name to return Server Profile Templates designed for it.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -16825,13 +16846,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -16840,7 +16861,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -16869,24 +16890,35 @@ Switch used to export Server Profile Template object to JSON encoded file.</maml
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export" aliases="save">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export" aliases="save">
 				<maml:name>Location</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-save]
 Location where to save the Server Profile Template file.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="profile">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="profile">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the specific Server Profile Template resource to retrieve</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="None">
+				<maml:name>ServerHardwareType</maml:name>
+				<maml:description>
+					<maml:para>Provide the Server Hardware Type resource object or name to return Server Profile Templates designed for it.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -21442,7 +21474,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, VCEMMigration, Report">
-					<maml:name>licensingIntent</maml:name>
+					<maml:name>LicensingIntent</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
@@ -21546,7 +21578,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, VCEMMigration, Report">
-					<maml:name>licensingIntent</maml:name>
+					<maml:name>LicensingIntent</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
@@ -21558,21 +21590,21 @@ Accepted values are
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration">
 					<maml:name>VCEMCMS</maml:name>
 					<maml:description>
 						<maml:para>The IP Address or FQDN of the VCEM host.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration">
 					<maml:name>VCEMUser</maml:name>
 					<maml:description>
 						<maml:para>Administrator level account name available on the VCEM host.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration">
 					<maml:name>VCEMPassword</maml:name>
 					<maml:description>
 						<maml:para>Administrator level account password on the VCEM host.</maml:para>
@@ -21663,7 +21695,7 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, VCEMMigration, Report">
-					<maml:name>licensingIntent</maml:name>
+					<maml:name>LicensingIntent</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-license, -l]
 REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
@@ -21672,27 +21704,6 @@ Accepted values are
                     
 * OneView
 * OneViewNoiLO</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report">
-					<maml:name>VCEMCMS</maml:name>
-					<maml:description>
-						<maml:para>The IP Address or FQDN of the VCEM host.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report">
-					<maml:name>VCEMUser</maml:name>
-					<maml:description>
-						<maml:para>Administrator level account name available on the VCEM host.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report">
-					<maml:name>VCEMPassword</maml:name>
-					<maml:description>
-						<maml:para>Administrator level account password on the VCEM host.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -21820,6 +21831,23 @@ OPTIONAL. The Name, URI or Object of an existing Enclosure Group.  If the Enclos
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, VCEMMigration, Report" aliases="license, l">
+				<maml:name>LicensingIntent</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-license, -l]
+REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
+                
+Accepted values are
+                    
+* OneView
+* OneViewNoiLO</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue, ByPropertyName)" position="named" parameterSetName="Default, VCEMMigration, Report" aliases="lig">
 				<maml:name>LogicalInterconnectGroup</maml:name>
 				<maml:description>
@@ -21879,7 +21907,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration" aliases="None">
 				<maml:name>VCEMCMS</maml:name>
 				<maml:description>
 					<maml:para>The IP Address or FQDN of the VCEM host.</maml:para>
@@ -21890,7 +21918,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration" aliases="None">
 				<maml:name>VCEMPassword</maml:name>
 				<maml:description>
 					<maml:para>Administrator level account password on the VCEM host.</maml:para>
@@ -21901,7 +21929,7 @@ REQUIRED. Administrator account of the target OA.</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration, Report" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="VCEMMigration" aliases="None">
 				<maml:name>VCEMUser</maml:name>
 				<maml:description>
 					<maml:para>Administrator level account name available on the VCEM host.</maml:para>
@@ -21943,23 +21971,6 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, VCEMMigration, Report" aliases="license, l">
-				<maml:name>licensingIntent</maml:name>
-				<maml:description>
-					<maml:para>Aliases [-license, -l]
-REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
-                
-Accepted values are
-                    
-* OneView
-* OneViewNoiLO</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				<dev:type>
-					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -35272,7 +35283,13 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default">
 					<maml:name>DriveType</maml:name>
 					<maml:description>
-						<maml:para>Defines the interface type for drives that will be used to build the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.</maml:para>
+						<maml:para>Defines the interface type for drives that will be used to build the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.  Allowed value:
+
+	* SAS
+	*SATA
+	*SASSSD
+	*SATASSD
+	*Auto</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -35326,7 +35343,13 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default">
 					<maml:name>DriveType</maml:name>
 					<maml:description>
-						<maml:para>Defines the interface type for drives that will be used to build the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.</maml:para>
+						<maml:para>Defines the interface type for drives that will be used to build the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.  Allowed value:
+
+	* SAS
+	*SATA
+	*SASSSD
+	*SATASSD
+	*Auto</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -35348,7 +35371,13 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default" aliases="None">
 				<maml:name>DriveType</maml:name>
 				<maml:description>
-					<maml:para>Defines the interface type for drives that will be used to build the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.</maml:para>
+					<maml:para>Defines the interface type for drives that will be used to build the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.  Allowed value:
+
+	* SAS
+	*SATA
+	*SASSSD
+	*SATASSD
+	*Auto</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -35697,7 +35726,7 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $LogicalDisk = New-HPOVServerProfileLogicalDisk 'MyDisk' | New-HPOVServerProfileLogicalDiskController -Initialize
+				<dev:code>PS C:\&gt; $LogicalDisk = New-HPOVServerProfileLogicalDisk -Name 'MyDisk' | New-HPOVServerProfileLogicalDiskController -Initialize
 </dev:code>
 				<dev:remarks>
 					<dev:para>Create a default Logical Disk and Controller configuration object policy.</dev:para>
@@ -35731,8 +35760,8 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $LogicalDisk1 = New-HPOVServerProfileLogicalDisk 'MyDisk'
-PS C:\&gt; $LogicalDisk2 = New-HPOVServerProfileLogicalDisk 'MyDisk2'
+				<dev:code>PS C:\&gt; $LogicalDisk1 = New-HPOVServerProfileLogicalDisk -Name 'MyDisk'
+PS C:\&gt; $LogicalDisk2 = New-HPOVServerProfileLogicalDisk -Name 'MyDisk2'
 PS C:\&gt; $Controller = New-HPOVServerProfileLogicalDiskController -Initialize -LogicalDisk $LogicalDisk1,$LogicalDisk2
 </dev:code>
 				<dev:remarks>
@@ -35876,7 +35905,7 @@ Default: No connections</maml:para>
 					<maml:name>EnclosureGroup</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-eg]
-The Enclosure Group resource the Server Profile will be bound to.  Only required when Server value is "Unassigned".</maml:para>
+The Enclosure Group resource the Server Profile Template will be bound to.  When assigning to an Enclosure Group, OneView will then determine what farbic connectivity and storage devices are available. </maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -35884,15 +35913,14 @@ The Enclosure Group resource the Server Profile will be bound to.  Only required
 					<maml:name>ServerHardwareType</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
+The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Firmware</maml:name>
 					<maml:description>
-						<maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 
-servers.)</maml:para>
+						<maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 servers.)</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -36228,7 +36256,7 @@ Default: No connections</maml:para>
 					<maml:name>EnclosureGroup</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-eg]
-The Enclosure Group resource the Server Profile will be bound to.  Only required when Server value is "Unassigned".</maml:para>
+The Enclosure Group resource the Server Profile Template will be bound to.  When assigning to an Enclosure Group, OneView will then determine what farbic connectivity and storage devices are available. </maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -36236,15 +36264,14 @@ The Enclosure Group resource the Server Profile will be bound to.  Only required
 					<maml:name>ServerHardwareType</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
+The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Firmware</maml:name>
 					<maml:description>
-						<maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 
-servers.)</maml:para>
+						<maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 servers.)</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -36646,7 +36673,7 @@ Default: No connections</maml:para>
 				<maml:name>EnclosureGroup</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-eg]
-The Enclosure Group resource the Server Profile will be bound to.  Only required when Server value is "Unassigned".</maml:para>
+The Enclosure Group resource the Server Profile Template will be bound to.  When assigning to an Enclosure Group, OneView will then determine what farbic connectivity and storage devices are available. </maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -36670,8 +36697,7 @@ Enable to disable even paths in the attached storage volume(s).</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>Firmware</maml:name>
 				<maml:description>
-					<maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 
-servers.)</maml:para>
+					<maml:para>Enable Firmware Management.  Cannot be enabled with Server Hardware Type does not support Firmware Management (i.e. BL G7 servers.)</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -36875,7 +36901,7 @@ Default: Auto</maml:para>
 				<maml:name>ServerHardwareType</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile will be bound to.  Required when Server value is "Unassigned" or assigning to an empty device bay in an enclosure which must include the -enclosure and -enclosureBay parameters.</maml:para>
+The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -43544,7 +43570,7 @@ When the request is accepted by the appliance, it does not return an Async Task 
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -43553,7 +43579,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>WhatIf</maml:name>
@@ -43573,7 +43599,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -43582,7 +43608,7 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -43674,7 +43700,7 @@ When the request is accepted by the appliance, it does not return an Async Task 
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $task = Remove-HPOVPowerDevice -powerDevice "iPDU16" | Wait-HPOVTaskComplete
+				<dev:code>PS C:\&gt; $task = Remove-HPOVPowerDevice -PowerDevice "iPDU16" | Wait-HPOVTaskComplete
 </dev:code>
 				<dev:remarks>
 					<dev:para>Remove the power device specifed by name. Wait for remove to complete.</dev:para>
@@ -43692,7 +43718,7 @@ When the request is accepted by the appliance, it does not return an Async Task 
 					<maml:para />
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $ipdu = Get-HPOVPowerDevice -name "iPDU24"
-PS C:\&gt; Remove-HPOVPowerDevice $ipdu -force -confirm:$false
+PS C:\&gt; Remove-HPOVPowerDevice -PowerDevice $ipdu -force -confirm:$false
 
 </dev:code>
 				<dev:remarks>
@@ -49019,9 +49045,7 @@ PS C:\&gt; Send-HPOVRequest $e.uri "PUT" $e -Appliance MyAppliance.domain.com
 			<command:noun>HPOVAddressPoolSubnet</command:noun>
 		</command:details>
 		<maml:description>
-			<maml:para>This cmdlet will assist with creating a new IPv4 Address Pool.  When creating a new IPv4 Address Subnet, you must provide the Network ID, Subnet Mask (CIDR [e.g. 24] or IPv4 Address Value [e.g. 255.255.255.0]), Gateway and Domain Name.  DNS Servers are optional.
-	
-To add IPv4 Address Ranges to a Subnet after creating it, please use the New-HPOVAddressPoolRange CMDLET.</maml:para>
+			<maml:para>This cmdlet will assist with updating an existing IPv4 Address Pool.  When updating an IPv4 Address Subnet, you must provide the Subnet Object or Name to modify. Only the Gateway, Domain Name, and DNS Servers can be updated once an IPv4 Subnet has been assigned to a resoruce.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -49030,32 +49054,32 @@ To add IPv4 Address Ranges to a Subnet after creating it, please use the New-HPO
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="IPv4">
 					<maml:name>IPv4Subnet</maml:name>
 					<maml:description>
-						<maml:para>The IPv4 Subnet resoruce object to update.</maml:para>
+						<maml:para>The IPv4 Subnet resource object to update.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
 					<maml:name>Gateway</maml:name>
 					<maml:description>
 						<maml:para>IPv4 Address of the default gateway for the subnet.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
 					<maml:name>Domain</maml:name>
 					<maml:description>
 						<maml:para>DNS Domain Name of the subnet.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
 					<maml:name>DNSServers</maml:name>
 					<maml:description>
 						<maml:para>An array of DNS Server IPv4 Addresses.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="IPv4">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="IPv4">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -49064,13 +49088,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="IPv4" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="IPv4" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -49079,40 +49103,40 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
 				<maml:name>DNSServers</maml:name>
 				<maml:description>
 					<maml:para>An array of DNS Server IPv4 Addresses.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
 				<maml:name>Domain</maml:name>
 				<maml:description>
 					<maml:para>DNS Domain Name of the subnet.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
 				<maml:name>Gateway</maml:name>
 				<maml:description>
 					<maml:para>IPv4 Address of the default gateway for the subnet.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				<dev:type>
 					<maml:name>IPAddress</maml:name>
 				</dev:type>
@@ -49121,7 +49145,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="IPv4" aliases="Subnet">
 				<maml:name>IPv4Subnet</maml:name>
 				<maml:description>
-					<maml:para>The IPv4 Subnet resoruce object to update.</maml:para>
+					<maml:para>The IPv4 Subnet resource object to update.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -63042,5 +63066,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2016-12-15T04:58:17:24.244Z-->
+	<!--Edited on: 2017-01-05T01:19:42:27.270Z-->
 </helpItems>

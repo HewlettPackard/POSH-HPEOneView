@@ -5,7 +5,7 @@ TOPIC
 SHORT DESCRIPTION
 
     Explains how Multiple Appliance Connections are handled with the 
-    HPE OneView2.00 PowerShell Library.
+    HPE OneView 2.00 and newer PowerShell Library.
 	
 LONG DESCRIPTION
 

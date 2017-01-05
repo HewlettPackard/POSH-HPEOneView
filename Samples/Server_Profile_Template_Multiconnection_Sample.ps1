@@ -14,9 +14,9 @@
 # Then create a Server Profile from the Template, assigning to a specific
 # server.
 #
-#   VERSION 3.0
+#   VERSION 3.1
 #
-# (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -68,14 +68,14 @@ Write-Host "Here is the list of all servers managed by this appliance:"
 Get-HPOVServer
 
 $TemplateName = "Hypervisor Cluster Node Template v1"
-$BL460Gen9SHT = Get-HPOVServerHardwareTypes -name "BL460c Gen9 1"
+$BL460Gen9SHT = Get-HPOVServerHardwareTypes -name "BL460c Gen9 1" -ErrorAction Stop
 
 "Showing all {0} SHT without profiles assigned:" -f $BL460Gen9SHT.Name | Write-Host
 Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile 
 
 
 $eg                = Get-HPOVEnclosureGroup -Name "Default EG1"
-$Baseline          = Get-HPOVBaseline -FileName ''
+$Baseline          = Get-HPOVBaseline -FileName 'baseline_name.iso' -ErrorAction Stop
 $con1              = Get-HPOVNetwork -Name "VLAN 1-A" | New-HPOVServerProfileConnection -ConnectionID 1 -Name 'VLAN 1-A Connection' -Bootable -Priority Primary
 $con2              = Get-HPOVNetwork -Name "VLAN 1-B" | New-HPOVServerProfileConnection -ConnectionID 2 -Name 'VLAN 1-B Connection' -Network $Vlan1B
 $con3              = Get-HPOVNetworkSet -Name 'Prod NetSet A' | New-HPOVProfileConnection -connectionId 3
@@ -85,11 +85,11 @@ $StorageController = New-HPOVServerProfileLogicalDiskController -ControllerID Em
 
 $params = @{
 	Name               = $TemplateName;
-	ServerHardwareType = $bl460SHT;
+	ServerHardwareType = $BL460Gen9SHT;
 	EnclosureGroup     = $eg;
 	Connections        = $con1, $con2,$con3,$con4;
 	Firmware           = $true;
-	Baseline           = $BaselineObject;
+	Baseline           = $Baseline;
 	FirmwareMode       = 'FirmwareAndSoftware'
 	BootMode           = "UEFI";
 	PxeBootPolicy      = "IPv4ThenIPv6";
@@ -103,9 +103,9 @@ $params = @{
 New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete
 
 #Display Server Profile Templates that are configured
-Get-HPOVServerProfileTemplate
+Get-HPOVServerProfileTemplate -ErrorAction Stop
 
 #Create Server Profile from Server Profile Template to 'Encl1, Bay 1' server resource
-$svr = Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile | Select -First 1
-$spt = Get-HPOVServerProfileTemplate -Name $TemplateName
+$svr = Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile -ErrorAction Stop | Select -First 1
+$spt = Get-HPOVServerProfileTemplate -Name $TemplateName -ErrorAction Stop
 New-HPOVServerProfile -Name "Hyp-Clus-01" -Server $svr -ServerProfileTemplate $spt

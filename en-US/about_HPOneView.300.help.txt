@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 
 LICENSE
 
@@ -49,6 +49,18 @@ WHAT'S NEW
     !!!!!!!!!!!!!!!!!
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
+
+    Release 3.0.1191.2858
+     -- [#194] Fixed Get-HPOVServerHardwareType where if supported wildcard character was provided, it would not be converted
+        into an HTML encoded value.
+     -- [#195] Fixed New-HPOVServerProfileTemplate where String baseline resource name wouldn't be processed.
+     -- [#196] Fixed New-HPOVServerProfileTemplate and New-HPOVServerProfile where defining multiple Logical Disks would cause an exception
+        to be throw for a non-Synergy composer connection.
+     -- Fixed Invoke-HPOVVcmMigration where JSON object was not being properly created, resulting in API error.
+     -- [#205] Updated Invoke-HPOVVcmMigration where if attempting to generate report, Cmdlet would prompt for VCEM parameters.
+     -- [#186] Fixed New-HPOVUplinkSet where if trying to use an HPE Virtual Connect for BladeSystem QSFP port name, it will fail
+        to find the relative uplink port causing an exception.
+     -- [#203] Library documentation updates; #190, #197, #201, #202, #204
 
     Release 3.0.1170.1773
      -- [#189] Fixed New-HPOVAddressPoolRange where custom Serial Number validation used an invalid method generating a

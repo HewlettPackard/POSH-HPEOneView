@@ -2,7 +2,7 @@
 # HPE OneView PowerShell Library
 ##############################################################################
 ##############################################################################
-## (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
+## (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 
@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[version]$ModuleVersion = '3.0.1170.1773'
+[version]$ModuleVersion = '3.0.1191.2858'
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -223,18 +223,19 @@ $script:FSRead                      = [System.IO.FileAccess]::Read
 # Physical Resource Management
 #------------------------------------
 [String]$script:ServerHardwareUri                       = "/rest/server-hardware"
-[String]$script:serverHardwareTypesUri                  = "/rest/server-hardware-types"
-[String]$script:enclosuresUri                           = "/rest/enclosures"
+[String]$script:ServerHardwareTypesUri                  = "/rest/server-hardware-types"
+[String]$script:EnclosuresUri                           = "/rest/enclosures"
 [String]$script:LogicalEnclosuresUri                    = '/rest/logical-enclosures'
-[String]$script:enclosureGroupsUri                      = "/rest/enclosure-groups"
-[String]$script:enclosurePreviewUri                     = "/rest/enclosure-preview"
-[String]$script:fwUploadUri                             = "/rest/firmware-bundles"
-[String]$script:fwDriversUri                            = "/rest/firmware-drivers"
-[String]$script:powerDevicesUri                         = "/rest/power-devices"
-[String]$script:powerDevicesDiscoveryUri                = "/rest/power-devices/discover"
-[String]$script:powerDevicePotentialConnections         = "/rest/power-devices/potentialConnections?providerUri="
-[String]$script:unmanagedDevicesUri                     = "/rest/unmanaged-devices?sort=name:asc"
-[PSCustomObject]$script:mpModelTable                    = @{
+[String]$script:EnclosureGroupsUri                      = "/rest/enclosure-groups"
+[String]$script:EnclosurePreviewUri                     = "/rest/enclosure-preview"
+[String]$VCMigratorUri                                  = "/rest/migratable-vc-domains"
+[String]$script:FwUploadUri                             = "/rest/firmware-bundles"
+[String]$script:FwDriversUri                            = "/rest/firmware-drivers"
+[String]$script:PowerDevicesUri                         = "/rest/power-devices"
+[String]$script:PowerDevicesDiscoveryUri                = "/rest/power-devices/discover"
+[String]$script:PowerDevicePotentialConnections         = "/rest/power-devices/potentialConnections?providerUri="
+[String]$script:UnmanagedDevicesUri                     = "/rest/unmanaged-devices?sort=name:asc"
+[PSCustomObject]$script:MpModelTable                    = @{
 	ilo2 = "RI7";
 	ilo3 = "RI9";
 	ilo4 = "RI10"
@@ -419,7 +420,7 @@ $WwnLongAddressPattern                       = @('^([0-9a-f]{2}:){15}([0-9a-f]{2
 #  Profile Management
 #------------------------------------
 $script:ServerProfilesUri                          = "/rest/server-profiles"
-$script:ServerProfileTemplatesUri                  = '/rest/server-profile-templates'
+$ServerProfileTemplatesUri                         = '/rest/server-profile-templates?sort=name:asc'
 $script:profileIndexListUri                        = "/rest/index/resources?sort=name:asc&category=server-profiles"
 $script:profileAvailStorageSystemsUri              = '/rest/server-profiles/available-storage-systems'
 $script:ServerProfilesAvailableNetworksUri         = '/rest/server-profiles/available-networks'
@@ -24857,7 +24858,7 @@ function Invoke-HPOVVcmMigration
 
 	# .ExternalHelp HPOneView.300.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = "High")]
+	[CmdletBinding (DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = "High")]
 	param
 	(
 
@@ -24880,7 +24881,7 @@ function Invoke-HPOVVcmMigration
 		[Parameter (Mandatory, ParameterSetName = "Default")]
 		[Alias ('op')]
 		[ValidateNotNullOrEmpty()]
-		[System.String]$OAPassword,
+		[System.Object]$OAPassword,
 
 		[Parameter (Mandatory, ParameterSetName = "Report")]
 		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
@@ -24894,7 +24895,7 @@ function Invoke-HPOVVcmMigration
 		[Parameter (Mandatory, ParameterSetName = "Default")]
 		[Alias ('vp')]
 		[ValidateNotNullOrEmpty()]
-		[System.String]$VCMPassword,
+		[System.Object]$VCMPassword,
 
 		[Parameter (Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "Report")]
 		[Parameter (Mandatory = $false, ValueFromPipeline, ValueFromPipelineByPropertyName, ParameterSetName = "VCEMMigration")]
@@ -24936,19 +24937,19 @@ function Invoke-HPOVVcmMigration
 		[ValidateSet("OneView", "OneViewNoiLO", IgnoreCase = $false)]
 		[ValidateNotNullOrEmpty()]
 		[Alias ("license", "l")]
-		[System.String]$licensingIntent,
+		[System.String]$LicensingIntent,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
+		#[Parameter (Mandatory, ParameterSetName = "Report")]
 		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
 		[String]$VCEMCMS,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
+		#[Parameter (Mandatory, ParameterSetName = "Report")]
 		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
 		[String]$VCEMUser,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
+		#[Parameter (Mandatory, ParameterSetName = "Report")]
 		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[String]$VCEMPassword,
+		[System.Object]$VCEMPassword,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Alias ('NoWait')]
@@ -25051,12 +25052,40 @@ function Invoke-HPOVVcmMigration
 
 		}
 
+		if ($OAPassword -is [SecureString])
+		{
+
+			$OAPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+			
+		}
+
+		if ($VCMPassword -is [SecureString])
+		{
+
+			$VCMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+
+		}
+
+		if ($VCEMPassword -is [SecureString])
+		{
+
+			$VCEMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+
+		}
+
 	}
 	
 	Process 
 	{
 
-		$vcMigrationObject = NewObject -vcMigration
+		$VcMigrationObject = NewObject -vcMigration
+		
+		$VcMigrationObject.iloLicenseType          = $LicensingIntent
+		$VcMigrationObject.credentials.oaIpAddress = $OAIPAddress
+		$VcMigrationObject.credentials.oaUsername  = $OAUserName
+		$VcMigrationObject.credentials.oaPassword  = $OAPassword
+		$VcMigrationObject.credentials.vcmUsername = $VCMUserName
+		$VcMigrationObject.credentials.vcmPassword = $VCMPassword
 
 		#Check to see if EnclosureGroup was provided
 		if ($PSBoundParameters['EnclosureGroup']) 
@@ -25075,7 +25104,7 @@ function Invoke-HPOVVcmMigration
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Enclosure Group URI provided: $EnclosureGroup"
 					   
-						$vcMigrationObject.enclosureGroupUri = $EnclosureGroup
+						$VcMigrationObject.enclosureGroupUri = $EnclosureGroup
 
 					}
 
@@ -25092,7 +25121,7 @@ function Invoke-HPOVVcmMigration
 							$eg = (Get-HPOVEnclosureGroup $EnclosureGroup -appliance $ApplianceConnection).uri 
 								
 							#Add the URI property to the migration object
-							$vcMigrationObject.enclosureGroupUri = $eg
+							$VcMigrationObject.enclosureGroupUri = $eg
 								
 						}
 
@@ -25100,7 +25129,7 @@ function Invoke-HPOVVcmMigration
 						{
 
 							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Enclosure Group '$EnclosureGroup' not found. Specifying custom Enclosure Group Name."
-							$vcMigrationObject | Add-Member -NotePropertyName "enclosureGroupName" -NotePropertyValue $EnclosureGroup -force
+							$VcMigrationObject | Add-Member -NotePropertyName "enclosureGroupName" -NotePropertyValue $EnclosureGroup -force
 
 						}
 
@@ -25111,7 +25140,7 @@ function Invoke-HPOVVcmMigration
 				{
 			
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Enclosure Group resource object provided: $($EnclosureGroup | fl | out-string)"
-					$vcMigrationObject.enclosureGroupUri = $EnclosureGroup.uri
+					$VcMigrationObject.enclosureGroupUri = $EnclosureGroup.uri
 			
 				}
 
@@ -25135,7 +25164,7 @@ function Invoke-HPOVVcmMigration
 					{
 
 						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Logical Interconnect Group URI provided: $LogicalInterconnectGroup"
-						$vcMigrationObject.logicalInterconnectGroupUri = $LogicalInterconnectGroup
+						$VcMigrationObject.logicalInterconnectGroupUri = $LogicalInterconnectGroup
 
 					}
 
@@ -25152,7 +25181,7 @@ function Invoke-HPOVVcmMigration
 							$lig = (Get-HPOVEnclosureGroup $LogicalInterconnectGroup -appliance $ApplianceConnection).uri 
 								
 							#Add the URI property to the migration object
-							$vcMigrationObject.logicalInterconnectGroupUri = $lig
+							$VcMigrationObject.logicalInterconnectGroupUri = $lig
 								
 						}
 
@@ -25160,7 +25189,7 @@ function Invoke-HPOVVcmMigration
 						{
 
 							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Logical Interconnect Group '$LogicalInterconnectGroup' not found. Specifying custom Logical Interconnect Group Name."
-							$vcMigrationObject | Add-Member -NotePropertyName logicalInterconnectGroupName -NotePropertyValue $LogicalInterconnectGroup -force
+							$VcMigrationObject | Add-Member -NotePropertyName logicalInterconnectGroupName -NotePropertyValue $LogicalInterconnectGroup -force
 
 						}
 
@@ -25172,7 +25201,7 @@ function Invoke-HPOVVcmMigration
 				{
 			
 					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Logical Interconnect Group resource object provided: $($LogicalInterconnectGroup | fl | out-string)"
-					$vcMigrationObject.logicalInterconnectGroupUri  = $LogicalInterconnectGroup.uri
+					$VcMigrationObject.logicalInterconnectGroupUri  = $LogicalInterconnectGroup.uri
 			
 				}
 
@@ -25185,7 +25214,7 @@ function Invoke-HPOVVcmMigration
 		Try
 		{
 
-			$thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $vcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
+			$thisTask = Send-HPOVRequest -method POST -uri $VCMigratorUri -body $VcMigrationObject -appliance $ApplianceConnection | Wait-HPOVTaskComplete
 
 		}
 		
@@ -25196,7 +25225,8 @@ function Invoke-HPOVVcmMigration
 
 		}
 		
-		if ($thisTask.taskState -ieq "Error") {
+		if ($thisTask.taskState -ieq "Error") 
+		{
 
 			$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException $thisTask.taskErrors.errorCode InvalidArgument 'Invoke-HPOVVcMigration' -Message "$($thisTask.taskErrors.message)"
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -25715,7 +25745,7 @@ function Invoke-HPOVVcmMigration
 				Try
 				{
 
-					$thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $vcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
+					$thisTask = Send-HPOVRequest -method POST -uri $VCMigratorUri -body $VcMigrationObject -appliance $ApplianceConnection | Wait-HPOVTaskComplete
 
 				}
 
@@ -25735,7 +25765,7 @@ function Invoke-HPOVVcmMigration
 				}
 
 				#If we get here, task was successful. Generate new VCMMigrator report
-				 $vcMigrationReport = MigrationReport $thisTask
+				$vcMigrationReport = MigrationReport $thisTask
 
 				if ($vcMigrationReport.apiVcMigrationReport.migrationState -eq "UnableToMigrate") 
 				{
@@ -28321,7 +28351,7 @@ function Get-HPOVServerHardwareType
 
 				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type name provided: '$Name'"
 
-				$uri = "{0}?filter=name matches '{1}'&sort=name:asc" -f $uri, $Name
+				$uri = "{0}?filter=name matches '{1}'&sort=name:asc" -f $uri, $Name.Replace('*','%25')
 
 			}
 
@@ -53812,8 +53842,8 @@ function New-HPOVUplinkSet
 							#remove bay so we just have the ID
 							$bay = $_p[1].ToLower().TrimStart('bayBay') -replace " ",$null
 							
-							#Get faceplate portName
-							$uplinkPort = $_p[2]
+							#Get faceplate portName (Need to make sure Synergy Uplink Port format which uses : instead of . for subport delimiter is replaced correctly)
+							$uplinkPort = $_p[2].Replace('.',':')
 
 							'[{0}] Processing Frame "{1}", Bay "{2}", Port "{3}"' -f $MyInvocation.InvocationName.ToString().ToUpper(), $EnclosureID, $bay, $uplinkPort
 
@@ -53914,10 +53944,10 @@ function New-HPOVUplinkSet
 
 						}
 
-						'Looking for {0} port in portInfos Interconnect property.' -f $uplinkPort.Replace('.',':') | Write-Verbose
+						'Looking for {0} port in portInfos Interconnect property.' -f $uplinkPort | Write-Verbose #.Replace('.',':') | Write-Verbose
 
 						#Translate the port number
-						$_portRelativeValue = $_interconnecttype.portInfos | ? portName -eq $uplinkPort.Replace('.',':')
+						$_portRelativeValue = $_interconnecttype.portInfos | ? portName -eq $uplinkPort #.Replace('.',':')
 
 						#Didn't find relative port number, so generate terminating error
 						if (-not $_portRelativeValue) 
@@ -53953,7 +53983,7 @@ function New-HPOVUplinkSet
 
 						$_PortLocation       = NewObject -UplinkSetLocationEntry
 						$_PortLocation.type  = 'Port'
-						$_PortLocation.value = [string]$uplinkPort.Replace('.',':')
+						$_PortLocation.value = [string]$uplinkPort #.Replace('.',':')
 						[void]$_location.location.locationEntries.Add($_PortLocation)
 
 						#Create Primary Port logical location object
@@ -53978,7 +54008,7 @@ function New-HPOVUplinkSet
 
 							$_PortLogicalLocation       = NewOBject -UplinkSetLocationEntry
 							$_PortLogicalLocation.type  = 'Port'
-							$_PortLogicalLocation.value = [string]$uplinkPort.Replace('.',':')
+							$_PortLogicalLocation.value = [string]$uplinkPort#.Replace('.',':')
 							[void]$_liUplinkSetObject.primaryPortLocation.locationEntries.Add($_PortLogicalLocation)
 
 						}
@@ -54162,8 +54192,8 @@ function New-HPOVUplinkSet
 							#remove bay so we just have the ID
 							$bay = $_p[1].ToLower().TrimStart('bayBay') -replace " ",$null
 							
-							#Get faceplate portName
-							$uplinkPort = $_p[2]
+							#Get faceplate portName (Need to make sure Synergy Uplink Port format which uses : instead of . for subport delimiter is replaced correctly)
+							$uplinkPort = $_p[2].Replace('.',':')
 
 							'[{0}] Processing Frame "{1}", Bay "{2}", Port "{3}"' -f $MyInvocation.InvocationName.ToString().ToUpper(), $EnclosureID, $bay, $uplinkPort | Write-Verbose
 
@@ -54261,7 +54291,7 @@ function New-HPOVUplinkSet
 						}					
 
 						#Translate the port number
-						$_portRelativeValue = $_interconnecttype.portInfos | ? portName -eq $uplinkPort.Replace('.',':')
+						$_portRelativeValue = $_interconnecttype.portInfos | ? portName -eq $uplinkPort
 
 						#Didn't find relative port number, so generate terminating error
 						if (-not $_portRelativeValue) 
@@ -60828,7 +60858,7 @@ function New-HPOVServerProfile
 				
 						}
 
-						elseif ((-not ($PSBoundParameters["BootOrder"])) -and $ManageBoot -and ($BootMode -match 'UEFI') -and ($serverHardwareType.model -match 'BL'))
+						elseif ((-not ($PSBoundParameters["BootOrder"])) -and $ManageBoot -and $BootMode -match 'UEFI')
 						{
 
 							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for BL Gen9 Server resource type.  Defaulting to 'HardDisk'."
@@ -60837,18 +60867,10 @@ function New-HPOVServerProfile
 				
 						}
 
-						elseif (($BootOrder.count -gt 1) -and $ManageBoot -and ($BootMode -match 'UEFI') -and ($serverHardwareType.model -match 'BL'))
+						elseif (($BootOrder.count -gt 1) -and $ManageBoot -and $BootMode -match 'UEFI')
 						{
 
 							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	("The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode)
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-				
-						}
-
-						elseif ($BootOrder -and $ManageBoot -and ($BootMode -match 'UEFI') -and ($serverHardwareType.model -match 'DL'))
-						{
-
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	("The -BootOrder Parameter is not supported with DL Gen9 servers when BootMode is also set to {0}. Either change the BootMode to 'BIOS' or remove the -BootOrder Parameter." -f $BootMode)
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 				
 						}
@@ -61109,7 +61131,7 @@ function New-HPOVServerProfile
 							Try
 							{
 
-								$baselineObj = Send-HPOVRequest $baseline -appliance $_Connection
+								$baselineObj = Send-HPOVRequest -Uri $baseline -appliance $_Connection
 
 							}
 
@@ -61149,7 +61171,7 @@ function New-HPOVServerProfile
 
 						elseif (!$baseline) 
 						{
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfile' -Message "Baseline is required when manage firmware is set to true."
+							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'Firmware' -TargetType 'SwitchParameter' -Message "Baseline is required when manage firmware is set to true."
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 						}
 
@@ -61158,7 +61180,7 @@ function New-HPOVServerProfile
 					else 
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management."
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'Firmware' -TargetType 'SwitchParameter' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management."
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 						
 					}
@@ -61183,7 +61205,6 @@ function New-HPOVServerProfile
 						if ($serverHardwareType.capabilities -match "ManageBIOS" ) 
 						{
 							 
-
 							#check for any duplicate keys
 							$biosFlag = $false
 							$hash = @{}
@@ -61222,6 +61243,7 @@ function New-HPOVServerProfile
 					{
 
 						"[{0}] Processing {1} Controller" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Controller.deviceSlot | Write-Verbose
+						"[{0}] Controller object: {0}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_Controller | ConvertTo-Json -Depth 99) | Write-Verbose
 
 						if ($_Controller.logicalDrives.SasLogicalJBOD)
 						{
@@ -62041,6 +62063,12 @@ function Get-HPOVServerProfileTemplate
 		[Alias ('profile')]
 		[ValidateNotNullorEmpty()]
 		[string]$Name,
+		
+
+		[Parameter (ParameterSetName = "Default", Mandatory = $false)]
+		[Parameter (ParameterSetName = "Detailed", Mandatory = $false)]
+		[Parameter (ParameterSetName = "Export", Mandatory = $false)]
+		[object]$ServerHardwareType,
 
 		[Parameter (ValueFromPipeline = $false, ParameterSetName = "Detailed", Mandatory)]
 		[switch]$Detailed,
@@ -62151,19 +62179,6 @@ function Get-HPOVServerProfileTemplate
 
 		}
 
-		$uri = $ServerProfileTemplatesUri
-
-		if ($Name) 
-		{ 
-			   
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Received name: $($name)"
-
-			$Name = $Name.Replace("*","%25").Replace("&","%26")
-			
-			$uri = "{0}?filter=name matches '{1}'&sort=name:asc" -f $uri, $Name
-			
-		}
-
 		$TemplateCollection = New-Object System.Collections.ArrayList
 
 	}
@@ -62175,6 +62190,63 @@ function Get-HPOVServerProfileTemplate
 		{
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_appliance.Name)' Appliance (of $($ApplianceConnection.Count))"
+
+			$uri = $ServerProfileTemplatesUri
+
+			if ($Name) 
+			{ 
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Received name: $($name)"
+
+				$uri = "{0}&filter=name matches '{1}'" -f $uri, $Name.Replace("*","%25").Replace("&","%26")
+
+			}
+
+
+			if ($PSBoundParameters['ServerHardwareType'])
+			{
+
+				switch ($ServerHardwareType.GetType().Name)
+				{
+
+					'String'
+					{
+
+						Try
+						{
+
+							$ServerHardwareType = Get-HPOVServerHardwareType -Name $ServerHardwareType -ApplianceConnection $ApplianceConnection -ErrorAction Stop
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+					}
+
+					'PSCustomObject'
+					{
+
+						if ($ServerHardwareType.category -ne 'server-hardware-types')
+						{
+
+							$ExceptionMessage = "The provided ServerHardwareType parameter value, '{0}', is not a supported resource type.  Please check the value, and try again." -f $ServerHardwareType.name
+							$ErrorRecord = New-ErrorRecord HPOneView.ServerHardwareTypeResourceException ServerHardwareTypeInvalidObject InvalidParameter 'ServerHardwareType' -Message $ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
+
+					}
+
+				}
+
+				$uri = "{0}&filter=serverHardwareTypeUri eq '{1}'" -f $uri, $ServerHardwareType.uri
+
+			}
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request"
 
@@ -62237,12 +62309,12 @@ function Get-HPOVServerProfileTemplate
 				$templates = $TemplateCollection | ? { $_.ApplianceConnection.Name -eq $pg }
 
 				#Loop through all profiles
-				foreach ($profile in $templates) 
+				foreach ($_profile in $templates) 
 				{
 
 					#trim out appliance unique properties
 
-					$_profile = $profile | select-object -Property * -excludeproperty uri,etag,created,modified,status,state,inprogress,enclosureUri,enclosureBay,serverHardwareUri,taskUri,ApplianceConnection
+					$_profile = $_profile | select-object -Property * -excludeproperty uri,etag,created,modified,status,state,inprogress,enclosureUri,enclosureBay,serverHardwareUri,taskUri,ApplianceConnection
 					$_profile.serialNumberType = "UserDefined"
 
 					#Loop through the connections to save the assigned address
@@ -62589,1003 +62661,876 @@ function New-HPOVServerProfileTemplate
 	Process 
 	{
 		
-
-		# // TODO Should we still be processing each appliance connection here???
-		ForEach($_Connection in $ApplianceConnection)
+		#New Server Resource Object
+		$_spt = NewObject -ServerProfileTemplate
+			
+		$_spt.name                          = $name
+		$_spt.description                   = $description
+		$_spt.affinity                      = $Affinity
+		$_spt.hideUnusedFlexNics            = [bool]$hideUnusedFlexNics
+		$_spt.boot.manageBoot               = if (-not($ManageBoot.IsPresent)) { $true } else { $ManageBoot.IsPresent }
+		$_spt.boot.order                    = $bootOrder
+		$_spt.serialNumberType              = $snAssignment 
+		$_spt.macType                       = $macAssignment
+		$_spt.wwnType                       = $wwnAssignment
+					
+		#Check to see if the serverHardwareType or enclosureGroup is null, and generate error(s) then break.
+		if (-not($ServerHardwareType))
 		{
 
-			#New Server Resource Object
-			$_spt = NewObject -ServerProfileTemplate
-				
-			$_spt.name                          = $name
-			$_spt.description                   = $description
-			$_spt.affinity                      = $Affinity
-			$_spt.hideUnusedFlexNics            = [bool]$hideUnusedFlexNics
-			$_spt.boot.manageBoot               = if (-not($ManageBoot.IsPresent)) { $true } else { $ManageBoot.IsPresent }
-			$_spt.boot.order                    = $bootOrder
-			$_spt.serialNumberType              = $snAssignment 
-			$_spt.macType                       = $macAssignment
-			$_spt.wwnType                       = $wwnAssignment
+			$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeObject InvalidArgument 'ServerHardwareType' -Message "Server Hardware Type is missing.  Please provide a Server Hardware Type using the -sht Parameter and try again."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+		
+		#If the URI is passed as the Server Hardware Type, then set the serverHardwareTypeUri variable
+		If ($ServerHardwareType -is [string])
+		{
+
+			if ($serverHardwareType.StartsWith($script:serverHardwareTypesUri))
+			{ 
 						
-			#Check to see if the serverHardwareType or enclosureGroup is null, and generate error(s) then break.
-			if (-not($ServerHardwareType))
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT URI Provided: $serverHardwareType" 
+
+				$_spt.serverHardwareTypeUri = $serverHardwareType
+
+				Try
+				{
+						
+					$serverHardwareType = Send-HPOVRequest -Uri $serverHardwareType -Hostname $ApplianceConnection
+						
+				}
+						
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+				
+			#Otherwise, perform a lookup ofthe SHT based on the name
+			else 
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeObject InvalidArgument 'ServerHardwareType' -Message "Server Hardware Type is missing.  Please provide a Server Hardware Type using the -sht Parameter and try again."
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT Name Provided: $serverHardwareType"
+
+				Try
+				{
+
+					$serverHardwareType = Get-HPOVServerHardwareType -Name $serverHardwareType -Appliance $ApplianceConnection -ErrorAction Stop
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+				
+
+				if ($serverHardwareType) 
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT URI: $serverHardwareTypeUri"
+
+					$_spt.serverHardwareTypeUri = $serverHardwareType.uri
+
+				}
+
+				else 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeParameter InvalidArgument 'ServerHardwareType' -Message "The -ServerHardwareType Parameter value is invalid.  Please make sure it is a Name, URI or resource Object."
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+			}
+
+		}
+		
+		#Else the SHT object is passed
+		else 
+		{ 
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ServerHardwareType object provided"
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ServerHardwareType Name: $($serverHardwareType.name)"
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ServerHardwareType Uri: $($serverHardwareType.uri)"
+
+			$_spt.serverHardwareTypeUri = $serverHardwareType.uri
+					
+		}
+
+		if ($ServerHardwareType.model -notmatch "DL")
+		{
+
+			if (-not($EnclosureGroup))
+			{
+				
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureGroupObject InvalidArgument 'EnclosureGroup' -Message "Enclosure Group is missing.  Please provide an Enclosure Group using the -eg Parameter and try again."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
-			
-			#If the URI is passed as the Server Hardware Type, then set the serverHardwareTypeUri variable
-			If ($ServerHardwareType -is [string])
+
+			elseif ($EnclosureGroup -is [string])
 			{
 
-				if ($serverHardwareType.StartsWith($script:serverHardwareTypesUri))
+				#If the URI is passed as the Enclosure Group, then set the enclosureGroupUri variable
+				if ($EnclosureGroup.StartsWith('/rest'))
 				{ 
-							
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT URI Provided: $serverHardwareType" 
-
-					$_spt.serverHardwareTypeUri = $serverHardwareType
-
-					Try
-					{
-							
-						$serverHardwareType = Send-HPOVRequest $serverHardwareType -appliance $_Connection
-							
-					}
-							
-					Catch
-					{
-
-						$PSCmdlet.ThrowTerminatingError($_)
-
-					}
-
+				
+					$_spt.enclosureGroupUri = $EnclosureGroup
+			
 				}
-					
-				#Otherwise, perform a lookup ofthe SHT based on the name
-				else 
+
+				#Otherwise, perform a lookup ofthe Enclosure Group
+				else
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT Name Provided: $serverHardwareType"
-
 					Try
 					{
 
-						$serverHardwareType = Get-HPOVServerHardwareType -name $serverHardwareType -appliance $_Connection
+						$EnclosureGroup = Get-HPOVEnclosureGroup -name $EnclosureGroup -appliance $ApplianceConnection
 
 					}
-
+				
 					Catch
 					{
 
 						$PSCmdlet.ThrowTerminatingError($_)
 
 					}
-					
 
-					if ($serverHardwareType) 
-					{
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT URI: $serverHardwareTypeUri"
-
-						$_spt.serverHardwareTypeUri = $serverHardwareType.uri
-
-					}
-
-					else 
-					{
-
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidServerHardwareTypeParameter InvalidArgument 'ServerHardwareType' -Message "The -ServerHardwareType Parameter value is invalid.  Please make sure it is a Name, URI or resource Object."
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-					}
-
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] EG URI: $enclosureGroupUri"					    
+				
+					$_spt.enclosureGroupUri = $EnclosureGroup.uri
+				
 				}
 
 			}
-			
-			#Else the SHT object is passed
+				
+			#Else the EG object is passed
+			elseif (($EnclosureGroup -is [PSObject]) -and ($EnclosureGroup.category -eq "enclosure-groups")) 
+			{ 
+
+				#Retrieve only EG from this appliance connection
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group object provided"
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Name: $($EnclosureGroup.name)"
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Uri: $($EnclosureGroup.uri)"
+
+				#Retrieve only EG from this appliance connection
+				$_spt.enclosureGroupUri = $EnclosureGroup.uri
+
+			}
+
 			else 
 			{ 
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ServerHardwareType object provided"
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ServerHardwareType Name: $($serverHardwareType.name)"
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ServerHardwareType Uri: $($serverHardwareType.uri)"
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureGroupObject InvalidArgument 'EnclsoureGroup' -TargetType $EnclosureGroup.GetType().Name -Message "Enclosure Group is invalid.  Please specify a correct Enclosure Group name, URI or object and try again."
 
-				$_spt.serverHardwareTypeUri = ($serverHardwareType | ? {$_.ApplianceConnection.name -eq $_Connection.name}).uri
-						
-			}
-
-			if ($ServerHardwareType.model -notmatch "DL")
-			{
-
-				if (-not($EnclosureGroup))
-				{
-					
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureGroupObject InvalidArgument 'EnclosureGroup' -Message "Enclosure Group is missing.  Please provide an Enclosure Group using the -eg Parameter and try again."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-				}
-
-				elseif ($EnclosureGroup -is [string])
-				{
-
-					#If the URI is passed as the Enclosure Group, then set the enclosureGroupUri variable
-					if ($EnclosureGroup.StartsWith('/rest'))
-					{ 
-					
-						$_spt.enclosureGroupUri = $EnclosureGroup
-				
-					}
-
-					#Otherwise, perform a lookup ofthe Enclosure Group
-					else
-					{
-
-						Try
-						{
-
-							$EnclosureGroup = Get-HPOVEnclosureGroup -name $EnclosureGroup -appliance $_Connection
-
-						}
-					
-						Catch
-						{
-
-							$PSCmdlet.ThrowTerminatingError($_)
-
-						}
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] EG URI: $enclosureGroupUri"					    
-					
-						$_spt.enclosureGroupUri = $EnclosureGroup.uri
-					
-					}
-
-				}
-					
-				#Else the EG object is passed
-				elseif (($EnclosureGroup -is [PSObject]) -and ($EnclosureGroup.category -eq "enclosure-groups")) 
-				{ 
-
-					#Retrieve only EG from this appliance connection
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group object provided"
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Name: $($EnclosureGroup.name)"
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Enclosure Group Uri: $($EnclosureGroup.uri)"
-
-					#Retrieve only EG from this appliance connection
-					$_spt.enclosureGroupUri = ($EnclosureGroup | ? { $_Connection.name -eq $_.applianceConnection.name }).uri 
-
-				}
-
-				else 
-				{ 
- 
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidEnclosureGroupObject InvalidArgument 'EnclsoureGroup' -TargetType $EnclosureGroup.GetType().Name -Message "Enclosure Group is invalid.  Please specify a correct Enclosure Group name, URI or object and try again."
-
-					#Generate Terminating Error
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-				
-				}
-
-			}            
-
-			#Handle DL Server Profiles by setting BL-specific properties to NULL
-			else
-			{
-
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type is a DL, setting 'macType', 'wwnType', 'serialNumberType', 'affinity' and 'hideUnusedFlexNics' to supported values."
-
-				$_spt.macType            = 'Physical'
-				$_spt.wwnType            = 'Physical'
-				$_spt.serialNumberType   = 'Physical'
-				$_spt.hideUnusedFlexNics = $true
-				$_spt.affinity           = $Null
-
-			}
-
-			#User provided UEFI or UEFIOptimized for a non-Gen9 platform.
-			if (($BootMode -ne "BIOS") -and ($ServerHardwareType.model -notmatch "Gen9"))
-			{
-
-				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootModeNotSupported InvalidArgument 'BootMode' -Message "The -bootMode Parameter was provided and the Server Hardware model '$($serverHardwareType.model)' does not support this Parameter.  Please verify the Server Hardware Type is at least an HPE ProLiant Gen9."
-				$PSCmdlet.ThrowTerminatingError($ErrorRecord)    
-
-			}
-
-			#Handle Boot Order and BootManagement
-			switch ($ServerHardwareType.model)
-			{
-					
-				{'Gen7','Gen8' -contains $_}
-				{
-
-					if (-not($PSboundParameters['BootOrder']) -and $ManageBoot)
-					{
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for Gen8 Server resource type.  Defaulting to 'CD','Floppy','USB','HardDisk','PXE'"
-
-						[System.Collections.ArrayList]$_spt.boot.order = ('CD','Floppy','USB','HardDisk','PXE')
-
-					}
-
-				}
-
-				{$_ -match 'Gen9'}
-				{
-
-					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Gen 9 Server, setting BootMode to: {0}" -f $BootMode | Write-Verbose 
-
-					switch ($BootMode) 
-					{
-
-						"BIOS" 
-						{
-							
-							$_spt.bootMode = [PSCustomObject]@{
-								manageMode = $true;
-								mode       = $BootMode;
-							}
-							
-						}
-
-						{ "UEFI","UEFIOptimized" -match $_ } 
-						{
-							
-							$_spt.bootMode = [PSCustomObject]@{
-								manageMode    = $true;
-								mode          = $BootMode;
-								pxeBootPolicy = $PxeBootPolicy
-							}
-							
-						}
-
-					}
-
-					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Gen 9 Server BootOrder settings." | Write-Verbose 
-
-					if ($_spt.boot.manageBoot -and ($BootOrder -contains "Floppy") -and ($BootMode -match "UEFI"))
-					{
-							
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	"The -BootOrder Parameter contains 'Floppy' which is an invalid boot option for a UEFI-based system."
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-					}
-
-					elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and (-not($BootMode -match 'UEFI'))) 
-					{
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for Gen9 Server resource type.  Defaulting to 'CD','USB','HardDisk','PXE'"
-
-						[System.Collections.ArrayList]$_spt.boot.order = @('CD','USB','HardDisk','PXE')
-				
-					}
-
-					elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI')
-					{
-
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for BL Gen9 Server resource type.  Defaulting to 'HardDisk'."
-
-						[System.Collections.ArrayList]$_spt.boot.order = @('HardDisk')
-				
-					}
-
-					elseif (($BootOrder.count -gt 1) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI')
-					{
-
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	("The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode)
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-				
-					}
-
-					else
-					{
-
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding provided BootOrder {0} to Server Profile object." -f ($BootOrder -join ', ') | Write-Verbose 
-
-						[System.Collections.ArrayList]$_spt.boot.order = $BootOrder
-
-					}
-
-				}
-
-			}
-
-			#Exmamine the profile connections Parameter and pull only those connections for this appliance connection
-			If ($Connections -and $serverHardwareType.model -notmatch "DL")
-			{
-
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
-
-				#Get avaialble Networks based on the EG and SHT
-				$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
-
-				Try
-				{
-
-					$_AvailableNetworkResources = Send-HPOVRequest $_AvailableNetworksUri -Hostname $_Connection.Name
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-
-				$_c = 0
-
-				ForEach($c in $Connections)
-				{
-
-					$Message = $null
-
-					#Remove connection Parameters not permitted in Template
-					$c = $c | Select-Object -property * -ExcludeProperty macType, wwnType, wwpnType, mac, wwnn, wwpn, ApplianceConnection
-
-					switch (($c.networkUri.Split('\/'))[2])
-					{
-
-						'ethernet-networks'
-						{
-						
-							if (-not($_AvailableNetworkResources.ethernetNetworks | ? uri -eq $c.networkUri))
-							{
-
-								$Message = "The Ethernet network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
-
-							}
-
-							else
-							{
-
-								"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
-
-							}
-						
-						}
-
-						'network-sets'
-						{
-						
-							if (-not($_AvailableNetworkResources.networkSets | ? uri -eq $c.networkUri))
-							{
-
-								$Message = "The network set {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
-
-							}
-						
-							else
-							{
-
-								"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
-
-							}
-
-						}
-
-						{'fc-networks','fcoe-networks' -contains $_}
-						{
-						
-							if (-not($_AvailableNetworkResources.fcNetworks | ? uri -eq $c.networkUri))
-							{
-
-								$Message = "The FC/FCoE network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
-
-							}
-						
-							else
-							{
-
-								"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
-
-							}
-
-						}
-
-					}
-
-					if ($Message)
-					{
-
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileConnectionException NetworkResourceNotProvisioned InvalidArgument 'Connections' -TargetType 'PSObject' -Message $Message
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
-
-					}
-					
-					[void]$_spt.connections.Add($c)
-
-					$_c++
-				
-				}
+				#Generate Terminating Error
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 			
-				"[{0}] Server Profile Template Connections to add: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_spt.connections | FL * -force | Out-String) | Write-Verbose 
+			}
 
-				$BootableConnections = New-Object System.Collections.ArrayList
+		}            
 
-				#Loop through connections to look for bootable settings and if -manageboot is omitted from $PSBoundParameters
-				foreach ($connection in $_spt.connections) 
+		#Handle DL Server Profiles by setting BL-specific properties to NULL
+		else
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Server Hardware Type is a DL, setting 'macType', 'wwnType', 'serialNumberType', 'affinity' and 'hideUnusedFlexNics' to supported values."
+
+			$_spt.macType            = 'Physical'
+			$_spt.wwnType            = 'Physical'
+			$_spt.serialNumberType   = 'Physical'
+			$_spt.hideUnusedFlexNics = $true
+			$_spt.affinity           = $Null
+
+		}
+
+		#User provided UEFI or UEFIOptimized for a non-Gen9 platform.
+		if (($BootMode -ne "BIOS") -and ($ServerHardwareType.model -notmatch "Gen9"))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootModeNotSupported InvalidArgument 'BootMode' -Message "The -bootMode Parameter was provided and the Server Hardware model '$($serverHardwareType.model)' does not support this Parameter.  Please verify the Server Hardware Type is at least an HPE ProLiant Gen9."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)    
+
+		}
+
+		#Handle Boot Order and BootManagement
+		switch ($ServerHardwareType.model)
+		{
+				
+			{'Gen7','Gen8' -contains $_}
+			{
+
+				if (-not($PSboundParameters['BootOrder']) -and $ManageBoot)
 				{
-					
-					if ($connection.boot.priority -ne "NotBootable") 
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for Gen8 Server resource type.  Defaulting to 'CD','Floppy','USB','HardDisk','PXE'"
+
+					[System.Collections.ArrayList]$_spt.boot.order = ('CD','Floppy','USB','HardDisk','PXE')
+
+				}
+
+			}
+
+			{$_ -match 'Gen9'}
+			{
+
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Gen 9 Server, setting BootMode to: {0}" -f $BootMode | Write-Verbose 
+
+				switch ($BootMode) 
+				{
+
+					"BIOS" 
 					{
+						
+						$_spt.bootMode = [PSCustomObject]@{
+							manageMode = $true;
+							mode       = $BootMode;
+						}
+						
+					}
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found bootable connection ID '$($connection.id)'"
+					{ "UEFI","UEFIOptimized" -match $_ } 
+					{
+						
+						$_spt.bootMode = [PSCustomObject]@{
+							manageMode    = $true;
+							mode          = $BootMode;
+							pxeBootPolicy = $PxeBootPolicy
+						}
+						
+					}
 
-						[void]$BootableConnections.Add($connection.id)
+				}
+
+				"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Gen 9 Server BootOrder settings." | Write-Verbose 
+
+				if ($_spt.boot.manageBoot -and ($BootOrder -contains "Floppy") -and ($BootMode -match "UEFI"))
+				{
+						
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	"The -BootOrder Parameter contains 'Floppy' which is an invalid boot option for a UEFI-based system."
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and (-not($BootMode -match 'UEFI'))) 
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for Gen9 Server resource type.  Defaulting to 'CD','USB','HardDisk','PXE'"
+
+					[System.Collections.ArrayList]$_spt.boot.order = @('CD','USB','HardDisk','PXE')
+			
+				}
+
+				elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI')
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No boot order provided for BL Gen9 Server resource type.  Defaulting to 'HardDisk'."
+
+					[System.Collections.ArrayList]$_spt.boot.order = @('HardDisk')
+			
+				}
+
+				elseif (($BootOrder.count -gt 1) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI')
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	("The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode)
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+			
+				}
+
+				else
+				{
+
+					"[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding provided BootOrder {0} to Server Profile object." -f ($BootOrder -join ', ') | Write-Verbose 
+
+					[System.Collections.ArrayList]$_spt.boot.order = $BootOrder
+
+				}
+
+			}
+
+		}
+
+		#Exmamine the profile connections Parameter and pull only those connections for this appliance connection
+		If ($Connections -and $serverHardwareType.model -notmatch "DL")
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting available Network resources based on SHT and EG."
+
+			#Get avaialble Networks based on the EG and SHT
+			$_AvailableNetworksUri = $ServerProfilesAvailableNetworksUri + '?serverHardwareTypeUri={0}&enclosureGroupUri={1}' -f $ServerHardwareType.uri,$EnclosureGroup.uri
+
+			Try
+			{
+
+				$_AvailableNetworkResources = Send-HPOVRequest -Uri $_AvailableNetworksUri -Hostname $ApplianceConnection
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			$_c = 0
+
+			ForEach ($c in $Connections)
+			{
+
+				$Message = $null
+
+				#Remove connection Parameters not permitted in Template
+				$c = $c | Select-Object -property * -ExcludeProperty macType, wwnType, wwpnType, mac, wwnn, wwpn, ApplianceConnection
+
+				switch (($c.networkUri.Split('\/'))[2])
+				{
+
+					'ethernet-networks'
+					{
+					
+						if (-not($_AvailableNetworkResources.ethernetNetworks | ? uri -eq $c.networkUri))
+						{
+
+							$Message = "The Ethernet network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
+
+						}
+
+						else
+						{
+
+							"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
+
+						}
+					
+					}
+
+					'network-sets'
+					{
+					
+						if (-not($_AvailableNetworkResources.networkSets | ? uri -eq $c.networkUri))
+						{
+
+							$Message = "The network set {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
+
+						}
+					
+						else
+						{
+
+							"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
+
+						}
+
+					}
+
+					{'fc-networks','fcoe-networks' -contains $_}
+					{
+					
+						if (-not($_AvailableNetworkResources.fcNetworks | ? uri -eq $c.networkUri))
+						{
+
+							$Message = "The FC/FCoE network {0} specified in Connection {1} was not found to be provisioned to the provided Enclosure Group, {2}, and SHT, {3}.  Please verify that the network is a member of an Uplink Set in the associated Logical Interconnect Group." -f (Send-HPOVRequest $c.networkUri -Hostname $_connection.Name).name, $c.id, $EnclosureGroup.name, $ServerHardwareType.name
+
+						}
+					
+						else
+						{
+
+							"[$($MyInvocation.InvocationName.ToString().ToUpper())] {0} is available for Connection {1} in this SPT." -f $c.networkUri, $c.id | Write-Verbose 
+
+						}
 
 					}
 
 				}
 
-				if ((-not($manageBoot.IsPresent)) -and $BootableConnections.count -gt 0) 
+				if ($Message)
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootableConnectionsFound InvalidArgument 'manageBoot' -Message "Bootable Connections $($BootableConnections -join ",") were found, however the -manageBoot switch Parameter was not provided.  Please correct your command syntax and try again."
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileConnectionException NetworkResourceNotProvisioned InvalidArgument 'Connections' -TargetType 'PSObject' -Message $Message
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
-				} 
+				}
+				
+				[void]$_spt.connections.Add($c)
+
+				$_c++
+			
+			}
+		
+			"[{0}] Server Profile Template Connections to add: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_spt.connections | FL * -force | Out-String) | Write-Verbose 
+
+			$BootableConnections = New-Object System.Collections.ArrayList
+
+			#Loop through connections to look for bootable settings and if -manageboot is omitted from $PSBoundParameters
+			foreach ($connection in $_spt.connections) 
+			{
+				
+				if ($connection.boot.priority -ne "NotBootable") 
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Found bootable connection ID '$($connection.id)'"
+
+					[void]$BootableConnections.Add($connection.id)
+
+				}
 
 			}
 
-			#Check to make sure Server Hardware Type supports Firmware Management (OneView supported G7 blade would not support this feature)
-			if ($PSBoundParameters['Firmware'])
+			if ((-not($manageBoot.IsPresent)) -and $BootableConnections.count -gt 0) 
 			{
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Firmware Baseline $($baseline)"
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootableConnectionsFound InvalidArgument 'manageBoot' -Message "Bootable Connections $($BootableConnections -join ",") were found, however the -manageBoot switch Parameter was not provided.  Please correct your command syntax and try again."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
-				if ($serverHardwareType.capabilities -contains "FirmwareUpdate" ) 
+			} 
+
+		}
+
+		#Check to make sure Server Hardware Type supports Firmware Management (OneView supported G7 blade would not support this feature)
+		if ($PSBoundParameters['Firmware'])
+		{
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Firmware Baseline $($baseline)"
+
+			if ($serverHardwareType.capabilities -contains "FirmwareUpdate" ) 
+			{
+				
+				$_spt.firmware.manageFirmware       = [bool]$firmware
+				$_spt.firmware.forceInstallFirmware = [bool]$forceInstallFirmware
+				$_spt.firmware.firmwareInstallType  = $FirmwareControlModeEnum[$FirmwareMode]
+
+				#Validating that the baseline value is a string type and that it is an SPP name.
+				if (($baseline -is [string]) -and (-not ($baseline.StartsWith('/rest'))) -and ($baseline -match ".iso")) 
 				{
 					
-					$_spt.firmware.manageFirmware       = [bool]$firmware
-					$_spt.firmware.forceInstallFirmware = [bool]$forceInstallFirmware
-					$_spt.firmware.firmwareInstallType  = $FirmwareControlModeEnum[$FirmwareMode]
-
-					#Validating that the baseline value is a string type and that it is an SPP name.
-					if (($baseline -is [string]) -and (-not ($baseline.StartsWith('/rest'))) -and ($baseline -match ".iso")) 
+					try 
 					{
 						
-						try 
+						$FirmwareBaslineName = $Baseline.Clone()
+
+						$Baseline = Get-HPOVBaseline -FileName $Baseline -ApplianceConnection $ApplianceConnection -ErrorAction SilentlyContinue
+
+						If (-not $_BaseLinePolicy)
 						{
-							
-							FirmwareBaslineName = $Baseline.Clone()
 
-							$Baseline = Get-HPOVBaseline -FileName $Baseline -ApplianceConnection $_Connection -ErrorAction SilentlyContinue
+							$ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaslineName
+							$ErrorRecord = New-ErrorRecord HPOneView.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-							If (-not $_BaseLinePolicy)
-							{
-
-								$ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaslineName
-								$ErrorRecord = New-ErrorRecord HPOneView.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
-								$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-							}
-							
-							$_spt.firmware.firmwareBaselineUri = $Baseline.uri
-							$_spt.firmware.firmwareInstallType  = $FirmwareControlModeEnum[$FirmwareMode]
-						
 						}
-
-						catch 
-						{
-							
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Error caught when looking for Firmware Baseline."
-
-							$PSCmdlet.ThrowTerminatingError($_)
 						
-						}
+						$_spt.firmware.firmwareBaselineUri = $Baseline.uri
+						$_spt.firmware.firmwareInstallType  = $FirmwareControlModeEnum[$FirmwareMode]
 					
 					}
 
-					#Validating that the baseline value is a string type and that it is an SPP name.
-					elseif (($baseline -is [string]) -and (-not ($baseline.StartsWith('/rest')))) 
+					catch 
 					{
+						
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Error caught when looking for Firmware Baseline."
 
-						try 
-						{
-
-							FirmwareBaslineName = $Baseline.Clone()
-
-							$Baseline = Get-HPOVBaseline -SppName $Baseline -ApplianceConnection $_Connection -ErrorAction SilentlyContinue
-
-							If (-not $_BaseLinePolicy)
-							{
-
-								$ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaslineName
-								$ErrorRecord = New-ErrorRecord HPOneView.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
-								$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-							}
-
-							$_spt.firmware.firmwareBaselineUri = $baseline.uri
-
-						}
-
-						catch 
-						{
-
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Error caught when looking for Firmware Baseline."
-
-							$PSCmdlet.ThrowTerminatingError($_)
-
-						}
-
+						$PSCmdlet.ThrowTerminatingError($_)
+					
 					}
-			
-					#Validating that the baseline value is a string type and that it is the Basline URI
-					elseif (($baseline -is [string]) -and ($baseline.StartsWith('/rest'))) 
-					{
 				
-						Try
+				}
+
+				#Validating that the baseline value is a string type and that it is an SPP name.
+				elseif (($baseline -is [string]) -and (-not ($baseline.StartsWith('/rest')))) 
+				{
+
+					try 
+					{
+
+						$FirmwareBaslineName = $Baseline.Clone()
+
+						$Baseline = Get-HPOVBaseline -SppName $Baseline -ApplianceConnection $ApplianceConnection -ErrorAction SilentlyContinue
+
+						If (-not $_BaseLinePolicy)
 						{
 
-							$baselineObj = Send-HPOVRequest $baseline -appliance $_Connection
-
-						}
-
-						Catch
-						{
-
-							$PSCmdlet.ThrowTerminatingError($_)
-
-						}		                
-
-						if ($baselineObj.category -eq "firmware-drivers") 
-						{
-						
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Valid Firmware Baseline provided: $($baselineObj.baselineShortName)"
-							$_spt.firmware.firmwareBaselineUri = $baselineObj.uri 
-						
-						}
-
-						else 
-						{
-
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidBaselineResource ObjectNotFound 'Basline' -Message "The provided SPP Baseline URI '$($baseline)' is not valid or the correct resource category (expected 'firmware-drivers', received '$($baselineObj.category)'.  Please check the -baseline Parameter value and try again."
+							$ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaslineName
+							$ErrorRecord = New-ErrorRecord HPOneView.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 						}
 
-					}
-
-					#Else we are expecting the SPP object that contains the URI.
-					elseif (($baseline) -and ($baseline -is [object])) 
-					{
-						# Baseline object can be collection due to multi-appliance connections
-						# Get just that baseline for this appliance connection
-						$baseline = $baseline | ? { $_.applianceConnection.name -eq $_Connection.name }
 						$_spt.firmware.firmwareBaselineUri = $baseline.uri
-					
+
 					}
 
-					elseif(!$basline)
+					catch 
 					{
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfileTemplate' -Message "Baseline is required if manage firmware is set to true."
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Error caught when looking for Firmware Baseline."
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
 					}
 
-					
 				}
-
-				else 
+		
+				#Validating that the baseline value is a string type and that it is the Basline URI
+				elseif (($Baseline -is [string]) -and ($Baseline.StartsWith('/rest'))) 
 				{
-
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'Firmware' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-					
-				}
-
-			}
 			
-			#Check to make sure Server Hardware Type supports Bios Management (OneView supported G7 blade do not support this feature)
-			if ($PSBoundParameters['Bios']) 
-			{
-
-				if (-not($BiosSettings | Measure-Object).count) 
-				{
-					
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsIsNull InvalidArgument 'biosSettings' -TargetType 'Array' -Message "BIOS Parameter was set to TRUE, but no biosSettings were provided.  Either change -bios to `$False or provide valid bioSettings to set within the Server Profile."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-				
-				}
-
-				else 
-				{
-				
-					if ($serverHardwareType.capabilities -match "ManageBIOS" ) 
+					Try
 					{
-						 
 
-						#check for any duplicate keys
-						$biosFlag = $false
-						$hash = @{}
-						$BiosSettings.id | % { $hash[$_] = $hash[$_] + 1 }
+						$baselineObj = Send-HPOVRequest -Uri $Baseline -Hostname $ApplianceConnection
 
-						foreach ($biosItem in ($hash.GetEnumerator() | ? {$_.value -gt 1} | % {$_.key} )) 
-						{
-							 
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsNotUnique InvalidOperation 'BiosSettings' -TargetType 'Array' -Message "'$(($serverHardwareType.biosSettings | where { $_.id -eq $biosItem }).name)' is being set more than once. Please check your BIOS Settings are unique.  This setting might be a dependency of another BIOS setting/option."
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+					}
 
-						}
+					Catch
+					{
 
-						$_spt.bios.manageBios = $True
-						$_spt.bios.overriddenSettings = $BiosSettings
+						$PSCmdlet.ThrowTerminatingError($_)
 
+					}		                
+
+					if ($baselineObj.category -eq "firmware-drivers") 
+					{
+					
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Valid Firmware Baseline provided: $($baselineObj.baselineShortName)"
+						$_spt.firmware.firmwareBaselineUri = $baselineObj.uri 
+					
 					}
 
 					else 
-					{ 
-
-						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support BIOS Management."
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)                
-					
-					}
-					
-				}
-
-			}
-
-			#Set Local Storage Management and Check to make sure Server Hardware Type supports it (OneView supported G7 blade would not support this feature)
-			if (($PSBoundParameters['StorageController']) -and ($ServerHardwareType.capabilities -match "ManageLocalStorage" )) 
-			{
-
-				#Loop through Controllers provided by user, which should have LogicalDisks attached.
-				ForEach ($_Controller in $StorageController)
-				{
-
-					"[{0}] Processing {1} Controller" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Controller.slotNumber | Write-Verbose
-					
-					#Check if controll has imporrtConfiguration set to True, which is unsupported with SPT
-					if ($_Controller.importConfiguration)
 					{
 
-						$Message = "The StorageController configuration contains the -ImportExistingConfiguration option set, which is not supported with Server Profile Templates."
-						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedImportConfigurationSetting InvalidOperation "StorageController" -TargetType 'PSObject' -Message $Message
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)						
-
-					}
-
-					if ($_Controller.logicalDrives.SasLogicalJBOD)
-					{
-
-						If ($_Connection.ApplianceType -ne 'Composer')
-						{
-
-							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message ('The ApplianceConnection {0} is not a Synergy Composer.  The LogicalDisk within the StorageController contains a SasLogicalJbod configuration with is only supported with HPE Synergy.' -f $_Connection.Name)
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-						}
-
-						$_c = 0
-
-						ForEach ($_SasLogicalJbod in $_Controller.logicalDrives.SasLogicalJBOD)
-						{
-
-							$_c++
-
-							"[{0}] Processing {1} of {2} SasLogicalJbod: {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_c, $_Controller.logicalDrives.SasLogicalJBOD.Count, $_SasLogicalJbod.name | Write-Verbose
-
-							[void]$_spt.localStorage.sasLogicalJBODs.Add($_SasLogicalJbod)
-
-						}
-							
-						$_Controller = $_Controller | Select * -ExcludeProperty SasLogicalJBOD
-
-					}
-
-					#Validate the SHT.storageCapabilities controllerModes -> mode, raidLevels -> logicalDrives.raidLevel and maximumDrives -> numPhysicalDrives
-					if ($ServerHardwareType.storageCapabilities.controllerModes -notcontains $_Controller.mode)
-					{
-
-						$_ExceptionMessage = "Unsupported LogicalDisk policy with Virtual Machine Appliance.  The requested Controller Mode '{0}' is not supported with the expected Server Hardware Type, which only supports '{1}'" -f $_Controller.mode, ([System.String]::Join($ServerHardwareType.storageCapabilities.controllerModes,"', '")) 
-						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedImportConfigurationSetting InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidBaselineResource ObjectNotFound 'Baseline' -Message "The provided SPP Baseline URI '$($baseline)' is not valid or the correct resource category (expected 'firmware-drivers', received '$($baselineObj.category)'.  Please check the -baseline Parameter value and try again."
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
 
-					$_l = 0
+				}
 
-					"[{0}] Storage Controller has {1} LogicalDrives to process" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Controller.logicalDrives.count | Write-Verbose
+				#Else we are expecting the SPP object that contains the URI.
+				elseif (($Baseline) -and ($Baseline -is [object])) 
+				{
 
-					#Validate the SHT.storageCapabilities .raidLevels -> logicalDrives.raidLevel and .maximumDrives -> numPhysicalDrives
-					ForEach ($_ld in $_Controller.logicalDrives)
-					{
-
-						$_l++
-
-						"[{0}] Processing {1} of {2} LogicalDisk: {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_l, $_Controller.logicalDrives.count, $_ld.name | Write-Verbose
-
-						"[{0}] {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_ld | Out-String) | Write-Verbose
-
-						if ($ServerHardwareType.storageCapabilities.raidLevels -notcontains $_ld.raidLevel)
-						{
-
-							$_ExceptionMessage = "Unsupported LogicalDisk RAID Level {0} policy with {1} logical disk.  The Server Hardware Type only supports '{2}' RAID level(s). " -f $_ld.raidLevel, $_ld.name, [System.String]::Join("', '",$ServerHardwareType.storageCapabilities.raidLevels) 
-							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedLogicalDriveRaidLevel InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-						}
-
-						if ($_ld.numPhysicalDrives -gt $ServerHardwareType.storageCapabilities.maximumDrives)
-						{
-
-							$_ExceptionMessage = "Invalid number of drives requested {0}.  The Server Hardware Type only supports a maximum of '{1}'." -f $_ld.numPhysicalDrives, $ServerHardwareType.storageCapabilities.maximumDrives 
-							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedNumberofDrives InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-						}
-
-					}
-
-					$_Controller = $_Controller | Select * -Exclude importConfiguration
-
-					[void]$_spt.localStorage.controllers.Add($_Controller)	
+					$_spt.firmware.firmwareBaselineUri = $Baseline.uri
 				
 				}
-														 
+
+				elseif (!$baseline)
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfileTemplate' -Message "Baseline is required if manage firmware is set to true."
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+				
+				}
+				
 			}
 
-			#if (($LocalStorage) -and ($serverHardwareType.capabilities -match "ManageLocalStorage" )) 
-			#{
-			#    
-			#	$_LocalStorageConfig = NewObject -ServerProfileTemplateLocalStorage
-			#
-			#	$_LocalStorageConfig.managed    = $true
-			#
-			#	$_LocalStorageConfig.initialize = [bool]$Initialize
-			#
-			#	$_l = 1
-			#
-			#	ForEach ($_ld in $LogicalDisk)
-			#	{
-			#
-			#		"[{0}] Processing {1} of {2} LogicalDisk: {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_l, $LogicalDisk.Count, $_ld.name | Write-Verbose
-			#
-			#		[void]$_LocalStorageConfig.logicalDrives.Add($_ld)
-			#
-			#		$_l++
-			#
-			#	}
-			#
-			#	[void]$_spt.localStorage.controllers.Add($_LocalStorageConfig)
-			#         
-			#}
+			else 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'Firmware' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+				
+			}
+
+		}
+		
+		#Check to make sure Server Hardware Type supports Bios Management (OneView supported G7 blade do not support this feature)
+		if ($PSBoundParameters['Bios']) 
+		{
+
+			if (-not($BiosSettings | Measure-Object).count) 
+			{
+				
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsIsNull InvalidArgument 'biosSettings' -TargetType 'Array' -Message "BIOS Parameter was set to TRUE, but no biosSettings were provided.  Either change -bios to `$False or provide valid bioSettings to set within the Server Profile."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 			
-			#StRM Support
-			if ($PSBoundParameters['SANStorage'] -and $serverHardwareType.model -match "BL") 
-			{ 
+			}
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SAN Storage being requested"
+			else 
+			{
 			
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of available storage systems"
-
-				#Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
-				
-				Try
+				if ($serverHardwareType.capabilities -match "ManageBIOS" ) 
 				{
-
-					$availStorageSystems = (Send-HPOVRequest ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$($_spt.enclosureGroupUri)&serverHardwareTypeUri=$($serverHardwareType.uri)") -appliance $_Connection).members
-
-				}
-
-				Catch
-				{
-
-					$PSCmdlet.ThrowTerminatingError($_)
-
-				}
-				
-
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage Systems: $($availStorageSystems | fl | out-string)"
-
-				#Error on no available storage systems
-				if (-not ($availStorageSystems)) 
-				{
-
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoAvailableStorageSystems ObjectNotFound 'SANStorage' -Message "No available storage systems found for '$($serverHardwareType.name)' Server Hardware Type and '$((Send-HPOVRequest $_spt.enclosureGroupUri).name)' Enclosure Group.  Please verify an available Storage System exists, and has connectivity to the destination server or Enclosure Group."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
-
-				}
-				
-				$_spt.sanStorage = [pscustomobject]@{
-					
-					hostOSType        = $ProfileSanManageOSType.($HostOsType);
-					manageSanStorage  = [bool]$SANStorage;
-					volumeAttachments = New-Object System.Collections.ArrayList
-				
-				}
-				
-				#Copy the Parameter array into a new object
-				$_VolumesToAttach = New-Object System.Collections.ArrayList
-				$StorageVolume | % { 
-
-					if ($_)
-					{
 						
-						[void]$_VolumesToAttach.Add($_)
+
+					#check for any duplicate keys
+					$biosFlag = $false
+					$hash = @{}
+					$BiosSettings.id | % { $hash[$_] = $hash[$_] + 1 }
+
+					foreach ($biosItem in ($hash.GetEnumerator() | ? {$_.value -gt 1} | % {$_.key} )) 
+					{
+							
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsNotUnique InvalidOperation 'BiosSettings' -TargetType 'Array' -Message "'$(($serverHardwareType.biosSettings | where { $_.id -eq $biosItem }).name)' is being set more than once. Please check your BIOS Settings are unique.  This setting might be a dependency of another BIOS setting/option."
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
-						
+
+					$_spt.bios.manageBios = $True
+					$_spt.bios.overriddenSettings = $BiosSettings
+
+				}
+
+				else 
+				{ 
+
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support BIOS Management."
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)                
+				
 				}
 				
-				"[{0}] Number of Volumes to Attach: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_VolumesToAttach.Count | Write-Verbose
-				
-				$i = 0
-				
-				#Process volumes being passed
-				foreach ($volume in $_VolumesToAttach) 
-				{  
+			}
 
-					"[{0}] Processing Volume: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($volume.Count | FL ) | Write-Verbose
+		}
 
-					#If the storage paths array is null, process connections to add mapping
-					if (-not ($volume.storagePaths)) 
+		#Set Local Storage Management and Check to make sure Server Hardware Type supports it (OneView supported G7 blade would not support this feature)
+		if (($PSBoundParameters['StorageController']) -and ($ServerHardwareType.capabilities -match "ManageLocalStorage" )) 
+		{
+
+			#Loop through Controllers provided by user, which should have LogicalDisks attached.
+			ForEach ($_Controller in $StorageController)
+			{
+
+				"[{0}] Processing {1} Controller" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Controller.slotNumber | Write-Verbose
+				
+				#Check if controll has imporrtConfiguration set to True, which is unsupported with SPT
+				if ($_Controller.importConfiguration)
+				{
+
+					$Message = "The StorageController configuration contains the -ImportExistingConfiguration option set, which is not supported with Server Profile Templates."
+					$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedImportConfigurationSetting InvalidOperation "StorageController" -TargetType 'PSObject' -Message $Message
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)						
+
+				}
+
+				#Validate the SHT.storageCapabilities controllerModes -> mode, raidLevels -> logicalDrives.raidLevel and maximumDrives -> numPhysicalDrives
+				if ($ServerHardwareType.storageCapabilities.controllerModes -notcontains $_Controller.mode)
+				{
+
+					$_ExceptionMessage = "Unsupported LogicalDisk policy with Virtual Machine Appliance.  The requested Controller Mode '{0}' is not supported with the expected Server Hardware Type, which only supports '{1}'" -f $_Controller.mode, ([System.String]::Join($ServerHardwareType.storageCapabilities.controllerModes,"', '")) 
+					$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedImportConfigurationSetting InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				$_l = 0
+
+				"[{0}] Storage Controller has {1} LogicalDrives to process" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Controller.logicalDrives.count | Write-Verbose
+
+				$_NewLogicalDisksCollection = New-Object System.Collections.ArrayList
+
+				#Validate the SHT.storageCapabilities .raidLevels -> logicalDrives.raidLevel and .maximumDrives -> numPhysicalDrives
+				ForEach ($_ld in $_Controller.logicalDrives)
+				{
+
+					"[{0}] Processing {1} of {2} LogicalDisk: {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_l, $_Controller.logicalDrives.count, $_ld.name | Write-Verbose
+
+					"[{0}] {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_ld | Out-String) | Write-Verbose
+
+					if ($_ld.PSObject.Properties.Match('SasLogicalJBOD').Count)
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Paths value is Null. Building connection mapping."
+						"[{0}] Processing SasLogicalJbod {1} (ID:{2}) in Controller {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ld.SasLogicalJBOD.name, $_ld.SasLogicalJbodId, $_Controller.deviceSlot | Write-Verbose
 
-						#Static Volume, must have volumeUri attribute present to be valid
-						if ($volume.volumeUri) 
+						If ($ApplianceConnection.ApplianceType -ne 'Composer')
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of attachable volumes"
-
-							#Get list of attachable Volumes (i.e. they are not assigned private or are shareable volumes)
-							Try
-							{
-
-								$attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri -appliance $_Connection).members
-
-							}
-
-							Catch
-							{
-
-								$PSCmdlet.ThrowTerminatingError($_)
-
-							}
-
-							#Get storage volume name for reporting purposes
-							Try
-							{
-
-								$volumeName = (send-hpovrequest $volume.volumeUri -appliance $_Connection).name
-
-							}
-							
-							Catch
-							{
-
-								$PSCmdlet.ThrowTerminatingError($_)
-
-							}
-
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Volume ID: $($volume.id)"
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking to see if volume '$($volume.volumeUri) ($($volumeName))' is attachable"
-				
-							#validate volume is attachable
-							$attachableVolFound = $attachableVolumes | ? { $_.uri -eq $volume.volumeUri }
-
-							#If it is available, continue processing
-							if ($attachableVolFound) 
-							{
-				
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] '$($attachableVolFound.uri) ($($attachableVolFound.name))' volume is attachable"
-				
-								#validate the volume that is available, is also avialable to the server hardware type and enclosure group
-								$volumeToStorageSystem = $availStorageSystems | ? { $_.storageSystemUri -eq $attachableVolFound.storageSystemUri }
-				
-								#If available, process the volume networks
-								if ($volumeToStorageSystem) 
-								{ 
-								
-									#Check to make sure profile connections exist.
-									if ($_spt.connections -and $_spt.connections.functionType -contains "FibreChannel") 
-									{
-
-										Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
-									
-										#loop through profile connections
-										$found = 0
-
-										foreach ($volConnection in $attachableVolFound.availableNetworks) 
-										{
-
-											#write-verbose "Looking for $volConnection"
-											$profileConnection = $_spt.connections | ? networkUri -eq $volConnection
-
-											if ($profileConnection) 
-											{
-
-												#Keep track of the connections found for error reporting later
-												$found++
-
-												Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Mapping connection ID '$($profileConnection.id)' -> volume ID '$($_VolumesToAttach[$i].id)'"
-											
-												[void]$_VolumesToAttach[$i].storagePaths.Add(
-
-													[pscustomobject]@{
-														connectionId = $profileConnection.id;
-														isEnabled    = $True
-													}
-
-												)
-
-											}
-
-										}
-
-										if (-not ($found)) 
-										{
-
-											#Generate non-terminating error and continue
-											$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVServerProfile' -Message "Unable to find a Profile Connection that will map to '$($volumeName)'. Creating server profile resource without Volume Connection Mapping." 
-											$PSCmdlet.WriteError($ErrorRecord)
-
-										}
-									
-									}
-
-									#Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
-									else 
-									{
-
-										$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnections ObjectNotFound 'New-HPOVServerProfile' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVServerProfileConnection helper cmdlet to create 1 or more connections and try again." 
-										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-									}
-				
-								}
-				
-								#If not, then error
-								elseif (-not($volumeToStorageSystem)) 
-								{ 
-							
-									$ErrorRecord = New-ErrorRecord InvalidOperationException StorageVolumeDoesNotExistOnStorageArray ObjectNotFound 'New-HPOVServerProfile' -Message "'$($volumeName)' Volume is not available on the '$($volumeToStorageSystem.storageSystemName)' storage system"
-									$PSCmdlet.ThrowTerminatingError($ErrorRecord)                      
-							
-								}
-				
-							}
-				
-							elseif (-not ($attachableVolFound)) 
-							{ 
-						
-								$ErrorRecord = New-ErrorRecord InvalidOperationException StorageVolumeUnavailableForAttach ResourceUnavailable 'New-HPOVServerProfile' -Message "'$($volumeName)' Volume is not available to be attached to the profile. Please check the volume and try again." 
-								$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-							}
+							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message ('The ApplianceConnection {0} is not a Synergy Composer.  The LogicalDisk within the StorageController contains a SasLogicalJbod configuration with is only supported with HPE Synergy.' -f $ApplianceConnection.Name)
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 						}
 
-						#Ephemeral volume support
-						elseif (-not ($volume.volumeUri) -and $volume.volumeStoragePoolUri -and $volume.volumeStorageSystemUri) 
+						[void]$_spt.localStorage.sasLogicalJBODs.Add($_ld)
+
+					}
+
+					if ($ServerHardwareType.storageCapabilities.raidLevels -notcontains $_ld.raidLevel)
+					{
+
+						$_ExceptionMessage = "Unsupported LogicalDisk RAID Level {0} policy with {1} logical disk.  The Server Hardware Type only supports '{2}' RAID level(s). " -f $_ld.raidLevel, $_ld.name, [System.String]::Join("', '",$ServerHardwareType.storageCapabilities.raidLevels) 
+						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedLogicalDriveRaidLevel InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					if ($_ld.numPhysicalDrives -gt $ServerHardwareType.storageCapabilities.maximumDrives)
+					{
+
+						$_ExceptionMessage = "Invalid number of drives requested {0}.  The Server Hardware Type only supports a maximum of '{1}'." -f $_ld.numPhysicalDrives, $ServerHardwareType.storageCapabilities.maximumDrives 
+						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedNumberofDrives InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					$_ld = $_ld | Select * -ExcludeProperty SasLogicalJBOD
+
+					[Void]$_NewLogicalDisksCollection.Add($_ld)
+
+					$_l++
+
+				}
+
+				$_Controller = $_Controller | Select * -Exclude importConfiguration
+
+				[void]$_spt.localStorage.controllers.Add($_Controller)	
+			
+			}
+														
+		}
+
+		#StRM Support
+		if ($PSBoundParameters['SANStorage'] -and $serverHardwareType.model -match "BL") 
+		{ 
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SAN Storage being requested"
+		
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of available storage systems"
+
+			#Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
+			
+			Try
+			{
+
+				$availStorageSystems = (Send-HPOVRequest -Uri ($script:profileAvailStorageSystemsUri + "?enclosureGroupUri=$($_spt.enclosureGroupUri)&serverHardwareTypeUri=$($serverHardwareType.uri)") -Hppliance $ApplianceConnection).members
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+			
+
+			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage Systems: $($availStorageSystems | fl | out-string)"
+
+			#Error on no available storage systems
+			if (-not ($availStorageSystems)) 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoAvailableStorageSystems ObjectNotFound 'SANStorage' -Message "No available storage systems found for '$($serverHardwareType.name)' Server Hardware Type and '$((Send-HPOVRequest $_spt.enclosureGroupUri).name)' Enclosure Group.  Please verify an available Storage System exists, and has connectivity to the destination server or Enclosure Group."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+			}
+			
+			$_spt.sanStorage = [pscustomobject]@{
+				
+				hostOSType        = $ProfileSanManageOSType.($HostOsType);
+				manageSanStorage  = [bool]$SANStorage;
+				volumeAttachments = New-Object System.Collections.ArrayList
+			
+			}
+			
+			#Copy the Parameter array into a new object
+			$_VolumesToAttach = New-Object System.Collections.ArrayList
+			$StorageVolume | % { 
+
+				if ($_)
+				{
+					
+					[void]$_VolumesToAttach.Add($_)
+
+				}
+					
+			}
+			
+			"[{0}] Number of Volumes to Attach: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_VolumesToAttach.Count | Write-Verbose
+			
+			$i = 0
+			
+			#Process volumes being passed
+			foreach ($volume in $_VolumesToAttach) 
+			{  
+
+				"[{0}] Processing Volume: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($volume.Count | FL ) | Write-Verbose
+
+				#If the storage paths array is null, process connections to add mapping
+				if (-not ($volume.storagePaths)) 
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Paths value is Null. Building connection mapping."
+
+					#Static Volume, must have volumeUri attribute present to be valid
+					if ($volume.volumeUri) 
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of attachable volumes"
+
+						#Get list of attachable Volumes (i.e. they are not assigned private or are shareable volumes)
+						Try
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No volumeUri, ephemeral volume request."
+							$attachableVolumes = (Send-HPOVRequest -Uri $script:attachableVolumesUri -Appliance $ApplianceConnection).members
 
-							#Check to make sure profile connections exist.
-							if ($_spt.connections -and $_spt.connections.functionType -contains "FibreChannel") 
-							{
+						}
 
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
+						Catch
+						{
 
-								#Process available storage system and available FC networks
-								$storageSystemVolCreate = $availStorageSystems | ? storageSystemUri -eq $volume.volumeStorageSystemUri
+							$PSCmdlet.ThrowTerminatingError($_)
 
-								if ($storageSystemVolCreate) 
+						}
+
+						#Get storage volume name for reporting purposes
+						Try
+						{
+
+							$volumeName = (send-hpovrequest -Uri $volume.volumeUri -Appliance $ApplianceConnection).name
+
+						}
+						
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Volume ID: $($volume.id)"
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking to see if volume '$($volume.volumeUri) ($($volumeName))' is attachable"
+			
+						#validate volume is attachable
+						$attachableVolFound = $attachableVolumes | ? { $_.uri -eq $volume.volumeUri }
+
+						#If it is available, continue processing
+						if ($attachableVolFound) 
+						{
+			
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] '$($attachableVolFound.uri) ($($attachableVolFound.name))' volume is attachable"
+			
+							#validate the volume that is available, is also avialable to the server hardware type and enclosure group
+							$volumeToStorageSystem = $availStorageSystems | ? { $_.storageSystemUri -eq $attachableVolFound.storageSystemUri }
+			
+							#If available, process the volume networks
+							if ($volumeToStorageSystem) 
+							{ 
+							
+								#Check to make sure profile connections exist.
+								if ($_spt.connections -and $_spt.connections.functionType -contains "FibreChannel") 
 								{
-									
+
+									Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
+								
 									#loop through profile connections
 									$found = 0
 
-									foreach ($storageSystemConnection in $storageSystemVolCreate.connections) 
+									foreach ($volConnection in $attachableVolFound.availableNetworks) 
 									{
 
-										$profileConnection = $_spt.connections | ? networkUri -eq $storageSystemConnection
+										#write-verbose "Looking for $volConnection"
+										$profileConnection = $_spt.connections | ? networkUri -eq $volConnection
 
 										if ($profileConnection) 
 										{
@@ -63594,166 +63539,254 @@ function New-HPOVServerProfileTemplate
 											$found++
 
 											Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Mapping connection ID '$($profileConnection.id)' -> volume ID '$($_VolumesToAttach[$i].id)'"
-											
+										
 											[void]$_VolumesToAttach[$i].storagePaths.Add(
-												
-												[pscustomobject]@{
-												
-													connectionId      = $profileConnection.id;
-													isEnabled         = $True;
-													storageTargetType =  "Auto"
 
+												[pscustomobject]@{
+													connectionId = $profileConnection.id;
+													isEnabled    = $True
 												}
-											
+
 											)
 
 										}
 
 									}
 
-									if (-not($found))
+									if (-not ($found)) 
 									{
 
 										#Generate non-terminating error and continue
-										$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVProfile' -Message "Unable to find a Profile Connection that will map to '$($volumeName)'. Creating server profile resource without Volume Connection Mapping." 
+										$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVServerProfile' -Message "Unable to find a Profile Connection that will map to '$($volumeName)'. Creating server profile resource without Volume Connection Mapping." 
 										$PSCmdlet.WriteError($ErrorRecord)
+
+									}
+								
+								}
+
+								#Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
+								else 
+								{
+
+									$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnections ObjectNotFound 'New-HPOVServerProfile' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVServerProfileConnection helper cmdlet to create 1 or more connections and try again." 
+									$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+								}
+			
+							}
+			
+							#If not, then error
+							elseif (-not ($volumeToStorageSystem)) 
+							{ 
+						
+								$ErrorRecord = New-ErrorRecord InvalidOperationException StorageVolumeDoesNotExistOnStorageArray ObjectNotFound 'New-HPOVServerProfile' -Message "'$($volumeName)' Volume is not available on the '$($volumeToStorageSystem.storageSystemName)' storage system"
+								$PSCmdlet.ThrowTerminatingError($ErrorRecord)                      
+						
+							}
+			
+						}
+			
+						elseif (-not ($attachableVolFound)) 
+						{ 
+					
+							$ErrorRecord = New-ErrorRecord InvalidOperationException StorageVolumeUnavailableForAttach ResourceUnavailable 'New-HPOVServerProfile' -Message "'$($volumeName)' Volume is not available to be attached to the profile. Please check the volume and try again." 
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
+
+					}
+
+					#Ephemeral volume support
+					elseif (-not ($volume.volumeUri) -and $volume.volumeStoragePoolUri -and $volume.volumeStorageSystemUri) 
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No volumeUri, ephemeral volume request."
+
+						#Check to make sure profile connections exist.
+						if ($_spt.connections -and $_spt.connections.functionType -contains "FibreChannel") 
+						{
+
+							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
+
+							#Process available storage system and available FC networks
+							$storageSystemVolCreate = $availStorageSystems | ? storageSystemUri -eq $volume.volumeStorageSystemUri
+
+							if ($storageSystemVolCreate) 
+							{
+								
+								#loop through profile connections
+								$found = 0
+
+								foreach ($storageSystemConnection in $storageSystemVolCreate.connections) 
+								{
+
+									$profileConnection = $_spt.connections | ? networkUri -eq $storageSystemConnection
+
+									if ($profileConnection) 
+									{
+
+										#Keep track of the connections found for error reporting later
+										$found++
+
+										Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Mapping connection ID '$($profileConnection.id)' -> volume ID '$($_VolumesToAttach[$i].id)'"
+										
+										[void]$_VolumesToAttach[$i].storagePaths.Add(
+											
+											[pscustomobject]@{
+											
+												connectionId      = $profileConnection.id;
+												isEnabled         = $True;
+												storageTargetType =  "Auto"
+
+											}
+										
+										)
 
 									}
 
 								}
 
-								else 
+								if (-not($found))
 								{
 
-									$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException StorageSystemNotFound ObjectNotFound 'New-HPOVServerProfile' -Message "The provided Storage System URI '$($volume.volumeStorageSystemUri)' for the ephemeral volume '$($volume.name)' was not found as an available storage system." 
-									$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+									#Generate non-terminating error and continue
+									$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnectionsMapToVolume ObjectNotFound 'New-HPOVProfile' -Message "Unable to find a Profile Connection that will map to '$($volumeName)'. Creating server profile resource without Volume Connection Mapping." 
+									$PSCmdlet.WriteError($ErrorRecord)
 
 								}
-									
+
 							}
 
-							#Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
 							else 
 							{
 
-								$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnections ObjectNotFound 'New-HPOVServerProfile' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVServerProfileConnection helper cmdlet to create 1 or more connections and try again." 
+								$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException StorageSystemNotFound ObjectNotFound 'New-HPOVServerProfile' -Message "The provided Storage System URI '$($volume.volumeStorageSystemUri)' for the ephemeral volume '$($volume.name)' was not found as an available storage system." 
 								$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 							}
+								
+						}
+
+						#Else, generate an error that at least one FC connection must exist in the profile in order to attach volumes.
+						else 
+						{
+
+							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NoProfileConnections ObjectNotFound 'New-HPOVServerProfile' -Message "The profile does not contain any Network Connections.  The Profile must contain at least 1 FC Connection to attach Storage Volumes.  Use the New-HPOVServerProfileConnection helper cmdlet to create 1 or more connections and try again." 
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 						}
 
-						if (($volume.id -eq 0) -or (-not($volume.id)))
+					}
+
+					if (($volume.id -eq 0) -or (-not($volume.id)))
+					{
+
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No VolumeID value provided.  Getting next volume id value."
+
+						$id = 1
+
+						$Found = $false
+
+						While (-not($Found))
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No VolumeID value provided.  Getting next volume id value."
-
-							$id = 1
-
-							$Found = $false
-
-							While (-not($Found))
+							if (-not($_VolumesToAttach | ? id -eq $id))
 							{
 
-								if (-not($_VolumesToAttach | ? id -eq $id))
-								{
+								"[{0}] Setting Volume ID to: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $id | Write-Verbose
 
-									"[{0}] Setting Volume ID to: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $id | Write-Verbose
+								$_VolumesToAttach[$i].id = $id
 
-									$_VolumesToAttach[$i].id = $id
-
-									$Found = $true
-
-								}
-
-								$id++
+								$Found = $true
 
 							}
 
-						}
- 
-					}
-					
-					$i++
-				}
+							$id++
 
-				$_spt.sanStorage.volumeAttachments = $_VolumesToAttach
+						}
+
+					}
+
+				}
 				
-				#Check to see if user passed -EvenPathDisable and/or -OddPathDisable Parameter switches
-				if ($EvenPathDisabled.IsPresent -or $OddPathDisabled.IsPresent) 
+				$i++
+			}
+
+			$_spt.sanStorage.volumeAttachments = $_VolumesToAttach
+			
+			#Check to see if user passed -EvenPathDisable and/or -OddPathDisable Parameter switches
+			if ($EvenPathDisabled.IsPresent -or $OddPathDisabled.IsPresent) 
+			{
+				
+				if ($EvenPathDisabledd.IsPresent) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Disable Even Path: $([bool]$EvenPathDisable)" }
+				if ($OddPathDisable.IsPresent) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Disable Odd Path: $([bool]$OddPathDisable)" }
+
+				#Keep track of Volume Array index
+				$v = 0
+
+				foreach ($vol in $_spt.sanStorage.volumeAttachments) 
 				{
 					
-					if ($EvenPathDisabledd.IsPresent) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Disable Even Path: $([bool]$EvenPathDisable)" }
-					if ($OddPathDisable.IsPresent) { Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Disable Odd Path: $([bool]$OddPathDisable)" }
+					#Keep track of Volume Path Array index
+					$p = 0
 
-					#Keep track of Volume Array index
-					$v = 0
-
-					foreach ($vol in $_spt.sanStorage.volumeAttachments) 
+					foreach ($path in $vol.storagePaths) 
 					{
+
+						if ([bool]$OddPathDisabled -and [bool]($path.connectionID % 2)) 
+						{ 
+							
+							$isEnabled = $false 
 						
-						#Keep track of Volume Path Array index
-						$p = 0
-
-						foreach ($path in $vol.storagePaths) 
-						{
-
-							if ([bool]$OddPathDisabled -and [bool]($path.connectionID % 2)) 
-							{ 
-								
-								$isEnabled = $false 
+						}
+						
+						elseif ([bool]$EvenPathDisabled -and [bool]!($path.connectionID % 2)) 
+						{ 
 							
-							}
+							$isEnabled = $false 
+						
+						}
+						
+						else 
+						{ 
 							
-							elseif ([bool]$EvenPathDisabled -and [bool]!($path.connectionID % 2)) 
-							{ 
-								
-								$isEnabled = $false 
-							
-							}
-							
-							else 
-							{ 
-								
-								$isEnabled = $true 
-							
-							}
-
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Setting Connection ID '$($path.connectionID)' path enabled:  $($isEnabled)"
-
-							$_spt.sanStorage.volumeAttachments[$v].storagePaths[$p].isEnabled = $isEnabled
-
-							$p++
-
+							$isEnabled = $true 
+						
 						}
 
-						$v++
+						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Setting Connection ID '$($path.connectionID)' path enabled:  $($isEnabled)"
+
+						$_spt.sanStorage.volumeAttachments[$v].storagePaths[$p].isEnabled = $isEnabled
+
+						$p++
 
 					}
-					
+
+					$v++
+
 				}
-
+				
 			}
-
-			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile JSON Object: {0}" -f ($_spt | ConvertTo-Json -depth 99) | Write-Verbose
-
-			Try
-			{
-
-				$resp = Send-HPOVRequest -uri $uri POST $_spt -appliance $_Connection.Name
-
-			}
-			
-			Catch
-			{
-
-				$PSCmdlet.ThrowTerminatingError($_)
-
-			}
-
-			[void]$colStatus.Add($resp)
 
 		}
+
+		"[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile JSON Object: {0}" -f ($_spt | ConvertTo-Json -depth 99) | Write-Verbose
+
+		Try
+		{
+
+			$resp = Send-HPOVRequest -uri $uri POST $_spt -appliance $ApplianceConnection
+
+		}
+		
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+		[void]$colStatus.Add($resp)
 
 	}
 
@@ -66788,10 +66821,6 @@ function New-HPOVServerProfileLogicalDisk
 
 			'SynergyJBOD'
 			{
-
-				#Write-Warning 'Not Implemented'
-				#
-				#Return
 
 				$_SasLogicalJBOD = NewObject -ServerProfileSasLogicalJBOD
 				$_LogicalDisk    = NewObject -ServerProfileLocalStorageLogicalDrive
@@ -80123,7 +80152,7 @@ write-host "  * Get-Help about_Appliance_Connections"
 Write-host "  * Online documentation at https://github.com/HewlettPackard/POSH-HPOneView/wiki"
 Write-host "  * Online Issues Tracker at https://github.com/HewlettPackard/POSH-HPOneView/issues"
 write-host ""
-write-host " (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP "
+write-host " (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP "
 if ((Get-Host).UI.RawUI.MaxWindowSize.width -lt 150) 
 {
 	write-host ""
