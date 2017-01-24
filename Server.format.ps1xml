@@ -828,11 +828,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Logical Interconnect Group</Label>
+            <Label>LogicalInterconnectGroup</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Used By</Label>
+            <Label>UsedBy</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -853,7 +853,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  ((send-hpovrequest "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_ENCLOSURE'&amp;parentUri='$($_.uri)'" -Hostname $_.ApplianceConnection.Name).members | % { $_.childResource.name}) -join ","
+                  ((Send-HPOVRequest -Uri "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_LOGICAL_ENCLOSURE'&amp;parentUri='$($_.uri)'" -Hostname $_.ApplianceConnection.Name).members | % { $_.childResource.name}) -join ","
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
@@ -1073,6 +1073,85 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
+    </View>
+
+
+    <!--HPOneView.ServerProfile.CompliancePreview FL-->
+    <View>
+      <Name>ServerProfileCompliancePreview</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfile.CompliancePreviewe</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>IsOnlineUpdate</Label>
+                <PropertyName>IsOnlineUpdate</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>AutomaticUpdates</Label>
+                <PropertyName>AutomaticUpdates</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ManualUpdates</Label>
+                <PropertyName>ManualUpdates</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.ServerProfile.CompliancePreview FT-->
+    <View>
+      <Name>ServerProfileCompliancePreview</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfile.CompliancePreview</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IsOnlineUpdate</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AutomaticUpdates</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ManualUpdates</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsOnlineUpdate</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AutomaticUpdates</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ManualUpdates</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions> 
 </Configuration>

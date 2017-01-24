@@ -1157,7 +1157,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>DomainName</Label>
+            <Label>ManagedDomain</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1185,10 +1185,10 @@
                 <PropertyName>serialNumber</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>managedDomain</PropertyName>
+                <PropertyName>model</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>model</PropertyName>
+                <PropertyName>managedDomain</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>wwn</PropertyName>
@@ -1230,6 +1230,10 @@
               <ListItem>
                 <Label>Model</Label>
                 <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ManagedDomain</Label>
+                <PropertyName>managedDomain</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>WWN</Label>

@@ -80,7 +80,7 @@ $con1              = Get-HPOVNetwork -Name "VLAN 1-A" | New-HPOVServerProfileCon
 $con2              = Get-HPOVNetwork -Name "VLAN 1-B" | New-HPOVServerProfileConnection -ConnectionID 2 -Name 'VLAN 1-B Connection'
 $con3              = Get-HPOVNetworkSet -Name 'Prod NetSet A' | New-HPOVProfileConnection -connectionId 3
 $con4              = Get-HPOVNetworkSet -Name 'Prod NetSet B' | New-HPOVProfileConnection -connectionId 4
-$LogicalDisk1      = New-HPOVServerProfileLogicalDisk -Name 'Disk 1' -RAID RAID1 -Bootable
+$LogicalDisk1      = New-HPOVServerProfileLogicalDisk -Name 'Disk 1' -RAID RAID1
 $StorageController = New-HPOVServerProfileLogicalDiskController -ControllerID Embedded -Mode RAID -Initialize -LogicalDisk $LogicalDisk1
 
 $params = @{

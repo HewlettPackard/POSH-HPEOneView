@@ -1253,11 +1253,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Base DN</Label>
+            <Label>BaseDN</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Directory Servers</Label>
+            <Label>DirectoryServers</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1307,11 +1307,11 @@
                 <PropertyName>authProtocol</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Base DN</Label>
+                <Label>BaseDN</Label>
                 <PropertyName>baseDn</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Directory Servers</Label>
+                <Label>DirectoryServers</Label>
                 <ScriptBlock>($_.directoryServers | Sort-Object -property name) | ForEach { "{0}:{1}" -f $_.directoryServerIpAddress,$_.directoryServerSSLPortNumber }</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -1333,15 +1333,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>SSL Port</Label>
+            <Label>SSLPort</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>SSL Certificate Valid Until</Label>
+            <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>SSL Certificate</Label>
+            <Label>SSLCertificate</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1388,11 +1388,11 @@
                 <PropertyName>authProtocol</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Base DN</Label>
+                <Label>BaseDN</Label>
                 <PropertyName>baseDn</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Directory Servers</Label>
+                <Label>DirectoryServers</Label>
                 <ScriptBlock>($_.directoryServers | Sort-Object -property name) | ForEach { "{0}:{1}" -f $_.directoryServerIpAddress,$_.directoryServerSSLPortNumber }</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -1551,7 +1551,7 @@
                 <PropertyName>msg</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Source IP</Label>
+                <Label>SourceIP</Label>
                 <PropertyName>sourceIp</PropertyName>
               </ListItem>
             </ListItems>
@@ -1685,11 +1685,11 @@
                 <PropertyName>version</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>ISO File Name</Label>
+                <Label>ISOFileName</Label>
                 <PropertyName>isoFileName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>XML Key Name</Label>
+                <Label>XMLKeyName</Label>
                 <PropertyName>xmlKeyName</PropertyName>
               </ListItem>
               <ListItem>
@@ -1715,11 +1715,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Free Size</Label>
+            <Label>Free</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Total Size</Label>
+            <Label>Total</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1758,11 +1758,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Valid From</Label>
+            <Label>ValidFrom</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Valid Until</Label>
+            <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1804,11 +1804,11 @@
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>Current Version</Label>
+                <Label>CurrentVersion</Label>
                 <PropertyName>currentVersion</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Minimum Version</Label>
+                <Label>MinimumVersion</Label>
                 <PropertyName>minimumVersion</PropertyName>
               </ListItem>
             </ListItems>
@@ -1827,11 +1827,11 @@
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>PowerShell Library Version</Label>
+                <Label>PowerShellLibraryVersion</Label>
                 <PropertyName>OneViewPowerShellLibrary</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Library Path</Label>
+                <Label>LibraryPath</Label>
                 <PropertyName>libraryLoadedPath</PropertyName>
               </ListItem>
             </ListItems>
@@ -1861,11 +1861,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Software Version</Label>
+            <Label>SoftwareVersion</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>X-API Version</Label>
+            <Label>X-APIVersion</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1922,11 +1922,11 @@
                 <PropertyName>minor</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Software Version</Label>
+                <Label>SoftwareVersion</Label>
                 <PropertyName>softwareVersion</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>X-API Version</Label>
+                <Label>X-APIVersion</Label>
                 <PropertyName>xapiVersion</PropertyName>
               </ListItem>
               <ListItem>
@@ -1953,15 +1953,15 @@
                 <PropertyName>version</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Reboot Required</Label>
+                <Label>RebootRequired</Label>
                 <ScriptBlock>if ($_.rebootRequired) { "Yes" } else { "No" }</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Upgrade Time (Minutes)</Label>
+                <Label>UpgradeTime</Label>
                 <PropertyName>estimatedUpgradeTime</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Update File Name</Label>
+                <Label>UpdateFileName</Label>
                 <PropertyName>fileName</PropertyName>
               </ListItem>
             </ListItems>
@@ -2082,7 +2082,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Network ID</Label>
+            <Label>NetworkID</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -2094,11 +2094,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>DNS Server</Label>
+            <Label>DNSServer</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Domain Name</Label>
+            <Label>DomainName</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -2153,11 +2153,11 @@
                 <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Network ID</Label>
+                <Label>NetworkID</Label>
                 <PropertyName>networkId</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Subnet Mask</Label>
+                <Label>SubnetMask</Label>
                 <PropertyName>subnetMask</PropertyName>
               </ListItem>
               <ListItem>
@@ -2165,7 +2165,7 @@
                 <PropertyName>gateway</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>DNS Server</Label>
+                <Label>DNSServer</Label>
                 <PropertyName>dnsServers</PropertyName>
               </ListItem>
               <ListItem>

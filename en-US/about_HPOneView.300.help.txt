@@ -50,6 +50,32 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
+    Release 3.0.1210.3013
+     -- Added -NonCompliant parameter switch to Get-HPOVServerProfile.
+     -- [#160] Added new Cmdlets to support removing and add LDAP Directory Servers: Add-HPOVLdapServer, Remove-HPOVLdapServer    
+     -- [#200] Enhanced Set-HPOVAddressPoolSubnet to allow updating Subnet Mask.  Pleaes know that if Subnet is already associated
+        with a Network, Logical Enclosure, or Deployment Server, the Subnet Mask cannot be updated.
+     -- [#192] Enhanced New-HPOVServerProfileTemplate with ServerProfileDescription parameter.
+     -- Fixed New-HPOVServerProfileTemplate where an Exception would be thrown if Server Profile Connection contained an 
+        unavailable network.
+     -- Fixed Update-HPOVServerProfile where if using -Async parameter, and then piping results to Wait-HPOVTaskComplete would
+        cause an "Invalid Task Object" exception to be thrown.
+     -- Fixed Set-HPOVRemoteSupportDataCollectionSchedule where DayOfWeek Int value wasn't being set correctly.
+     -- Fixed Remove-HPOVBaseline where an Object would not be added to internal collection to remove.
+     -- Updated API lookups to locate available storage volumes to work around an API defect where -1 is not honored.
+     -- [#208] Updated Test-Auth internal Function to display a better exception message if no Default connection was set.
+     -- Fixed Copy-HPOVServerProfile where task will fail when local storage policy was set without first setting driveNumber
+        to null.
+     -- [#215] Fixed Show-HPOVFirmwareReport regression where exception was thrown when parsing resources for firmware.
+     -- Fixed Add-HPOVSanManager where if attempting to add an HPE or Cisco SAN Manager with SnmpAuthLevel set to either None or 
+        AuthOnly, an exception is thrown due to the SAN Manager connection info being improperly defined.
+     -- [#217] Fixed New-HPOVUplinkSet where it would fail to normalize the Uplink Port name when attempting to lookup the requested
+        port.
+     -- [#212] Fixed Remove-HPOVServerProfileTemplate where providing a resource name will generate a "positional parameter cannot be 
+        found" exception.
+     -- [#218] Fixed StorageSystem format output.
+     -- [#223] Various documentation updates.
+
     Release 3.0.1191.2858
      -- [#194] Fixed Get-HPOVServerHardwareType where if supported wildcard character was provided, it would not be converted
         into an HTML encoded value.

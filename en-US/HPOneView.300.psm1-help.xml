@@ -641,6 +641,251 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--ADD-HPOVLDAPSERVER-->
+		<command:details>
+			<command:name>Add-HPOVLdapServer</command:name>
+			<maml:description>
+				<maml:para>Add a new LDAP Directory Server.</maml:para>
+			</maml:description>
+			<command:verb>Add</command:verb>
+			<command:noun>HPOVLdapServer</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet will add a new LDAP Directory Server to an existing authentication directory.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Add-HPOVLdapServer</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The LDAP Directory Object from Get-HPOVLdapDirectory.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Hostname</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Name]
+Directory server name or IP Address to add.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Username</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-u]
+Directory Username to authenticate with in order to validate LDAP configuration.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>SSLPort</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-port]
+Directory Server's LDAP SSL Port.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Certificate</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-cert]
+Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the CMDLET will attempt to retrieve the Directory Servers Secure LDAP Certiciate.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Password</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-p]
+Directory User account password in order to validate LDAP configuration.  Can be System.String or SecureString object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="cert">
+				<maml:name>Certificate</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-cert]
+Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the CMDLET will attempt to retrieve the Directory Servers Secure LDAP Certiciate.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="Name">
+				<maml:name>Hostname</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Name]
+Directory server name or IP Address to add.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The LDAP Directory Object from Get-HPOVLdapDirectory.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="p, pass">
+				<maml:name>Password</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-p]
+Directory User account password in order to validate LDAP configuration.  Can be System.String or SecureString object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="port">
+				<maml:name>SSLPort</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-port]
+Directory Server's LDAP SSL Port.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+				</dev:type>
+				<dev:defaultValue>636</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="u, user">
+				<maml:name>Username</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-u]
+Directory Username to authenticate with in order to validate LDAP configuration.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Authentication Directory object that will have the LDAP Server added to.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Updated Authentication Directory.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLdapDirectory -Name MyDirectory | Add-HPOVLdapServer -Name servera.domain.com -Username MyAdminName -Password (ConvertTo-SecureString 'MyPAssword' -AsPlanText -Force)
+</dev:code>
+				<dev:remarks>
+					<dev:para>Add a new LDAP Directory server.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVLdapServer</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLap</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Enable-HPOVLdapLocalLogin</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Disable-HPOVLdapLocalLogin</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--ADD-HPOVPOWERDEVICE-->
 		<command:details>
 			<command:name>Add-HPOVPowerDevice</command:name>
@@ -3685,30 +3930,30 @@ specify 'unassigned'.</maml:para>
 			<command:syntaxItem>
 				<maml:name>Copy-HPOVServerProfile</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)">
-					<maml:name>SourceName</maml:name>
+					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-sname]
-The Name, URI or the Resource Object of the source server profile to be copied.</maml:para>
+						<maml:para>Aliases [-sname, -src, -SourceName]
+The Name or Resource Object of the source server profile to be copied.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
 					<maml:name>DestinationName</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-dname]
 The name of the destination server profile that will be created.  If omitted, the new name will have "Copy of " 
 prefixed to the source name.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>assign</maml:name>
 					<maml:description>
 						<maml:para>The name, URI, or object of the target server to assign the new profile to.  If omitted, profile will be 'unassigned'</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="3" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="3" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -3717,13 +3962,13 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="3" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="3" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -3732,30 +3977,30 @@ Specify one HPOneView.Appliance.Connection object or Name property value. If Res
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="dname, dst">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="dname, dst">
 				<maml:name>DestinationName</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-dname]
 The name of the destination server profile that will be created.  If omitted, the new name will have "Copy of " 
 prefixed to the source name.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="sname, src">
-				<maml:name>SourceName</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="sname, src, SourceName">
+				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-sname]
-The Name, URI or the Resource Object of the source server profile to be copied.</maml:para>
+					<maml:para>Aliases [-sname, -src, -SourceName]
+The Name or Resource Object of the source server profile to be copied.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -3763,12 +4008,12 @@ The Name, URI or the Resource Object of the source server profile to be copied.<
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="None">
 				<maml:name>assign</maml:name>
 				<maml:description>
 					<maml:para>The name, URI, or object of the target server to assign the new profile to.  If omitted, profile will be 'unassigned'</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -7693,16 +7938,16 @@ Example: My.Spp.To.Upload.201605.iso will become My_Spp_To_Upload_201605.iso.</m
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVBaseline</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISOFileName">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISOFileName">
 					<maml:name>File</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-isoFileName, -FileName]
 
 The ISO file name of an SPP.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -7711,26 +7956,26 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVBaseline</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName">
 					<maml:name>SppName</maml:name>
 					<maml:description>
 						<maml:para>The SPP/Baseline Name.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName">
 					<maml:name>Version</maml:name>
 					<maml:description>
 						<maml:para>If multiple SPP/Baselines with the same name exist, use the Version parameter to filter to the specific SPP/Baseline version.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -7739,7 +7984,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -7751,7 +7996,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -7760,13 +8005,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="HotFixesOnly, BaselineName, ISOFileName" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -7775,20 +8020,20 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISOFileName" aliases="isoFileName, FileName">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISOFileName" aliases="isoFileName, FileName">
 				<maml:name>File</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-isoFileName, -FileName]
 
 The ISO file name of an SPP.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -7805,23 +8050,23 @@ The ISO file name of an SPP.</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName" aliases="name">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName" aliases="name">
 				<maml:name>SppName</maml:name>
 				<maml:description>
 					<maml:para>The SPP/Baseline Name.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BaselineName" aliases="None">
 				<maml:name>Version</maml:name>
 				<maml:description>
 					<maml:para>If multiple SPP/Baselines with the same name exist, use the Version parameter to filter to the specific SPP/Baseline version.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -7964,7 +8209,7 @@ The ISO file name of an SPP.</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVComposerNode</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -7973,13 +8218,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -7988,7 +8233,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -8096,7 +8341,7 @@ zpo-s18r18s3-ov.vse.rdlabs.hpecorp.net CN75140CPW appliance bay 1 OK    OK     S
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -8105,13 +8350,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -8120,7 +8365,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
@@ -8556,14 +8801,14 @@ Encl1, interconnect 2 HP VC FlexFabric 10Gb/24-Port Module WECFSED101    4.10
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVEnclosureGroup</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the Enclosure Group resource to be returned.  All enclosure group resources will be returned if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -8572,21 +8817,21 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>exportFile</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x, -export]
 Full path and file name to save the output of Get-HPOVEnclosureGroup</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -8595,30 +8840,30 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the Enclosure Group resource to be returned.  All enclosure group resources will be returned if omitted.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="x, export">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="x, export">
 				<maml:name>exportFile</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-x, -export]
 Full path and file name to save the output of Get-HPOVEnclosureGroup</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -8856,7 +9101,7 @@ myappliance.domain.com    False</dev:code>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVHealthStatus</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -8865,13 +9110,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -8880,7 +9125,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -9331,14 +9576,14 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVInterconnect</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the interconnect to retrieve.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -9347,21 +9592,21 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>Export</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x, -exportFile]
 The full path and file name to export the contents retrieved from the call to Get-HPOVInterconnect.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -9370,30 +9615,30 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="x, exportFile">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="x, exportFile">
 				<maml:name>Export</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-x, -exportFile]
 The full path and file name to export the contents retrieved from the call to Get-HPOVInterconnect.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the interconnect to retrieve.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -9565,14 +9810,14 @@ The full path and file name to export the contents retrieved from the call to Ge
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVInterconnectType</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Name">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Name">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the interconnect type model name to retrieve.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber, Name">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber, Name">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -9581,19 +9826,19 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVInterconnectType</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber">
 					<maml:name>PartNumber</maml:name>
 					<maml:description>
 						<maml:para>The Part Number of an Interconnect Type to search for.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber, Name">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber, Name">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -9602,13 +9847,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber, Name" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber, Name" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -9617,29 +9862,29 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Name" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Name" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the interconnect type model name to retrieve.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="PartNumber" aliases="None">
 				<maml:name>PartNumber</maml:name>
 				<maml:description>
 					<maml:para>The Part Number of an Interconnect Type to search for.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -9776,7 +10021,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVLdap</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -9785,7 +10030,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -9806,7 +10051,7 @@ Directory where the exported configured directories will be saved to.  A filenam
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -9815,13 +10060,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -9830,7 +10075,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -9999,14 +10244,14 @@ True              domain2           {domain1, domain2}
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVLdapDirectory</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The specific authentication directory name.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -10015,20 +10260,20 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVLdapDirectory</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export">
 					<maml:name>Export</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x]
 Export the configured directories to individual files.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -10037,13 +10282,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -10052,30 +10297,30 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectSessions}</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export" aliases="x">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export" aliases="x">
 				<maml:name>Export</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-x]
 Export the configured directories to individual files.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="directory, domain">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="directory, domain">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The specific authentication directory name.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -15626,10 +15871,11 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
-					<maml:name>ServerHardwareType</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Provide the Server Hardware Type Name or Object to filter for available server hardware.</maml:para>
+						<maml:para>Aliases [-ServerHardwareType, -ServerProfileTemplate]
+Provide the Server Hardware Type or Server Profile Template Object to filter for available server hardware.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -15663,6 +15909,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="ServerHardwareType, ServerProfileTemplate">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-ServerHardwareType, -ServerProfileTemplate]
+Provide the Server Hardware Type or Server Profile Template Object to filter for available server hardware.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -15685,26 +15943,23 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
-				<maml:name>ServerHardwareType</maml:name>
-				<maml:description>
-					<maml:para>Provide the Server Hardware Type Name or Object to filter for available server hardware.</maml:para>
-				</maml:description>
-				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
-				<dev:type>
-					<maml:name>Object</maml:name>
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
 			<!--Input Types-->
 			<command:inputType>
 				<dev:type>
-					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:name>HPOneView.ServerHardwareType [System.Management.Automation.PSCustomObject]</maml:name>
 				</dev:type>
 				<maml:description>
-					<maml:para />
+					<maml:para>Server Hardware Type resource object.</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerProfileTemplate [System.Management.Automation.PSCustomObject]</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Server Profile Template resource object.</maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -15856,6 +16111,23 @@ $AvailableServer = Get-HPOVServer -NoProfile -ServerHardwareType $sht | Select -
 </dev:code>
 				<dev:remarks>
 					<dev:para>Return the first available server hardware of the Server Hardware Type requested.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $AvailableServer = Get-HPOVServerProfileTemplate -Name "My Template 1" | Get-HPOVServer -NoProfile | Select -first 1
+</dev:code>
+				<dev:remarks>
+					<dev:para>Return the first available server hardware designed for the specific Server Profile Template.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -16102,6 +16374,13 @@ The name of the server profile resource to be returned.  All server profile reso
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>NonCompliant</maml:name>
+					<maml:description>
+						<maml:para>Return collection of Server Profiles that are not compliant with their template.  Will not return Server Profiles that have no Template association.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
 					<maml:name>Unassigned</maml:name>
 					<maml:description>
@@ -16235,6 +16514,17 @@ The name of the server profile resource to be returned.  All server profile reso
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>NonCompliant</maml:name>
+				<maml:description>
+					<maml:para>Return collection of Server Profiles that are not compliant with their template.  Will not return Server Profiles that have no Template association.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="None">
 				<maml:name>Unassigned</maml:name>
@@ -19048,7 +19338,7 @@ The name of the task resource to be returned.  All names will match if omitted.<
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
 					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Related resource Name, URI or Object to the task. To be used for filtering tasks specific to a resource object (i.e. Server Profile).</maml:para>
+						<maml:para>Related resource Name or Object to the task. To be used for filtering tasks specific to a resource object (i.e. Server Profile).</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -19194,7 +19484,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="Resource">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para>Related resource Name, URI or Object to the task. To be used for filtering tasks specific to a resource object (i.e. Server Profile).</maml:para>
+					<maml:para>Related resource Name or Object to the task. To be used for filtering tasks specific to a resource object (i.e. Server Profile).</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -25276,6 +25566,14 @@ PS C:\&gt; New-HPOVLdapDirectory -name Domain1 -AD -basedn 'dc=domain,dc=com' -s
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Add-HPOVLdapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVLdapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVLdapDirectory</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -25371,15 +25669,15 @@ Directory Username to authenticate with</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Password</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-p]
 Directory User account password.  Can be System.String or SecureString object.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -25388,13 +25686,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -25403,7 +25701,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -25433,13 +25731,13 @@ Directroy Group to add</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="p">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="p">
 				<maml:name>Password</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-p]
 Directory User account password.  Can be System.String or SecureString object.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -25562,11 +25860,11 @@ PS C:\&gt; New-HPOVLdapGroup -d Domain1 -GroupName "MY Directory Group1" -roles 
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Get-HPOVLdap</maml:linkText>
+				<maml:linkText>Get-HPOVLdapDirectory</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>New-HPOVLdap</maml:linkText>
+				<maml:linkText>New-HPOVLdapDirectory</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -25593,9 +25891,10 @@ PS C:\&gt; New-HPOVLdapGroup -d Domain1 -GroupName "MY Directory Group1" -roles 
 			<command:syntaxItem>
 				<maml:name>New-HPOVLdapServer</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
-					<maml:name>Name</maml:name>
+					<maml:name>Hostname</maml:name>
 					<maml:description>
-						<maml:para>Directory server name or IP Address to add.</maml:para>
+						<maml:para>Aliases [-Name]
+Directory server name or IP Address to add.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -25631,10 +25930,11 @@ Directory Server SSL Certificate, either location to Base64 Cert or multi-line s
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="None">
-				<maml:name>Name</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="Name">
+				<maml:name>Hostname</maml:name>
 				<maml:description>
-					<maml:para>Directory server name or IP Address to add.</maml:para>
+					<maml:para>Aliases [-Name]
+Directory server name or IP Address to add.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -25746,6 +26046,14 @@ Directory Server's LDAP SSL Port.</maml:para>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVLdapServer</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVLapServer</maml:linkText>
+				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Get-HPOVLap</maml:linkText>
@@ -35269,7 +35577,7 @@ PS C:\&gt; $con42 = New-HPOVServerProfileConnection -ConnectionID 2 -ConnectionT
 					<maml:description>
 						<maml:para>The RAID level of the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.
 
-Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6, RAID10 are supported with DL servers with SmartArray controller that supports the RAID type.</maml:para>
+Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6, RAID10 are supported with DL servers with SmartArray controller that supports the RAID type.  RAID0, RAID1ADM, RAID10, RAID5, and RAID6 are supported values with HPE Synergy D3940 disk shelf.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -35289,11 +35597,12 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 	*SATA
 	*SASSSD
 	*SATASSD
-	*Auto</maml:para>
+	*Auto
+NOTE: Auto is not supported when attempting to create an HPE Synergy D3940 Logical or JBOD disk.  You must specify a disk technology type.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default">
 					<maml:name>Bootable</maml:name>
 					<maml:description>
 						<maml:para>Indicates if the logical drive is bootable or not. Cannot be combined with an FC or FCoE Server Profile Connection that is also set as Bootable.  Parameter is not valid with defining Synergy JBOD SAS disk policies.</maml:para>
@@ -35313,14 +35622,7 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD">
 					<maml:name>MinDriveSize</maml:name>
 					<maml:description>
-						<maml:para>Only for Synergy BigBird</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD">
-					<maml:name>MaxDriveSize</maml:name>
-					<maml:description>
-						<maml:para>Only for Synergy BigBird</maml:para>
+						<maml:para>Only for HPE Synergy D3940.  Specify the minimum size disk to request.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
@@ -35329,7 +35631,7 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 					<maml:description>
 						<maml:para>The RAID level of the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.
 
-Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6, RAID10 are supported with DL servers with SmartArray controller that supports the RAID type.</maml:para>
+Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6, RAID10 are supported with DL servers with SmartArray controller that supports the RAID type.  RAID0, RAID1ADM, RAID10, RAID5, and RAID6 are supported values with HPE Synergy D3940 disk shelf.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -35349,15 +35651,30 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 	*SATA
 	*SASSSD
 	*SATASSD
-	*Auto</maml:para>
+	*Auto
+NOTE: Auto is not supported when attempting to create an HPE Synergy D3940 Logical or JBOD disk.  You must specify a disk technology type.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD">
+					<maml:name>MaxDriveSize</maml:name>
+					<maml:description>
+						<maml:para>Only for HPE Synergy D3940.  If the parameter is not specified, the MinDriveSize parameter value will be used.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default">
+					<maml:name>Bootable</maml:name>
+					<maml:description>
+						<maml:para>Indicates if the logical drive is bootable or not. Cannot be combined with an FC or FCoE Server Profile Connection that is also set as Bootable.  Parameter is not valid with defining Synergy JBOD SAS disk policies.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default" aliases="None">
 				<maml:name>Bootable</maml:name>
 				<maml:description>
 					<maml:para>Indicates if the logical drive is bootable or not. Cannot be combined with an FC or FCoE Server Profile Connection that is also set as Bootable.  Parameter is not valid with defining Synergy JBOD SAS disk policies.</maml:para>
@@ -35377,7 +35694,8 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 	*SATA
 	*SASSSD
 	*SATASSD
-	*Auto</maml:para>
+	*Auto
+NOTE: Auto is not supported when attempting to create an HPE Synergy D3940 Logical or JBOD disk.  You must specify a disk technology type.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -35385,12 +35703,12 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				</dev:type>
 				<dev:defaultValue>Auto</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD" aliases="None">
 				<maml:name>MaxDriveSize</maml:name>
 				<maml:description>
-					<maml:para>Only for Synergy BigBird</maml:para>
+					<maml:para>Only for HPE Synergy D3940.  If the parameter is not specified, the MinDriveSize parameter value will be used.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 				</dev:type>
@@ -35399,7 +35717,7 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD" aliases="None">
 				<maml:name>MinDriveSize</maml:name>
 				<maml:description>
-					<maml:para>Only for Synergy BigBird</maml:para>
+					<maml:para>Only for HPE Synergy D3940.  Specify the minimum size disk to request.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
 				<dev:type>
@@ -35434,7 +35752,7 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				<maml:description>
 					<maml:para>The RAID level of the logical drive. Supported values depend on the local storage capabilities of the selected server hardware type.
 
-Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6, RAID10 are supported with DL servers with SmartArray controller that supports the RAID type.</maml:para>
+Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6, RAID10 are supported with DL servers with SmartArray controller that supports the RAID type.  RAID0, RAID1ADM, RAID10, RAID5, and RAID6 are supported values with HPE Synergy D3940 disk shelf.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -35467,7 +35785,7 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 			</command:returnValue>
 			<command:returnValue>
 				<dev:type>
-					<maml:name>System.Collections.ArrayList [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:name>System.Collections.ArrayList&lt;System.Management.Automation.PSCustomObject&gt;</maml:name>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
@@ -35499,10 +35817,27 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $ld1 = New-HPOVServerProfileLogicalDisk -Name 'Boot Disk' -RAID RAID1 -NumberofDrives 2 -DriveType SAS -Bootable $True
+				<dev:code>PS C:\&gt; $ld1 = New-HPOVServerProfileLogicalDisk -Name 'Boot Disk' -RAID RAID1 -NumberofDrives 2 -Bootable $True
 </dev:code>
 				<dev:remarks>
 					<dev:para>Create a custom Logical Disk with the provided parameter values.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $ld1 = New-HPOVServerProfileLogicalDisk -Name 'Boot Disk' -RAID RAID1 -NumberofDrives 2 -DriveType SAS -MinDriveSize 300 -Bootable $True
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a custom HPE Synergy D3940 bootable RAID Logical Disk with the provided parameter values.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -35548,7 +35883,12 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Import, Default">
 					<maml:name>ControllerID</maml:name>
 					<maml:description>
-						<maml:para>Specify the Controller ID location.  The only supported option for this parameter is 'Embedded'.</maml:para>
+						<maml:para>Specify the Controller ID location.  Supported options for this parameter are
+	 * Embedded
+	 * Mezz 1
+	 * Mezz 2
+	 * Mezz 3
+Please note that Mezz 1, Mezz 2 and Mezz 3 are only supported with HPE Synergy Compute nodes connected to the HPE Synergy D3940 disk shelf.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -35560,14 +35900,14 @@ Only RAID0 and RAID1 are supported for embedded BL disk policies.  RAID5, RAID6,
 * HBA
 * RAID
 
-Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:para>
+When specifying HBA, you cannot attach a RAID Logical Disk to this policy.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Import, Default">
 					<maml:name>Initialize</maml:name>
 					<maml:description>
-						<maml:para>Use this parameter to re-initialize the controller.  This will wipe any existing logical disk configured for the controller and deploy the new policy defined.</maml:para>
+						<maml:para>Use this parameter to re-initialize the controller.  This will wipe any existing logical disk configured for the controller and deploy the new policy defined.  Not supported when ControllerID is 'Mezz 1', 'Mezz 2', or 'Mezz 3'.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -35584,7 +35924,12 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Import, Default">
 					<maml:name>ControllerID</maml:name>
 					<maml:description>
-						<maml:para>Specify the Controller ID location.  The only supported option for this parameter is 'Embedded'.</maml:para>
+						<maml:para>Specify the Controller ID location.  Supported options for this parameter are
+	 * Embedded
+	 * Mezz 1
+	 * Mezz 2
+	 * Mezz 3
+Please note that Mezz 1, Mezz 2 and Mezz 3 are only supported with HPE Synergy Compute nodes connected to the HPE Synergy D3940 disk shelf.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -35596,21 +35941,21 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 * HBA
 * RAID
 
-Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:para>
+When specifying HBA, you cannot attach a RAID Logical Disk to this policy.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Import, Default">
 					<maml:name>Initialize</maml:name>
 					<maml:description>
-						<maml:para>Use this parameter to re-initialize the controller.  This will wipe any existing logical disk configured for the controller and deploy the new policy defined.</maml:para>
+						<maml:para>Use this parameter to re-initialize the controller.  This will wipe any existing logical disk configured for the controller and deploy the new policy defined.  Not supported when ControllerID is 'Mezz 1', 'Mezz 2', or 'Mezz 3'.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Import">
 					<maml:name>ImportExistingConfiguration</maml:name>
 					<maml:description>
-						<maml:para>Specify to import any found Logical Disk configuration and add to the Server Profile as the Logical Disk policy.  This option is not available for Server Profile Templates.</maml:para>
+						<maml:para>Specify to import any found Logical Disk configuration and add to the Server Profile as the Logical Disk policy.  This option is not available for Server Profile Templates.  Not supported when ControllerID is 'Mezz 1', 'Mezz 2', or 'Mezz 3'.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -35621,7 +35966,12 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Import, Default" aliases="None">
 				<maml:name>ControllerID</maml:name>
 				<maml:description>
-					<maml:para>Specify the Controller ID location.  The only supported option for this parameter is 'Embedded'.</maml:para>
+					<maml:para>Specify the Controller ID location.  Supported options for this parameter are
+	 * Embedded
+	 * Mezz 1
+	 * Mezz 2
+	 * Mezz 3
+Please note that Mezz 1, Mezz 2 and Mezz 3 are only supported with HPE Synergy Compute nodes connected to the HPE Synergy D3940 disk shelf.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -35632,7 +35982,7 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Import" aliases="None">
 				<maml:name>ImportExistingConfiguration</maml:name>
 				<maml:description>
-					<maml:para>Specify to import any found Logical Disk configuration and add to the Server Profile as the Logical Disk policy.  This option is not available for Server Profile Templates.</maml:para>
+					<maml:para>Specify to import any found Logical Disk configuration and add to the Server Profile as the Logical Disk policy.  This option is not available for Server Profile Templates.  Not supported when ControllerID is 'Mezz 1', 'Mezz 2', or 'Mezz 3'.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -35643,7 +35993,7 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Import, Default" aliases="None">
 				<maml:name>Initialize</maml:name>
 				<maml:description>
-					<maml:para>Use this parameter to re-initialize the controller.  This will wipe any existing logical disk configured for the controller and deploy the new policy defined.</maml:para>
+					<maml:para>Use this parameter to re-initialize the controller.  This will wipe any existing logical disk configured for the controller and deploy the new policy defined.  Not supported when ControllerID is 'Mezz 1', 'Mezz 2', or 'Mezz 3'.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -35670,7 +36020,7 @@ Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:
 * HBA
 * RAID
 
-Wen specifying HBA, you cannot also attach a Logical Disk to this policy.</maml:para>
+When specifying HBA, you cannot attach a RAID Logical Disk to this policy.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -35774,6 +36124,25 @@ PS C:\&gt; $Controller = New-HPOVServerProfileLogicalDiskController -Initialize 
 					</command:commandLine>
 				</command:commandLines>
 			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $LogicalDisk1 = New-HPOVServerProfileLogicalDisk -Name Boot -RAID RAID1 -MinDriveSize 300 -MaxDriveSize 300 -DriveType SAS -Bootable $True
+PS C:\&gt; $LogicalDisk2 = New-HPOVServerProfileLogicalDisk -Name Data -RAID RAID5 -NumberofDrives 5 -MinDriveSize 300 -MaxDriveSize 300 -DriveType SAS
+PS C:\&gt; $Controller = New-HPOVServerProfileLogicalDiskController -ControllerID 'Mezz 1' -Mode RAID -LogicalDisk $LogicalDisk1,$LogicalDisk2
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a HPE Synergy D3940 RAID disk policy, with a bootable volume.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
 		</command:examples>
 		<maml:relatedLinks>
 			<!--Related Links-->
@@ -35845,13 +36214,28 @@ The code example above will return all matching BIOS Settings where the name con
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+					<maml:name>ServerHardwareType</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-sht]
+The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Description</maml:name>
 					<maml:description>
-						<maml:para>Optional description for this server profile.</maml:para>
+						<maml:para>Optional description for this server profile template.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+					<maml:name>ServerProfileDescription</maml:name>
+					<maml:description>
+						<maml:para>Optional description for created server profiles from this template.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Connections</maml:name>
 					<maml:description>
 						<maml:para>The network connections that are to be part of this new server profile.  This an array of profile conneciton objects which may be created with 'New-HPOVServerProfileConnection'.
@@ -35899,23 +36283,15 @@ Expected Connection Format:
         
 Default: No connections</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>EnclosureGroup</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-eg]
 The Enclosure Group resource the Server Profile Template will be bound to.  When assigning to an Enclosure Group, OneView will then determine what farbic connectivity and storage devices are available. </maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
-					<maml:name>ServerHardwareType</maml:name>
-					<maml:description>
-						<maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Firmware</maml:name>
@@ -35924,7 +36300,7 @@ The Server Hardware Type reource the Server Profile Template will be bound to.</
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>FirmwareMode</maml:name>
 					<maml:description>
 						<maml:para>Define the mode a firmware baseline will be deployed.  Allowed value:
@@ -35933,14 +36309,14 @@ The Server Hardware Type reource the Server Profile Template will be bound to.</
 * FirmwareAndSoftware - Updates the firmware and OS drivers without powering down the server hardware using HP Smart Update Tools.
 * FirmwareOffline - Manages the firmware through HP OneView. Selecting this option requires the server hardware to be powered down.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Baseline</maml:name>
 					<maml:description>
 						<maml:para>Firmware baseline to assign.  Can be either Baseline Name or URI.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ForceInstallFirmware</maml:name>
@@ -35957,14 +36333,14 @@ servers.)</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>BiosSettings</maml:name>
 					<maml:description>
 						<maml:para>BIOS Settings that are to be managed.  You can get the BIOS settings available from Get-HPOVServerHarwareType and the returned biosSettings property.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>BootMode</maml:name>
 					<maml:description>
 						<maml:para>Specify the Gen9 Boot Envrionment.
@@ -35986,9 +36362,9 @@ set to BIOS.
         
 Default: BIOS</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>PxeBootPolicy</maml:name>
 					<maml:description>
 						<maml:para>Controls the ordering of the network modes available to the Flexible LOM (FLB); for example, IPv4 and IPv6.
@@ -36005,7 +36381,7 @@ Setting the policy to Auto means the order of the existing network boot targets 
         
 Default: Auto</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ManageBoot</maml:name>
@@ -36018,7 +36394,7 @@ Default: $True</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>BootOrder</maml:name>
 					<maml:description>
 						<maml:para>Boot Order settings to be managed.
@@ -36029,7 +36405,7 @@ Gen7/8 BIOS Default Boot Order: 'CD','Floppy','USB','HardDisk','PXE'
 Gen9 Legacy BIOS Boot Order: 'CD','USB','HardDisk','PXE'
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>LocalStorage</maml:name>
@@ -36045,53 +36421,53 @@ Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ControllerMode</maml:name>
 					<maml:description>
 						<maml:para>Deprecated.  Please refer to the New-HPOVServerProfileLogicalDisk and New-HPOVServerProfileLogicalDiskController Cmdlets.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>StorageController</maml:name>
 					<maml:description>
 						<maml:para>A resource object containing the StorageController, LogicalDisk or SasJbod configuration.  Please refer to the New-HPOVServerProfileLogicalDisk and New-HPOVServerProfileLogicalDiskController Cmdlets.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Affinity</maml:name>
 					<maml:description>
 						<maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
         
 Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>MacAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVServerProfileConnection helper CMDLET.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>WwnAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVServerProfileConnection helper CMDLET.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>SnAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
         
 Default: Virtual serial number and UUID assignment</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>HideUnusedFlexNics</maml:name>
 					<maml:description>
 						<maml:para>This setting provides the ability to hide unused FlexNICs from the operating system.
@@ -36106,7 +36482,7 @@ FlexNICs are hidden in pairs, starting with the fourth pair. For example, if the
         
 By default, Hide Unused FlexNICs is enabled. This setting can be changed only when the server is powered off.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -36126,6 +36502,14 @@ The name of the appliance or list of appliances to execute the command against.<
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+					<maml:name>ServerHardwareType</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-sht]
+The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach">
 					<maml:name>SANStorage</maml:name>
 					<maml:description>
@@ -36133,7 +36517,7 @@ The name of the appliance or list of appliances to execute the command against.<
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach">
 					<maml:name>HostOStype</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-OS]
@@ -36166,9 +36550,9 @@ Optional. Specify the Host OS type, which will set the Host OS value when HP One
 * SUSE9     = "SuSE Linux (Pre SLES 10)"
 * Inform    = "InForm"</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach">
 					<maml:name>StorageVolume</maml:name>
 					<maml:description>
 						<maml:para>Optional. Array of Storage Volume resources to attach.  Can be created by using the New-HPOVServerProfileAttachVolume cmdlet.  This parameter does not accept a Storage Volume resource from the Get-HPOVStorageVolume cmdlet.
@@ -36193,16 +36577,23 @@ The format of the Storage Volume resource should be a PsCustomObject PowerShell 
         )
 }</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Description</maml:name>
 					<maml:description>
-						<maml:para>Optional description for this server profile.</maml:para>
+						<maml:para>Optional description for this server profile template.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+					<maml:name>ServerProfileDescription</maml:name>
+					<maml:description>
+						<maml:para>Optional description for created server profiles from this template.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Connections</maml:name>
 					<maml:description>
 						<maml:para>The network connections that are to be part of this new server profile.  This an array of profile conneciton objects which may be created with 'New-HPOVServerProfileConnection'.
@@ -36250,23 +36641,15 @@ Expected Connection Format:
         
 Default: No connections</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>EnclosureGroup</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-eg]
 The Enclosure Group resource the Server Profile Template will be bound to.  When assigning to an Enclosure Group, OneView will then determine what farbic connectivity and storage devices are available. </maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
-					<maml:name>ServerHardwareType</maml:name>
-					<maml:description>
-						<maml:para>Aliases [-sht]
-The Server Hardware Type reource the Server Profile Template will be bound to.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Firmware</maml:name>
@@ -36275,7 +36658,7 @@ The Server Hardware Type reource the Server Profile Template will be bound to.</
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>FirmwareMode</maml:name>
 					<maml:description>
 						<maml:para>Define the mode a firmware baseline will be deployed.  Allowed value:
@@ -36284,14 +36667,14 @@ The Server Hardware Type reource the Server Profile Template will be bound to.</
 * FirmwareAndSoftware - Updates the firmware and OS drivers without powering down the server hardware using HP Smart Update Tools.
 * FirmwareOffline - Manages the firmware through HP OneView. Selecting this option requires the server hardware to be powered down.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Baseline</maml:name>
 					<maml:description>
 						<maml:para>Firmware baseline to assign.  Can be either Baseline Name or URI.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ForceInstallFirmware</maml:name>
@@ -36308,14 +36691,14 @@ servers.)</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>BiosSettings</maml:name>
 					<maml:description>
 						<maml:para>BIOS Settings that are to be managed.  You can get the BIOS settings available from Get-HPOVServerHarwareType and the returned biosSettings property.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>BootMode</maml:name>
 					<maml:description>
 						<maml:para>Specify the Gen9 Boot Envrionment.
@@ -36337,9 +36720,9 @@ set to BIOS.
         
 Default: BIOS</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>PxeBootPolicy</maml:name>
 					<maml:description>
 						<maml:para>Controls the ordering of the network modes available to the Flexible LOM (FLB); for example, IPv4 and IPv6.
@@ -36356,7 +36739,7 @@ Setting the policy to Auto means the order of the existing network boot targets 
         
 Default: Auto</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ManageBoot</maml:name>
@@ -36369,7 +36752,7 @@ Default: $True</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>BootOrder</maml:name>
 					<maml:description>
 						<maml:para>Boot Order settings to be managed.
@@ -36380,7 +36763,7 @@ Gen7/8 BIOS Default Boot Order: 'CD','Floppy','USB','HardDisk','PXE'
 Gen9 Legacy BIOS Boot Order: 'CD','USB','HardDisk','PXE'
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>LocalStorage</maml:name>
@@ -36396,19 +36779,19 @@ Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ControllerMode</maml:name>
 					<maml:description>
 						<maml:para>Deprecated.  Please refer to the New-HPOVServerProfileLogicalDisk and New-HPOVServerProfileLogicalDiskController Cmdlets.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>StorageController</maml:name>
 					<maml:description>
 						<maml:para>A resource object containing the StorageController, LogicalDisk or SasJbod configuration.  Please refer to the New-HPOVServerProfileLogicalDisk and New-HPOVServerProfileLogicalDiskController Cmdlets.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach">
 					<maml:name>EvenPathDisabled</maml:name>
@@ -36428,39 +36811,39 @@ Enable to disable odd paths in the attached storage volume(s).</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>Affinity</maml:name>
 					<maml:description>
 						<maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
         
 Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>MacAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVServerProfileConnection helper CMDLET.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>WwnAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVServerProfileConnection helper CMDLET.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>SnAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
         
 Default: Virtual serial number and UUID assignment</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>HideUnusedFlexNics</maml:name>
 					<maml:description>
 						<maml:para>This setting provides the ability to hide unused FlexNICs from the operating system.
@@ -36475,7 +36858,7 @@ FlexNICs are hidden in pairs, starting with the fourth pair. For example, if the
         
 By default, Hide Unused FlexNICs is enabled. This setting can be changed only when the server is powered off.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -36489,14 +36872,14 @@ The name of the appliance or list of appliances to execute the command against.<
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>Affinity</maml:name>
 				<maml:description>
 					<maml:para>In a server profile, the Affinity control sets the remove-and-replace behavior for blade servers. If you apply a server profile to a blade server and the server is subsequently removed from the device bay, the Affinity setting controls whether the server profile is reapplied when you insert a server blade into the empty bay. Server profiles for rack servers do not have affinity.
         
 Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -36514,12 +36897,12 @@ The name of the appliance or list of appliances to execute the command against.<
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>Baseline</maml:name>
 				<maml:description>
 					<maml:para>Firmware baseline to assign.  Can be either Baseline Name or URI.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -36537,18 +36920,18 @@ servers.)</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>BiosSettings</maml:name>
 				<maml:description>
 					<maml:para>BIOS Settings that are to be managed.  You can get the BIOS settings available from Get-HPOVServerHarwareType and the returned biosSettings property.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>@()</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>BootMode</maml:name>
 				<maml:description>
 					<maml:para>Specify the Gen9 Boot Envrionment.
@@ -36570,13 +36953,13 @@ set to BIOS.
         
 Default: BIOS</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>BIOS</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>BootOrder</maml:name>
 				<maml:description>
 					<maml:para>Boot Order settings to be managed.
@@ -36587,13 +36970,13 @@ Gen7/8 BIOS Default Boot Order: 'CD','Floppy','USB','HardDisk','PXE'
 Gen9 Legacy BIOS Boot Order: 'CD','USB','HardDisk','PXE'
 Gen9 UEFI Default Boot Order: 'HardDisk'</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>@()</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>Connections</maml:name>
 				<maml:description>
 					<maml:para>The network connections that are to be part of this new server profile.  This an array of profile conneciton objects which may be created with 'New-HPOVServerProfileConnection'.
@@ -36641,41 +37024,41 @@ Expected Connection Format:
         
 Default: No connections</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				<dev:type>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>@()</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>ControllerMode</maml:name>
 				<maml:description>
 					<maml:para>Deprecated.  Please refer to the New-HPOVServerProfileLogicalDisk and New-HPOVServerProfileLogicalDiskController Cmdlets.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>RAID</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>Description</maml:name>
 				<maml:description>
-					<maml:para>Optional description for this server profile.</maml:para>
+					<maml:para>Optional description for this server profile template.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="eg">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="eg">
 				<maml:name>EnclosureGroup</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-eg]
 The Enclosure Group resource the Server Profile Template will be bound to.  When assigning to an Enclosure Group, OneView will then determine what farbic connectivity and storage devices are available. </maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -36705,7 +37088,7 @@ Enable to disable even paths in the attached storage volume(s).</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>FirmwareMode</maml:name>
 				<maml:description>
 					<maml:para>Define the mode a firmware baseline will be deployed.  Allowed value:
@@ -36714,7 +37097,7 @@ Enable to disable even paths in the attached storage volume(s).</maml:para>
 * FirmwareAndSoftware - Updates the firmware and OS drivers without powering down the server hardware using HP Smart Update Tools.
 * FirmwareOffline - Manages the firmware through HP OneView. Selecting this option requires the server hardware to be powered down.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -36731,7 +37114,7 @@ Enable to disable even paths in the attached storage volume(s).</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>HideUnusedFlexNics</maml:name>
 				<maml:description>
 					<maml:para>This setting provides the ability to hide unused FlexNICs from the operating system.
@@ -36746,13 +37129,13 @@ FlexNICs are hidden in pairs, starting with the fourth pair. For example, if the
         
 By default, Hide Unused FlexNICs is enabled. This setting can be changed only when the server is powered off.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Boolean</command:parameterValue>
 				<dev:type>
 					<maml:name>Boolean</maml:name>
 				</dev:type>
 				<dev:defaultValue>True</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach" aliases="OS">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach" aliases="OS">
 				<maml:name>HostOStype</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-OS]
@@ -36785,7 +37168,7 @@ Optional. Specify the Host OS type, which will set the Host OS value when HP One
 * SUSE9     = "SuSE Linux (Pre SLES 10)"
 * Inform    = "InForm"</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -36813,12 +37196,12 @@ Optional. Specify the Host OS type, which will set the Host OS value when HP One
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>MacAssignment</maml:name>
 				<maml:description>
 					<maml:para>Optional setting for MAC address assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVServerProfileConnection helper CMDLET.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -36863,7 +37246,7 @@ Enable to disable odd paths in the attached storage volume(s).</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>PxeBootPolicy</maml:name>
 				<maml:description>
 					<maml:para>Controls the ordering of the network modes available to the Flexible LOM (FLB); for example, IPv4 and IPv6.
@@ -36880,7 +37263,7 @@ Setting the policy to Auto means the order of the existing network boot targets 
         
 Default: Auto</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -36909,31 +37292,42 @@ The Server Hardware Type reource the Server Profile Template will be bound to.</
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+				<maml:name>ServerProfileDescription</maml:name>
+				<maml:description>
+					<maml:para>Optional description for created server profiles from this template.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>SnAssignment</maml:name>
 				<maml:description>
 					<maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
         
 Default: Virtual serial number and UUID assignment</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>Virtual</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="LogicalDisk">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="LogicalDisk">
 				<maml:name>StorageController</maml:name>
 				<maml:description>
 					<maml:para>A resource object containing the StorageController, LogicalDisk or SasJbod configuration.  Please refer to the New-HPOVServerProfileLogicalDisk and New-HPOVServerProfileLogicalDiskController Cmdlets.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach" aliases="None">
 				<maml:name>StorageVolume</maml:name>
 				<maml:description>
 					<maml:para>Optional. Array of Storage Volume resources to attach.  Can be created by using the New-HPOVServerProfileAttachVolume cmdlet.  This parameter does not accept a Storage Volume resource from the Get-HPOVStorageVolume cmdlet.
@@ -36958,18 +37352,18 @@ The format of the Storage Volume resource should be a PsCustomObject PowerShell 
         )
 }</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SANStorageAttach, Default" aliases="None">
 				<maml:name>WwnAssignment</maml:name>
 				<maml:description>
 					<maml:para>Optional setting for WWN assignment.  May be Virtual or Physical.  Use Virtual if you need to specify a UserDefined value when using the New-HPOVServerProfileConnection helper CMDLET.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -39173,8 +39567,9 @@ Array of uplink ports with "BAYID:FacePlatePortID".  When configuring a Synergy 
 
 FlexFabric e.g. @("BAY1:X1","BAY1:X2") or "BAY1:X5","BAY2:X5"
 VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"
-Synergy VC e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
-Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"</maml:para>
+Synergy VC Ethernet e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
+Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"
+Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2.2"</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
@@ -39277,8 +39672,9 @@ Array of uplink ports with "BAYID:FacePlatePortID".  When configuring a Synergy 
 
 FlexFabric e.g. @("BAY1:X1","BAY1:X2") or "BAY1:X5","BAY2:X5"
 VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"
-Synergy VC e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
-Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"</maml:para>
+Synergy VC Ethernet e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
+Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"
+Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2.2"</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
@@ -39460,8 +39856,9 @@ Array of uplink ports with "BAYID:FacePlatePortID".  When configuring a Synergy 
 
 FlexFabric e.g. @("BAY1:X1","BAY1:X2") or "BAY1:X5","BAY2:X5"
 VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"
-Synergy VC e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
-Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"</maml:para>
+Synergy VC Ethernet e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
+Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"
+Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2.2"</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				<dev:type>
@@ -40554,14 +40951,14 @@ The IPv4 Subnet Pool resource Object.  Can be accepted via pipeline input.</maml
 			<command:syntaxItem>
 				<maml:name>Remove-HPOVBaseline</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)">
-					<maml:name>Baseline</maml:name>
+					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-b]
+						<maml:para>Aliases [-b, -Baseline]
 The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -40570,7 +40967,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>WhatIf</maml:name>
@@ -40590,7 +40987,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -40599,23 +40996,11 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="b">
-				<maml:name>Baseline</maml:name>
-				<maml:description>
-					<maml:para>Aliases [-b]
-The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
-				<dev:type>
-					<maml:name>Object</maml:name>
-				</dev:type>
-				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
 				<maml:name>Confirm</maml:name>
@@ -40625,6 +41010,18 @@ The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="b, Baseline">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-b, -Baseline]
+The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -40688,10 +41085,10 @@ The SPP Baseline resource Name or Object.  Can be accepted via pipeline input.</
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Remove-HPOVBaseline 'My Custom Baseline'
+				<dev:code>PS C:\&gt; Remove-HPOVBaseline -Name 'My Custom Baseline'
 </dev:code>
 				<dev:remarks>
-					<dev:para>Remove 'My Custom Baseline' from MyAppliance.domain.com.</dev:para>
+					<dev:para>Remove 'My Custom Baseline' from MyAppliance.domain.com, using the -Name alias to the InputObject parameter.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -41645,6 +42042,264 @@ Configured Directory Group Name.</maml:para>
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVLdap</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--REMOVE-HPOVLDAPSERVER-->
+		<command:details>
+			<command:name>Remove-HPOVLdapServer</command:name>
+			<maml:description>
+				<maml:para>Remove an existing LDAP Directory Server.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVLdapServer</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet will remove an existing LDAP Directory Server resource from an existing LDAP Directory.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVLdapServer</maml:name>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVLdapServer</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The LDAP Directory Object from Get-HPOVLdapDirectory.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>DirectoryServerName</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Name]
+Directory server name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Username</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-u]
+Directory Username to authenticate with in order to validate LDAP configuration.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>Password</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-p]
+Directory User account password in order to validate LDAP configuration.  Can be System.String or SecureString object.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Name">
+				<maml:name>DirectoryServerName</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Name]
+Directory server name.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="Directory">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The LDAP Directory Object from Get-HPOVLdapDirectory.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="p, pass">
+				<maml:name>Password</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-p]
+Directory User account password in order to validate LDAP configuration.  Can be System.String or SecureString object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="u, user">
+				<maml:name>Username</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-u]
+Directory Username to authenticate with in order to validate LDAP configuration.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="wi">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Authentication Directory object that will have the LDAP Server added to.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Updated Authentication Directory.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLdapDirectory -Name MyDirectory | Remove-HPOVLdapServer -DirectoryServerName servera.domain.com -Username MyAdminName -Password (ConvertTo-SecureString 'MyPAssword' -AsPlanText -Force)
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the specified LDAP Directory server from 'MyDirectory'.  Will be prompted for confirmation.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVLdapServer</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLap</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Enable-HPOVLdapLocalLogin</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Disable-HPOVLdapLocalLogin</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 		</maml:relatedLinks>
@@ -45219,7 +45874,7 @@ PS C:\&gt; Remove-HPOVServerProfile $profile -confirm:$false
 			<command:noun>HPOVServerProfileTemplate</command:noun>
 		</command:details>
 		<maml:description>
-			<maml:para>Delete one or multiple profiles.</maml:para>
+			<maml:para>Delete one or multiple Server Profile Template resource(s).  A Server Profile Template cannot be removed if there are linked Server Profiles.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -45229,7 +45884,7 @@ PS C:\&gt; Remove-HPOVServerProfile $profile -confirm:$false
 					<maml:name>ServerProfileTemplate</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-spt, -name]
-The server profile tempalte object(s) or name(s) to be removed.</maml:para>
+The server profile template object(s) or name(s) to be removed.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -45299,7 +45954,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:name>ServerProfileTemplate</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-spt, -name]
-The server profile tempalte object(s) or name(s) to be removed.</maml:para>
+The server profile template object(s) or name(s) to be removed.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -49052,11 +49707,20 @@ PS C:\&gt; Send-HPOVRequest $e.uri "PUT" $e -Appliance MyAppliance.domain.com
 			<command:syntaxItem>
 				<maml:name>Set-HPOVAddressPoolSubnet</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="IPv4">
-					<maml:name>IPv4Subnet</maml:name>
+					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>The IPv4 Subnet resource object to update.</maml:para>
+						<maml:para>Aliases [-Subnet, -IPv4Subnet]
+
+The IPv4 Subnet resource object to update.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
+					<maml:name>SubnetMask</maml:name>
+					<maml:description>
+						<maml:para>IPv4 Subnet Mask of the subnet.  Please know that if the Subnet is associated with another resource (Ethernet Network, Logical Enclosure or Deployment Server), there will be an error as the mask cannot be changed until it is unassociated with the resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4">
 					<maml:name>Gateway</maml:name>
@@ -49142,14 +49806,27 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="IPv4" aliases="Subnet">
-				<maml:name>IPv4Subnet</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="IPv4" aliases="Subnet, IPv4Subnet">
+				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para>The IPv4 Subnet resource object to update.</maml:para>
+					<maml:para>Aliases [-Subnet, -IPv4Subnet]
+
+The IPv4 Subnet resource object to update.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="IPv4" aliases="None">
+				<maml:name>SubnetMask</maml:name>
+				<maml:description>
+					<maml:para>IPv4 Subnet Mask of the subnet.  Please know that if the Subnet is associated with another resource (Ethernet Network, Logical Enclosure or Deployment Server), there will be an error as the mask cannot be changed until it is unassociated with the resource.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
+				<dev:type>
+					<maml:name>IPAddress</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -55116,14 +55793,7 @@ Default value: 514</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
-					<maml:name>force</maml:name>
-					<maml:description>
-						<maml:para>Set to $true to force-update the resource.  Not all resources support force-update.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="2" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -55134,11 +55804,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Force</maml:name>
+					<maml:description>
+						<maml:para>Set to $true to force-update the resource.  Not all resources support force-update.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="2" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -55153,6 +55830,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Force</maml:name>
+				<maml:description>
+					<maml:para>Set to $true to force-update the resource.  Not all resources support force-update.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="Resource">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
@@ -55163,17 +55851,6 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
-				<maml:name>force</maml:name>
-				<maml:description>
-					<maml:para>Set to $true to force-update the resource.  Not all resources support force-update.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				<dev:type>
-					<maml:name>String</maml:name>
-				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -62198,14 +62875,14 @@ The Server object or Name, or can be a Server Profile object.</maml:para>
 			<command:syntaxItem>
 				<maml:name>Update-HPOVServerProfile</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Update">
-					<maml:name>ServerProfile</maml:name>
+					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-Profile]
+						<maml:para>Aliases [-Profile, -ServerProfile]
 The Name or Resource Object of the specific Server Profile to update.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Update">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Update">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -62214,7 +62891,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Update">
 					<maml:name>Async</maml:name>
@@ -62226,7 +62903,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>WhatIf</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>When using this parameter, an HPOneView.ServerProfile.CompliancePreview object is returned, which contains the operations that will be performed.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -62241,7 +62918,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Update" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Update" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -62250,7 +62927,7 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -62278,10 +62955,10 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Update" aliases="profile">
-				<maml:name>ServerProfile</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Update" aliases="profile, ServerProfile">
+				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-Profile]
+					<maml:para>Aliases [-Profile, -ServerProfile]
 The Name or Resource Object of the specific Server Profile to update.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
@@ -62293,7 +62970,7 @@ The Name or Resource Object of the specific Server Profile to update.</maml:para
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="wi">
 				<maml:name>WhatIf</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>When using this parameter, an HPOneView.ServerProfile.CompliancePreview object is returned, which contains the operations that will be performed.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -62327,6 +63004,15 @@ The Name or Resource Object of the specific Server Profile to update.</maml:para
 			<!--Return Values-->
 			<command:returnValue>
 				<dev:type>
+					<maml:name>HPOneView.ServerProfile.CompliancePreview</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Object containing the operations to be performed when the Server Profile object is not compliant.</maml:para>
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
 					<maml:name>HPOneView.Appliance.Task {System.Management.Automation.PSCustomObject}</maml:name>
 					<maml:uri />
 				</dev:type>
@@ -62351,7 +63037,7 @@ The Name or Resource Object of the specific Server Profile to update.</maml:para
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; Get-HPOVServerProfile 'My Profile 1' | Update-HPOVServerProfile
+				<dev:code>PS C:\&gt; Get-HPOVServerProfile -Name 'My Profile 1' | Update-HPOVServerProfile
 </dev:code>
 				<dev:remarks>
 					<dev:para>Get all storage system resource objects managed by the appliance.</dev:para>
@@ -63066,5 +63752,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-01-05T15:24:42:03.039Z-->
+	<!--Edited on: 2017-01-24T19:03:43:19.193Z-->
 </helpItems>
