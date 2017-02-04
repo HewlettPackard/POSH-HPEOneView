@@ -561,6 +561,230 @@ Add a new enclosure to the appliance, using the EG1 Enclosure Group, and force a
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--ADD-HPOVLDAPSERVER-->
+		<command:details>
+			<command:name>Add-HPOVLdapServer</command:name>
+			<maml:description>
+				<maml:para>Add a new LDAP Directory Server.</maml:para>
+			</maml:description>
+			<command:verb>Add</command:verb>
+			<command:noun>HPOVLdapServer</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet will add a new LDAP Directory Server to an existing authentication directory.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Add-HPOVLdapServer</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="default" aliases="None">
+					<maml:name>InputObject</maml:name>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="Name">
+					<maml:name>Hostname</maml:name>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="u, user">
+					<maml:name>Username</maml:name>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="port">
+					<maml:name>SSLPort</maml:name>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="cert">
+					<maml:name>Certificate</maml:name>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="p, pass">
+					<maml:name>Password</maml:name>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="default" aliases="Appliance">
+					<maml:name>ApplianceConnection</maml:name>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="cert">
+				<maml:name>Certificate</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-cert]
+Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the CMDLET will attempt to retrieve the Directory Servers Secure LDAP Certiciate.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="Name">
+				<maml:name>Hostname</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Name]
+Directory server name or IP Address to add.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The LDAP Directory Object from Get-HPOVLdapDirectory.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="p, pass">
+				<maml:name>Password</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-p]
+Directory User account password in order to validate LDAP configuration.  Can be System.String or SecureString object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="port">
+				<maml:name>SSLPort</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-port]
+Directory Server's LDAP SSL Port.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
+				<dev:type>
+					<maml:name>Int32</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>636</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="u, user">
+				<maml:name>Username</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-u]
+Directory Username to authenticate with in order to validate LDAP configuration.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Authentication Directory object that will have the LDAP Server added to.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Updated Authentication Directory.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLdapDirectory -Name MyDirectory | Add-HPOVLdapServer -Name servera.domain.com -Username MyAdminName -Password (ConvertTo-SecureString 'MyPAssword' -AsPlanText -Force)
+</dev:code>
+				<dev:remarks>
+					<dev:para>Add a new LDAP Directory server.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVLdapServer</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLap</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Enable-HPOVLdapLocalLogin</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Disable-HPOVLdapLocalLogin</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--ADD-HPOVPOWERDEVICE-->
 		<command:details>
 			<command:name>Add-HPOVPowerDevice</command:name>
@@ -15939,7 +16163,7 @@ information about migration and other planning resources.</maml:para>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="7" isDynamic="false" parameterSetName="Default, VCEMMigration, Report" aliases="license, l">
-					<maml:name>licensingIntent</maml:name>
+					<maml:name>LicensingIntent</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="NoWait">
@@ -15990,18 +16214,18 @@ information about migration and other planning resources.</maml:para>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="7" isDynamic="false" parameterSetName="Default, VCEMMigration, Report" aliases="license, l">
-					<maml:name>licensingIntent</maml:name>
+					<maml:name>LicensingIntent</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="8" isDynamic="false" parameterSetName="VCEMMigration, Report" aliases="None">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="8" isDynamic="false" parameterSetName="VCEMMigration" aliases="None">
 					<maml:name>VCEMCMS</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="9" isDynamic="false" parameterSetName="VCEMMigration, Report" aliases="None">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="9" isDynamic="false" parameterSetName="VCEMMigration" aliases="None">
 					<maml:name>VCEMUser</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="10" isDynamic="false" parameterSetName="VCEMMigration, Report" aliases="None">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="10" isDynamic="false" parameterSetName="VCEMMigration" aliases="None">
 					<maml:name>VCEMPassword</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -16049,19 +16273,7 @@ information about migration and other planning resources.</maml:para>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="7" isDynamic="false" parameterSetName="Default, VCEMMigration, Report" aliases="license, l">
-					<maml:name>licensingIntent</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="8" isDynamic="false" parameterSetName="VCEMMigration, Report" aliases="None">
-					<maml:name>VCEMCMS</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="9" isDynamic="false" parameterSetName="VCEMMigration, Report" aliases="None">
-					<maml:name>VCEMUser</maml:name>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="10" isDynamic="false" parameterSetName="VCEMMigration, Report" aliases="None">
-					<maml:name>VCEMPassword</maml:name>
+					<maml:name>LicensingIntent</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Report" aliases="None">
@@ -16145,6 +16357,25 @@ OPTIONAL. The Name, URI or Object of an existing Enclosure Group.  If the Enclos
 					<maml:para>REQUIRED if the -report switch is provided.  The directory path in which to save the report output to a file.
         
 * Filename will be created in the format: [path]\{enclsoureName}_{date}.report</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="7" isDynamic="false" parameterSetName="(All)" aliases="license, l">
+				<maml:name>LicensingIntent</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-license, -l]
+REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure 
+being imported.
+                
+Accepted values are
+                    
+* OneView
+* OneViewNoiLO</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -16286,25 +16517,6 @@ REQUIRED. Password for the Administrator account of Virtual Connect Manager.</ma
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
-					<maml:uri />
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="7" isDynamic="false" parameterSetName="(All)" aliases="license, l">
-				<maml:name>licensingIntent</maml:name>
-				<maml:description>
-					<maml:para>Aliases [-license, -l]
-REQUIRED. Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure 
-being imported.
-                
-Accepted values are
-                    
-* OneView
-* OneViewNoiLO</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				<dev:type>
-					<maml:name>String</maml:name>
 					<maml:uri />
 				</dev:type>
 				<dev:defaultValue />
@@ -18924,21 +19136,21 @@ PS C:\&gt; New-HPOVLdapGroup -d Domain1 -GroupName "MY Directory Group1" -roles 
 			<dev:version />
 		</command:details>
 		<maml:description>
-			<maml:para>A helper Cmdlet that will define an LDAP Directory Server object to be used with the New-HPOVLdapDirectory Cmdlet.</maml:para>
+			<maml:para>A helper cmdlet that will define an LDAP Directory Server object to be used with the New-HPOVLdapDirectory cmdlet.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>New-HPOVLdapServer</maml:name>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="0" isDynamic="false" parameterSetName="default" aliases="None">
-					<maml:name>Name</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="default" aliases="Name">
+					<maml:name>Hostname</maml:name>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="default" aliases="port">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="port">
 					<maml:name>SSLPort</maml:name>
 					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="default" aliases="cert">
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="cert">
 					<maml:name>Certificate</maml:name>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -18946,11 +19158,11 @@ PS C:\&gt; New-HPOVLdapGroup -d Domain1 -GroupName "MY Directory Group1" -roles 
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" isDynamic="false" parameterSetName="default" aliases="cert">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="cert">
 				<maml:name>Certificate</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-cert]
-Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the Cmdlet will attempt to retrieve the Directory Servers Secure LDAP Certiciate.</maml:para>
+Directory Server SSL Certificate, either location to Base64 Cert or multi-line string value.  If omitted, the CMDLET will attempt to retrieve the Directory Servers Secure LDAP Certiciate.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -18959,10 +19171,11 @@ Directory Server SSL Certificate, either location to Base64 Cert or multi-line s
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" isDynamic="false" parameterSetName="default" aliases="None">
-				<maml:name>Name</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="default" aliases="Name">
+				<maml:name>Hostname</maml:name>
 				<maml:description>
-					<maml:para>Directory server name or IP Address to add.</maml:para>
+					<maml:para>Aliases [-Name]
+Directory server name or IP Address to add.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -18971,7 +19184,7 @@ Directory Server SSL Certificate, either location to Base64 Cert or multi-line s
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" isDynamic="false" parameterSetName="default" aliases="port">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="default" aliases="port">
 				<maml:name>SSLPort</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-port]
@@ -18999,12 +19212,11 @@ Directory Server's LDAP SSL Port.</maml:para>
 			</command:inputType>
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.Array</maml:name>
+					<maml:name>System.Collections.ArrayList </maml:name>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>Mutlple Directory Server Name or IP Address System.String values.
-</maml:para>
+					<maml:para>Mutlple Directory Server Name or IP Address System.String values</maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -19016,18 +19228,7 @@ Directory Server's LDAP SSL Port.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>New LDAP Server Resource Object to be used with New-HPOVLdap Cmdlet.
-</maml:para>
-				</maml:description>
-			</command:returnValue>
-			<command:returnValue>
-				<dev:type>
-					<maml:name>System.Collections.ArrayList &lt;HPOneView.Appliance.AuthDirectoryServer&gt;</maml:name>
-					<maml:uri />
-				</dev:type>
-				<maml:description>
-					<maml:para>Collection of new LDAP Server Resource Object to be used with New-HPOVLdap Cmdlet.
-</maml:para>
+					<maml:para>New LDAP Server Resource Object to be used with New-HPOVLdap CMDLET</maml:para>
 				</maml:description>
 			</command:returnValue>
 		</command:returnValues>
@@ -19075,7 +19276,7 @@ Directory Server's LDAP SSL Port.</maml:para>
 				<dev:code>PS C:\&gt; $dc1,$dc2 = 'dc1.mydomain.com','dc2.mydomain.com' | New-HPOVLdapServer
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create two new authentication directory servers, with the Cmdlet retrieving the certificate directly from the auth servers.</dev:para>
+					<dev:para>Create two new authentication directory servers, with the CMDLET retrieving the certificate directly from the auth servers.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19090,6 +19291,14 @@ Directory Server's LDAP SSL Port.</maml:para>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVLdapServer</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVLapServer</maml:linkText>
+				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Get-HPOVLap</maml:linkText>
@@ -29417,6 +29626,239 @@ Configured Directory Group Name.</maml:para>
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVLdap</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--REMOVE-HPOVLDAPSERVER-->
+		<command:details>
+			<command:name>Remove-HPOVLdapServer</command:name>
+			<maml:description>
+				<maml:para>Remove an existing LDAP Directory Server.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVLdapServer</command:noun>
+			<dev:version />
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet will remove an existing LDAP Directory Server resource from an existing LDAP Directory.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVLdapServer</maml:name>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
+					<maml:name>WhatIf</maml:name>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="cf">
+					<maml:name>Confirm</maml:name>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVLdapServer</maml:name>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="Directory">
+					<maml:name>InputObject</maml:name>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="Name">
+					<maml:name>DirectoryServerName</maml:name>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="Default" aliases="u, user">
+					<maml:name>Username</maml:name>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="Default" aliases="p, pass">
+					<maml:name>Password</maml:name>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" variableLength="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="Default" aliases="Appliance">
+					<maml:name>ApplianceConnection</maml:name>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
+					<maml:name>WhatIf</maml:name>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" variableLength="False" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="cf">
+					<maml:name>Confirm</maml:name>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" isDynamic="false" parameterSetName="(All)" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="cf">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="Name">
+				<maml:name>DirectoryServerName</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Name]
+Directory server name.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="(All)" aliases="Directory">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The LDAP Directory Object from Get-HPOVLdapDirectory.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" isDynamic="false" parameterSetName="(All)" aliases="p, pass">
+				<maml:name>Password</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-p]
+Directory User account password in order to validate LDAP configuration.  Can be System.String or SecureString object.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="u, user">
+				<maml:name>Username</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-u]
+Directory Username to authenticate with in order to validate LDAP configuration.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" isDynamic="false" parameterSetName="(All)" aliases="wi">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+					<maml:uri />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Authentication Directory object that will have the LDAP Server added to.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.AuthDirectory [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Updated Authentication Directory.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLdapDirectory -Name MyDirectory | Remove-HPOVLdapServer -DirectoryServerName servera.domain.com -Username MyAdminName -Password (ConvertTo-SecureString 'MyPAssword' -AsPlanText -Force)
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the specified LDAP Directory server from 'MyDirectory'.  Will be prompted for confirmation.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVLdapServer</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLapServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLap</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVLdapDirectory</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Enable-HPOVLdapLocalLogin</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Disable-HPOVLdapLocalLogin</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 		</maml:relatedLinks>

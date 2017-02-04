@@ -4,7 +4,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2017 Hewlett-Packard Development Company, L.P.
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -80,7 +80,7 @@ if (-not(Test-Path $Location))
 import-module HPOneView.200
 
 # First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) 
+if (-not ($global:ConnectionSessions))
 { 
 
     Connect-HPOVMgmt myappliance.domain.com backupadmin MyPassword

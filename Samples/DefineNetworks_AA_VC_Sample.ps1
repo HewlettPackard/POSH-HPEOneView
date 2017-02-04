@@ -4,7 +4,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-Import-Module HPOneView.120
+Import-Module HPOneView.200
 
 # First connect to the HP OneView appliance.
-if (-not $global:cimgmtSessionId) { Connect-HPOVMgmt }
+if (-not ($global:ConnectionSessions)) { Connect-HPOVMgmt }
 
 # List any existing networks and network sets
 write-host "Existing Networks:"

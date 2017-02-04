@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 
 LICENSE
 
@@ -31,6 +31,11 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 2.00
 	
 WHAT'S NEW
+
+    Release 2.0.700.0
+     -- [#232] Updated API lookups to locate available storage volumes to work around an API defect where -1 is not 
+        honored.
+     -- [#160] Added new Cmdlets to support removing and add LDAP Directory Servers: Add-HPOVLdapServer, Remove-HPOVLdapServer.
 
     Release 2.0.650.0
      -- [#177] Enhanced New-HPOVServerProfileConnection to allow null -MAC parameter for FC only type

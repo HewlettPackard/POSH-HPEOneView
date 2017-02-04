@@ -4,7 +4,7 @@
 #
 #   VERSION 0.12
 #
-# (C) Copyright 2013-2015 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 # The information contained herein is subject to change without notice. 
 # The only warranties for HP products and services are set forth in the 
@@ -14,7 +14,7 @@
 # contained herein.
 #
 ##############################################################################
-Import-Module HPOneView.120
+Import-Module HPOneView.200
 
 # First connect to the CI Management Appliance (if not already connected)
 if (!$global:cimgmtSessionId) {

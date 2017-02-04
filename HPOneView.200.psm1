@@ -2,7 +2,7 @@
 # HPE OneView PowerShell Library
 ##############################################################################
 ##############################################################################
-## (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP 
+## (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 
@@ -40,7 +40,7 @@ THE SOFTWARE.
 
 #Set HPOneView POSH Library Version
 #Increment 3rd string by taking todays day (e.g. 23) and hour in 24hr format (e.g. 14), and adding to the prior value.
-[version]$ModuleVersion = "2.0.630.0"
+[version]$ModuleVersion = "2.0.700.0"
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -6929,19 +6929,24 @@ function Wait-HPOVApplianceStart
                 }
 
                 $waitRequest = $null
+
             }
 
-			#Timeout after 10 minutes
-			if ($_SW.Elapsed.TotalSeconds -ge 600)
+			finally
 			{
 
 				if ($waitResponse -is [System.IDisposable])
 				{
-
-					$waitResponse.Close()
+					
 					$waitResponse.Dispose()
 
-				}	
+				}
+
+			}
+
+			#Timeout after 10 minutes
+			if ($_SW.Elapsed.TotalSeconds -ge 600)
+			{
 
 				$_SW.Stop()
 
@@ -6949,14 +6954,6 @@ function Wait-HPOVApplianceStart
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
-
-			if ($waitResponse -is [System.IDisposable])
-			{
-
-				$waitResponse.Close()
-				$waitResponse.Dispose()
-
-			}			
 
         } until ($resp.complete -eq $resp.total -and [int]$waitResponse.StatusCode -eq 200)
 
@@ -7568,7 +7565,7 @@ function Disconnect-HPOVMgmt
 function Set-HPOVApplianceDefaultConnection
 {
 
-	# .ExternalHelp HPOneView.300.psm1-help.xml
+	# .ExternalHelp HPOneView.200.psm1-help.xml
 
 	[CmdletBinding()]
     Param
@@ -11736,7 +11733,7 @@ function Get-HPOVApplianceDateTime
 function Set-HPOVApplianceDateTime
 {
 
-	# .ExternalHelp HPOneView.300.psm1-help.xml
+	# .ExternalHelp HPOneView.200.psm1-help.xml
     
     [CmdLetBinding(DefaultParameterSetName = 'SyncHost')]
     Param 
@@ -12422,12 +12419,19 @@ function Set-HPOVApplianceNetworkConfig
         if ($_configured)
 		{
 
-            # Update any non-null values that were passed-in:
-            
+            # Update any non-null values that were passed-in: 
             if ($hostname) 
 			{
 
-				 $_currentconfig.applianceNetworks[$_deviceIndex].hostname = $Hostname 
+
+				if ($DomainName)
+				{
+
+					$Hostname += '.{0}' -f $DomainName
+
+				}
+
+				$_currentconfig.applianceNetworks[$_deviceIndex].hostname = $Hostname 
 
 			}
 
@@ -16428,7 +16432,7 @@ function ConvertTo-Pfx
 function Remove-HPOVScmbCertificate
 {
 	
-	# .ExternalHelp HPOneView.300.psm1-help.xml
+	# .ExternalHelp HPOneView.200.psm1-help.xml
 
 	[CmdLetBinding (DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = 'High')]
 	Param
@@ -21805,7 +21809,7 @@ function Invoke-HPOVVcmMigration
 		[Parameter (Position = 2, Mandatory, HelpMessage = "Onboard Administrator Administrator password", ParameterSetName = "Default")]
 		[alias('op')]
 		[ValidateNotNullOrEmpty()]
-		[System.String]$OAPassword,
+		[System.Object]$OAPassword,
 
         [Parameter (Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "Report")]
 		[Parameter (Position = 3, Mandatory, HelpMessage = "Virtual Connect Administrator account", ParameterSetName = "VCEMMigration")]
@@ -21819,7 +21823,7 @@ function Invoke-HPOVVcmMigration
 		[Parameter (Position = 4, Mandatory, HelpMessage = "Virtual Connect Administrator password", ParameterSetName = "Default")]
 		[alias('vp')]
 		[ValidateNotNullOrEmpty()]
-		[System.String]$VCMPassword,
+		[System.Object]$VCMPassword,
 
 		[Parameter (Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "Report")]
         [Parameter (Position = 5, Mandatory = $false, ValueFromPipeline = $true, ValueFromPipelineByPropertyName = $true, HelpMessage = "Enclosure Group Resource Name, URI or Object", ParameterSetName = "VCEMMigration")]
@@ -21861,28 +21865,28 @@ function Invoke-HPOVVcmMigration
 		[ValidateSet("OneView", "OneViewNoiLO", IgnoreCase = $false)]
 		[ValidateNotNullOrEmpty()]
         [Alias("license", "l")]
-	    [System.String]$licensingIntent,
+	    [System.String]$LicensingIntent,
 
-        [Parameter (Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "Report")]
-        [Parameter (Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "VCEMMigration")]
+        #[Parameter (Position = 8, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager CMS IP Address or FQDN", ParameterSetName = "Report")]
+        [Parameter (Position = 8, Mandatory, ParameterSetName = "VCEMMigration")]
 		[String]$VCEMCMS,
 
-        [Parameter (Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "Report")]
-        [Parameter (Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "VCEMMigration")]
+        #[Parameter (Position = 9, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator account", ParameterSetName = "Report")]
+        [Parameter (Position = 9, Mandatory, ParameterSetName = "VCEMMigration")]
 		[String]$VCEMUser,
 
-        [Parameter (Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "Report")]
-        [Parameter (Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "VCEMMigration")]
-		[String]$VCEMPassword,
+        #[Parameter (Position = 10, Mandatory, HelpMessage = "Virtual Connect Enterprise Manager Administrator Password", ParameterSetName = "Report")]
+        [Parameter (Position = 10, Mandatory, ParameterSetName = "VCEMMigration")]
+		[System.Object]$VCEMPassword,
 
-		[Parameter (Mandatory = $false, HelpMessage = "Do not wait for task to complete", ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Alias('NoWait')]
 		[Switch]$Async,
 
-		[Parameter (Mandatory, HelpMessage = "Generate report only", ParameterSetName = "Report")]
+		[Parameter (Mandatory, ParameterSetName = "Report")]
 		[Switch]$Report,
 
-		[Parameter (Mandatory = $false, HelpMessage = "Save Report Only", ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
         [ValidateScript({
             if ({split-path $_ | Test-Path}) { $True } 
             else { Throw "'$(Split-Path $_)' is not a valid directory.  Please verify $(Split-Path $_) exists and try again." } 
@@ -21950,12 +21954,40 @@ function Invoke-HPOVVcmMigration
 
 		}
 
+		if ($OAPassword -is [SecureString])
+		{
+
+			$OAPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+			
+		}
+
+		if ($VCMPassword -is [SecureString])
+		{
+
+			$VCMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+
+		}
+
+		if ($VCEMPassword -is [SecureString])
+		{
+
+			$VCEMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+
+		}
+
     }
 	
 	Process 
 	{
 
-        $vcMigrationObject = NewObject -vcMigration
+        $VcMigrationObject = NewObject -vcMigration
+
+		$VcMigrationObject.iloLicenseType          = $LicensingIntent
+		$VcMigrationObject.credentials.oaIpAddress = $OAIPAddress
+		$VcMigrationObject.credentials.oaUsername  = $OAUserName
+		$VcMigrationObject.credentials.oaPassword  = $OAPassword
+		$VcMigrationObject.credentials.vcmUsername = $VCMUserName
+		$VcMigrationObject.credentials.vcmPassword = $VCMPassword
 
         #Check to see if EnclosureGroup was provided
         if ($PSBoundParameters['EnclosureGroup']) 
@@ -21974,7 +22006,7 @@ function Invoke-HPOVVcmMigration
 
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Enclosure Group URI provided: $EnclosureGroup"
                        
-						$vcMigrationObject.enclosureGroupUri = $EnclosureGroup
+						$VcMigrationObject.enclosureGroupUri = $EnclosureGroup
 
                     }
 
@@ -21991,7 +22023,7 @@ function Invoke-HPOVVcmMigration
                             $eg = (Get-HPOVEnclosureGroup $EnclosureGroup -appliance $ApplianceConnection).uri 
                                 
                             #Add the URI property to the migration object
-                            $vcMigrationObject.enclosureGroupUri = $eg
+                            $VcMigrationObject.enclosureGroupUri = $eg
                                 
                         }
 
@@ -21999,7 +22031,7 @@ function Invoke-HPOVVcmMigration
 						{
 
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Enclosure Group '$EnclosureGroup' not found. Specifying custom Enclosure Group Name."
-                            $vcMigrationObject | Add-Member -NotePropertyName "enclosureGroupName" -NotePropertyValue $EnclosureGroup -force
+                            $VcMigrationObject | Add-Member -NotePropertyName "enclosureGroupName" -NotePropertyValue $EnclosureGroup -force
 
                         }
 
@@ -22010,7 +22042,7 @@ function Invoke-HPOVVcmMigration
 				{
             
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Enclosure Group resource object provided: $($EnclosureGroup | fl | out-string)"
-                    $vcMigrationObject.enclosureGroupUri = $EnclosureGroup.uri
+                    $VcMigrationObject.enclosureGroupUri = $EnclosureGroup.uri
             
                 }
 
@@ -22030,7 +22062,7 @@ function Invoke-HPOVVcmMigration
                     if ($LogicalInterconnectGroup.startswith('/rest/logical-interconnect-groups')) {
 
                         Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Logical Interconnect Group URI provided: $LogicalInterconnectGroup"
-                        $vcMigrationObject.logicalInterconnectGroupUri = $LogicalInterconnectGroup
+                        $VcMigrationObject.logicalInterconnectGroupUri = $LogicalInterconnectGroup
 
                     }
 
@@ -22045,14 +22077,14 @@ function Invoke-HPOVVcmMigration
                             $lig = (Get-HPOVEnclosureGroup $LogicalInterconnectGroup -appliance $ApplianceConnection).uri 
                                 
                             #Add the URI property to the migration object
-                            $vcMigrationObject.logicalInterconnectGroupUri = $lig
+                            $VcMigrationObject.logicalInterconnectGroupUri = $lig
                                 
                         }
 
                         catch {
 
                             Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Logical Interconnect Group '$LogicalInterconnectGroup' not found. Specifying custom Logical Interconnect Group Name."
-                            $vcMigrationObject | Add-Member -NotePropertyName logicalInterconnectGroupName -NotePropertyValue $LogicalInterconnectGroup -force
+                            $VcMigrationObject | Add-Member -NotePropertyName logicalInterconnectGroupName -NotePropertyValue $LogicalInterconnectGroup -force
 
                         }
 
@@ -22062,7 +22094,7 @@ function Invoke-HPOVVcmMigration
                 "PSCustomObject" {
             
                     Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Logical Interconnect Group resource object provided: $($LogicalInterconnectGroup | fl | out-string)"
-                    $vcMigrationObject.logicalInterconnectGroupUri  = $LogicalInterconnectGroup.uri
+                    $VcMigrationObject.logicalInterconnectGroupUri  = $LogicalInterconnectGroup.uri
             
                 }
 
@@ -22071,7 +22103,7 @@ function Invoke-HPOVVcmMigration
         }#If EG provided
 
         #Send the POST and retrieve the Uri for the MigratableVcDomain resource
-        $thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $vcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
+        $thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $VcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
         
         if ($thisTask.taskState -ieq "Error") {
 
@@ -22518,7 +22550,7 @@ function Invoke-HPOVVcmMigration
                 Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $(get-date -UFormat `"%Y-%m-%d %T`") Checking Compatibility again."
 
                 #Check for report status now
-                $thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $vcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
+                $thisTask = Send-HPOVRequest -method POST -uri "/rest/migratable-vc-domains" -body $VcMigrationObject  -appliance $ApplianceConnection | Wait-HPOVTaskComplete
 
                 if ($thisTask.taskState -ieq "Error") 
 				{
@@ -48460,7 +48492,7 @@ function New-HPOVServerProfile
 								Try
 								{
 
-									$attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri -appliance $_Connection).members
+									$attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri -Count 1000 -appliance $_Connection).members
 
 								}
 
@@ -50392,7 +50424,7 @@ function New-HPOVServerProfileTemplate
 							Try
 							{
 
-								$attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri -appliance $_Connection).members
+								$attachableVolumes = (Send-HPOVRequest $script:attachableVolumesUri -Count 1000 -appliance $_Connection).members
 
 							}
 
@@ -53976,7 +54008,7 @@ function New-HPOVServerProfileAttachVolume
 						Try
 						{
 
-							$_AttachableVolumes = (Send-HPOVRequest $AttachableVolumesUri -appliance $ServerProfile.ApplianceConnection.Name).members
+							$_AttachableVolumes = (Send-HPOVRequest $AttachableVolumesUri -Count 1000 -appliance $ServerProfile.ApplianceConnection.Name).members
 
 							#Get storage volume name for reporting purposes
 							$_VolumeName = (send-hpovrequest $_volume.volumeUri -appliance $ServerProfile.ApplianceConnection.Name).name
@@ -59008,62 +59040,498 @@ Function Disable-HPOVLdapLocalLogin
 function New-HPOVLdapServer 
 {
 
-    # .ExternalHelp HPOneView.200.psm1-help.xml
+	# .ExternalHelp HPOneView.200.psm1-help.xml
 
-	[CmdletBinding(DefaultParameterSetName = "default")]
-	param
+	[CmdletBinding (DefaultParameterSetName = "default")]
+	Param
 	(
-		
-		[Parameter (Position = 0, Mandatory, ValueFromPipeline, ParameterSetName = "default")]
-		[String]$Name,
 
-		[Parameter (Position = 1, Mandatory = $false, ParameterSetName = "default")]
-		[Alias('port')]
-        [ValidateRange(1,65535)]
-        [Int32]$SSLPort = 636,
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
+		[Alias ('Name')]
+		[String]$Hostname,
 
-        [Parameter (Position = 2, Mandatory = $false, ParameterSetName = "default")]
-        [Alias('cert')]
-        [Object]$Certificate
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Alias ('port')]
+		[ValidateRange (1,65535)]
+		[Int32]$SSLPort = 636,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Alias ('cert')]
+		[Object]$Certificate
 
 	)
 
-	begin 
+	Begin 
 	{
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Bound PS Parameters: $($PSBoundParameters | out-string)"
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
 
 		$Caller = (Get-PSCallStack)[1].Command
 
-        Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Called from: $Caller"
-        
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+		
 		$_AuthDirectoryServer = New-Object System.Collections.ArrayList
 
-    }
+	}
 
-    Process 
+	Process 
 	{
 
-		if ($PSBoundParameters['Certificate'])
+		Try
 		{
 
-			if (Test-Path $Certificate) 
-			{ 
+			$_LdapServer = BuildLdapServer -Hostname $Hostname -SSLPort $SSLPort -Certificate $Certificate
 
-			    Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate file found."
+		}
 
-			    $readfile = [System.IO.File]::OpenText($Certificate)
-			    $certificate = $readfile.ReadToEnd()
-			    $readfile.Close()
-				$Base64Certificate = ($Certificate | Out-String) -join "`n"
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+		"[{0}] New Auth Directory Server Object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $($_ldapServer | fl * ) | Write-Verbose
+
+		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Auth Directory Server Object: $($_ldapServer | fl * | Out-String)"
+
+		#Add the directory server to the provided Auth Directory
+		if ($InputObject)
+		{
+
+			"[{0}] Processing Auth Directory value" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if ($InputObject.category -ne 'users')
+			{
+
+				$ExceptionMessage = "The Directory resource is not an expected category type [{0}].  Allowed resource category type is 'users'.  Please check the object provided and try again." -f $InputObject.category
+				$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument $InputObject.Name -TargetType PSObject -Message $ExceptionMessage
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			if (-not($PSBoundParameters['Password']))
+			{
+
+				do 
+				{
+					
+					$securepass   = Read-Host 'Password' -AsSecureString
+					$securepass2  = Read-Host 'Confirm Password' -AsSecureString
+					$_DecryptPassword  = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass))
+					$_DecryptPassword2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass2))
+
+					if ($_DecryptPassword -ne $_DecryptPassword2)
+					{
+
+						Write-Host "Passwords do not match!" -BackgroundColor Red
+
+					}
+
+				} until ($_DecryptPassword -eq $_DecryptPassword2)
+				
+			}
+
+			elseif ($Password -is [SecureString])
+			{
+
+				$_DecryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
 
 			}
 
 			else 
 			{
 
-			    $errorRecord = New-ErrorRecord System.IO.FileNotFoundException CertificateNotFound ObjectNotFound 'Certificate' -TargetType 'PSObject' -Message "Autehntication Directory Server SSL certiciate not found.  Please check the path of the public key, and try again."
-			    $PSCmdlet.ThrowTerminatingError($errorRecord)
+				$_DecryptPassword = $Password
+
+			}
+
+			#Add credentials to object
+			$InputObject.credential = @{ userName = $Username; password = $_DecryptPassword }
+
+			Try
+			{
+
+				$_resp = Send-HPOVRequest -Uri $InputObject.Uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection.Name
+
+				$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AuthDirectory")
+
+				$_resp
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}			
+
+		}
+
+		else
+		{
+
+			"[{0}] Return directory server object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			$_ldapServer
+
+		}		
+
+	}
+
+	End 
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+
+}
+
+function Add-HPOVLdapServer
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+	[CmdletBinding (DefaultParameterSetName = "default")]
+	Param
+	(
+		
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'default')]
+		[ValidateNotNullorEmpty()]
+		[PSCustomObject]$InputObject,
+
+		[Parameter (Mandatory, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
+		[Alias ("Name")]
+		[String]$Hostname,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Alias ('port')]
+		[ValidateRange (1,65535)]
+		[Int32]$SSLPort = 636,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Alias ('cert')]
+		[Object]$Certificate,
+
+		[Parameter (Mandatory, ParameterSetName = "default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('u','user')]
+		[String]$Username,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('p','pass')]
+		[Object]$Password,
+
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = 'default')]
+		[ValidateNotNullorEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection
+
+	)
+
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		if (-not $InputObject) 
+		{
+
+			$PipelineINput = $true
+
+		}
+
+		else
+		{
+
+			"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+			{
+
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		if (-not($PSBoundParameters['Password']))
+		{
+
+			do 
+			{
+				
+				$securepass   = Read-Host 'Password' -AsSecureString
+				$securepass2  = Read-Host 'Confirm Password' -AsSecureString
+				$_DecryptPassword  = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass))
+				$_DecryptPassword2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass2))
+
+				if ($_DecryptPassword -ne $_DecryptPassword2)
+				{
+
+					Write-Host "Passwords do not match!" -BackgroundColor Red
+
+				}
+
+			} until ($_DecryptPassword -eq $_DecryptPassword2)
+			
+		}
+
+		elseif ($Password -is [SecureString])
+		{
+
+			$_DecryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
+
+		}
+
+		else 
+		{
+
+			$_DecryptPassword = $Password
+
+		}
+
+	}
+
+	Process 
+	{
+
+		Try
+		{
+
+			$_LdapServer = BuildLdapServer -Hostname $Hostname -SSLPort $SSLPort -Certificate $Certificate
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+		"[{0}] New Auth Directory Server Object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $($_ldapServer | fl * ) | Write-Verbose
+
+		"[{0}] Processing Auth Directory value" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		if ($InputObject.category -ne 'users')
+		{
+
+			$ExceptionMessage = "The Directory resource is not an expected category type [{0}].  Allowed resource category type is 'users'.  Please check the object provided and try again." -f $InputObject.category
+			$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument $InputObject.Name -TargetType PSObject -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		if (-not($PSBoundParameters['Password']))
+		{
+
+			do 
+			{
+				
+				$securepass   = Read-Host 'Password' -AsSecureString
+				$securepass2  = Read-Host 'Confirm Password' -AsSecureString
+				$_DecryptPassword  = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass))
+				$_DecryptPassword2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass2))
+
+				if ($_DecryptPassword -ne $_DecryptPassword2)
+				{
+
+					Write-Host "Passwords do not match!" -BackgroundColor Red
+
+				}
+
+			} until ($_DecryptPassword -eq $_DecryptPassword2)
+			
+		}
+
+		elseif ($Password -is [SecureString])
+		{
+
+			$_DecryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
+
+		}
+
+		else 
+		{
+
+			$_DecryptPassword = $Password
+
+		}
+
+		#Add credentials to object
+		$InputObject.credential = @{ userName = $Username; password = $_DecryptPassword }
+
+		#Rebuild directoryServers property
+		$_DirectoryServers = $InputObject.directoryServers.Clone()
+
+		$InputObject.directoryServers = New-Object System.Collections.ArrayList
+
+		[Void]$InputObject.directoryServers.Add($_ldapServer)
+
+		ForEach ($_Server in $_DirectoryServers)
+		{
+
+			[Void]$InputObject.directoryServers.Add($_Server)
+
+		}
+
+		Try
+		{
+
+			$_resp = Send-HPOVRequest -Uri $InputObject.Uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection.Name
+
+			$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AuthDirectory")
+
+			$_resp
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}	
+
+	}
+
+	End 
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+
+}
+
+function BuildLdapServer
+{
+
+	[CmdletBinding (DefaultParameterSetName = "default")]
+	Param
+	(
+		
+		[Parameter (Mandatory, ParameterSetName = "default")]
+		[ValidateNotNullorEmpty()]
+		[Alias ("Name")]
+		[String]$Hostname,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Alias ('port')]
+		[ValidateRange (1,65535)]
+		[Int32]$SSLPort = 636,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Alias ('cert')]
+		[Object]$Certificate
+
+	)
+
+	Process
+	{
+
+		if ($Certificate)
+		{
+
+			if (Test-Path $Certificate) 
+			{ 
+
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Certificate file found."
+
+				Try
+				{
+
+					$readfile = [System.IO.File]::OpenText($Certificate)
+					$certificate = $readfile.ReadToEnd()
+					$readfile.Close()
+					$Base64Certificate = ($Certificate | Out-String) -join "`n"
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}				
+
+			}
+
+			else 
+			{
+
+				$ErrorRecord = New-ErrorRecord System.IO.FileNotFoundException CertificateNotFound ObjectNotFound 'Certificate' -TargetType 'PSObject' -Message "Autehntication Directory Server SSL certiciate not found.  Please check the path of the public key, and try again."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
@@ -59072,18 +59540,18 @@ function New-HPOVLdapServer
 		else
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Attempting to retrieve Directory Server Secure LDAP Certificate"
+			"[{0}] Attempting to retrieve Directory Server Secure LDAP Certificate" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			# // Support Getting LDAP Server Certificate    
-			$uri = $Name + ":" + $Sslport
+			$uri = $Hostname + ":" + $Sslport
 
 			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] URI: $uri"
-			   
-			$WebRequest = [Net.WebRequest]::Create("https://$uri")
 
 			try 
 			{
 				
+				$WebRequest = [Net.WebRequest]::Create("https://$uri")
+
 				$Response = $WebRequest.GetResponse()
 			
 			}
@@ -59091,40 +59559,98 @@ function New-HPOVLdapServer
 			catch [Net.WebException] 
 			{ 
 
-			    if (-not($WebRequest.Connection) -and ([int]$Response.StatusCode -eq 0)) 
+				Write-Verbose 'Caught handled [System.Net.WebException] exception'
+
+				$ErrorRecord = $_
+				$EvaluateMessage = $_.Exception.Message
+
+				$ErrorRecordSplat = @{ Exception = $null; ErrorID = $null; ErrorCategory = $null; TargetObject = $null; TargetType = $null; Message = $null }
+
+				switch ($EvaluateMessage)
 				{
 
-			        Write-Error $_.Exception.Message -Category ObjectNotFound -ErrorAction Stop
+					{$_ -match "The remote name could not be resolved"}
+					{
 
-			    } 
+						$ErrorRecordSplat.Message = $ErrorRecord.Exception.Message + " Please check the spelling of the hostname or FQDN."
+						$ErrorRecordSplat.ErrorCategory = 'ObjectNotFound'
+						$ErrorRecordSplat.ErrorID = 'UnknownHost'
+						$ErrorRecordSplat.TargetObject = 'Name'
+						$ErrorRecordSplat.TargetType = 'String'
+						$ErrorRecordSplat.Exception = 'System.Net.WebException'
+
+					}
+
+					{$_ -match "Unable to connect to the remote server"}
+					{
+
+						$ErrorRecordSplat.Message = $ErrorRecord.Exception.Message + ". Valid Ssl Port or firewall blocking port?"
+						$ErrorRecordSplat.ErrorCategory = 'ConnectionError'
+						$ErrorRecordSplat.ErrorID = 'InvalidSslPort'
+						$ErrorRecordSplat.TargetObject = 'Name'
+						$ErrorRecordSplat.TargetType = 'String'
+						$ErrorRecordSplat.Exception = 'System.Net.WebException'
+
+					}
+
+					default
+					{
+
+						$ErrorRecordSplat.Message = $ErrorRecord.Exception.Message
+						$ErrorRecordSplat.ErrorCategory = 'ConnectionError'
+						$ErrorRecordSplat.ErrorID = 'UnhandledException'
+						$ErrorRecordSplat.TargetObject = 'Name'
+						$ErrorRecordSplat.TargetType = 'String'
+						$ErrorRecordSplat.Exception = 'System.Net.WebException'
+
+					}
+					
+				}
+
+				if (-not($WebRequest.Connection) -and ([int]$Response.StatusCode -eq 0)) 
+				{
+
+					$ErrorRecord = New-ErrorRecord @ErrorRecordSplat
+
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				} 
 
 			}
 
 			catch
 			{
 
+				Write-Verbose 'Caught unhandled exception'
+
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
 
-			#Close the response connection, as it is no longer needed, and will cause problems if left open.
-			if ($response) 
-			{ 
-				
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Closing response connection"
+			Finally 
+			{
+
+				if ($response)
+				{
+
+					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Closing response connection"
 			
-				$Response.Close() 
-			
+					$Response.Close()
+
+				}
+
+				$Response   = $null
+
 			}
 
-			if ($WebRequest.ServicePoint.Certificate -ne $null) 
+			if ($null -ne $WebRequest.ServicePoint.Certificate) 
 			{
-			    
+				
 				#Get certificate
 				$Cert = New-Object Security.Cryptography.X509Certificates.X509Certificate2($WebRequest.ServicePoint.Certificate)
 
 				$out = New-Object String[] -ArgumentList 3
-				         
+						 
 				$out[0] = "-----BEGIN CERTIFICATE-----"
 				$out[1] = [System.Convert]::ToBase64String($Cert.RawData, "InsertLineBreaks")
 				$out[2] = "-----END CERTIFICATE-----"
@@ -59137,43 +59663,283 @@ function New-HPOVLdapServer
 			else
 			{
 
-				Write-Host "Unable to get cert."
+				$ErrorRecord = New-ErrorRecord System.IO.FileNotFoundException CertificateNotFound ObjectNotFound 'Certificate' -Message "The response did not contain an SSL Certificate.  Unknown reason."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
 
 		}
-        
-        $_ldapServer = NewObject -AuthDirectoryServer
+		
+		$_LdapServer = NewObject -AuthDirectoryServer
 
-        $_ldapServer.directoryServerIpAddress             = $Name
-        $_ldapServer.directoryServerCertificateBase64Data = $Base64Certificate
+		$_LdapServer.directoryServerIpAddress             = $Hostname
+		$_LdapServer.directoryServerCertificateBase64Data = $Base64Certificate
 
 		if ($PSBoundParameters['Sslport'])
 		{
 
-			$_ldapServer.directoryServerSSLPortNumber = [string]$sslport 
+			$_LdapServer.directoryServerSSLPortNumber = $Sslport.ToString()
 
 		}
-        
+		
+		$_LdapServer.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.AuthDirectoryServer')
 
-		$_ldapServer.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.AuthDirectoryServer')
-
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] New Auth Directory Server Object: $($_ldapServer | fl * | Out-String)"
-
-        [void]$_AuthDirectoryServer.Add($_ldapServer)
+		return $_LdapServer
 
 	}
 
-    End 
+}
+
+function Remove-HPOVLdapServer
+{
+
+	# .ExternalHelp HPOneView.200.psm1-help.xml
+
+	[CmdletBinding (DefaultParameterSetName = "default", SupportsShouldProcess, ConfirmImpact = 'High')]
+	Param
+	(
+
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
+		[Alias ('Directory')]
+		[ValidateNotNullorEmpty()]
+		[Object]$InputObject,
+
+		[Parameter (Mandatory, ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
+		[Alias ('Name')]
+		[String]$DirectoryServerName,
+
+		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('u','user')]
+		[String]$Username,
+
+		[Parameter (ValueFromPipeline, Mandatory, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('p','pass')]
+		[Object]$Password,
+
+		[Parameter (Mandatory = $False, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection
+
+	)
+
+	Begin 
 	{
 
-        Return $_AuthDirectoryServer
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
 
-    }
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		if (-not $InputObject) 
+		{
+
+			$PipelineINput = $true
+
+		}
+
+		else
+		{
+
+			"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+			{
+
+				For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++) 
+				{
+
+					Try 
+					{
+				
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+				
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		if (-not($PSBoundParameters['Password']))
+		{
+
+			do 
+			{
+				
+				$securepass   = Read-Host 'Password' -AsSecureString
+				$securepass2  = Read-Host 'Confirm Password' -AsSecureString
+				$_DecryptPassword  = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass))
+				$_DecryptPassword2 = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($securepass2))
+
+				if ($_DecryptPassword -ne $_DecryptPassword2)
+				{
+
+					Write-Host "Passwords do not match!" -BackgroundColor Red
+
+				}
+
+			} until ($_DecryptPassword -eq $_DecryptPassword2)
+			
+		}
+
+		elseif ($Password -is [SecureString])
+		{
+
+			$_DecryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Password))
+
+		}
+
+		else 
+		{
+
+			$_DecryptPassword = $Password
+
+		}
+		
+	}
+
+	Process 
+	{
+
+		if ($PipelineInput -or $InputObject -is [PSCustomObject]) 
+		{
+
+			"[{0}] Processing Pipeline input" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		}
+
+		"[{0}] LdapDirectory Object provided: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($InputObject | FL *) | Write-Verbose
+
+		If ('users' -contains $InputObject.category)
+		{
+
+			If (-not($InputObject.ApplianceConnection))
+			{
+
+				$ExceptionMessage = "The InputObject parameter value resource provided is missing the source ApplianceConnection property.  Please check the object provided and try again."
+
+				$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument "InputObject" -TargetType PSObject -Message $ExceptionMessage
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+		}
+
+		else
+		{
+
+			$ExceptionMessage = "The Group object resource is not an expected category type [{0}].  The allowed resource category type is 'users'.  Please check the object provided and try again." -f $InputObject.category
+			$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument "InputObject" -TargetType PSObject -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		$PromptMessage = "remove directory server '{0}'" -f $DirectoryServerName
+
+		if ($PSCmdlet.ShouldProcess($InputObject.ApplianceConnection.Name,$PromptMessage)) 
+		{
+
+			"[{0}] Removing Directory Server '{1}' from LDAP Directory '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(),$DirectoryServerName, $InputObject.name | Write-Verbose
+
+			Try
+			{
+
+				[Array]$InputObject.directoryServers = $InputObject.directoryServers | ? directoryServerIpAddress -ne $DirectoryServerName
+
+				#Add credentials to object
+				$InputObject.credential = @{ userName = $Username; password = $_DecryptPassword }
+				
+				$_resp = Send-HPOVRequest -Uri $InputObject.Uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection.Name
+
+				$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.AuthDirectory")
+
+				$_resp
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		elseif ($PSBoundParameters['WhatIf'])
+		{
+
+			"[{0}] -WhatIf Parameter was passed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		}
+
+	}
+
+	End
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
 
 }
 
-# // TODO
 function Show-HPOVLdapGroups 
 {
 
@@ -60651,7 +61417,7 @@ function Get-HPOVAlert
 			elseif ($resource -is [PsCustomObject]) 
 			{ 
 					
-				$uri += "&filter=resourceUri='{0}'" -f $resource.uri
+				$uri += "&filter=`"associatedResource.resourceUri='{0}'`"" -f $Resource.uri
 				
 			}
             
@@ -64004,6 +64770,8 @@ Export-ModuleMember -Function Set-HPOVLdapDefaultDirectory
 Export-ModuleMember -Function Enable-HPOVLdapLocalLogin
 Export-ModuleMember -Function Disable-HPOVLdapLocalLogin
 Export-ModuleMember -Function New-HPOVLdapServer
+Export-ModuleMember -Function Add-HPOVLdapServer
+Export-ModuleMember -Function Remove-HPOVLdapServer
 Export-ModuleMember -Function Set-HPOVLdapGroupRole
 Export-ModuleMember -Function Remove-HPOVLdapDirectory -alias Remove-HPOVLdap
 #Export-ModuleMember -Function Show-HPOVLdapGroups // TODO
@@ -64161,7 +64929,7 @@ write-host "  • Get-Help about_Appliance_Connections"
 Write-host "  • Online documentation at https://github.com/HewlettPackard/POSH-HPOneView/wiki"
 Write-host "  • Online Issues Tracker at https://github.com/HewlettPackard/POSH-HPOneView/issues"
 write-host ""
-write-host " (C) Copyright 2013-2016 Hewlett Packard Enterprise Development LP "
+write-host " (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP "
 if ((Get-Host).UI.RawUI.MaxWindowSize.width -lt 150) 
 {
     write-host ""
