@@ -1,4 +1,4 @@
-TOPIC
+﻿TOPIC
 
     about_HPOneView.300
 
@@ -50,25 +50,10 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
-    Release 3.0.
-     -- [#227] Added logic to Add-HPOVBaseline to detect for zero byte files before sending request.
-     -- Added 'Unmanaged' to -BootMode parameter in New-HPOVServerProfile and New-HPOVServerProfileTemplate.
-     -- [#228] Updated New-HPOVUser to format the role value correctly for the API.
-     -- Fixed an issue where SAN Attach Volumes would not be processed for Synergy compute nodes when using
-        New-HPOVServerProfileTemplate or New-HPOVServerProfile.
-     -- Fixed an issue with Wait-HPOVApplianceStart that would cause System.Net.HttpWebRequest timeouts with subsequent
-        Cmdlet calls.
-     -- Fixed an issue where Set-HPOVApplianceNetworkConfig where if supplying the -DomainName parameter, the appliance
-        would not add the FQDN value to the regenerated Self-Signed Certificate Subject Alernative Name field.
-     -- [#231] Fixed an issue with Get-HPOVDriveEnclosure that would throw an exception when looking for a drive enclosure
-        by name and it exists.
-     -- [#235] Fixed an issue with Get-HPOVStorageVolumeTemplate would throw an incorrect error when no SVT was found by name.
-
-
     Release 3.0.1210.3013
      -- Added -NonCompliant parameter switch to Get-HPOVServerProfile.
      -- [#160] Added new Cmdlets to support removing and add LDAP Directory Servers: Add-HPOVLdapServer, Remove-HPOVLdapServer    
-     -- [#200] Enhanced Set-HPOVAddressPoolSubnet to allow updating Subnet Mask.  Please know that if Subnet is already associated
+     -- [#200] Enhanced Set-HPOVAddressPoolSubnet to allow updating Subnet Mask.  Pleaes know that if Subnet is already associated
         with a Network, Logical Enclosure, or Deployment Server, the Subnet Mask cannot be updated.
      -- [#192] Enhanced New-HPOVServerProfileTemplate with ServerProfileDescription parameter.
      -- Fixed New-HPOVServerProfileTemplate where an Exception would be thrown if Server Profile Connection contained an 
@@ -90,11 +75,6 @@ WHAT'S NEW
         found" exception.
      -- [#218] Fixed StorageSystem format output.
      -- [#223] Various documentation updates.
-     -- [#225] Fixed an issue with New-HPOVServerProfileTemplate and New-HPOVServerProfile where multiple Logical Disk Controllers
-        were not being parsed and handled correctly.
-     -- [#225] Fixed an issue with New-HPOVServerProfileLogicalDiskController where SAS JBOD disk policy wasn't being added to 
-        controller object correctly.
-     -- [#226] Added -Bootable parameter for Synergy RAID Logical Disks in New-HPOVServerProfileLogicalDisk cmdlet.
 
     Release 3.0.1191.2858
      -- [#194] Fixed Get-HPOVServerHardwareType where if supported wildcard character was provided, it would not be converted

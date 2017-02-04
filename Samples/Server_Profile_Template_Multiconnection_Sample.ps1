@@ -14,7 +14,7 @@
 # Then create a Server Profile from the Template, assigning to a specific
 # server.
 #
-#   VERSION 3.2
+#   VERSION 3.1
 #
 # (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -105,7 +105,7 @@ New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete
 #Display Server Profile Templates that are configured
 Get-HPOVServerProfileTemplate -ErrorAction Stop
 
-#Create Server Profile from Server Profile Template, searching for a BL460 Gen9 server with 4 CPU and 384GB of RAM
-$svr = Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile -ErrorAction Stop | ? { $_.processorCount -ge 4 -and $_.memoryMb -ge (384 * 1024) } | Select -First 1
+#Create Server Profile from Server Profile Template to 'Encl1, Bay 1' server resource
+$svr = Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile -ErrorAction Stop | Select -First 1
 $spt = Get-HPOVServerProfileTemplate -Name $TemplateName -ErrorAction Stop
-New-HPOVServerProfile -Name "Hyp-Clus-01" -Assignment Server -Server $svr -ServerProfileTemplate $spt
+New-HPOVServerProfile -Name "Hyp-Clus-01" -Server $svr -ServerProfileTemplate $spt

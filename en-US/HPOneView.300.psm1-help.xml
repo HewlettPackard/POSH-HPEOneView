@@ -8334,12 +8334,12 @@ zpo-s18r18s3-ov.vse.rdlabs.hpecorp.net CN75140CPW appliance bay 1 OK    OK     S
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVDriveEnclosure</maml:name>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the Synergy DAS enclosure.  Omitt to return all devices.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -8371,12 +8371,12 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the Synergy DAS enclosure.  Omitt to return all devices.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -31519,22 +31519,21 @@ The Server Hardware Type reource the Server Profile will be bound to.  Required 
 					<maml:name>BootMode</maml:name>
 					<maml:description>
 						<maml:para>Specify the Gen9 Boot Envrionment.
-
+                
 Sets the boot mode as one of the following:
-
-	* UEFI
-	* UEFIOptimized
-	* BIOS
-	* Unmanaged
-
+        
+* UEFI
+* UEFIOptimized
+* BIOS
+        
 If you select UEFI or UEFI optimized for an HP ProLiant DL Gen9 rack mount server, the remaining boot setting available is the PXE boot policy.
-
+        
 For the UEFI or UEFI optimized boot mode options, the boot mode choice should be based on the expected OS and required boot features for the server hardware. UEFI optimized boot mode reduces the time the system spends in POST (Video driver initialization). In order to select the appropriate boot mode, consider the following:
-	
+        
 * If a secure boot is required, the boot mode must be set to UEFI or UEFI optimized .
 * For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be set to BIOS.
 * When booting in UEFI mode, Windows 7, Server 2008, or 2008 R2 should not be set to UEFIOptimized.
-
+        
 Default: BIOS</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -32054,22 +32053,21 @@ The Server Hardware Type reource the Server Profile will be bound to.  Required 
 					<maml:name>BootMode</maml:name>
 					<maml:description>
 						<maml:para>Specify the Gen9 Boot Envrionment.
-
+                
 Sets the boot mode as one of the following:
-
-	* UEFI
-	* UEFIOptimized
-	* BIOS
-	* Unmanaged
-
+        
+* UEFI
+* UEFIOptimized
+* BIOS
+        
 If you select UEFI or UEFI optimized for an HP ProLiant DL Gen9 rack mount server, the remaining boot setting available is the PXE boot policy.
-
+        
 For the UEFI or UEFI optimized boot mode options, the boot mode choice should be based on the expected OS and required boot features for the server hardware. UEFI optimized boot mode reduces the time the system spends in POST (Video driver initialization). In order to select the appropriate boot mode, consider the following:
-	
+        
 * If a secure boot is required, the boot mode must be set to UEFI or UEFI optimized .
 * For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be set to BIOS.
 * When booting in UEFI mode, Windows 7, Server 2008, or 2008 R2 should not be set to UEFIOptimized.
-
+        
 Default: BIOS</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -32372,22 +32370,21 @@ Valid values for this parameter are 'unassigned', 'server', or 'bay'</maml:para>
 				<maml:name>BootMode</maml:name>
 				<maml:description>
 					<maml:para>Specify the Gen9 Boot Envrionment.
-
+                
 Sets the boot mode as one of the following:
-
-	* UEFI
-	* UEFIOptimized
-	* BIOS
-	* Unmanaged
-
+        
+* UEFI
+* UEFIOptimized
+* BIOS
+        
 If you select UEFI or UEFI optimized for an HP ProLiant DL Gen9 rack mount server, the remaining boot setting available is the PXE boot policy.
-
+        
 For the UEFI or UEFI optimized boot mode options, the boot mode choice should be based on the expected OS and required boot features for the server hardware. UEFI optimized boot mode reduces the time the system spends in POST (Video driver initialization). In order to select the appropriate boot mode, consider the following:
-	
+        
 * If a secure boot is required, the boot mode must be set to UEFI or UEFI optimized .
 * For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be set to BIOS.
 * When booting in UEFI mode, Windows 7, Server 2008, or 2008 R2 should not be set to UEFIOptimized.
-
+        
 Default: BIOS</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -36347,22 +36344,22 @@ servers.)</maml:para>
 					<maml:name>BootMode</maml:name>
 					<maml:description>
 						<maml:para>Specify the Gen9 Boot Envrionment.
-
+                
 Sets the boot mode as one of the following:
-
-	* UEFI
-	* UEFIOptimized
-	* BIOS
-	* Unmanaged
-
+        
+* UEFI
+* UEFIOptimized
+* BIOS
+        
 If you select UEFI or UEFI optimized for an HP ProLiant DL Gen9 rack mount server, the remaining boot setting available is the PXE boot policy.
-
+        
 For the UEFI or UEFI optimized boot mode options, the boot mode choice should be based on the expected OS and required boot features for the server hardware. UEFI optimized boot mode reduces the time the system spends in POST (Video driver initialization). In order to select the appropriate boot mode, consider the following:
-	
+        
 * If a secure boot is required, the boot mode must be set to UEFI or UEFI optimized .
-* For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be set to BIOS.
+* For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be 
+set to BIOS.
 * When booting in UEFI mode, Windows 7, Server 2008, or 2008 R2 should not be set to UEFIOptimized.
-
+        
 Default: BIOS</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
@@ -36705,22 +36702,22 @@ servers.)</maml:para>
 					<maml:name>BootMode</maml:name>
 					<maml:description>
 						<maml:para>Specify the Gen9 Boot Envrionment.
-
+                
 Sets the boot mode as one of the following:
-
-	* UEFI
-	* UEFIOptimized
-	* BIOS
-	* Unmanaged
-
+        
+* UEFI
+* UEFIOptimized
+* BIOS
+        
 If you select UEFI or UEFI optimized for an HP ProLiant DL Gen9 rack mount server, the remaining boot setting available is the PXE boot policy.
-
+        
 For the UEFI or UEFI optimized boot mode options, the boot mode choice should be based on the expected OS and required boot features for the server hardware. UEFI optimized boot mode reduces the time the system spends in POST (Video driver initialization). In order to select the appropriate boot mode, consider the following:
-	
+        
 * If a secure boot is required, the boot mode must be set to UEFI or UEFI optimized .
-* For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be set to BIOS.
+* For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be 
+set to BIOS.
 * When booting in UEFI mode, Windows 7, Server 2008, or 2008 R2 should not be set to UEFIOptimized.
-
+        
 Default: BIOS</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
@@ -36938,22 +36935,22 @@ servers.)</maml:para>
 				<maml:name>BootMode</maml:name>
 				<maml:description>
 					<maml:para>Specify the Gen9 Boot Envrionment.
-
+                
 Sets the boot mode as one of the following:
-
-	* UEFI
-	* UEFIOptimized
-	* BIOS
-	* Unmanaged
-
+        
+* UEFI
+* UEFIOptimized
+* BIOS
+        
 If you select UEFI or UEFI optimized for an HP ProLiant DL Gen9 rack mount server, the remaining boot setting available is the PXE boot policy.
-
+        
 For the UEFI or UEFI optimized boot mode options, the boot mode choice should be based on the expected OS and required boot features for the server hardware. UEFI optimized boot mode reduces the time the system spends in POST (Video driver initialization). In order to select the appropriate boot mode, consider the following:
-	
+        
 * If a secure boot is required, the boot mode must be set to UEFI or UEFI optimized .
-* For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be set to BIOS.
+* For operating systems that do not support UEFI (such as DOS, or older versions of Windows and Linux), the boot mode must be 
+set to BIOS.
 * When booting in UEFI mode, Windows 7, Server 2008, or 2008 R2 should not be set to UEFIOptimized.
-
+        
 Default: BIOS</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
@@ -39502,15 +39499,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		<command:details>
 			<command:name>New-HPOVUplinkSet</command:name>
 			<maml:description>
-				<maml:para>Create a new Uplink Set.</maml:para>
+				<maml:para>Create a new Uplink Set in a Logical Interconnect Group.</maml:para>
 			</maml:description>
 			<command:verb>New</command:verb>
 			<command:noun>HPOVUplinkSet</command:noun>
 		</command:details>
 		<maml:description>
-			<maml:para>Interconnect uplinks are grouped into an uplink set and managed as a unit, with an assigned set of one or more networks. The traffic carried over the uplinks is determined by the network assignment of the uplink set. Uplink sets can support either Ethernet or Fibre Channel networks. Depending on the type of the assigned networks, uplink sets can support both an automatic and a selective failover or distribution strategy. The uplink port state is monitored, which contributes to the overall reachability status of the assigned networks. For each port belonging to the uplink set, the assigned port speed can be monitored.
-Uplink Sets can be created for Logical Interconnect Groups or Logical Interconnects.  When creating a new Uplink Set, either the Logical Interconnect Group or Logical Interconnect must exist.
-Please know that the UplinkPorts parameter syntax is different between HPE BladeSystem and HPE Synergy Virtual Connect.</maml:para>
+			<maml:para>Create a new Uplink Set in a Logical Interconnect Group. The Logical Interconnect Group must already exist.  Multiple networks and multiple uplink ports can be assigned to the uplink set during creation.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -39574,7 +39569,6 @@ FlexFabric e.g. @("BAY1:X1","BAY1:X2") or "BAY1:X5","BAY2:X5"
 VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"
 Synergy VC Ethernet e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
 Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"
-Synergy VC FC Primary Port e.g. "Bay2:Q1","Bay2:Q2" or "Bay5:Q1","Bay5:Q2"
 Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2.2"</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
@@ -39680,7 +39674,6 @@ FlexFabric e.g. @("BAY1:X1","BAY1:X2") or "BAY1:X5","BAY2:X5"
 VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"
 Synergy VC Ethernet e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
 Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"
-Synergy VC FC Primary Port e.g. "Bay2:Q1","Bay2:Q2" or "Bay5:Q1","Bay5:Q2"
 Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2.2"</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
@@ -39865,7 +39858,6 @@ FlexFabric e.g. @("BAY1:X1","BAY1:X2") or "BAY1:X5","BAY2:X5"
 VC Fibre Channel e.g. @("BAY3:1","BAY3:2") or "BAY3:1","BAY3:2"
 Synergy VC Ethernet e.g. "Enclosure1:Bay3:Q1","Enclosure1:Bay3:Q2","Enclosure2:Bay6:Q1","Enclosure2:Bay6:Q2"
 Synergy VC Sub-Interface e.g. "Enclosure1:Bay3:Q1.1","Enclosure1:Bay3:Q2.1","Enclosure2:Bay6:Q1.2","Enclosure2:Bay6:Q2.2"
-Synergy VC FC Primary Port e.g. "Bay2:Q1","Bay2:Q2" or "Bay5:Q1","Bay5:Q2"
 Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2.2"</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
@@ -40122,36 +40114,35 @@ Passwords must be at least 8 characters.</maml:para>
 					<maml:description>
 						<maml:para>An array list of roles to assign the user to.  Allowed values are:
 
-	* Infrastructure Administrator
-	* Read Only
-	* Backup Administrator
-	* Network Administrator
-	* Server Administrator
-	* Storage Administrator
-	* Software Administrator (For HPE Synergy and ImageStreamer only)</maml:para>
+    * Infrastructure Administrator
+    * Read Only
+    * Backup Administrator
+    * Network Administrator
+    * Server Administrator
+    * Storage Administrator</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)">
 					<maml:name>EmailAddress</maml:name>
 					<maml:description>
 						<maml:para>Provide the users email address.  This does not set the Email Notification value when configuring SMTP Notifications.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)">
 					<maml:name>OfficePhone</maml:name>
 					<maml:description>
 						<maml:para>Office phone number.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="6" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="6" parameterSetName="(All)">
 					<maml:name>MobilePhone</maml:name>
 					<maml:description>
 						<maml:para>Mobile phone number.</maml:para>
 					</maml:description>
-					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="7" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
@@ -40190,12 +40181,12 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)" aliases="None">
 				<maml:name>EmailAddress</maml:name>
 				<maml:description>
 					<maml:para>Provide the users email address.  This does not set the Email Notification value when configuring SMTP Notifications.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -40223,23 +40214,23 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="6" parameterSetName="(All)" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="6" parameterSetName="(All)" aliases="None">
 				<maml:name>MobilePhone</maml:name>
 				<maml:description>
 					<maml:para>Mobile phone number.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)" aliases="None">
 				<maml:name>OfficePhone</maml:name>
 				<maml:description>
 					<maml:para>Office phone number.</maml:para>
 				</maml:description>
-				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -40262,13 +40253,12 @@ Passwords must be at least 8 characters.</maml:para>
 				<maml:description>
 					<maml:para>An array list of roles to assign the user to.  Allowed values are:
 
-	* Infrastructure Administrator
-	* Read Only
-	* Backup Administrator
-	* Network Administrator
-	* Server Administrator
-	* Storage Administrator
-	* Software Administrator (For HPE Synergy and ImageStreamer only)</maml:para>
+    * Infrastructure Administrator
+    * Read Only
+    * Backup Administrator
+    * Network Administrator
+    * Server Administrator
+    * Storage Administrator</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
 				<dev:type>
@@ -40295,7 +40285,8 @@ Passwords must be at least 8 characters.</maml:para>
 					<maml:name>None. You cannot pipe objects to this cmdlet.</maml:name>
 				</dev:type>
 				<maml:description>
-					<maml:para />
+					<maml:para>
+ None. You cannot pipe objects to this cmdlet </maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -63761,5 +63752,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-02-04T05:55:02:34.346Z-->
+	<!--Edited on: 2017-01-24T19:03:43:19.193Z-->
 </helpItems>
