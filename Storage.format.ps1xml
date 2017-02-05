@@ -608,7 +608,7 @@
               </ListItem>
               <ListItem>
                 <Label>Storage Pool</Label>
-                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.provisioning.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Snapshot Pool</Label>
