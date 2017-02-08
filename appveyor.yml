@@ -9,3 +9,11 @@ environment:
 build: off
 test_script:
 - ps: "C:\\tests\\Start-FunctionTest.ps1\n\nUpdate-AppveyorBuild -Version $Global:Version"
+notifications:
+- provider: Email
+  to:
+  - chris.lynch@hpe.com
+  subject: POSH-HPOneView.300 AppVeyor Results
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
