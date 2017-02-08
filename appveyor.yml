@@ -6,7 +6,7 @@ init:
 - ps: "if (-not(Test-Path C:\\tests)) { New-Item -Type directory -path c:\\tests -Force -Confirm:$false }\n\nCopy-Item -Path \\\\fileserver\\software\\Appveyor\\pester\\*.* -destination c:\\tests -Container -Force -Confirm:$false\n\n$env:PSModulesPath += (\";\" + $env:APPVEYOR_BUILD_FOLDER)"
 build: off
 test_script:
-- ps: "& \"C:\\tests\\Start-FunctionTest.ps1\"\n\nUpdate-AppveyorBuild -Version $Global:Version"
+- ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\nUpdate-AppveyorBuild -Version $Global:Version"
 notifications:
 - provider: Email
   to:
