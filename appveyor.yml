@@ -1,33 +1,17 @@
 version: 3.0.{Build}
-
 build_cloud: houstonlab
-
 image: labwmf5
-
 clone_folder: C:\projects\HPOneView.300
-
 init:
-
-- ps: "if (-not(Test-Path C:\\tests)) { New-Item -Type directory -path c:\\tests -Force -Confirm:$false }\n\nCopy-Item -Path \\\\fileserver\\software\\Appveyor\\pester\\*.* -destination c:\\tests -Container -Force -Confirm:$false\n\n$env:PSModulePath += (\";\" + $env:APPVEYOR_BUILD_FOLDER)"
-
+- ps: $env:PSModulePath += (";" + $env:APPVEYOR_BUILD_FOLDER)
 build: off
-
 test_script:
-
-- ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\nUpdate-AppveyorBuild -Version $Global:Version"
-
+- ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\nUpdate-AppveyorBuild -Version $Global:Version"
 notifications:
-
 - provider: Email
-
   to:
-
   - chris.lynch@hpe.com
-
   subject: POSH-HPOneView.300 AppVeyor Results
-
   on_build_success: true
-
   on_build_failure: true
-
   on_build_status_changed: false
