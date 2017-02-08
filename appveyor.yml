@@ -1,0 +1,9 @@
+version: 3.0.{Build}
+build_cloud: houstonlab
+image: WMF 5
+clone_folder: C:\projects\HPOneView.300
+init:
+- ps: "New-Item -Type directory -path c:\\tests\n\nCopy-Item -Path \\\\fileserver\\software\\Appveyor\\pester\\*.* -destination \nc:\\tests -Container -Force"
+build: off
+test_script:
+- ps: "C:\\tests\\Start-FunctionTest.ps1\n\nUpdate-AppveyorBuild -Version $Global:Version"

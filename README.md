@@ -1,3 +1,5 @@
+[![Build status](https://ci.appveyor.com/api/projects/status/n1mk2r2lpa1sdxxw/branch/3.00?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview/branch/3.00)
+
 POSH-HPOneView
 ==============
 
