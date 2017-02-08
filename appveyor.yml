@@ -1,11 +1,11 @@
 version: 3.0.{Build}
 build_cloud: houstonlab
-image: LabWMF5
+image: labwmf5
 clone_folder: C:\projects\HPOneView.300
 init:
 - ps: "New-Item -Type directory -path c:\\tests\n\nCopy-Item -Path \\\\fileserver\\software\\Appveyor\\pester\\*.* -destination \nc:\\tests -Container -Force\n\n$env:PSModulesPath += \";\" + $env:APPVEYOR_BUILD_FOLDER"
 environment:
-  APPVEYOR_BUILD_WORKER_CLOUD: LabWMF5
+  APPVEYOR_BUILD_WORKER_CLOUD: labwmf5
 build: off
 test_script:
 - ps: "C:\\tests\\Start-FunctionTest.ps1\n\nUpdate-AppveyorBuild -Version $Global:Version"
