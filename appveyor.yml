@@ -3,7 +3,7 @@ build_cloud: houstonlab
 image: labwmf5
 clone_folder: C:\projects\HPOneView.300
 init:
-- ps: $env:PSModulePath += (";" + $env:APPVEYOR_BUILD_FOLDER)
+- ps: $env:PSModulePath += ";C:\Projects"
 build: off
 test_script:
 - ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\nUpdate-AppveyorBuild -Version $Global:Version"
