@@ -6,12 +6,12 @@ init:
 - ps: $env:PSModulePath += ";C:\Projects"
 build: off
 test_script:
-- ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\nUpdate-AppveyorBuild -Version $Global:Version"
+- ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\n& \"C:\\tests\\appveyor.tests.ps1 -finalize\""
 notifications:
 - provider: Email
   to:
   - chris.lynch@hpe.com
-  subject: POSH-HPOneView.300 AppVeyor Results
+  subject: 'POSH-HPOneView.300 AppVeyor Results {{status}}'
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: false
