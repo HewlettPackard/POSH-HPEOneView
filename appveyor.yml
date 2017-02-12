@@ -6,7 +6,7 @@ init:
 - ps: $env:PSModulePath += ";C:\Projects"
 build: off
 test_script:
-- ps: "& \"C:\\tests\\appveyor.tests.ps1\"\n\n& \"C:\\tests\\appveyor.tests.ps1 -finalize\""
+- ps: "Import-Module \"C:\\Tests\\appveyor.tests.ps1\"\nStart-PoshTest\nStart-PoshTest -Finalize\n\nUpdate-AppveyorBuild -Version $Global:Version"
 notifications:
 - provider: Email
   to:
