@@ -50,6 +50,30 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
+    Release 3.0.1264.2772
+     -- Fixed an issue with New-HPOVServerProfileLogicalDiskController where a single logical disk would be duplicated
+        causing an API error that the logical disk already exists.
+     -- [#239] Fixed Reset-HPOVEnclosureDevice Cmdlet that would generate an exception attempting to reboot a Synergy FLM
+        due to an incorrect API method.
+     -- [#240] Fixed an issue with New-HPOVLogicalInterconnectGroup where attempting to create a non-redundant LIG,
+        an API exception would be thrown due to incorrect fabric redundancy enum values.
+     -- [#241] Added HPE BladeSystem WS model support to New-HPOVServerProfileAttachVolume.
+     -- [#244] Added support to New-HPOVServerProfile and New-HPOVServerProfileTemplate to allow Server Hardware Type firmware
+        settings to match.
+     -- [#248] The internal RestClient function wasn't properly parsing the appliance SSL certificate validation status, resulting
+        in unexpected invalid certificate exceptions when connecting with internally issued cert.
+     -- [#250] Fixed AddServers_Monitored_Sample.ps1 where the wrong CSV property name was being used for Username, and fixed
+        exception being thrown when only a single entry was present within the CSV causing "divide by zero" error.
+     -- Added ConvertTo-HPOVImageStreamerConfiguration Cmdlet to convert an existing HPE Synergy Logical Enclosure to 
+        support Image Streamer. Please read the Cmdlet help as data loss may ocurr if not properly planning for outage.
+     -- [#245 #252] Added Cmdlets to support managing Facility resources (DataCenters and Racks).
+     -- Begin initial support for PowerShell 6.0-Alpha on non-Windows hosts.  Please know that official support for PowerShell 6.0
+        will not happen until GA.  Support is best effort.
+     -- Removed support to store default Authentication Directory in HKCU\Software\HPOneVivew registry location. Connect-
+        HPOVMgmt will now gather the default Authentication Directory from the API.
+     -- Added Invoke-HPOVWebBrowser Cmdlet to assist with opening default web browser to one or more appliances using SSO.
+     -- [#254] Added PSCredential support to Connect-HPOVMgmt.
+
     Release 3.0.1221.2746
      -- [#227] Added logic to Add-HPOVBaseline to detect for zero byte files before sending request.
      -- Added 'Unmanaged' to -BootMode parameter in New-HPOVServerProfile and New-HPOVServerProfileTemplate.

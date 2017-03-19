@@ -2,7 +2,7 @@
 # AddServers_Monitored_Sample.ps1
 # - Example script for importing multiple servers to be monitored.
 #
-#   VERSION 1.0
+#   VERSION 1.1
 #
 # (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -66,7 +66,7 @@ if (-not($ConnectedSessions))
 # CSV File should contain the following headers:
 #
 # hostname,account,password
-$ServersList = Import-Csv $CSV
+[Array]$ServersList = Import-Csv $CSV
 
 $counter = 1
 
@@ -75,7 +75,7 @@ $AsyncTaskCollection = New-Object System.Collections.ArrayList
 
 Write-Progress -ID 1 -Activity ("Adding Servers to {0}" -f $ApplianceConnection.Name) -Status "Starting" -PercentComplete 0
  
-$i = 0
+$i = 1
 
 $ServersList | % {
 
@@ -102,9 +102,7 @@ $ServersList | % {
 
 	Write-Progress -ID 1 -Activity ("Adding Servers to {0}" -f $ApplianceConnection.Name) -Status ("Processing {0}" -f $_.hostname) -PercentComplete ($i / $ServersList.Count * 100)
 
-	$Resp = Add-HPOVServer -hostname $_.hostname -username $_.username -password $_.password -Monitored
-
-	$Resp
+	$Resp = Add-HPOVServer -hostname $_.hostname -username $_.account -password $_.password -Monitored -Async
 
 	[void]$AsyncTaskCollection.Add($Resp)
 

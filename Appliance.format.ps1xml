@@ -2849,7 +2849,60 @@
         </ListEntries>
       </ListControl>
     </View>
-    
+    <!--HPOneView.Appliance.ImageStreamerAppliance FT-->
+    <View>
+      <Name>ImageStreamerAppliance</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ImageStreamerAppliance</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ApplianceSerialNumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ImageStreamerVersion</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>applianceSerialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>imageStreamerVersion</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--HPOneView.Appliance.OsDeploymentServer FT-->
     <View>
       <Name>OsDeploymentServer</Name>
@@ -2942,12 +2995,7 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View>
-
-
-
-
-    
+    </View> 
     <!--HPOneView.Appliance.OsDeploymentPlan FT-->
     <View>
       <Name>OsDeploymentPlan</Name>
@@ -3037,6 +3085,373 @@
         </ListEntries>
       </ListControl>
     </View>
-    
+
+
+
+
+    <!--HPOneView.Facilities.DataCenter FT-->
+    <View>
+      <Name>DataCenter</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Facilities.DataCenter</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Appliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Width</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Depth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DeratingType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DeratingPercentage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DefaultPowerLineVoltage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>          
+          <TableColumnHeader>
+            <Label>RemoteSupportLocation</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>width</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>depth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deratingType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deratingPercentage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultPowerLineVoltage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>RemoteSupportLocation</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Facilities.DataCenter FL-->
+    <View>
+      <Name>DataCenter</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Facilities.DataCenter</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Appliance</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Width</Label>
+                <PropertyName>width</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Depth</Label>
+                <PropertyName>depth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>DeratingType</Label>
+                <PropertyName>deratingType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>DeratingPercentage</Label>
+                <PropertyName>deratingPercentage</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>DefaultPowerLineVoltage</Label>
+                <PropertyName>defaultPowerLineVoltage</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>RemoteSupportLocation</Label>
+                <PropertyName>RemoteSupportLocation</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Facilities.RemoteSupportLocation FT-->
+    <View>
+      <Name>RemoteSupportLocation</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Facilities.RemoteSupportLocation</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>PrimaryContact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SecondaryContact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>StreetAddress1</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>StreetAddress2</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>City</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ProvinceState</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PostalCode</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>          
+          <TableColumnHeader>
+            <Label>CountryCode</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>        
+          <TableColumnHeader>
+            <Label>TimeZone</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $Contact = Send-HPOVRequest -Uri $_.primaryContactUri -Hostname $_.ApplianceConnection.Name
+                  '{0} {1}' -f $Contact.firstName, $Contact.lastName
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $Contact = Send-HPOVRequest -Uri $_.secondaryContactUri -Hostname $_.ApplianceConnection.Name
+                  '{0} {1}' -f $Contact.firstName, $Contact.lastName
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>streetAddress1</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>streetAddress2</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>city</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>provinceState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>postalCode</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>countryCode</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>timeZone</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Facilities.RemoteSupportLocation FL-->
+    <View>
+      <Name>RemoteSupportLocation</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Facilities.RemoteSupportLocation</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>PrimaryContact</Label>
+                <ScriptBlock>
+                  $Contact = Send-HPOVRequest -Uri $_.primaryContactUri -Hostname $_.ApplianceConnection.Name
+                  '{0} {1}' -f $Contact.firstName, $Contact.lastName
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>SecondaryContact</Label>
+                <ScriptBlock>
+                  $Contact = Send-HPOVRequest -Uri $_.secondaryContactUri -Hostname $_.ApplianceConnection.Name
+                  '{0} {1}' -f $Contact.firstName, $Contact.lastName
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>StreetAddress1</Label>
+                <PropertyName>streetAddress1</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>StreetAddress2</Label>
+                <PropertyName>streetAddress2</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>City</Label>
+                <PropertyName>city</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ProvinceState</Label>
+                <PropertyName>provinceState</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>PostalCode</Label>
+                <PropertyName>postalCode</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>CountryCode</Label>
+                <PropertyName>countryCode</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>TimeZone</Label>
+                <PropertyName>timeZone</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
+<!--HPOneView.Facilities.RackMember FT-->
+    <View>
+      <Name>RackMember</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Facilities.RackMember</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UHeight</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ULocation</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RackName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UHeight</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ULocation</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>RackName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Facilities.RackMember FL-->
+    <View>
+      <Name>RackMember</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Facilities.RackMember</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>Model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>UHeight</Label>
+                <PropertyName>UHeight</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ULocation</Label>
+                <PropertyName>ULocation</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>RackName</Label>
+                <PropertyName>RackName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ApplianceConnection</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+
+
   </ViewDefinitions>
 </Configuration>
