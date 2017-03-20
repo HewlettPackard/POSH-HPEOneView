@@ -32555,13 +32555,14 @@ PS C:\&gt; $TrafficClasses = $Class1,$Class2
 		<command:details>
 			<command:name>New-HPOVRack</command:name>
 			<maml:description>
-				<maml:para>Create a new defined Rack.</maml:para>
+				<maml:para>Create a new facilities Rack.</maml:para>
 			</maml:description>
 			<command:verb>New</command:verb>
 			<command:noun>HPOVRack</command:noun>
 		</command:details>
 		<maml:description>
 			<maml:para>A rack is a physical structure that contains IT equipment such as enclosures, servers, power delivery devices, and unmanaged devices (an unmanaged device uses slots in the rack and consumes power or exhausts heat, but it is not managed by the appliance). You can manage your racks and the equipment in them by adding them to the appliance. Having your racks managed by the appliance enables you to use the appliance for space and power planning. The appliance also gathers statistical data and monitors the power and temperature of the racks it manages.
+
 When you add an enclosure to the appliance, it automatically creates a rack and places the enclosure in it. The appliance places into the rack all enclosures connected by management link cables. When enclosures are added, the appliance places them in the rack from top to bottom. When an enclosure is placed in an Intelligent Series Rack, the enclosure slots are automatically detected. For other racks, to accurately depict the layout of your enclosures within the rack you must edit the rack to place the enclosure in the proper slots.
 
 You can use the appliance to view and manage your rack configuration and power delivery topology. You can specify the physical dimensions of the rack (width, height, and depth), the number of U slots, and the location of each piece of equipment in the rack. You can specify the rack PDUs that provide power to the rack, and their physical position in the rack or on either side. You can also describe how the devices in the rack are connected to those PDUs.
@@ -32620,14 +32621,14 @@ Default: 2004</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="40" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>UHeight</maml:name>
 					<maml:description>
 						<maml:para>The rack unit height of the rack.
 
 Default: 40</maml:para>
 					</maml:description>
-					<command:parameterValue required="40" variableLength="False">Int</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Width</maml:name>
@@ -32738,14 +32739,14 @@ Default: 2004</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="40" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>UHeight</maml:name>
 				<maml:description>
 					<maml:para>The rack unit height of the rack.
 
 Default: 40</maml:para>
 				</maml:description>
-				<command:parameterValue required="40" variableLength="False">Int</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Int</command:parameterValue>
 				<dev:type>
 					<maml:name>Int</maml:name>
 				</dev:type>
@@ -32798,7 +32799,7 @@ Default: 600</maml:para>
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $Params = @{
 
-Name         = 'Rack-230';
+	Name         = 'Rack-230';
 	ThermalLimit = 10000;
 	SerialNumber = 'AABB1122CCDD';
 	PartNumber   = 'AF046A';
@@ -68280,5 +68281,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-03-19T04:01:57:57.579Z-->
+	<!--Edited on: 2017-03-20T19:25:25:21.215Z-->
 </helpItems>

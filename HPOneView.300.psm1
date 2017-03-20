@@ -19879,6 +19879,8 @@ function Get-HPOVRack
 function New-HPOVRack
 {
 
+	# .ExternalHelp HPOneView.300.psm1-help.xml
+
 	[CmdletBinding (DefaultParameterSetName = 'Default')]
 	Param 
 	(
