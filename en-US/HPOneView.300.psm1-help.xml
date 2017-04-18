@@ -3908,6 +3908,15 @@ The hostname or IP address of the appliance.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential">
+					<maml:name>Credential</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-PSCredential]
+
+Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">PSCredential</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential, UsernamePassword">
 					<maml:name>AuthLoginDomain</maml:name>
 					<maml:description>
@@ -3918,15 +3927,6 @@ The Directory Name for LDAP/Active Directory authentication, or LOCAL for applia
 Default is determined by connecting to the requested appliance and retrieving the default login directory.  If not LOCAL, and you attempt to use an embedded user account, you must use -AuthLoginDomain parameter with the Local value..</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential">
-					<maml:name>Credential</maml:name>
-					<maml:description>
-						<maml:para>Aliases [-PSCredential]
-
-Use this parameter if you want to provide a PSCredential object instead.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">PSCredential</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential, UsernamePassword">
 					<maml:name>LoginAcknowledge</maml:name>
@@ -69936,5 +69936,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-04-18T03:43:25:85.858Z-->
+	<!--Edited on: 2017-04-18T05:07:46:52.522Z-->
 </helpItems>

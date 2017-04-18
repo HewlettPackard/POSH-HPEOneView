@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[version]$ModuleVersion = '3.0.1293.3768'
+[version]$ModuleVersion = '3.0.1293.3770'
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 
@@ -5633,7 +5633,7 @@ function Connect-HPOVMgmt
 		[ValidateNotNullOrEmpty()]
 		[Object]$Password,
 
-		[Parameter (Mandatory = $false, ParameterSetName = 'PSCredential')]
+		[Parameter (Mandatory, ParameterSetName = 'PSCredential')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('PSCredential')]
 		[PSCredential]$Credential,
@@ -5751,8 +5751,8 @@ function Connect-HPOVMgmt
 		elseif ($PSCmdlet.ParameterSetName -eq 'PSCredential')
 		{
 
-			$Username = $PSCredential.UserName
-			$decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredential.Password))
+			$Username = $Credential.UserName
+			$decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credential.Password))
 
 		}
 
@@ -5760,8 +5760,8 @@ function Connect-HPOVMgmt
 		{
 
 			$Credential = Get-Credential
-			$Username = $PSCredential.UserName
-			$decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($PSCredential.Password))
+			$Username = $Credential.UserName
+			$decryptPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Credential.Password))
 
 		}
 

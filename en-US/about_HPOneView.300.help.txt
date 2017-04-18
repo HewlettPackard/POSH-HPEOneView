@@ -50,7 +50,7 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
-    Release 3.0.1293.3768
+    Release 3.0.1293.3770
      -- [#255] Fixed Connect-HPOVMgmt where the -Username parameter was set as an optional parameter.
      -- [#256] Added IscsiPrimary and IscsiSecondary parameter validation to New-HPOVServerProfileConnection Priority
         parameter.
