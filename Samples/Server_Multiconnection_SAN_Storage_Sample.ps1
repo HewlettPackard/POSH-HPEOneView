@@ -10,7 +10,7 @@
 # - Set requested bandwidth
 # - Attach SAN Storage
 #
-#   VERSION 3.0
+#   VERSION 3.1
 #
 # (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
 ##############################################################################
@@ -97,12 +97,12 @@ $conSet2 = New-HPOVProfileConnection -id 8 -type Ethernet -requestedBW 3000 -net
 $conList = @($conRed1, $conRed2, $conBlack1, $conBlack2, $conSet1, $conSet2, $conFC1, $conFC2)
 
 #Attach Volumes
-$volume1 = Get-HPOVStorageVolume Volume1 | Get-HPOVProfileAttachVolume -volumeid 1
-$volume2 = Get-HPOVStorageVolume SharedVolume1 | Get-HPOVProfileAttachVolume -volumeid 2
+$volume1 = Get-HPOVStorageVolume -Name Volume1 | Get-HPOVProfileAttachVolume -volumeid 1
+$volume2 = Get-HPOVStorageVolume -Name SharedVolume1 | Get-HPOVProfileAttachVolume -volumeid 2
 $attachVolumes = @($volume1,$volume2)
 
 #Submit profile to the appliance
-$task = New-HPOVProfile -name $profileName -server $server -connections $conList -SANStorage -ostype VMware -StorageVolume $attachVolumes -Async
+$task = New-HPOVProfile -name $profileName -server $server -connections $conList -SANStorage -HostOsType VMware -StorageVolume $attachVolumes -Async
 
 #Monitor the profile async task progress
 Write-Host $task.name $task.taskStatus

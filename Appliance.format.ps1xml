@@ -364,7 +364,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Default Connection</Label>
+            <Label>Default</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -418,8 +418,89 @@
                 <PropertyName>AuthLoginDomain</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Default Connection</Label>
+                <Label>Default</Label>
                 <PropertyName>Default</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ActiveUserSession FT-->
+    <View>
+      <Name>ActiveUserSession</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ActiveUserSession</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>UserName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LoginDomain</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ClientHost</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LoginTime</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>UserName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LoginDomain</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ClientHost</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LoginTime</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ActiveUserSession FL-->
+    <View>
+      <Name>ActiveUserSession</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ActiveUserSession</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>UserName</Label>
+                <PropertyName>UserName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>LoginDomain</Label>
+                <PropertyName>LoginDomain</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ClientHost</Label>
+                <PropertyName>ClientHost</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>LoginTime</Label>
+                <PropertyName>LoginTime</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ApplianceConnection</Label>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>
@@ -828,7 +909,6 @@
         </TableRowEntries>
       </TableControl>
     </View>  
-
     <!--APPLIANCE_SMTPALERTS-->
 		<View>
 			<Name>SmtpConfigurationObject</Name>
@@ -935,7 +1015,7 @@
         </TableRowEntries>
       </TableControl>
     </View>
-        <!--Appliance.TaskResource FT-->
+    <!--Appliance.TaskResource FT-->
     <View>
       <Name>TaskResource</Name>
       <ViewSelectedBy>
@@ -1057,7 +1137,6 @@
 				</ListEntries>
 			</ListControl>
 		</View>
-
     <!--APPLIANCE_LICENSE FL-->
 		<View>
 			<Name>License</Name>
@@ -2714,7 +2793,6 @@
         </ListEntries>
       </ListControl>
     </View>
-    
     <!--HPOneView.Appliance.AutomaticBackupConfig FT-->
     <View>
       <Name>AutomaticBackupConfig</Name>
@@ -3085,10 +3163,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
-
-
     <!--HPOneView.Facilities.DataCenter FT-->
     <View>
       <Name>DataCenter</Name>
@@ -3356,9 +3430,7 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
-<!--HPOneView.Facilities.RackMember FT-->
+    <!--HPOneView.Facilities.RackMember FT-->
     <View>
       <Name>RackMember</Name>
       <ViewSelectedBy>
@@ -3451,7 +3523,54 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
+    <!--HPOneView.Appliance.Label FT-->
+    <View>
+      <Name>Label</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.Label</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.Label FL-->
+    <View>
+      <Name>Label</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.Label</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ApplianceConnection</Label>
+                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
   </ViewDefinitions>
 </Configuration>

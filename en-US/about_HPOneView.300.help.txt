@@ -50,6 +50,29 @@ WHAT'S NEW
     *** IMPORTANT ***
     !!!!!!!!!!!!!!!!!
 
+    Release 3.0.1293.3768
+     -- [#255] Fixed Connect-HPOVMgmt where the -Username parameter was set as an optional parameter.
+     -- [#256] Added IscsiPrimary and IscsiSecondary parameter validation to New-HPOVServerProfileConnection Priority
+        parameter.
+     -- [#259] Fixed Get-HPOVOSDeploymentServer causing a "Cannot convert value" exception on PowerShell 4.0 systems.
+     -- Enhanced Send-HPOVRequest to support overloading X-API-Version as a HTTP Header, using -Headers parameter.
+     -- Fixed Send-HPOVRequest where incorrect exception was being thrown for HTTP 400 errors that were not authentication
+        errors.
+     -- Added Label and Scope support to Get resources.  Scope support is limited to Networks, Network Sets, Server Hardware,
+        Enclosures, Logical Interconnect Groups, Logical Interconnects, Interconnects, Logical Switch Groups, Logical Switches,
+        and Switches.
+     -- Added Remove-HPOVAlert to remove cleared and removeable alerts.
+     -- Refactored New-HPOVServerProfile to allow overriding of parameters when creating from a Server Profile Template.
+     -- Fixed New-HPOVServerProfileConnection where iSCSI connections were not being created correctly, causing issues 
+        with Image Streamer Server Profile configurations.
+     -- Fixed Get-HPOVAlert where multiple queries were not being passed to API correctly.  Changed from "filter" to "query"
+        API call.
+     -- Fixed Install-HPOVUpdate where API calls would fail during update.
+     -- Fixed Set-HPOVDataCenterRemoteSupport where it would attemp to set Primary or Secondary contact when not requested.
+     -- Added check for Default Contact when attempting to enable Remote Support with Set-HPOVRemoteSupport Cmdlet.
+     -- Increased HTTP timeout for adding Remote Support Partner using the New-HPOVRemoteSupportPartner Cmdlet.
+
+
     Release 3.0.1264.2772
      -- Fixed an issue with New-HPOVServerProfileLogicalDiskController where a single logical disk would be duplicated
         causing an API error that the logical disk already exists.

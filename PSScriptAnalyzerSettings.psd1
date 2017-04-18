@@ -27,14 +27,11 @@
 #    ExcludeRules = @('PSAvoidUsingCmdletAliases')
 #}
 @{
-    # Rules = @{
-    #     'PSAvoidUsingCmdletAliases' = @{
-    #         'Whitelist' = @('cd','?','%','gm','ForEach')
-    #     }
-    # };
     ExcludeRules = @(
         'UseApprovedVerbs',
         'UsePSCredentialType',
-        'AvoidUsingPlainTextForPassword'    
+        'AvoidUsingPlainTextForPassword',
+        'AvoidUsernameAndPasswordParams',
+        'AvoidGlobalVars'
     )
 }

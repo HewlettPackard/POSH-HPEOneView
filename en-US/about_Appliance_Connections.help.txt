@@ -125,7 +125,7 @@ SETTING DEFAULT APPLIANCE CONNECTION
 CUSTOM NOTEPROPERTY VALUE IN OBJECTS
 
     When using the various CMDLETs, the returned resource object(s) will contain a custom 
-	NoteProperty, called ApplianceConnection:
+	NoteProperty, called ApplianceConnection [HPOneView.Library.ApplianceConnection]:
 
 	-----------------------
 	| ApplianceConnection |
@@ -148,4 +148,4 @@ SEE ALSO
 
     https://github.com/HewlettPackard/POSH-HPOneView
     http://hp.com/go/oneviewcommunity
-	Help about_HPOneView.200
+	Help about_HPOneView.300

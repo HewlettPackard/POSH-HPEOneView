@@ -1358,6 +1358,154 @@ Get-HPOVRack -Name MyRack -ErrorAction Stop | Add-HPOVRackToDataCenter -DataCent
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--ADD-HPOVRESOURCETOLABEL-->
+		<command:details>
+			<command:name>Add-HPOVResourceToLabel</command:name>
+			<maml:description>
+				<maml:para>Associate resource with new or existing Label.</maml:para>
+			</maml:description>
+			<command:verb>Add</command:verb>
+			<command:noun>HPOVResourceToLabel</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>Labels identify resources so you can organize them into groups. For example, you might want to identify the servers that are used primarily by the Finance team, or identify the storage systems assigned to the Asia/Pacific division.
+
+This Cmdlet will allow you to add resources to a new label.  If the Label does not exist, a new one will be created.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Add-HPOVResourceToLabel</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the Label to associate resources to.  If Label does not exist, a new one will be created.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="1" parameterSetName="(All)">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The collection of resources to associate the label with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="2" parameterSetName="(All)">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="2" parameterSetName="(All)" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="1" parameterSetName="(All)" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The collection of resources to associate the label with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the Label to associate resources to.  If Label does not exist, a new one will be created.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Array</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Collection of resources to associate with the label.
+</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The created or modified Label resource.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $Resources = Get-HPOVNetwork -Name Finance* -ErrorAction Stop
+PS C:\&gt; $Resources += Get-HPOVServerHardware -Name Finance*
+PS C:\&gt; Add-HPOVResourceToLabel -Name Finance -InputObject $Resources</dev:code>
+				<dev:remarks>
+					<dev:para>Collect various resources for Finance, creating a new label called 'Finance'.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLabel</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVResourceFromLabel</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVResourceToLabel</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--ADD-HPOVRESOURCETORACK-->
 		<command:details>
 			<command:name>Add-HPOVResourceToRack</command:name>
@@ -3712,6 +3860,15 @@ The hostname or IP address of the appliance.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="UsernamePassword">
+					<maml:name>UserName</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-u, -user]
+
+User name to authenticate.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential, UsernamePassword">
 					<maml:name>AuthLoginDomain</maml:name>
 					<maml:description>
@@ -3720,15 +3877,6 @@ The hostname or IP address of the appliance.</maml:para>
 The Directory Name for LDAP/Active Directory authentication, or LOCAL for appliance internal user accounts.  
 	
 Default is determined by connecting to the requested appliance and retrieving the default login directory.  If not LOCAL, and you attempt to use an embedded user account, you must use -AuthLoginDomain parameter with the Local value..</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="UsernamePassword">
-					<maml:name>UserName</maml:name>
-					<maml:description>
-						<maml:para>Aliases [-u, -user]
-
-User name to authenticate.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -3772,9 +3920,11 @@ Default is determined by connecting to the requested appliance and retrieving th
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential">
-					<maml:name>PSCredential</maml:name>
+					<maml:name>Credential</maml:name>
 					<maml:description>
-						<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+						<maml:para>Aliases [-PSCredential]
+
+Use this parameter if you want to provide a PSCredential object instead.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">PSCredential</command:parameterValue>
 				</command:parameter>
@@ -3804,6 +3954,19 @@ Default is determined by connecting to the requested appliance and retrieving th
 				</dev:type>
 				<dev:defaultValue>LOCAL</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential" aliases="PSCredential">
+				<maml:name>Credential</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-PSCredential]
+
+Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">PSCredential</command:parameterValue>
+				<dev:type>
+					<maml:name>PSCredential</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential, UsernamePassword" aliases="Appliance, Computername">
 				<maml:name>Hostname</maml:name>
 				<maml:description>
@@ -3827,17 +3990,6 @@ The hostname or IP address of the appliance.</maml:para>
 					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="PSCredential" aliases="None">
-				<maml:name>PSCredential</maml:name>
-				<maml:description>
-					<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">PSCredential</command:parameterValue>
-				<dev:type>
-					<maml:name>PSCredential</maml:name>
-				</dev:type>
-				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="UsernamePassword" aliases="p">
 				<maml:name>Password</maml:name>
@@ -3913,7 +4065,7 @@ User name to authenticate.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>On error, appliance response is returned.
+					<maml:para>On error, appliance response is returned.  Connection or API errors can be found in the global $ErrorResponseObject PSCustom object.  It will contain an entry per connected appliance if an error was generated.
 </maml:para>
 				</maml:description>
 			</command:returnValue>
@@ -7739,7 +7891,11 @@ Alerts for the specified resource will be returned.</maml:para>
 		<maml:relatedLinks>
 			<!--Related Links-->
 			<maml:navigationLink>
-				<maml:linkText>Clear-HPOVAlert</maml:linkText>
+				<maml:linkText>Set-HPOVAlert</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVAlert</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -9455,6 +9611,20 @@ appliance 0000A66103, bay 1 On    Monitored SN123102      40/40      2
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -9474,6 +9644,20 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 						<maml:para>The name of the enclosure hardware resource to be returned.  All enclosure hardware resources will be returned if omitted.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -9502,6 +9686,20 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 						<maml:para>The name of the enclosure hardware resource to be returned.  All enclosure hardware resources will be returned if omitted.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -9541,6 +9739,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -9562,6 +9771,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="report, export, default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="export" aliases="x, export">
 				<maml:name>exportFile</maml:name>
@@ -10561,6 +10781,20 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -10571,7 +10805,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)">
 					<maml:name>Export</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x, -exportFile]
@@ -10583,7 +10817,7 @@ The full path and file name to export the contents retrieved from the call to Ge
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -10598,7 +10832,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="x, exportFile">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)" aliases="x, exportFile">
 				<maml:name>Export</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-x, -exportFile]
@@ -10610,6 +10844,17 @@ The full path and file name to export the contents retrieved from the call to Ge
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -10618,6 +10863,17 @@ The full path and file name to export the contents retrieved from the call to Ge
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -10978,6 +11234,133 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVInterconnectType</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--GET-HPOVLABEL-->
+		<command:details>
+			<command:name>Get-HPOVLabel</command:name>
+			<maml:description>
+				<maml:para>Return created label resources.</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVLabel</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>Labels identify resources so you can organize them into groups. For example, you might want to identify the servers that are used primarily by the Finance team, or identify the storage systems assigned to the Asia/Pacific division.
+
+This Cmdlet will return all of the created labels on the specifed appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Get-HPOVLabel</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the Label to associate resources to.  If Label does not exist, a new one will be created.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the Label to associate resources to.  If Label does not exist, a new one will be created.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.Label</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Label resource.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVLabel</dev:code>
+				<dev:remarks>
+					<dev:para>Return all labels from the appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVResourceToLabel</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVResourceFromLabel</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVLabel</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -12103,6 +12486,20 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -12153,6 +12550,17 @@ The full path and file name to export the contents retrieved from the call to Ge
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -12161,6 +12569,17 @@ The full path and file name to export the contents retrieved from the call to Ge
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -12334,6 +12753,20 @@ The full path and file name to export the contents retrieved from the call to Ge
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, Pipeline">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -12405,6 +12838,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the Logical Interconnect Group to retrieve.</maml:para>
@@ -12412,6 +12856,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -12601,6 +13056,20 @@ VC FF Virt Prod
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, Pipeline">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -12628,6 +13097,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 						<maml:para>Provide an HPOneView.Appliance.TaskResource object and the Cmdlet will return the associated Logical Switch resource created from the New-HPOVLogicalSwitch Cmdlet..</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default, Pipeline">
 					<maml:name>ApplianceConnection</maml:name>
@@ -12671,6 +13147,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>Name of the Logical Switch resource.  Supports wildcard * character.</maml:para>
@@ -12678,6 +13165,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -12824,6 +13322,20 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default, Pipeline">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -12851,6 +13363,20 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 						<maml:para>The Async task object after a Logical Switch Group resource is created, the Cmdlet will return the associated object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default, Pipeline">
 					<maml:name>ApplianceConnection</maml:name>
@@ -12893,6 +13419,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -12901,6 +13438,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -13161,7 +13709,14 @@ Managed SAN Name to retrieve.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -13176,7 +13731,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -13190,6 +13745,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="Fabric">
 				<maml:name>Name</maml:name>
@@ -13331,21 +13897,28 @@ Fabric A Ready OK     BNA Managed Fabric A Zoned             True
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVNetwork</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the network resource to be returned.  All network resources will be returned if omitted.  Supports '*' wildcard character.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
 					<maml:name>Type</maml:name>
 					<maml:description>
 						<maml:para>The type of the network resource to be returned.  Valid types are "Ethernet" for Ethernet networks, "FC" or "FibreChannel" for Fibre Channel networks.  All network resources will be returned if omitted.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope resource the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -13356,7 +13929,43 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+					<maml:name>exportFile</maml:name>
+					<maml:description>
+						<maml:para>Aliases  [-x, -export]
+The full path and file name to export the JSON formatted definition of the networks to a file. The directory for the file is validated prior to execution and the function returns an error is the directory does not exist.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVNetwork</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+					<maml:name>Type</maml:name>
+					<maml:description>
+						<maml:para>The type of the network resource to be returned.  Valid types are "Ethernet" for Ethernet networks, "FC" or "FibreChannel" for Fibre Channel networks.  All network resources will be returned if omitted.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label name the network resource is associated with.  Cannot be combined with Name.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
 					<maml:name>exportFile</maml:name>
 					<maml:description>
 						<maml:para>Aliases  [-x, -export]
@@ -13368,7 +13977,7 @@ The full path and file name to export the JSON formatted definition of the netwo
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -13383,7 +13992,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="None">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label name the network resource is associated with.  Cannot be combined with Name.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the network resource to be returned.  All network resources will be returned if omitted.  Supports '*' wildcard character.</maml:para>
@@ -13394,7 +14014,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope resource the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="None">
 				<maml:name>Type</maml:name>
 				<maml:description>
 					<maml:para>The type of the network resource to be returned.  Valid types are "Ethernet" for Ethernet networks, "FC" or "FibreChannel" for Fibre Channel networks.  All network resources will be returned if omitted.</maml:para>
@@ -13405,7 +14036,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)" aliases="x, export">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="x, export">
 				<maml:name>exportFile</maml:name>
 				<maml:description>
 					<maml:para>Aliases  [-x, -export]
@@ -13510,7 +14141,7 @@ The full path and file name to export the JSON formatted definition of the netwo
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $ethNets = Get-HPOVNetwork VLAN_19*
+				<dev:code>PS C:\&gt; $ethNets = Get-HPOVNetwork -Name VLAN_19*
 </dev:code>
 				<dev:remarks>
 					<dev:para>Return all Ethernet Networks that match 'VLAN_19*'.</dev:para>
@@ -13693,7 +14324,14 @@ FCOE12 OK     12     2500              10000
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -13714,7 +14352,21 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -13725,8 +14377,38 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export">
-					<maml:name>exportFile</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label">
+					<maml:name>ExportFile</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-x, -export]
+
+The full path and file name to export the contents retrieved from the call to Get-HPOVNetworkSet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVNetworkSet</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label">
+					<maml:name>ExportFile</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-x, -export]
 
@@ -13738,7 +14420,7 @@ The full path and file name to export the contents retrieved from the call to Ge
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -13753,6 +14435,30 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label" aliases="x, export">
+				<maml:name>ExportFile</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-x, -export]
+
+The full path and file name to export the contents retrieved from the call to Get-HPOVNetworkSet.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Label" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -13764,16 +14470,14 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export" aliases="x, export">
-				<maml:name>exportFile</maml:name>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="None">
+				<maml:name>Scope</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-x, -export]
-
-The full path and file name to export the contents retrieved from the call to Get-HPOVNetworkSet.</maml:para>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
 				<dev:type>
-					<maml:name>String</maml:name>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -14222,6 +14926,13 @@ HPE OneView manages the OS deployment server after it is configured and displays
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -14250,6 +14961,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
@@ -17379,6 +18101,20 @@ Provide the Server Hardware Type or Server Profile Template Object to filter for
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -17420,6 +18156,17 @@ Provide the Server Hardware Type or Server Profile Template Object to filter for
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -17441,6 +18188,17 @@ Provide the Server Hardware Type or Server Profile Template Object to filter for
 					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -17887,6 +18645,13 @@ The name of the server profile resource to be returned.  All server profile reso
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -17932,6 +18697,13 @@ The name of the server profile resource to be returned.  All server profile reso
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -17960,6 +18732,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 The name of the server profile resource to be returned.  All server profile resources will be returned if omitted.  Supports * wildcard character.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -17999,6 +18778,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
@@ -18548,6 +19338,13 @@ This will also provide the ability to export Server Profile Template objects to 
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -18592,6 +19389,13 @@ Location where to save the Server Profile Template file.</maml:para>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -18623,6 +19427,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>ServerHardwareType</maml:name>
 					<maml:description>
 						<maml:para>Provide the Server Hardware Type resource object or name to return Server Profile Templates designed for it.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
@@ -18676,6 +19487,17 @@ Switch used to export Server Profile Template object to JSON encoded file.</maml
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
@@ -19166,7 +19988,14 @@ The name of the specific storage pool resource to be returned.  All storage pool
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="2" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the Label to filter on.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="3" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -19181,7 +20010,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="2" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="3" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -19195,6 +20024,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the Label to filter on.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="pool, PoolName">
 				<maml:name>Name</maml:name>
@@ -19742,6 +20582,13 @@ Ok       HP3Par_1 TXQ1020307    HP_3PAR 7200 NoDomain       28:11:00:02:AC:00:08
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -19780,6 +20627,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
@@ -20145,6 +21003,13 @@ The Storage Volume Template name.</maml:para>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -20159,7 +21024,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -20173,6 +21038,17 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>${Global:ConnectedSessions}</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="TemplateName">
 				<maml:name>Name</maml:name>
@@ -20449,6 +21325,41 @@ MyAppliance2.domain.com StorageVolumeTemplateRequired false
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Specify the scope object the resource is associated with.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVSwitch</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -20463,7 +21374,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -20478,6 +21389,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
@@ -20486,6 +21408,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>Specify the scope object the resource is associated with.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -21201,6 +22134,13 @@ All states will match if omitted.  All tasks will be returned if both names and 
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Label</maml:name>
+					<maml:description>
+						<maml:para>Specify the label associated with resources.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -21230,6 +22170,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Label</maml:name>
+				<maml:description>
+					<maml:para>Specify the label associated with resources.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="report">
 				<maml:name>List</maml:name>
@@ -26217,62 +27168,6 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Float</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>PrimaryContact</maml:name>
-					<maml:description>
-						<maml:para>Primary Remote Support Contact object from Get-HPOVRemoteSupportContact defined on the appliance.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>SecondaryContact</maml:name>
-					<maml:description>
-						<maml:para>Secondary Remote Support Contact object from Get-HPOVRemoteSupportContact defined on the appliance.  Must not be the same value as the Primary Contact.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>Address1</maml:name>
-					<maml:description>
-						<maml:para>Address of datacenter.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>City</maml:name>
-					<maml:description>
-						<maml:para>City of residence for the datacenter.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>State</maml:name>
-					<maml:description>
-						<maml:para>State/province of residence for the datacenter.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>PostCode</maml:name>
-					<maml:description>
-						<maml:para>Postal code for the datacenter.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>Country</maml:name>
-					<maml:description>
-						<maml:para>Country of residence for the datacenter.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
-					<maml:name>TimeZone</maml:name>
-					<maml:description>
-						<maml:para>Time Zone of residence for the datacenter.</maml:para>
-					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
-				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport, Default">
 					<maml:name>Millimeters</maml:name>
 					<maml:description>
@@ -26341,12 +27236,68 @@ Default:  1.5</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Float</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>PrimaryContact</maml:name>
+					<maml:description>
+						<maml:para>Primary Remote Support Contact object from Get-HPOVRemoteSupportContact defined on the appliance.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>SecondaryContact</maml:name>
+					<maml:description>
+						<maml:para>Secondary Remote Support Contact object from Get-HPOVRemoteSupportContact defined on the appliance.  Must not be the same value as the Primary Contact.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>Address1</maml:name>
+					<maml:description>
+						<maml:para>Address of datacenter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
 					<maml:name>Address2</maml:name>
 					<maml:description>
 						<maml:para>Optional address line.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>City</maml:name>
+					<maml:description>
+						<maml:para>City of residence for the datacenter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>State</maml:name>
+					<maml:description>
+						<maml:para>State/province of residence for the datacenter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>PostCode</maml:name>
+					<maml:description>
+						<maml:para>Postal code for the datacenter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>Country</maml:name>
+					<maml:description>
+						<maml:para>Country of residence for the datacenter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport">
+					<maml:name>TimeZone</maml:name>
+					<maml:description>
+						<maml:para>Time Zone of residence for the datacenter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoteSupport, Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -28951,7 +29902,7 @@ This parameter is only available for 2.00.07 or newer appliances.</maml:para>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
 					<maml:name>SNMP</maml:name>
 					<maml:description>
-						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfigration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
+						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -29136,7 +30087,7 @@ This parameter is only available for 2.00.07 or newer appliances.</maml:para>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
 					<maml:name>SNMP</maml:name>
 					<maml:description>
-						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfigration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
+						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -29502,7 +30453,7 @@ A collection of QOS configurations that are created using the New-HPOVQosConfig 
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000" aliases="None">
 				<maml:name>SNMP</maml:name>
 				<maml:description>
-					<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfigration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
+					<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -29544,7 +30495,7 @@ A collection of QOS configurations that are created using the New-HPOVQosConfig 
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
 PS C:\&gt; $Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22' -TrapDestinations $Dest1,$Dest2
+PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22' -TrapDestinations $Dest1,$Dest2
 PS C:\&gt; $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
 PS C:\&gt; New-HPOVLogicalInterconnectGroup "FlexFabric Production 1" -bays $Bays -snmp $SnmpConfig
 
@@ -37254,19 +38205,29 @@ Default: 2500</maml:para>
 					<maml:name>Bootable</maml:name>
 					<maml:description>
 						<maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
-            
-Default: False</maml:para>
+
+	Default: False</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
 					<maml:name>Priority</maml:name>
 					<maml:description>
-						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, UseBIOS, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
-        
-Default: NotBootable</maml:para>
+						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Allowed values:
+
+	* NotBootable
+	* UseBIOS
+
+	* Primary
+	* Secondary
+	* IscsiPrimary
+	* IscsiSecondary
+
+When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings.
+
+	Default: NotBootable</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
 					<maml:name>ApplianceConnection</maml:name>
@@ -37352,19 +38313,29 @@ Default: 2500</maml:para>
 					<maml:name>Bootable</maml:name>
 					<maml:description>
 						<maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
-            
-Default: False</maml:para>
+
+	Default: False</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
 					<maml:name>Priority</maml:name>
 					<maml:description>
-						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, UseBIOS, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
-        
-Default: NotBootable</maml:para>
+						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Allowed values:
+
+	* NotBootable
+	* UseBIOS
+
+	* Primary
+	* Secondary
+	* IscsiPrimary
+	* IscsiSecondary
+
+When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings.
+
+	Default: NotBootable</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC">
 					<maml:name>LUN</maml:name>
@@ -37373,105 +38344,131 @@ Default: NotBootable</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>ISCSIInitatorName</maml:name>
 					<maml:description>
 						<maml:para>Value to provide for the iSCSI Initiator.  All iSCSI Connections will share this value.  If no value is provided, the connection will default to using the Server Profile Name.
 
-If configuring a Connection for a Server Profile Template, the value will be ignored</maml:para>
+If configuring a Connection for a Server Profile Template, the value will be ignored.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiIPv4Address</maml:name>
 					<maml:description>
-						<maml:para>The IPv4 Address to allocate for the initiator.  This parameter value is ignored when assiging the Connection to a Server Profile Template.  It will be enforced when creating a Server Profile from a Server Profile Template.</maml:para>
+						<maml:para>The IPv4 Address to allocate for the initiator.  This parameter value is ignored when assiging the Connection to a Server Profile Template.  It will be enforced when creating a Server Profile from a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiIPv4SubnetMask</maml:name>
 					<maml:description>
-						<maml:para>The IPv4 Subnet Mask in full or CIDR bit value.</maml:para>
+						<maml:para>The IPv4 Subnet Mask in full or CIDR bit value.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiIPv4Gateway</maml:name>
 					<maml:description>
-						<maml:para>The IPv4 Gateway.</maml:para>
+						<maml:para>The IPv4 Gateway.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiBootTargetIqn</maml:name>
 					<maml:description>
-						<maml:para>The IQN of the target iSCSI host.</maml:para>
+						<maml:para>The IQN of the target iSCSI host.  This parameter value is ignored when assiging the Connection to a Server Profile Template.  It will be enforced when creating a Server Profile from a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiPrimaryBootTargetAddress</maml:name>
 					<maml:description>
-						<maml:para>The Primary Boot Target IPv4 Address.</maml:para>
+						<maml:para>The Primary Boot Target IPv4 Address.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiPrimaryBootTargetPort</maml:name>
 					<maml:description>
-						<maml:para>The Primary Boot Target TCP Port.  Default is 3260 if not otherwise specified.</maml:para>
+						<maml:para>The Primary Boot Target TCP Port.  Default is 3260 if not otherwise specified.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiSecondaryBootTargetAddress</maml:name>
 					<maml:description>
-						<maml:para>The Secondary Boot Target IPv4 Address.</maml:para>
+						<maml:para>The Secondary Boot Target IPv4 Address.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiSecondaryBootTargetPort</maml:name>
 					<maml:description>
-						<maml:para>The Secondary Boot Target TCP Port.  Default is 3260 if not otherwise specified.</maml:para>
+						<maml:para>The Secondary Boot Target TCP Port.  Default is 3260 if not otherwise specified.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>IscsiAuthenticationProtocol</maml:name>
 					<maml:description>
-						<maml:para>Specify the Authentication protocol to use.  Allowed values are None, CHAP, MutualCHAP.  When creating a Server Profile Connection for a Server Profile Template, the CHAP and Mutual CHAP credential parameters are ignored.  They will be enforced when creating a Server Profile from a Server Profile Template.</maml:para>
+						<maml:para>Specify the Authentication protocol to use.  Allowed values are None, CHAP, MutualCHAP.  When creating a Server Profile Connection for a Server Profile Template, the CHAP and Mutual CHAP credential parameters are ignored.  They will be enforced when creating a Server Profile from a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>ChapName</maml:name>
 					<maml:description>
-						<maml:para>The CHAP challange name.</maml:para>
+						<maml:para>The CHAP challange name.  Value is ignored when creating a Connection for a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>ChapSecret</maml:name>
 					<maml:description>
-						<maml:para>The CHAP challange secret.  Accepts ASCII or HEX values.  If providing an ASCII secret value, the length must be bewteen 12 and 16 characters.  If HEX, it must start with 0x and with 24-32 characters.  Value is ignored when creating a Connection for a Server Profile Template.</maml:para>
+						<maml:para>The CHAP challange secret.  Accepts ASCII or HEX values.  If providing an ASCII secret value, the length must be bewteen 12 and 16 characters.  If HEX, it must start with 0x and with 24-32 characters.  Value is ignored when creating a Connection for a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">SecureString</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>MutualChapName</maml:name>
 					<maml:description>
-						<maml:para>The Mutual CHAP challange.</maml:para>
+						<maml:para>The Mutual CHAP challange.  Value is ignored when creating a Connection for a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI">
 					<maml:name>MutualChapSecret</maml:name>
 					<maml:description>
 						<maml:para>The Mutual CHAP challange secret.  Accepts ASCII or HEX values.  If providing an ASCII secret value, the length must be bewteen 12 and 16 characters.  If HEX, it must start with 0x and with 24-32 characters.  Value is ignored when creating a Connection for a Server Profile Template.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">SecureString
+
+When configuring an Image Streamer Connection, this parameter must not be set.</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
 					<maml:name>ApplianceConnection</maml:name>
@@ -37571,12 +38568,12 @@ Default: 2500</maml:para>
 					<maml:name>Bootable</maml:name>
 					<maml:description>
 						<maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
-            
-Default: False</maml:para>
+
+	Default: False</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="FC">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="FC">
 					<maml:name>BootVolumeSource</maml:name>
 					<maml:description>
 						<maml:para>Specify how the Boot Volume Source will be set.  Allowed values are:
@@ -37587,25 +38584,35 @@ Default: False</maml:para>
 
 Default: AdapterBIOS</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
 					<maml:name>Priority</maml:name>
 					<maml:description>
-						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, UseBIOS, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
-        
-Default: NotBootable</maml:para>
+						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Allowed values:
+
+	* NotBootable
+	* UseBIOS
+
+	* Primary
+	* Secondary
+	* IscsiPrimary
+	* IscsiSecondary
+
+When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings.
+
+	Default: NotBootable</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="FC">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="FC">
 					<maml:name>TargetWwpn</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-ArrayWwpn]
 
 Target FC array WWPN.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC">
 					<maml:name>LUN</maml:name>
@@ -37644,7 +38651,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="FC" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="FC" aliases="None">
 				<maml:name>BootVolumeSource</maml:name>
 				<maml:description>
 					<maml:para>Specify how the Boot Volume Source will be set.  Allowed values are:
@@ -37655,7 +38662,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 
 Default: AdapterBIOS</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -37665,8 +38672,8 @@ Default: AdapterBIOS</maml:para>
 				<maml:name>Bootable</maml:name>
 				<maml:description>
 					<maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
-            
-Default: False</maml:para>
+
+	Default: False</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -37674,23 +38681,27 @@ Default: False</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>ChapName</maml:name>
 				<maml:description>
-					<maml:para>The CHAP challange name.</maml:para>
+					<maml:para>The CHAP challange name.  Value is ignored when creating a Connection for a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>ChapSecret</maml:name>
 				<maml:description>
-					<maml:para>The CHAP challange secret.  Accepts ASCII or HEX values.  If providing an ASCII secret value, the length must be bewteen 12 and 16 characters.  If HEX, it must start with 0x and with 24-32 characters.  Value is ignored when creating a Connection for a Server Profile Template.</maml:para>
+					<maml:para>The CHAP challange secret.  Accepts ASCII or HEX values.  If providing an ASCII secret value, the length must be bewteen 12 and 16 characters.  If HEX, it must start with 0x and with 24-32 characters.  Value is ignored when creating a Connection for a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">SecureString</command:parameterValue>
 				<dev:type>
 					<maml:name>SecureString</maml:name>
 				</dev:type>
@@ -37720,58 +38731,66 @@ Deprecated parameter.  Connection type is now derived from the provided Network 
 				</dev:type>
 				<dev:defaultValue>Ethernet</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>ISCSIInitatorName</maml:name>
 				<maml:description>
 					<maml:para>Value to provide for the iSCSI Initiator.  All iSCSI Connections will share this value.  If no value is provided, the connection will default to using the Server Profile Name.
 
-If configuring a Connection for a Server Profile Template, the value will be ignored</maml:para>
+If configuring a Connection for a Server Profile Template, the value will be ignored.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiAuthenticationProtocol</maml:name>
 				<maml:description>
-					<maml:para>Specify the Authentication protocol to use.  Allowed values are None, CHAP, MutualCHAP.  When creating a Server Profile Connection for a Server Profile Template, the CHAP and Mutual CHAP credential parameters are ignored.  They will be enforced when creating a Server Profile from a Server Profile Template.</maml:para>
+					<maml:para>Specify the Authentication protocol to use.  Allowed values are None, CHAP, MutualCHAP.  When creating a Server Profile Connection for a Server Profile Template, the CHAP and Mutual CHAP credential parameters are ignored.  They will be enforced when creating a Server Profile from a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiBootTargetIqn</maml:name>
 				<maml:description>
-					<maml:para>The IQN of the target iSCSI host.</maml:para>
+					<maml:para>The IQN of the target iSCSI host.  This parameter value is ignored when assiging the Connection to a Server Profile Template.  It will be enforced when creating a Server Profile from a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiIPv4Address</maml:name>
 				<maml:description>
-					<maml:para>The IPv4 Address to allocate for the initiator.  This parameter value is ignored when assiging the Connection to a Server Profile Template.  It will be enforced when creating a Server Profile from a Server Profile Template.</maml:para>
+					<maml:para>The IPv4 Address to allocate for the initiator.  This parameter value is ignored when assiging the Connection to a Server Profile Template.  It will be enforced when creating a Server Profile from a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				<dev:type>
 					<maml:name>IPAddress</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiIPv4Gateway</maml:name>
 				<maml:description>
-					<maml:para>The IPv4 Gateway.</maml:para>
+					<maml:para>The IPv4 Gateway.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				<dev:type>
 					<maml:name>IPAddress</maml:name>
 				</dev:type>
@@ -37780,7 +38799,9 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiIPv4SubnetMask</maml:name>
 				<maml:description>
-					<maml:para>The IPv4 Subnet Mask in full or CIDR bit value.</maml:para>
+					<maml:para>The IPv4 Subnet Mask in full or CIDR bit value.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				<dev:type>
@@ -37788,45 +38809,53 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiPrimaryBootTargetAddress</maml:name>
 				<maml:description>
-					<maml:para>The Primary Boot Target IPv4 Address.</maml:para>
+					<maml:para>The Primary Boot Target IPv4 Address.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				<dev:type>
 					<maml:name>IPAddress</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiPrimaryBootTargetPort</maml:name>
 				<maml:description>
-					<maml:para>The Primary Boot Target TCP Port.  Default is 3260 if not otherwise specified.</maml:para>
+					<maml:para>The Primary Boot Target TCP Port.  Default is 3260 if not otherwise specified.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 				</dev:type>
 				<dev:defaultValue>3260</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiSecondaryBootTargetAddress</maml:name>
 				<maml:description>
-					<maml:para>The Secondary Boot Target IPv4 Address.</maml:para>
+					<maml:para>The Secondary Boot Target IPv4 Address.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">IPAddress</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">IPAddress</command:parameterValue>
 				<dev:type>
 					<maml:name>IPAddress</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>IscsiSecondaryBootTargetPort</maml:name>
 				<maml:description>
-					<maml:para>The Secondary Boot Target TCP Port.  Default is 3260 if not otherwise specified.</maml:para>
+					<maml:para>The Secondary Boot Target TCP Port.  Default is 3260 if not otherwise specified.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				<dev:type>
 					<maml:name>Int32</maml:name>
 				</dev:type>
@@ -37854,25 +38883,31 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>MutualChapName</maml:name>
 				<maml:description>
-					<maml:para>The Mutual CHAP challange.</maml:para>
+					<maml:para>The Mutual CHAP challange.  Value is ignored when creating a Connection for a Server Profile Template.
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI" aliases="None">
 				<maml:name>MutualChapSecret</maml:name>
 				<maml:description>
 					<maml:para>The Mutual CHAP challange secret.  Accepts ASCII or HEX values.  If providing an ASCII secret value, the length must be bewteen 12 and 16 characters.  If HEX, it must start with 0x and with 24-32 characters.  Value is ignored when creating a Connection for a Server Profile Template.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">SecureString</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">SecureString
+
+When configuring an Image Streamer Connection, this parameter must not be set.</command:parameterValue>
 				<dev:type>
-					<maml:name>SecureString</maml:name>
+					<maml:name>SecureString
+
+When configuring an Image Streamer Connection, this parameter must not be set.</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -37915,14 +38950,24 @@ An example of a FlexLOM 1, FlexNIC 1a interface would be "Flb 1:1a".  An example
 				</dev:type>
 				<dev:defaultValue>Auto</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="None">
 				<maml:name>Priority</maml:name>
 				<maml:description>
-					<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Accepted values are NotBootable, UseBIOS, Primary or Secondary. When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings. 
-        
-Default: NotBootable</maml:para>
+					<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Allowed values:
+
+	* NotBootable
+	* UseBIOS
+
+	* Primary
+	* Secondary
+	* IscsiPrimary
+	* IscsiSecondary
+
+When the Connection Type is Ethernet, this affects PXE boot.  If the Connection Type is FibreChannel, this enables BfS settings.
+
+	Default: NotBootable</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -37941,14 +38986,14 @@ Default: 2500</maml:para>
 				</dev:type>
 				<dev:defaultValue>2500</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="FC" aliases="ArrayWwpn">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="FC" aliases="ArrayWwpn">
 				<maml:name>TargetWwpn</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-ArrayWwpn]
 
 Target FC array WWPN.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -38003,10 +39048,34 @@ Target FC array WWPN.</maml:para>
 			<!--Input Types-->
 			<command:inputType>
 				<dev:type>
-					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+					<maml:name>HPOneView.Networking.EthernetNetwork {System.Management.Automation.PSCustomObject}</maml:name>
 				</dev:type>
 				<maml:description>
-					<maml:para />
+					<maml:para>An Ethernet network resource from Get-HPOVNetwork.</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Networking.FCNetwork {System.Management.Automation.PSCustomObject}</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Fibre Channel network resource from Get-HPOVNetwork.</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Networking.FCoENetwork {System.Management.Automation.PSCustomObject}</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Fibre Channel over Ethernet (FCoE) network resource from Get-HPOVNetwork.</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Networking.NetworkSet {System.Management.Automation.PSCustomObject}</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Network Set resource from Get-HPOVNetworkSet.</maml:para>
 				</maml:description>
 			</command:inputType>
 		</command:inputTypes>
@@ -38018,7 +39087,7 @@ Target FC array WWPN.</maml:para>
 					<maml:uri />
 				</dev:type>
 				<maml:description>
-					<maml:para>Returns a connection object which may be used during profile creation with the New-HPOVServerProfile CMDLET</maml:para>
+					<maml:para>Returns a connection object which may be used during profile creation with the New-HPOVServerProfile or New-HPOVServerProfileTemplate Cmdlets.</maml:para>
 				</maml:description>
 			</command:returnValue>
 		</command:returnValues>
@@ -38154,6 +39223,24 @@ PS C:\&gt; $con42 = New-HPOVServerProfileConnection -ConnectionID 2 -ConnectionT
 </dev:code>
 				<dev:remarks>
 					<dev:para>Create a Network Connection ID 3, that is assigned to a FibreChannel network, with Auto Port assignment and user defined hardware address values.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 9 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $ImageStreamerCon1 =  Get-HPOVNetwork -Name 'ImageStreamer Network' | New-HPOVServerProfileConnection -ConnectionID 1 -ConnectionType iSCSI -name "ImageStreamer Connection 1" -Bootable -Priority Primary
+PS C:\&gt; $ImageStreamerCon2 =  Get-HPOVNetwork -Name 'ImageStreamer Network' | New-HPOVServerProfileConnection -ConnectionID 1 -ConnectionType iSCSI -name "ImageStreamer Connection 2" -Bootable -Priority Secondary
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create redundant Image Streamer connections to be assigned to an HP Synergy Server Profile for Image Streamer boot.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -40351,7 +41438,7 @@ PS C:\&gt; New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22
+				<dev:code>PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22
 PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -enableIgmpSnooping $True -igmpIdleTimeoutInterval 300 -LoopProtect $True -QosConfig $QosConfig
 
 </dev:code>
@@ -40378,7 +41465,7 @@ PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric 
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
-				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVSnmpConfigration</maml:uri>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/New-HPOVSnmpConfiguration</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -40602,7 +41689,7 @@ PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric 
 				</maml:introduction>
 				<dev:code>PS C:\&gt; $Dest1 = New-HPOVSnmpTrapDestination -Destination mysnmpserver.domain.local -Community MyR3adcommun1ty -SnmpFormat SNMPv1 -TrapSeverities critical,warning
 PS C:\&gt; $Dest2 = New-HPOVSnmpTrapDestination 10.44.120.9 MyR3adcommun1ty SNMPv1 critical,warning legacy 'Other','PortStatus','PortThresholds' 'Other','PortStatus'
-PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfigration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22 -TrapDestinations $Dest1,$Dest2
+PS C:\&gt; $SnmpConfig = New-HPOVSnmpConfiguration -ReadCommunity MyR3adC0mmun1ty -AccessList '10.44.120.9/32','172.20.148.0/22 -TrapDestinations $Dest1,$Dest2
 PS C:\&gt; New-HPOVLogicalInterconnectGroup -LIGName "Flex10/10D and FlexFabric Production 1" -bays @{1 = "Flex1010D";2 = "Flex1010D";3 = "FlexFabric";4 = "FlexFabric"} -SNMP $SnmpConfig
 
 </dev:code>
@@ -43567,6 +44654,169 @@ The IPv4 Subnet Pool resource Object.  Can be accepted via pipeline input.</maml
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVAddressPoolSubnet</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--REMOVE-HPOVALERT-->
+		<command:details>
+			<command:name>Remove-HPOVAlert</command:name>
+			<maml:description>
+				<maml:para>Delete alerts.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVAlert</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet allows the administrator to remove one or more alerts.  Alerts can be in one of two administratively controlled states: Active or Cleared.    Only alerts that are no longer active (in a Cleared state) can be removed.
+
+In order for an administrator to remove an Alert, the administrator must be assigned to the respective resource role (Network, Server, Storage, or Infrastructure.)</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVAlert</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The alert to be removed. </maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The alert to be removed. </maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="wi">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Alert [System.Management.Automation.PSCustomObject]</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Alert resource object (i.e. Get-HPOVAlert)</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Status object indicating the resource was removed.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVAlert -State Cleared | Remove-HPOVAlert
+</dev:code>
+				<dev:remarks>
+					<dev:para>Remove all cleared alerts on the appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVAlert</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVAlert</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVAlert</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -46739,6 +47989,13 @@ In order to successfully remove an OS Deployment Server, all associated Logical 
 					<command:parameterValue required="true" variableLength="False">HPOneView.Appliance.OSDeploymentServer</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Force</maml:name>
+					<maml:description>
+						<maml:para>Forceably remove an OS Deployment Server.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
 						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
@@ -46810,6 +48067,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name />
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Force</maml:name>
+				<maml:description>
+					<maml:para>Forceably remove an OS Deployment Server.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>InputObject</maml:name>
@@ -48346,6 +49614,257 @@ PS C:\&gt; Remove-HPOVResource -Resource $MyResourceObject
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVResource</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--REMOVE-HPOVRESOURCEFROMLABEL-->
+		<command:details>
+			<command:name>Remove-HPOVResourceFromLabel</command:name>
+			<maml:description>
+				<maml:para>Remove association of resource with existing Label.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVResourceFromLabel</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>Labels identify resources so you can organize them into groups. For example, you might want to identify the servers that are used primarily by the Finance team, or identify the storage systems assigned to the Asia/Pacific division.
+
+This Cmdlet will remove the specified resource from the requested label.  To remove the resource from all labels, use the -RemoveAllLabelsFromResource switch parameter.  If there are no more associated resources with a label, the appliance will automatically delete the label.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVResourceFromLabel</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Name</maml:name>
+					<maml:description>
+						<maml:para>The name of the Label associated with the resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="RemoveAll, Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The resource to remove associatation with the label.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="RemoveAll, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVResourceFromLabel</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="RemoveAll, Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>The resource to remove associatation with the label.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoveAll">
+					<maml:name>RemoveAllLabelsFromResource</maml:name>
+					<maml:description>
+						<maml:para>Use to remove all associated labels with the provide resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="RemoveAll, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="RemoveAll, Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="RemoveAll, Default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The resource to remove associatation with the label.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Name</maml:name>
+				<maml:description>
+					<maml:para>The name of the Label associated with the resource.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="RemoveAll" aliases="None">
+				<maml:name>RemoveAllLabelsFromResource</maml:name>
+				<maml:description>
+					<maml:para>Use to remove all associated labels with the provide resource.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="wi">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Resource to remove label association.
+</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The created or modified Label resource.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVNetwork -Name Finance* | Remove-HPOVResourceFromLabel -Name Finance</dev:code>
+				<dev:remarks>
+					<dev:para>Remove the Finance network resources from the 'Finance' label.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVNetwork | Remove-HPOVResourceFromLabel -RemoveAllLabelsFromResource</dev:code>
+				<dev:remarks>
+					<dev:para>Remove all label associations from network resources.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVLabel</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVResourceToLabel</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVResourceFromLabel</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -50333,13 +51852,12 @@ Name or URI of the managed storage system.</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Remove-HPOVStorageVolume</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
-					<maml:name>StorageVolume</maml:name>
+				<command:parameter required="" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
+					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-Name, -URI]
-Storage Volume Name, URI or Object.</maml:para>
+						<maml:para />
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="" variableLength="False" />
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>ExportOnly</maml:name>
@@ -50416,15 +51934,14 @@ Default: Delete Export AND Volume from storage system.</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name">
-				<maml:name>StorageVolume</maml:name>
+			<command:parameter required="" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name, StorageVolume">
+				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-Name, -URI]
-Storage Volume Name, URI or Object.</maml:para>
+					<maml:para />
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="" variableLength="False" />
 				<dev:type>
-					<maml:name>Object</maml:name>
+					<maml:name />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -52987,7 +54504,7 @@ If not specified, all members of the collection are returned from this function.
 					<command:parameterValue required="true" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)">
-					<maml:name>addHeader</maml:name>
+					<maml:name>AddHeader</maml:name>
 					<maml:description>
 						<maml:para>If additional headers are needed/required than the defaults, include header names and values within a Hashtable.</maml:para>
 					</maml:description>
@@ -53013,6 +54530,17 @@ Default Value: All valid Appliance Connections within $Global:ConnectedSessions<
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)" aliases="None">
+				<maml:name>AddHeader</maml:name>
+				<maml:description>
+					<maml:para>If additional headers are needed/required than the defaults, include header names and values within a Hashtable.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Hashtable</command:parameterValue>
+				<dev:type>
+					<maml:name>Hashtable</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="Appliance, ApplianceConnection">
 				<maml:name>Hostname</maml:name>
 				<maml:description>
@@ -53034,17 +54562,6 @@ Default Value: All valid Appliance Connections within $Global:ConnectedSessions<
 				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="5" parameterSetName="(All)" aliases="None">
-				<maml:name>addHeader</maml:name>
-				<maml:description>
-					<maml:para>If additional headers are needed/required than the defaults, include header names and values within a Hashtable.</maml:para>
-				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Hashtable</command:parameterValue>
-				<dev:type>
-					<maml:name>Hashtable</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -53698,7 +55215,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Set-HPOVAlert</maml:linkText>
+				<maml:linkText>Remove-HPOVAlert</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -63012,6 +64529,126 @@ Array of roles for the user. May include one of more of:
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--SHOW-HPOVACTIVEUSER-->
+		<command:details>
+			<command:name>Show-HPOVActiveUser</command:name>
+			<maml:description>
+				<maml:para>Get HPE Synergy Image Streamer deployment plan parameters.</maml:para>
+			</maml:description>
+			<command:verb>Show</command:verb>
+			<command:noun>HPOVActiveUser</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>HPE Synergy Image Streamer allows administrators to rapidly provision stateless operating systems along with bare metal provisioning.  An OS Deployment Plan dicates the characteristics of the OS, including vendor, version, boot disk size, and OS personalization parameters.  This Cmdlet will return OS Deployment Plan available and editable parameters.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Show-HPOVActiveUser</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.OSDeploymentPlan [System.Management.Automation.PSCustomObject]</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>The OS Deployment Plan from Get-HPOVOSDeploymentPlan.
+</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The object containined the Name of the parameter, and its default Value.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVOSDeploymentPlan -Name 'RHEL 7.2 OS' -ErrorAction Stop | Get-HPOVOSDeploymentPlanAttribute</dev:code>
+				<dev:remarks>
+					<dev:para>Return OS Deployment Plan parameters from the 'RHEL 7.2 OS' deployment plan.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVOSDeploymentPlan</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVOSDeploymentServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVOSDeploymentServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVOSDeploymentServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVOSDeploymentPlanAttribute</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--SHOW-HPOVBASELINEREPOSITORYSIZE-->
 		<command:details>
 			<command:name>Show-HPOVBaselineRepositorySize</command:name>
@@ -67251,6 +68888,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
@@ -67269,6 +68913,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="name, Server">
 				<maml:name>InputObject</maml:name>
@@ -68281,5 +69936,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-03-20T19:25:25:21.215Z-->
+	<!--Edited on: 2017-04-18T03:43:25:85.858Z-->
 </helpItems>
