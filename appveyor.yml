@@ -9,7 +9,7 @@ init:
 - ps: $env:PSModulePath += ";C:\Projects"
 build: off
 test_script:
-- ps: "Import-Module \"C:\\Tests\\appveyor.tests.ps1\"\nStart-PoshTest\nStart-PoshTest -Finalize\n\nUpdate-AppveyorBuild -Version $Global:Version"
+- ps: "Import-Module \"C:\\Tests\\appveyor.tests.ps1\"\nStart-PoshTest\nStart-PoshTest -Finalize"
 notifications:
 - provider: Email
   to:
@@ -21,9 +21,12 @@ notifications:
   on_build_status_changed: false
 
 on_success:
-  - git config --global credential.helper store
-  - ps: Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
-  - git config --global user.email "chris.lynch@hpe.com"
-  - git config --global user.name "Chris Lynch"
-  - git tag v{version} -m "Release {version}"
-  - git push origin v{version}
+
+- ps: >-
+    cd $env:APPVEYOR_BUILD_FOLDER
+    git config --global credential.helper store
+    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+    git config --global user.email "chris.lynch@hpe.com"
+    git config --global user.name "Chris Lynch"
+    git tag "v$env:APPVEYOR_BUILD_VERSION" -m "Release $env:APPVEYOR_BUILD_VERSION"
+    git push origin "v$env:APPVEYOR_BUILD_VERSION"
