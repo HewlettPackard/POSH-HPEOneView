@@ -28,6 +28,6 @@ on_success:
 
     git config --global user.name "Chris Lynch"
 
-    git tag $env:APPVEYOR_BUILD_VERSION -m "Release $env:APPVEYOR_BUILD_VERSION"
+    git tag v$env:APPVEYOR_BUILD_VERSION -m "Release $env:APPVEYOR_BUILD_VERSION"
 
     git push origin v$env:APPVEYOR_BUILD_VERSION
