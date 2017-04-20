@@ -4,6 +4,9 @@ image: labwmf5
 clone_folder: C:\projects\HPOneView.300
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
+environment:
+  ACCESS_TOKEN:
+    secure: QA6hiomS2Zz67tRQMLfMlYXsLioPZLO6q6NSxSctZU+TMT9sJvC+VlGfSO0bIb05
 build: off
 test_script:
 - ps: "Import-Module \"C:\\Tests\\appveyor.tests.ps1\"\nStart-PoshTest"
@@ -22,7 +25,7 @@ on_success:
 
     git config --global credential.helper store
 
-    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:access_token):x-oauth-basic@github.com`n"
+    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
 
     git config --global user.email "chris.lynch@hpe.com"
 
