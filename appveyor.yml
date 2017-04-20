@@ -1,5 +1,5 @@
 version: 3.0.{Build}
-build_cloud: houstonlab
+build_cloud: doc-hyp-cluster1
 image: labwmf5
 clone_folder: C:\projects\HPOneView.300
 init:
@@ -19,18 +19,3 @@ notifications:
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: false
-on_success:
-- ps: >-
-    cd $env:APPVEYOR_BUILD_FOLDER
-
-    git config --global credential.helper store
-
-    Add-Content "$env:USERPROFILE\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
-
-    git config --global user.email "chris.lynch@hpe.com"
-
-    git config --global user.name "Chris Lynch"
-
-    git tag v$env:APPVEYOR_BUILD_VERSION -m "Release $env:APPVEYOR_BUILD_VERSION"
-
-    git push origin v$env:APPVEYOR_BUILD_VERSION
