@@ -1,33 +1,46 @@
 version: 3.0.{Build}
+branches:
+  only:
+  - 3.00
+
 skip_tags: true
-build_cloud: doc-hyp-cluster1
+build_cloud:
+- doc-hyp-01
+- doc-hyp-02
+
 image: labwmf5
 clone_folder: C:\projects\HPOneView.300
+
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
+
 environment:
   ACCESS_TOKEN:
     secure: QA6hiomS2Zz67tRQMLfMlYXsLioPZLO6q6NSxSctZU+TMT9sJvC+VlGfSO0bIb05
+
 build: off
 test_script:
-- ps: "Import-Module \"C:\\Tests\\appveyor.tests.ps1\"\nStart-PoshTest\n"
+- ps: >-
+
+    Import-Module "C:\Tests\appveyor.tests.ps1"
+    Start-PoshTest
+
 notifications:
 - provider: Email
   to:
   - chris.lynch@hpe.com
   - chris.lynch@outlook.com
+  
   subject: POSH-HPOneView.300 AppVeyor Results
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: false
+
 on_success:
 - ps: >-
+
     #push version tag to remote
-
     cd $env:APPVEYOR_BUILD_FOLDER
-
     git remote set-url origin "https://$($env:access_token):x-oauth-basic@github.com/HewlettPackard/POSH-HPOneView.git"
-
     git tag "v$env:APPVEYOR_BUILD_VERSION" -m "Release $env:APPVEYOR_BUILD_VERSION"
-
     git push origin "v$env:APPVEYOR_BUILD_VERSION"
