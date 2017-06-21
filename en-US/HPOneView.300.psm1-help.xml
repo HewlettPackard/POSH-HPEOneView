@@ -42,7 +42,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -68,7 +68,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -249,7 +249,7 @@ $Name = "HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Use this paramter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -318,7 +318,7 @@ Administrator Account password of the OA specified.  Value can be [String] or [S
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Use this paramter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -369,7 +369,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Use this paramter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -1358,6 +1358,149 @@ Get-HPOVRack -Name MyRack -ErrorAction Stop | Add-HPOVRackToDataCenter -DataCent
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--ADD-HPOVREMOTEFRAME-->
+		<command:details>
+			<command:name>Add-HPOVRemoteFrame</command:name>
+			<maml:description>
+				<maml:para>Add remote HPE Synergy Frame to Composer.</maml:para>
+			</maml:description>
+			<command:verb>Add</command:verb>
+			<command:noun>HPOVRemoteFrame</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>HPE Synergy Frames are automatically discovered after the initital Hardware Setup task has been completed.  Remote frames outside of the HPE Synergy management ring must be added manually.  Use this Cmdlet to specify the IPv6 Link Local address of the remote frame to add.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Add-HPOVRemoteFrame</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Hostname</maml:name>
+					<maml:description>
+						<maml:para>The name of the Label associated with the resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Hostname</maml:name>
+				<maml:description>
+					<maml:para>The name of the Label associated with the resource.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Async task Resource object for monitoring the enclosure import process.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Add-HPOVRemoteFrame -Hostname fe80::c8f:fbcb:aa8a:97c8</dev:code>
+				<dev:remarks>
+					<dev:para>Add the specified remote HPE Synergy Frame.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVEnclosure</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVEnclosureGroup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Add-HPOVRemoteFrame</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--ADD-HPOVRESOURCETOLABEL-->
 		<command:details>
 			<command:name>Add-HPOVResourceToLabel</command:name>
@@ -1776,14 +1919,14 @@ Minimum required privileges: Infrastructure administrator</maml:para>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -1820,7 +1963,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -1831,7 +1974,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Resource">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -1907,7 +2050,7 @@ PS C:\&gt; Get-HPOVScope -Name MyScope | Add-HPOVResourceToScope -InputObject $R
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Remove-HPOVResourceToScope</maml:linkText>
+				<maml:linkText>Remove-HPOVResourceFromScope</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -1992,7 +2135,7 @@ Please see the HPE OneView Support Matrix for supported versions.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BNA, HPCisco">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return the asyncronous task immediately.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -2090,7 +2233,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BNA, HPCisco">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return the asyncronous task immediately.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -2127,7 +2270,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BNA, HPCisco" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Return the asyncronous task immediately.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -2421,7 +2564,7 @@ Accepted values are
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the async task object</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -2484,7 +2627,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the async task object</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -2535,7 +2678,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the async task object</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -2782,7 +2925,7 @@ Example:  CPU status:'warning' or status:'critical'</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -2819,7 +2962,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -4439,7 +4582,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -4465,7 +4608,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -5630,7 +5773,7 @@ Use Enable-HPOVMsDSC to enable support.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwutchParameter</command:parameterValue>
 				</command:parameter>
@@ -5667,7 +5810,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwutchParameter</command:parameterValue>
 				<dev:type>
@@ -5935,7 +6078,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the Asyncronous task object.  If omitted, the Cmdlet will wait for the Async task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -5975,7 +6118,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the Asyncronous task object.  If omitted, the Cmdlet will wait for the Async task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -6663,7 +6806,7 @@ Use Disable-HPOVMsDSC to disable support.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwutchParameter</command:parameterValue>
 				</command:parameter>
@@ -6700,7 +6843,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwutchParameter</command:parameterValue>
 				<dev:type>
@@ -8510,6 +8653,37 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVAuditLog</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Count</maml:name>
+					<maml:description>
+						<maml:para>Specify the number of audit log entries to return.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Int</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>TimeSpan</maml:name>
+					<maml:description>
+						<maml:para>Specify the time span of to filter results on.  Cannot be combined with Start or End.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Timespan</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Start</maml:name>
+					<maml:description>
+						<maml:para>Specify the Start datetime object to begin the serach.  Can be combined with End parameter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>End</maml:name>
+					<maml:description>
+						<maml:para>Specify the End datetime object to begin the serach.  Should be combined with Start parameter.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
@@ -8527,6 +8701,50 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Count</maml:name>
+				<maml:description>
+					<maml:para>Specify the number of audit log entries to return.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Int</command:parameterValue>
+				<dev:type>
+					<maml:name>Int</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>End</maml:name>
+				<maml:description>
+					<maml:para>Specify the End datetime object to begin the serach.  Should be combined with Start parameter.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue>[DateTime]::Now</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Start</maml:name>
+				<maml:description>
+					<maml:para>Specify the Start datetime object to begin the serach.  Can be combined with End parameter.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				<dev:type>
+					<maml:name>DateTime</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>TimeSpan</maml:name>
+				<maml:description>
+					<maml:para>Specify the time span of to filter results on.  Cannot be combined with Start or End.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Timespan</command:parameterValue>
+				<dev:type>
+					<maml:name>Timespan</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -8599,7 +8817,23 @@ Severity  : INFO
 Details   : Add firmware bundle /rest/firmware-drivers/CP026527
 </dev:code>
 				<dev:remarks>
-					<dev:para>Source IP :</dev:para>
+					<dev:para>Return the audit logs from the appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVAuditLog -Start ([DateTime]::Now).AddDays('-5') </dev:code>
+				<dev:remarks>
+					<dev:para>Return the audit logs from the appliance from 5 days ago from today.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -8853,6 +9087,177 @@ Appliance True    scphost.domain.com SCP                WEEKLY   {MO, WE, FR} 18
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVAutomaticBackupConfig</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--GET-HPOVBACKUP-->
+		<command:details>
+			<command:name>Get-HPOVBackup</command:name>
+			<maml:description>
+				<maml:para>List appliance backups.</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVBackup</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>HPE OneView provides the ability to save your configuration settings and management data to a backup file and enables you to use that backup to restore a corrupted appliance in the event of a catastrophic failure.
+
+The backup process involves creating a backup file and then downloading that file so that you can store it to a safe and secure (off-appliance) location for future use. You can schedule automatic backup operations and designate a remote location for the backup file.
+
+Use this cmdlet to return any existing backups that have not been downloaded or offloaded on the appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Get-HPOVBackup</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Before</maml:name>
+					<maml:description>
+						<maml:para>Specify the DateTime object of when to locate backups created before.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>After</maml:name>
+					<maml:description>
+						<maml:para>Specify the DateTime object of when to locate backups created after.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>After</maml:name>
+				<maml:description>
+					<maml:para>Specify the DateTime object of when to locate backups created after.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				<dev:type>
+					<maml:name>DateTime</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Before</maml:name>
+				<maml:description>
+					<maml:para>Specify the DateTime object of when to locate backups created before.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				<dev:type>
+					<maml:name>DateTime</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>The generated backup File if appliance is not setup for remote storage or the Force parameter is used.</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVBackup
+</dev:code>
+				<dev:remarks>
+					<dev:para>This command will return any appliance backs present on the appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; Get-HPOVBackup -Before [datetime]'2017/01/01'</dev:code>
+				<dev:remarks>
+					<dev:para>This command will return applinace backups that were created before 2017/01/01.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVAutomaticBackupConfig</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVAutomaticBackupConfig</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVRestore</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVBackup</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -13897,19 +14302,36 @@ Fabric A Ready OK     BNA Managed Fabric A Zoned             True
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVNetwork</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the network resource to be returned.  All network resources will be returned if omitted.  Supports '*' wildcard character.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
 					<maml:name>Type</maml:name>
 					<maml:description>
 						<maml:para>The type of the network resource to be returned.  Valid types are "Ethernet" for Ethernet networks, "FC" or "FibreChannel" for Fibre Channel networks.  All network resources will be returned if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Purpose</maml:name>
+					<maml:description>
+						<maml:para>Specify the Ethernet Purpose value to filter on.
+
+Supported Values:
+
+	* General
+	* Management
+	* VMMigration
+	* FaultTolerance
+	* ISCSI
+
+	Note: When using this parameter, only Ethernet networks will be returned.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Scope</maml:name>
@@ -13940,12 +14362,12 @@ The full path and file name to export the JSON formatted definition of the netwo
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Get-HPOVNetwork</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default">
 					<maml:name>Type</maml:name>
 					<maml:description>
 						<maml:para>The type of the network resource to be returned.  Valid types are "Ethernet" for Ethernet networks, "FC" or "FibreChannel" for Fibre Channel networks.  All network resources will be returned if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label">
 					<maml:name>Label</maml:name>
@@ -14003,12 +14425,33 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the network resource to be returned.  All network resources will be returned if omitted.  Supports '*' wildcard character.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Purpose</maml:name>
+				<maml:description>
+					<maml:para>Specify the Ethernet Purpose value to filter on.
+
+Supported Values:
+
+	* General
+	* Management
+	* VMMigration
+	* FaultTolerance
+	* ISCSI
+
+	Note: When using this parameter, only Ethernet networks will be returned.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -14025,12 +14468,12 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Label, Default" aliases="None">
 				<maml:name>Type</maml:name>
 				<maml:description>
 					<maml:para>The type of the network resource to be returned.  Valid types are "Ethernet" for Ethernet networks, "FC" or "FibreChannel" for Fibre Channel networks.  All network resources will be returned if omitted.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -18043,7 +18486,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Remove-HPOVResourceToScope</maml:linkText>
+				<maml:linkText>Remove-HPOVResourceFromScope</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -18645,6 +19088,13 @@ The name of the server profile resource to be returned.  All server profile reso
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Filter the results based on associated Server Profile Template or Server Hardware Type objects.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>Label</maml:name>
 					<maml:description>
@@ -18696,6 +19146,13 @@ The name of the server profile resource to be returned.  All server profile reso
 						<maml:para>Optional parameter that can be included with the List switch parameter to only display unassigned Server Profiles.  Can also be combined with the name parameter for Server Profile wildcard name search.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Filter the results based on associated Server Profile Template or Server Hardware Type objects.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default">
 					<maml:name>Label</maml:name>
@@ -18780,6 +19237,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Filter the results based on associated Server Profile Template or Server Hardware Type objects.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Export, Detailed, Default" aliases="None">
 				<maml:name>Label</maml:name>
@@ -20589,7 +21057,28 @@ Ok       HP3Par_1 TXQ1020307    HP_3PAR 7200 NoDomain       28:11:00:02:AC:00:08
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="InputObject, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Get-HPOVStorageVolume</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="InputObject">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Specify a Server Profile object to return associated private and/or shared storage volumes.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="InputObject, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -20604,7 +21093,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="InputObject, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -20629,6 +21118,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="InputObject" aliases="ServerProfile, ServerProfileTemplate">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Specify a Server Profile object to return associated private and/or shared storage volumes.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">object</command:parameterValue>
+				<dev:type>
+					<maml:name>object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Label</maml:name>
@@ -23438,7 +23938,7 @@ Default is 5 seconds.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Do not wait for the task to complete, and return the task resource object immediately for the caller to then monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -23496,7 +23996,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Do not wait for the task to complete, and return the task resource object immediately for the caller to then monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -24245,8 +24745,7 @@ OPTIONAL. The Name, URI or Object of an existing Logical Interconnect Group.  If
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Aliases [-NoWait]
-OPTIONAL. Do not wait on the migration task to complete. If omitted, the cmdlet will monitor the task to completion before returning control to the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -24526,8 +25025,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="NoWait">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Aliases [-NoWait]
-OPTIONAL. Do not wait on the migration task to complete. If omitted, the cmdlet will monitor the task to completion before returning control to the caller.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -26661,7 +27159,7 @@ The full path to where the Support Dump will be saved to.  The downloaded file n
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>If the appliance is configured for saving backup files remotely, use this option to immediately return the async task object after the backup file has been created and the backup file is being copied to the remote location.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -26698,7 +27196,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>If the appliance is configured for saving backup files remotely, use this option to immediately return the async task object after the backup file has been created and the backup file is being copied to the remote location.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -26880,7 +27378,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the Async task resource.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -26906,7 +27404,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the Async task resource.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -28876,7 +29374,7 @@ PS C:\&gt; New-HPOVLdapDirectory -name Domain1 -AD -basedn 'dc=domain,dc=com' -s
 					<maml:name>Directory</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-d, -domain, -AuthProvider]
-LDAP/Active Directory Domain Name</maml:para>
+LDAP/Active Directory Domain object.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -28884,7 +29382,7 @@ LDAP/Active Directory Domain Name</maml:para>
 					<maml:name>Group</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-g, -GroupName, -name]
-Directroy Group to add</maml:para>
+Directroy Group to add.  Can either be a string value of a Cononical Name of directory group, or object from Show-HPOVLdapGroups.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -28955,7 +29453,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:name>Directory</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-d, -domain, -AuthProvider]
-LDAP/Active Directory Domain Name</maml:para>
+LDAP/Active Directory Domain object.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -28967,7 +29465,7 @@ LDAP/Active Directory Domain Name</maml:para>
 				<maml:name>Group</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-g, -GroupName, -name]
-Directroy Group to add</maml:para>
+Directroy Group to add.  Can either be a string value of a Cononical Name of directory group, or object from Show-HPOVLdapGroups.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -29560,7 +30058,7 @@ Use this Cmdlet to define a new Logical Enclosure that will include multiple Syn
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Use this parameter to immediately return the async task resource.  By default, the Cmdlet will wait until the async task has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -29597,7 +30095,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Use this parameter to immediately return the async task resource.  By default, the Cmdlet will wait until the async task has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -29935,7 +30433,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return acepted Async task immediately without waiting for completion. The caller is expected to then monitor the completion of the task.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -30120,7 +30618,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return acepted Async task immediately without waiting for completion. The caller is expected to then monitor the completion of the task.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -30167,7 +30665,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Return acepted Async task immediately without waiting for completion. The caller is expected to then monitor the completion of the task.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -30736,7 +31234,7 @@ PS C:\&gt; New-HPOVLogicalInterconnectGroup -Name 'Synergy VC Prod' -FrameCount 
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredSnmpV3, ManagedSnmpV3, Monitored, Managed">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -30866,7 +31364,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredSnmpV3, ManagedSnmpV3, Monitored, Managed">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -30996,7 +31494,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredSnmpV3, ManagedSnmpV3, Monitored, Managed">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -31087,7 +31585,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredSnmpV3, ManagedSnmpV3, Monitored, Managed">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -31124,7 +31622,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredSnmpV3, ManagedSnmpV3, Monitored, Managed" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -31502,7 +32000,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -31528,7 +32026,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -31666,7 +32164,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		<maml:description>
 			<maml:para>Create a new network resource, including its default connection type.  Network definitions can be supplied as direct CmdLet parameters or as input from a file containing the network definition in JSON format.
 
-To create an Ethernet Network for Image Streamer, use the following paramters:
+To create an Ethernet Network for Image Streamer, use the following parameters:
 
 * Name
 * VlanType = Untagged
@@ -31770,7 +32268,7 @@ Default value is Tagged.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="importFile, VLANIDRange, FCOE, FC, Ethernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -31874,7 +32372,7 @@ Default value is Tagged.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="importFile, VLANIDRange, FCOE, FC, Ethernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -31945,7 +32443,7 @@ When creating an Ethernet Network on an HPE Synergy Composer, Vlan ID 1 is not a
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="importFile, VLANIDRange, FCOE, FC, Ethernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -32033,7 +32531,7 @@ This parameter is not applicable for Direct Attach Fabric Types.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="importFile, VLANIDRange, FCOE, FC, Ethernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -32061,7 +32559,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="importFile, VLANIDRange, FCOE, FC, Ethernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -32098,7 +32596,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="importFile, VLANIDRange, FCOE, FC, Ethernet" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -32820,7 +33318,7 @@ To create an OS Deployment Server, HPE Synergy Image Streamer appliances must be
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -32857,7 +33355,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -34885,7 +35383,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Remove-HPOVResourceToScope</maml:linkText>
+				<maml:linkText>Remove-HPOVResourceFromScope</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -34906,7 +35404,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:details>
 		<maml:description>
 			<maml:para>This cmdlet is used to create or import an HP OneView Server Profile.
-                
+
 A server profile is the configuration for a server instance. Server profiles capture the entire server configuration in one place, enabling you to consistently replicate new server profiles and to rapidly modify them to reflect changes in your data center.
             
 A server profile includes:
@@ -35225,7 +35723,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
 					<maml:name>SnAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
-        
+
 Default: Virtual serial number and UUID assignment</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -35248,7 +35746,7 @@ Default: Virtual serial number and UUID assignment</maml:para>
 					<maml:name>HideUnusedFlexNics</maml:name>
 					<maml:description>
 						<maml:para>This setting provides the ability to hide unused FlexNICs from the operating system.
-        
+
 If Hide Unused FlexNICs is set to $True (default/enabled), FlexNICs that do not map to any server profile connections are not presented to the operating system. For example, if you have a full complement of eight FlexNICs defined in your server profile but map only four, your operating system will see only the four mapped FlexNICs instead of eight.
         
 If Hide Unused FlexNICs is set to $False (disabled), eight FlexNICs are enumerated in the operating system as network interfaces for each Flex-10 or FlexFabric adapter.
@@ -35737,7 +36235,7 @@ A collection (System.Collections.ArrayList  or System.Collections.ArrayList) of 
 					<maml:name>EvenPathDisabled</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-even]
-        
+
 Enable to disable even paths in the attached storage volume(s).</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
@@ -35746,7 +36244,7 @@ Enable to disable even paths in the attached storage volume(s).</maml:para>
 					<maml:name>OddPathDisabled</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-odd]
-        
+
 Enable to disable odd paths in the attached storage volume(s).</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
@@ -35778,7 +36276,7 @@ Accepted values are either 'Bay' or 'BayAndServer'.  Default is 'Bay'.</maml:par
 					<maml:name>SnAssignment</maml:name>
 					<maml:description>
 						<maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
-        
+
 Default: Virtual serial number and UUID assignment</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -35801,7 +36299,7 @@ Default: Virtual serial number and UUID assignment</maml:para>
 					<maml:name>HideUnusedFlexNics</maml:name>
 					<maml:description>
 						<maml:para>This setting provides the ability to hide unused FlexNICs from the operating system.
-        
+
 If Hide Unused FlexNICs is set to $True (default/enabled), FlexNICs that do not map to any server profile connections are not presented to the operating system. For example, if you have a full complement of eight FlexNICs defined in your server profile but map only four, your operating system will see only the four mapped FlexNICs instead of eight.
         
 If Hide Unused FlexNICs is set to $False (disabled), eight FlexNICs are enumerated in the operating system as network interfaces for each Flex-10 or FlexFabric adapter.
@@ -36119,7 +36617,7 @@ The Enclosure Group resource the Server Profile will be bound to.  Only required
 				<maml:name>EvenPathDisabled</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-even]
-        
+
 Enable to disable even paths in the attached storage volume(s).</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
@@ -36169,7 +36667,7 @@ Enable to disable even paths in the attached storage volume(s).</maml:para>
 				<maml:name>HideUnusedFlexNics</maml:name>
 				<maml:description>
 					<maml:para>This setting provides the ability to hide unused FlexNICs from the operating system.
-        
+
 If Hide Unused FlexNICs is set to $True (default/enabled), FlexNICs that do not map to any server profile connections are not presented to the operating system. For example, if you have a full complement of eight FlexNICs defined in your server profile but map only four, your operating system will see only the four mapped FlexNICs instead of eight.
         
 If Hide Unused FlexNICs is set to $False (disabled), eight FlexNICs are enumerated in the operating system as network interfaces for each Flex-10 or FlexFabric adapter.
@@ -36371,7 +36869,7 @@ The Mutual CHAP challange secret.  Accepts ASCII or HEX values.  If providing an
 				<maml:name>OddPathDisabled</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-odd]
-        
+
 Enable to disable odd paths in the attached storage volume(s).</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
@@ -36475,7 +36973,7 @@ The Server Hardware Type reource the Server Profile will be bound to.  Required 
 				<maml:name>SnAssignment</maml:name>
 				<maml:description>
 					<maml:para>Optional setting for serial number and UUID assignment.  May be Virtual, Physical or UserDefined.
-        
+
 Default: Virtual serial number and UUID assignment</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
@@ -36781,7 +37279,7 @@ PS C:\&gt; $params = @{
 PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
 </dev:code>
 				<dev:remarks>
-					<dev:para>Create a BL Gen9 UEFI Server Profile template, and pipe to Wait-HPOVTaskComplete.</dev:para>
+					<dev:para>Create a BL Gen9 UEFI Server Profile, and pipe to Wait-HPOVTaskComplete.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -36792,6 +37290,45 @@ PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
 			</command:example>
 			<command:example>
 				<maml:title>-------------------------- EXAMPLE 9 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $profileName = 'Synergy Hypervisor Cluster Node 1'
+PS C:\&gt; $sht = Get-HPOVServerHardwareType -Name "SY480 Gen9 1"
+PS C:\&gt; $server = Get-HPOVServer -NoProfile -ServerHardwareType $sht | ? { $_.cpuCount -ge 4 -and $_.memoryMb -ge 524288 } | Select -First 1
+PS C:\&gt; $con1 = Get-HPOVNetwork -Name "Net-41-A" | New-HPOVServerProfileConnection -connectionId 1
+PS C:\&gt; $con2 = Get-HPOVNetwork -Name "Net-41-B" | New-HPOVServerProfileConnection -connectionId 2
+PS C:\&gt; $LogicalDisk = New-HPOVServerProfileLogicalDisk -Name 'Data Drive' -RAID RAID1 -NumberofDrives 5 -DiskType SasSsd
+PS C:\&gt; $Controller = New-HPOVServerProfileLogicalDiskController -ControllerID 'Mezz 1' -Initialize -LogicalDisk $LogicalDisk
+PS C:\&gt; $params = @{
+&gt;&gt;    name                = $profileName;
+&gt;&gt;    assignmentType      = "server"
+&gt;&gt;    server              = $server;
+&gt;&gt;    connections         = $con1, $con2
+&gt;&gt;    manageboot          = $True;
+&gt;&gt;    bootMode            = "UEFI";
+&gt;&gt;    pxeBootPolicy       = "IPv4ThenIPv6";
+&gt;&gt;    bootOrder           = "HardDisk";
+&gt;&gt;    HideUnusedFlexnics  = $True;
+&gt;&gt;    LocalStorage        = $True;
+&gt;&gt;    Initialize          = $True;
+&gt;&gt;    LogicalDisk         = $LogicalDisk
+&gt;&gt; }
+&gt;&gt;    
+PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
+</dev:code>
+				<dev:remarks>
+					<dev:para>Create a Synergy Gen9 Server Profile by looking for the first available SY480 Gen9 with 4 CPU's and 512GB of RAM, configuring with D3940 Disk Storage.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 10 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -36808,7 +37345,7 @@ PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 10 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 11 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -36825,7 +37362,7 @@ PS C:\&gt; New-HPOVServerProfile @params | Wait-HPOVTaskComplete
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 11 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 12 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -43327,7 +43864,7 @@ Example: 'Bay1:X1'</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="PipelineOrObjectFibreChannel, PipelineOrObjectEthernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -43415,7 +43952,7 @@ Synergy VC FC Sub-Interface e.g. "Bay2:Q1.1","Bay2:Q2.1" or "Bay5:Q1.2","Bay5:Q2
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="PipelineOrObjectFibreChannel, PipelineOrObjectEthernet">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -43452,7 +43989,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="PipelineOrObjectFibreChannel, PipelineOrObjectEthernet" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -44129,7 +44666,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Using this switch will return the Async Task Object for the caller to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -44166,7 +44703,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Using this switch will return the Async Task Object for the caller to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -47107,7 +47644,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -47147,7 +47684,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -47998,7 +48535,7 @@ In order to successfully remove an OS Deployment Server, all associated Logical 
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -48049,7 +48586,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -49869,6 +50406,188 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</maml:relatedLinks>
 	</command:command>
 	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--REMOVE-HPOVRESOURCEFROMSCOPE-->
+		<command:details>
+			<command:name>Remove-HPOVResourceFromScope</command:name>
+			<maml:description>
+				<maml:para>Remove supported resource(s) from Scope.</maml:para>
+			</maml:description>
+			<command:verb>Remove</command:verb>
+			<command:noun>HPOVResourceFromScope</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet will add supported resources to a specified Scope..  All the resources in these categories can be added to or removed from a scope:
+
+* Enclosures
+* Server Hardware
+* Networks (Ethernet, FC, and FCoE)
+* Network Sets
+* Interconnects, excluding SAS resources
+* Logical Interconnects, excluding SAS resources
+* Logical Interconnect Groups, excluding SAS resources
+* Switches
+* Logical Switches
+* Logical Switch Groups
+
+NOTE: Resources in other categories are considered to be included in all scopes, and they cannot be removed.
+
+Minimum required privileges: Infrastructure administrator</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Remove-HPOVResourceFromScope</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>The Scope resource to add the resource(s) to.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="Resource">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Scope</maml:name>
+				<maml:description>
+					<maml:para>The Scope resource to add the resource(s) to.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">HPOneView.Appliance.ScopeCollection</command:parameterValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ScopeCollection</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>Scope resource object from Get-HPOVScope.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Asyncronous task resource that updates the Scope and associated resources.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>PS C:\&gt; $Resources += Get-HPOVNetwork -Name ProdVLan* 
+PS C:\&gt; $Resources += Get-HPOVServer -Name Encl1* 
+PS C:\&gt; Get-HPOVScope -Name MyScope | Add-HPOVResourceToScope -InputObject $Resources
+</dev:code>
+				<dev:remarks>
+					<dev:para>Add the resources collected to the MyScope scope.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVScope</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVScope</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Add-HPOVResourceToScope</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Remove-HPOVResourceFromScope</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
 		<!--REMOVE-HPOVSANMANAGER-->
 		<command:details>
 			<command:name>Remove-HPOVSanManager</command:name>
@@ -50374,7 +51093,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Remove-HPOVResourceToScope</maml:linkText>
+				<maml:linkText>Remove-HPOVResourceFromScope</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -51195,7 +51914,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the Asyncronous task object.  If omitted, the Cmdlet will wait for the Async task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -51235,7 +51954,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the Asyncronous task object.  If omitted, the Cmdlet will wait for the Async task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -51852,18 +52571,27 @@ Name or URI of the managed storage system.</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Remove-HPOVStorageVolume</maml:name>
-				<command:parameter required="" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
 					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Aliases [-StorageVolume]
+
+Storage Volume object from Get-HPOVStorageVolume.</maml:para>
 					</maml:description>
-					<command:parameterValue required="" variableLength="False" />
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>ExportOnly</maml:name>
 					<maml:description>
 						<maml:para>Removes the volume from HPE OneView. The volume remains on the storage system, and must be managed manually until it is added back under management of HPE OneView.
 Default: Delete Export AND Volume from storage system.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -51911,6 +52639,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
 				<maml:name>Confirm</maml:name>
 				<maml:description>
@@ -51934,14 +52673,16 @@ Default: Delete Export AND Volume from storage system.</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name, StorageVolume">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name, StorageVolume">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Aliases [-StorageVolume]
+
+Storage Volume object from Get-HPOVStorageVolume.</maml:para>
 				</maml:description>
-				<command:parameterValue required="" variableLength="False" />
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name />
+					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -53006,7 +53747,7 @@ The name or object of the user account to be removed.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagerOrDeviceBay, default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the asyncronous task that is created without waiting for completion.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -53074,7 +53815,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagerOrDeviceBay, default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the asyncronous task that is created without waiting for completion.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -53125,7 +53866,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagerOrDeviceBay, default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the asyncronous task that is created without waiting for completion.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -53576,7 +54317,7 @@ PS C:\&gt; Restart-HPOVAppliance
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ColdBoot, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -53625,7 +54366,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ColdBoot, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -53676,7 +54417,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ColdBoot, Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -56449,7 +57190,7 @@ https://github.com/HewlettPackard/POSH-HPOneView/wiki/Set-HPOVApplianceNetworkCo
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Authentication, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -56498,7 +57239,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Authentication, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -56535,7 +57276,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Authentication, Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -56768,7 +57509,7 @@ Default: SCP</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Disable, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Do not wait for the task to complete, and return the task resource object immediately for the caller to then monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -56810,7 +57551,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Disable, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Do not wait for the task to complete, and return the task resource object immediately for the caller to then monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -56861,7 +57602,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Disable, Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Do not wait for the task to complete, and return the task resource object immediately for the caller to then monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -57649,7 +58390,7 @@ This Cmdlet will help modify an existing DataCenters Remote Support location and
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return the async task to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -57708,7 +58449,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return the async task to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -61003,7 +61744,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		<maml:description>
 			<maml:para>Use this Cmdlet to set a new schedule to collect Remote Support logs.  There are two defined schedules: Active Health scheduled on a weekly basis, and Server Basic Configuration scheduled on a monthly basis.  Either scheduled collection task can be modified, to set the Day of Week, Day of Month, Hour and Minute.
 When supplying a DateTime value, the Day will be converted to the Day of Month, and Day of the Week respectively.  For instance, if "Oct 30, 2016 13:00" is provided, Day of Month will be every "30th" day, and Day of Week will be every "Sunday" (which Oct 30th 2016 is a Sunday).
-To schedule different Day of the Month and Day of the Week, use the -Type paramter to specify AHS or Basic.  The -DateTime paramter value will only be applied to that schedule.</maml:para>
+To schedule different Day of the Month and Day of the Week, use the -Type parameter to specify AHS or Basic.  The -DateTime parameter value will only be applied to that schedule.</maml:para>
 		</maml:description>
 		<command:syntax>
 			<!--Parameter Sets-->
@@ -61029,7 +61770,7 @@ If no value is provided, both schedules will be modified.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -61066,7 +61807,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Specify to return asyncronous task after file upload has completed.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -61658,7 +62399,7 @@ Default value: 514</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -61695,7 +62436,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -62035,7 +62776,7 @@ Resource Object (from Get-HPOVSanManager) or Name of the SAN Manager to update. 
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BNA, HPCisco">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return async task that is created immediately, and do not wait for it to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -62144,7 +62885,7 @@ Resource Object (from Get-HPOVSanManager) or Name of the SAN Manager to update. 
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BNA, HPCisco">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return async task that is created immediately, and do not wait for it to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -62181,7 +62922,7 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="BNA, HPCisco" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Return async task that is created immediately, and do not wait for it to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -62690,7 +63431,7 @@ Provide an alternate TCP port number than the default SMTP port value 25/TCP.</m
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Disabled, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -62718,7 +63459,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Disabled, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -62777,7 +63518,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Disabled, Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -66428,7 +67169,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -66454,7 +67195,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -66883,7 +67624,7 @@ A Server hardware or Server Profile resource object.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Force, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -66934,7 +67675,7 @@ A Server hardware or Server Profile resource object.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Force, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -66985,7 +67726,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Force, Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Return Async task object and do not wait for task to complete.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -67416,7 +68157,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Refresh, Reapply">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -67466,7 +68207,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Refresh, Reapply">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -67506,7 +68247,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Refresh, Reapply" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return asyncronous task object to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -67774,7 +68515,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply, Update">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Do not wait for the update task to complete, and return the task object for caller to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -67827,7 +68568,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply, Update">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Do not wait for the update task to complete, and return the task object for caller to monitor.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -67867,7 +68608,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply, Update" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Do not wait for the update task to complete, and return the task object for caller to monitor.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -68500,7 +69241,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -68540,7 +69281,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Immediately return appliance Async task resource to be monitored by the caller.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -68891,7 +69632,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -68917,7 +69658,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -69080,7 +69821,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Update">
 					<maml:name>Async</maml:name>
 					<maml:description>
-						<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -69120,7 +69861,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Update" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
-					<maml:para>Use this switch to recieve the async task back for the caller to monitor and not wait for the task to complete.</maml:para>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -69936,5 +70677,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-04-18T05:07:46:52.522Z-->
+	<!--Edited on: 2017-06-21T17:45:36:27.276Z-->
 </helpItems>
