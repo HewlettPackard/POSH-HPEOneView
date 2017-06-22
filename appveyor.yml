@@ -6,7 +6,6 @@ branches:
 skip_tags: true
 build_cloud:
 - doc-hyp-01
-- doc-hyp-02
 
 image: labwmf5
 clone_folder: C:\projects\HPOneView.300
