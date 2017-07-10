@@ -1,5 +1,37 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
+  <SelectionSets>
+    <SelectionSet>
+      <Name>AvailableDrivesFromDriveEnclosures</Name>
+      <Types>
+        <TypeName>HPOneView.Storage.AvailableDiskDrive</TypeName>
+      </Types>
+    </SelectionSet>
+  </SelectionSets>
+  <Controls>
+    <!--AvailableDrivesFromDriveEnclosures-GroupingFormat-->
+    <Control>
+      <Name>AvailableDrivesFromDriveEnclosures-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>SASLogicalInterconnectName: </Text>
+                  <ExpressionBinding>
+                    <PropertyName>SASLogicalInterconnectName</PropertyName>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+  </Controls>
   <ViewDefinitions>
     <!--ManagedSan.Zone FT-->
     <View>
@@ -355,7 +387,7 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>provisionType</PropertyName>
+                <PropertyName>provisioningType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>'{0:N2} GB' -f ($_.provisionedCapacity / 1GB)</ScriptBlock>
@@ -717,11 +749,11 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--Storage.System.Pool FT-->
+    <!--Storage.System.DiscoveredPool FT-->
     <View>
-      <Name>StorageSystemPool</Name>
+      <Name>StorageSystemDiscoveredPool</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Storage.System.Pool</TypeName>
+        <TypeName>HPOneView.Storage.System.DiscoveredPool</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
@@ -731,19 +763,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Status</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Storage System</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
             <Label>Domain</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Drive Type</Label>
+            <Label>DriveType</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -771,19 +795,156 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>status</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>if ($_.storageSystemUri) { (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
                 <PropertyName>domain</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>deviceType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>supportedRAIDLevel</PropertyName>
+                <PropertyName>raidLevel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.totalCapacity / 1GB)</ScriptBlock>
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity.totalAllocatedCapacity / 1GB)</ScriptBlock>
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  <ScriptBlock>'{0:N2} GB' -f ($_.freeCapacity / 1GB)</ScriptBlock>
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.System.DiscoveredPool FL-->
+    <View>
+      <Name>StorageSystemDiscoveredPool</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.System.DiscoveredPool</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>Status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>StorageSystem</Label>
+                <ScriptBlock>if ($_.storageSystemUri) { (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>DriveType</Label>
+                <ScriptBlock>$_.deviceSpecificAttributes.deviceType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>RAID</Label>
+                <ScriptBlock>$_.deviceSpecificAttributes.supportedRAIDLevel</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Total</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.totalCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Allocated</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity.totalAllocatedCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Free</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.freeCapacity / 1GB)</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Volumes</Label>
+                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?category=storage-volumes&amp;query=storage_volume_storagepool_uri:'$($_.uri)'" -Hostname $_.ApplianceConnection.Name).count</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>VolumeTemplates</Label>
+                <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?sort=name:asc&amp;category=storage-volume-templates&amp;query=storagePoolUri:'$($_.uri)'" -Hostname $_.ApplianceConnection.Name).count</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--Storage.System.Pool FT-->
+    <View>
+      <Name>StorageSystemPool</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.System.Pool</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>StorageSystem</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DriveType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RAID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Total</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Allocated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Free</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>if ($_.storageSystemUri) { (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.deviceSpecificAttributes.deviceType</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.deviceSpecificAttributes.supportedRAIDLevel</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
@@ -824,20 +985,16 @@
                 <PropertyName>Status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Storage System</Label>
+                <Label>StorageSystem</Label>
                 <ScriptBlock>if ($_.storageSystemUri) { (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name }</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Domain</Label>
-                <PropertyName>domain</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Drive Type</Label>
-                <PropertyName>deviceType</PropertyName>
+                <Label>DriveType</Label>
+                <ScriptBlock>$_.deviceSpecificAttributes.deviceType</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>RAID</Label>
-                <PropertyName>supportedRAIDLevel</PropertyName>
+                <ScriptBlock>$_.deviceSpecificAttributes.supportedRAIDLevel</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Total</Label>
@@ -856,7 +1013,7 @@
                 <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?category=storage-volumes&amp;query=storage_volume_storagepool_uri:'$($_.uri)'" -Hostname $_.ApplianceConnection.Name).count</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Volume Templates</Label>
+                <Label>VolumeTemplates</Label>
                 <ScriptBlock>(Send-HPOVRequest "/rest/index/resources?sort=name:asc&amp;category=storage-volume-templates&amp;query=storagePoolUri:'$($_.uri)'" -Hostname $_.ApplianceConnection.Name).count</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -1141,6 +1298,10 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Family</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>State</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -1176,25 +1337,28 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>family</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>state</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>serialNumber</PropertyName>
+                <ScriptBlock>$_.deviceSpecificAttributes.serialNumber</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>model</PropertyName>
+                <ScriptBlock>$_.deviceSpecificAttributes.model</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>managedDomain</PropertyName>
+                <ScriptBlock>$_.deviceSpecificAttributes.managedDomain</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>wwn</PropertyName>
+                <ScriptBlock>$_.deviceSpecificAttributes.wwn</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>firmware</PropertyName>
+                <ScriptBlock>$_.deviceSpecificAttributes.firmware</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -1278,7 +1442,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>State</Label>
+            <Label>Mode</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ConnectionState</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1286,19 +1454,23 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>WWPN</Label>
+            <Label>Type</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>ExpectedNetwork</Label>
+            <Label>Address</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>ActualNetwork</Label>
+            <Label>ExpectedSAN</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Port Group</Label>
+            <Label>ActualSAN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PortGroup</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1306,30 +1478,28 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>portName</PropertyName>
+                <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>state</PropertyName>
+                <ScriptBlock>$StorageSystemPortModeEnum[$_.mode]</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>connectionState</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>portWwn</PropertyName>
+                <PropertyName>protocolType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>expectedNetworkName</PropertyName>
+                <PropertyName>address</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                  if ($_.actualNetworkUri -and "unknown",'none' -notcontains $_.actualNetworkUri)
-                  {
-                  $net = Send-HPOVRequest $_.actualNetworkUri -Hostname $_.ApplianceConnection.Name
-                  if ($net.fabricType -eq "FabricAttach") {"$($net.name) [FA]"}
-                  else {" $($net.name) [DA]"}
-                  }
-                  else { $_.actualNetworkUri }
-                </ScriptBlock>
+                <PropertyName>expectedSanName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>actualSanName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>groupName</PropertyName>
@@ -1362,8 +1532,12 @@
                 <PropertyName>state</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>WWPN</Label>
-                <PropertyName>portWwn</PropertyName>
+                <Label>Type</Label>
+                <PropertyName>protocolType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Address</Label>
+                <PropertyName>address</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>ExpectedNetwork</Label>
@@ -1627,7 +1801,6 @@
         </ListEntries>
       </ListControl>
     </View>
-    
     <!--Storage.DriveEnclosure.DriveBay FT-->
     <View>
       <Name>DriveBay</Name>
@@ -1875,5 +2048,59 @@
         </ListEntries>
       </ListControl>
     </View>
+    <!--Storage.AvailableDiskDrive FT-->
+    <View>
+      <Name>AvailableDiskDrive</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.AvailableDiskDrive</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>AvailableDrivesFromDriveEnclosures-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Capacity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>NumberAvailable</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DriveEnclosureName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Type</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Capacity</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>NumberAvailable</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>DriveEnclosureName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
+
+
   </ViewDefinitions>
 </Configuration>

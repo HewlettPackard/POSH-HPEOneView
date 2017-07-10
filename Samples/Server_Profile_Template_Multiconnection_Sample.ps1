@@ -74,12 +74,12 @@ $BL460Gen9SHT = Get-HPOVServerHardwareTypes -name "BL460c Gen9 1" -ErrorAction S
 Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile 
 
 
-$eg                = Get-HPOVEnclosureGroup -Name "Default EG1" -ErrorAction Stop
+$eg                = Get-HPOVEnclosureGroup -Name "Default EG1"
 $Baseline          = Get-HPOVBaseline -FileName 'baseline_name.iso' -ErrorAction Stop
-$con1              = Get-HPOVNetwork -Name "VLAN 1-A" -ErrorAction Stop | New-HPOVServerProfileConnection -ConnectionID 1 -Name 'VLAN 1-A Connection' -Bootable -Priority Primary
-$con2              = Get-HPOVNetwork -Name "VLAN 1-B" -ErrorAction Stop | New-HPOVServerProfileConnection -ConnectionID 2 -Name 'VLAN 1-B Connection'
-$con3              = Get-HPOVNetworkSet -Name 'Prod NetSet A' -ErrorAction Stop | New-HPOVProfileConnection -connectionId 3
-$con4              = Get-HPOVNetworkSet -Name 'Prod NetSet B' -ErrorAction Stop | New-HPOVProfileConnection -connectionId 4
+$con1              = Get-HPOVNetwork -Name "VLAN 1-A" | New-HPOVServerProfileConnection -ConnectionID 1 -Name 'VLAN 1-A Connection' -Bootable -Priority Primary
+$con2              = Get-HPOVNetwork -Name "VLAN 1-B" | New-HPOVServerProfileConnection -ConnectionID 2 -Name 'VLAN 1-B Connection'
+$con3              = Get-HPOVNetworkSet -Name 'Prod NetSet A' | New-HPOVProfileConnection -connectionId 3
+$con4              = Get-HPOVNetworkSet -Name 'Prod NetSet B' | New-HPOVProfileConnection -connectionId 4
 $LogicalDisk1      = New-HPOVServerProfileLogicalDisk -Name 'Disk 1' -RAID RAID1
 $StorageController = New-HPOVServerProfileLogicalDiskController -ControllerID Embedded -Mode RAID -Initialize -LogicalDisk $LogicalDisk1
 
@@ -108,4 +108,4 @@ Get-HPOVServerProfileTemplate -ErrorAction Stop
 #Create Server Profile from Server Profile Template, searching for a BL460 Gen9 server with 4 CPU and 384GB of RAM
 $svr = Get-HPOVServer -ServerHardwareType $BL460Gen9SHT -NoProfile -ErrorAction Stop | ? { $_.processorCount -ge 4 -and $_.memoryMb -ge (384 * 1024) } | Select -First 1
 $spt = Get-HPOVServerProfileTemplate -Name $TemplateName -ErrorAction Stop
-New-HPOVServerProfile -Name "Hyp-Clus-01" -Assignment Server -Server $svr -ServerProfileTemplate $spt | Wait-HPOVTaskComplete
+New-HPOVServerProfile -Name "Hyp-Clus-01" -Assignment Server -Server $svr -ServerProfileTemplate $spt
