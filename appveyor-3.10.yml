@@ -14,16 +14,22 @@ init:
 - ps: $env:PSModulePath += ";C:\Projects"
 
 environment:
-  ACCESS_TOKEN:
+  var1:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
+  my_testvar:
+    secure: 85NPgx3HL+PEfqKMc39ygg==
 
 build: off
 test_script:
 - ps: >-
 
-    Import-Module "C:\Tests\appveyor.tests.ps1"
-    
-    Start-PoshTest
+    #Import-Module "C:\Tests\appveyor.tests.ps1"
+
+    #Start-PoshTest
+
+    'Write-Host "my_testvar: {0}" -f $env:my_testvar' | Set-Content C:\Temp\test1.ps1 -Encoding UTF8 -Force -Confirm:$false
+
+    & C:\Temp\test1.ps1
 
 notifications:
 - provider: Email
