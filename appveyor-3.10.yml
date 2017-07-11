@@ -29,7 +29,7 @@ test_script:
 
     if (-not(Test-Path C:\Temp)) { New-Item -Type Directory C:\Temp | Out-Null }
 
-    'Write-Host "my_testvar: {0}" -f $env:my_testvar' | Set-Content C:\Temp\test1.ps1 -Encoding UTF8 -Force -Confirm:$false
+    'Write-Host ("my_testvar: {0}" -f $env:my_testvar)' | Set-Content C:\Temp\test1.ps1 -Encoding UTF8 -Force -Confirm:$false
 
     & C:\Temp\test1.ps1
 
