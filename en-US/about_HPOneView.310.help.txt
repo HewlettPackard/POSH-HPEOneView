@@ -32,7 +32,36 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
-    Release 3.10.1368.1970
+    Release 3.10.1416.3042
+
+     -- Fixed Get-HPOVManagedSan to support -ErrorAction parameter.
+     -- Fixed New-HPOVServerProfile regression when assigning Servers.
+     -- Fixed Reset-HPOVEnclosureDevice where the resource eTag was not being sent to API, resulting
+        in API exception being thrown.
+     -- [#282] Fixed New-HPOVLicense where the incorrect API object type was being passed in JSON body.
+     -- [#283] Fixed New-HPOVStroageVolumeTemplate where a missing enum was being passed to API causing
+        exception to be generated.
+     -- Added Appliance Trusted Certificate management Cmdlets, Get-HPOVApplianceTrustedCertificate,
+        Add-HPOVApplianceTrustedCertificate, and Remove-HPOVApplianceTrustedCertificate.
+     -- Added Enable-HPOVRemoteSupport and Disable-HPOVRemoteSupport Cmdlets for suported resources.
+     -- Added Get-HPOVRemoteSupportEntitlementStatus Cmdlet to return status and Warranty/Contract info.
+     -- Added Update-HPOVRemoteSupportEntitlement to initiate a resource entitlement refresh.
+     -- Added Enable and Disable switch parameters to Set-HPOVRemoteSupport Cmdlet to enable and disable
+        Remote Support globally on the appliance, after successful configuration and registration.
+     -- Added Set-HPOVLogicalEnclosure Cmdlet to change LE settings, like Name or to grow the LE with
+        new Enclosure Group.
+     -- Added missing Image Streamer parameters to New-HPOVServerProfileTemplate.
+     -- Refactored Install-HPOVApplianceCertificate to handle different certificate input methods.
+     -- Refactored Get-HPOVVersion to return $PSLibraryVersion varilable that is now available within
+        your PowerShell session by default.  The Get-HPOVVersion will be deprecated once the library is
+        published to PowerShellGallary.
+     -- Enhanced Get-HPOVIloSso Cmdlet to return a compliant session object for HPRESTCmdlets to use.
+        In order to use this, you must specify the -IloRestSession switch parameter.
+     -- Deprecated and removed support for Start-HPOVLibraryTrace and Stop-HPOVLibraryTrace.  Replaced
+        with Get-HPOVCommandTrace, which properly sets up the logging for capture verbose output
+        from supplied script block.
+
+    Release 3.10.1377.2109
 
      -- First release of HPE OneView 3.10 PowerShell library.
      -- New Cmdlets added:

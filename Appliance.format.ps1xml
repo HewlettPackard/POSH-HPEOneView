@@ -714,67 +714,53 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>  
-    <!--HPOneView.Appliance.RemoteSupport.ResourceSetting FT-->
+    </View>
+    <!--HPOneView.Appliance.TrustedCertificate FT-->
     <View>
-      <Name>RemoteSupportResourceSetting</Name>
+      <Name>ApplianceTrustedCertificate</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Appliance.RemoteSupport.ResourceSetting</TypeName>
+        <TypeName>HPOneView.Appliance.TrustedCertificate</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Appliance</Label>
+            <Label>AliasName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>
+          </TableColumnHeader> 
           <TableColumnHeader>
-            <Label>ResourceName</Label>
+            <Label>Status</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>
+          </TableColumnHeader> 
           <TableColumnHeader>
-            <Label>SalesChannelPartner</Label>
+            <Label>ValidFrom</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>
+          </TableColumnHeader> 
           <TableColumnHeader>
-            <Label>SupportChannelPartner</Label>
+            <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>PrimaryContact</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>SecondaryContact</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
+          </TableColumnHeader> 
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>aliasName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>ResourceName</PropertyName>
+                <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.SalesChannelPartner.name</ScriptBlock>
+                <ScriptBlock>[DateTime]$_.certDetails.validFrom</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.SupportChannelPartner.name</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>'{0} {1}' -f $_.PrimaryContact.firstName,$_.PrimaryContact.lastName</ScriptBlock>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>'{0} {1}' -f $_.SecondaryContact.firstName,$_.SecondaryContact.lastName</ScriptBlock>
+                <ScriptBlock>[DateTime]$_.certDetails.validUntil</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>      
+    </View>         
     <!--HPOneView.Appliance.RemoteSupport.Schedule FT-->
     <View>
       <Name>RemoteSupportSchedule</Name>
@@ -785,13 +771,9 @@
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Appliance</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
             <Label>ScheduleName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>
+          </TableColumnHeader>      
           <TableColumnHeader>
             <Label>RepeatOption</Label>
             <Alignment>Left</Alignment>
@@ -817,25 +799,22 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ScheduleName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>scheduleName</PropertyName>
+                <PropertyName>RepeatOption</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>repeatOption</PropertyName>
+                <PropertyName>HourOfDay</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>hourOfDay</PropertyName>
+                <PropertyName>Minute</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>minute</PropertyName>
+                <PropertyName>DayOfMonth</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>dayOfMonth</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <ScriptBlock>if ($_.dayOfWeek) { '{0}' -f [DayOfWeek]$_.dayOfWeek }</ScriptBlock>
+                <PropertyName>DayOfWeek</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
