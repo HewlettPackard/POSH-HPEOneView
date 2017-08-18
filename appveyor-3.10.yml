@@ -4,6 +4,17 @@ branches:
     - 3.10
 
 skip_tags: true
+
+skip_commits:
+  files:
+    - LICENSE
+    - '*.psd1'
+    - '**/*.xml'
+    - '**/*.txt'
+    - '*.md'
+    - '*.yml'
+    - .github/*.md
+
 build_cloud:
 - doc-hyp-02
 

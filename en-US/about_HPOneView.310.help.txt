@@ -39,7 +39,7 @@ WHAT'S NEW
      -- Fixed Reset-HPOVEnclosureDevice where the resource eTag was not being sent to API, resulting
         in API exception being thrown.
      -- [#282] Fixed New-HPOVLicense where the incorrect API object type was being passed in JSON body.
-     -- [#283] Fixed New-HPOVStroageVolumeTemplate where a missing enum was being passed to API causing
+     -- [#283] Fixed New-HPOVStorageVolumeTemplate where a missing enum was being passed to API causing
         exception to be generated.
      -- Added Appliance Trusted Certificate management Cmdlets, Get-HPOVApplianceTrustedCertificate,
         Add-HPOVApplianceTrustedCertificate, and Remove-HPOVApplianceTrustedCertificate.
