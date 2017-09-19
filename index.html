@@ -1,88 +1,132 @@
 <!DOCTYPE html>
 <html>
 
-  <head>
-    <meta charset='utf-8'>
-    <meta http-equiv="X-UA-Compatible" content="chrome=1">
-    <meta name="description" content="POSH-HPOneView : The HPE OneView PowerShell library.">
+<head>
+  <meta charset='utf-8'>
+  <meta http-equiv="X-UA-Compatible" content="chrome=1">
+  <meta name="description" content="POSH-HPOneView : The HPE OneView PowerShell library.">
 
-    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+  <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
-    <title>Posh-hponeview</title>
-  </head>
+  <title>Posh-hponeview</title>
+</head>
 
-  <body>
+<body>
 
-    <!-- HEADER -->
-    <div id="header_wrap" class="outer">
-        <header class="inner">
-          <a id="forkme_banner" href="https://github.com/HewlettPackard/POSH-HPOneView" target="_blank">View on GitHub</a>
+  <!-- HEADER -->
+  <div id="header_wrap" class="outer">
+    <header class="inner">
+      <a id="forkme_banner" href="https://github.com/HewlettPackard/POSH-HPOneView" target="_blank">View on GitHub</a>
 
-          <h1 id="project_title">POSH-HPOneView</h1>
-          <h2 id="project_tagline">The HPE OneView PowerShell library.</h2>
+      <h1 id="project_title">POSH-HPOneView</h1>
+      <h2 id="project_tagline">The HPE OneView PowerShell library.</h2>
 
-           <section id="downloads">
-	      <a class="zip_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/zipball/master">Download this project as a .zip file</a>
-              <a class="tar_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/tarball/master">Download this project as a tar.gz file</a>
-              <a class="exe_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/releases" target="_blank">Download an Installer</a>
-	   </section>
-        </header>
-    </div>
+      <section id="downloads">
+        <a class="zip_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/zipball/master" target="_blank">Download this project as a .zip file</a>
+        <a class="tar_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/tarball/master" target="_blank">Download this project as a tar.gz file</a>
+        <a class="exe_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/releases" target="_blank">Download an Installer</a>
+      </section>
+    </header>
+  </div>
 
-    <!-- MAIN CONTENT -->
-    <div id="main_content_wrap" class="outer">
-      <section id="main_content" class="inner">
-        <h3>
-<a name="posh-hponeview" class="anchor" href="#posh-hponeview"><span class="octicon octicon-link"></span></a>POSH-HPOneView</h3>
+  <!-- MAIN CONTENT -->
+  <div id="main_content_wrap" class="outer">
+    <section id="main_content" class="inner">
+      <h3>
+        <a name="posh-hponeview-introduction" class="anchor" href="#posh-hponeview-introduction"><span class="octicon octicon-link"></span></a>Introduction</h3>
 
-<h1></h1>
+      <h1></h1>
 
-<a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview/branch/3.00"><img title="Build status" src="https://ci.appveyor.com/api/projects/status/n1mk2r2lpa1sdxxw/branch/3.00?svg=true" /></a>
-	      
-<p>This library provides a pure Windows PowerShell interface to the HPE OneView REST APIs.</p>
+      <p>This library provides a pure Windows PowerShell interface to the HPE OneView and HPE Synergy Composable API.</p>
 
-<p>HPE OneView is a fresh approach to converged infrastructure management, inspired by the way you expect to work, with a single integrated view of your IT infrastructure.</p>
+      <p>HPE OneView is a fresh approach to converged infrastructure management, inspired by the way you expect to work, with
+        a single integrated view of your IT infrastructure.</p>
 
-<p>This PowerShell project is developed for those that want to automate operations or use PowerShell as an interactive CLI for HPE OneView. </p>
+      <p>This PowerShell project is developed for those that want to automate operations or use PowerShell as an interactive
+        CLI for HPE OneView and/or HPE Synergy. </p>
 
-<img title="HPOneView POSH Library Intro" src="./images/HPOneView_POSH_Library_intro.png" alt="HPOneView_POSH_Library_intro.png" width="500" height="365" />
+      <img title="HPOneView POSH Library Intro" src="./images/HPOneView_POSH_Library_intro.png" alt="HPOneView_POSH_Library_intro.png"
+        width="500" height="365" />
 
-<p>To get started, you can <a href="https://github.com/HewlettPackard/POSH-HPOneView/releases">download</a> the latest release in an easy to use, digitally signed installer.</p>
+      <h3>
+        <a name="posh-hponeview-getting-started" class="anchor" href="#posh-hponeview-getting-started"><span class="octicon octicon-link"></span></a>Getting
+        Started
+      </h3>
 
-<p>Alternatively, you can clone the source repository:</p>
+      <p>To get started, you can <a href="https://github.com/HewlettPackard/POSH-HPOneView/releases" target="_blank">download</a> the latest release in an easy to use, digitally signed installer.</p>
 
-<pre><code><font color="FFFF33">[PS]</font> C:\&gt; cd &lt;repo_directory&gt;
-<font color="FFFF33">[PS]</font> C:\&gt; #Clone POSH-HPOneView repository
-<font color="FFFF33">[PS]</font> C:\&gt; git clone https://github.com/HewlettPackard/POSH-HPOneView.git
+      <p>The library (version 3.10 and newer) is also available on the <a href="https://www.powershellgallery.com/items?q=hp.powershell&x=0&y=0" target="_blank">PowerShellGallery</a>:</p>
+
+      <pre><code><font color="008000"># Locate the HPE OneView PowerShell library on PowerShellGallery</font>
+<font color="FFFF33">Find-Module</font> HPOneView.310 
+Version    Name          Repository Description 
+-------    ----          ---------- ----------- 
+3.10.14... HPOneView.310 PSGallery  HPE OneView PowerShell Library
+
+<font color="008000"># Install the HPE OneView PowerShell library</font>
+<font color="FFFF33">Install-Module</font> HPOneView.310
 </code></pre>
 
-<h3>
-<a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors and Contributors</h3>
+      <p>Lastly, you can clone the source repository:</p>
 
-<p>The following are the primary developers of the HPE OneView PowerShell library.</p>
+      <pre><code><font color="008000"># Create parent directory where to store repository clone</font>
+<font color="FFFF33">New-Item</font> <font color="808080">-Path</font> <font color="00FF00">$ParentDirectory</font> <font color="808080">-Type</font> Directory
 
-<ul>
-<li>Chris Lynch (<a href="https://github.com/ChrisLynchHPE" class="user-mention">@ChrisLynchHPE</a>)</li>
-<li>Eric Schulte(<a href="https://github.com/ejschulte" class="user-mention">@ejschulte</a>)</li>
-<li>Terry Martin(<a href="https://github.com/tmartin103" class="user-mention">@tmartin103</a>)</li>
-</ul>
+cd <font color="00FF00">$ParentDirectory</font>
 
-<h3>
-<a name="support" class="anchor" href="#support"><span class="octicon octicon-link"></span></a>Support</h3>
+<font color="008000"># Clone POSH-HPOneView repository</font>
+<font color="FFFF33">git</font> clone https://github.com/HewlettPackard/POSH-HPOneView.git
+</code></pre>
 
-<p>Having trouble?  Missing a feature?  Please use the project <a href="https://github.com/HewlettPackard/POSH-HPOneView/issues">Issues Tracker</a>.</p>
-      </section>
-    </div>
+      <p>Online documentation can be found in the <a href="https://github.com/HewlettPackard/POSH-HPOneView/wiki" target="_blank">Project Wiki</a>.</p>
 
-    <!-- FOOTER  -->
-    <div id="footer_wrap" class="outer">
-      <footer class="inner">
-        <p class="copyright">Posh-hponeview maintained by <a href="https://github.com/HewlettPackard">Hewlett-Packard Enterprise</a></p>
-        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
-      </footer>
-    </div>
+      <h3>
+        <a name="project-ci-status" class="anchor" href="#project-ci-status"><span class="octicon octicon-link"></span></a>Project
+        CI Status</h3>
+      <table>
+        <thead>
+          <tr>
+            <th>AppVeyor 3.00 Branch</th>
+            <th>AppVeyor 3.10 (origin/master) Branch</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview/branch/3.00" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/n1mk2r2lpa1sdxxw/branch/3.00?svg=true" alt="Build status"></a></td>
+            <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-34esg" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/7aeeipw70yo0gbcm?svg=true" alt="Build status"></a></td>
+          </tr>
+        </tbody>
+      </table>
 
-    
+      <h3>
+        <a name="authors-and-contributors" class="anchor" href="#authors-and-contributors"><span class="octicon octicon-link"></span></a>Authors
+        and Contributors</h3>
 
-  </body>
+      <p>The following are the primary developers of the HPE OneView PowerShell library.</p>
+
+      <ul>
+        <li>Chris Lynch (<a href="https://github.com/ChrisLynchHPE" class="user-mention" target="_blank">@ChrisLynchHPE</a>)</li>
+        <li>Eric Schulte(<a href="https://github.com/ejschulte" class="user-mention" target="_blank">@ejschulte</a>)</li>
+        <li>Terry Martin(<a href="https://github.com/tmartin103" class="user-mention" target="_blank">@tmartin103</a>)</li>
+      </ul>
+
+      <h3>
+        <a name="support" class="anchor" href="#support"><span class="octicon octicon-link"></span></a>Support</h3>
+
+      <p>Having trouble? Missing a feature? Please use the project <a href="https://github.com/HewlettPackard/POSH-HPOneView/issues"
+          target="_blank">Issues Tracker</a>.</p>
+    </section>
+  </div>
+
+  <!-- FOOTER  -->
+  <div id="footer_wrap" class="outer">
+    <footer class="inner">
+      <p class="copyright">POSH-HPOneView maintained by <a href="https://github.com/HewlettPackard" target="_blank">Hewlett-Packard Enterprise</a></p>
+    </footer>
+  </div>
+
+
+
+</body>
+
 </html>
