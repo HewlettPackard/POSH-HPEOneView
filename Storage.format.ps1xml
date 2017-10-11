@@ -351,7 +351,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Provisioning</Label>
+            <Label>ProvisioningType</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -363,15 +363,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Storage System</Label>
+            <Label>StorageSystem</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Storage Pool</Label>
+            <Label>StoragePool</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Snapshot Pool</Label>
+            <Label>SnapshotPool</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -394,21 +394,21 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.shareable) { "Shared"}
+                  if ($_.isShareable) { "Shared"}
                   else              { "Private" }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>(Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>(Send-HPOVRequest -Uri (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>(Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
                <TableColumnItem>
                 <ScriptBlock>
-                if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
+                if (-not([String]::IsNullOrEmpty($_.deviceSpecificAttributes.snapshotPoolUri)))
                 {
-                  (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                  (Send-HPOVRequest $_.deviceSpecificAttributes.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
                 }  
                 </ScriptBlock>
               </TableColumnItem>
@@ -452,55 +452,53 @@
                 <PropertyName>description</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>WWN</Label>
-                <PropertyName>wwn</PropertyName>
+                <Label>LunWwn</Label>
+                <PropertyName>lunWwn</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Provisioning</Label>
-                <PropertyName>provisionType</PropertyName>
+                <Label>ProvisioningType</Label>
+                <PropertyName>provisioningType</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Provisioned capacity</Label>
+                <Label>ProvisionedCapacity</Label>
                 <ScriptBlock>'{0:N2} GB' -f ($_.provisionedCapacity / 1GB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Allocated capacity</Label>
+                <Label>AllocatedCapacity</Label>
                 <ScriptBlock>'{0:N2} GB' -f ($_.allocatedCapacity / 1GB)</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Sharing</Label>
                 <ScriptBlock>
-                  if ($_.shareable) { "Shared"}
+                  if ($_.isShareable) { "Shared"}
                   else              { "Private" }
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Storage System</Label>
-                <ScriptBlock>
-                  (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name
-                </ScriptBlock>
+                <Label>StorageSystem</Label>
+                <ScriptBlock>(Send-HPOVRequest -Uri (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Storage Pool</Label>
+                <Label>StoragePool</Label>
                 <ScriptBlock>
                   (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Snapshot Pool</Label>
+                <Label>SnapshotPool</Label>
                 <ScriptBlock>
-                  if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
+                  if (-not([String]::IsNullOrEmpty($_.deviceSpecificAttributes.snapshotPoolUri)))
                   {
-                    (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                    (Send-HPOVRequest $_.deviceSpecificAttributes.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
                   }  
                 </ScriptBlock>
               </ListItem>                
               <ListItem>
                 <Label>RAID</Label>
-                <PropertyName>raidLevel</PropertyName>
+                <ScriptBlock>'{0}' -f (Send-HPOVRequest $_.deviceSpecificAttributes.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).deviceSpecificAttributes.supportedRAIDLevel</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Storage System Volume Name</Label>
+                <Label>StorageSystemVolumeName</Label>
                 <PropertyName>deviceVolumeName</PropertyName>
               </ListItem>
               <ListItem>
@@ -547,15 +545,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Storage System</Label>
+            <Label>StorageSystem</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Storage Pool</Label>
+            <Label>StoragePool</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Snapshot Pool</Label>
+            <Label>SnapshotPool</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -567,28 +565,28 @@
                 <PropertyName>name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>'{0:N2} GB' -f ($_.provisioning.capacity / 1GB)</ScriptBlock>
+                <ScriptBlock>'{0:N2} GB' -f ($_.properties.size.default / 1GB)</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>'{0}' -f $_.provisioning.provisionType</ScriptBlock>
+                <ScriptBlock>'{0}' -f $_.properties.provisioningType.default</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                  if ($_.shareable) { "Shared"}
+                  if ($_.properties.isShareable.default) { "Shared"}
                   else              { "Private" }
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.compatibleStorageSystemsUri -Hostname $_.ApplianceConnection.Name).members.displayName</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.provisioning.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </TableColumnItem>
                <TableColumnItem>
                 <ScriptBlock>
-                if (-not([String]::IsNullOrEmpty($_.snapshotPoolUri)))
+                if (-not([String]::IsNullOrEmpty($_.properties.snapshotPool.default)))
                 {
-                  (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                  (Send-HPOVRequest $_.properties.snapshotPool.default -Hostname $_.ApplianceConnection.Name).name
                 }  
                 </ScriptBlock>
               </TableColumnItem>
@@ -613,7 +611,7 @@
               </ListItem>
               <ListItem>
                 <Label>State</Label>
-                <ScriptBlock>"{0} ({1})" -f $_.state, $_.stateReason</ScriptBlock>
+                <PropertyName>state</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Description</Label>
@@ -621,38 +619,38 @@
               </ListItem>
               <ListItem>
                 <Label>ProvisioningType</Label>
-                <ScriptBlock>'{0}' -f $_.provisioning.provisionType</ScriptBlock>
+                <ScriptBlock>'{0}' -f $_.properties.provisioningType.default</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Provisioned capacity</Label>
-                <ScriptBlock>'{0:N2} GB' -f ($_.provisioning.provisionedCapacity / 1GB)</ScriptBlock>
+                <Label>ProvisionedCapacity</Label>
+                <ScriptBlock>'{0:N2} GB' -f ($_.properties.size.default / 1GB)</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Sharing</Label>
                 <ScriptBlock>
-                  if ($_.shareable) { "Shared"}
+                  if ($_.properties.isShareable.default) { "Shared"}
                   else              { "Private" }
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Storage System</Label>
-                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storageSystemUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <Label>StorageSystem</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.compatibleStorageSystemsUri -Hostname $_.ApplianceConnection.Name).members.displayName</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Storage Pool</Label>
-                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.provisioning.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+                <Label>StoragePool</Label>
+                <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.storagePoolUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Snapshot Pool</Label>
+                <Label>SnapshotPool</Label>
                 <ScriptBlock>
-                  if (-not([String]::IsNullOrWhiteSpace($_.snapshotPoolUri)))
+                  if (-not([String]::IsNullOrEmpty($_.properties.snapshotPool.default)))
                   {
-                    "{0}" -f (Send-HPOVRequest $_.snapshotPoolUri -Hostname $_.ApplianceConnection.Name).name
+                    (Send-HPOVRequest $_.properties.snapshotPool.default -Hostname $_.ApplianceConnection.Name).name
                   }  
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Storage System Volume Name</Label>
+                <Label>StorageSystemVolumeName</Label>
                 <PropertyName>deviceVolumeName</PropertyName>
               </ListItem>
             </ListItems>
@@ -678,7 +676,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Parent Volume</Label>
+            <Label>ParentVolume</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>

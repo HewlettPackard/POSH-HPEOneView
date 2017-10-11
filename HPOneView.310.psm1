@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '3.10.1416.3042'
+[Version]$ModuleVersion = '3.10.1471.1581'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -4527,7 +4527,7 @@ function Send-HPOVRequest
 					else
 					{
 
-						"[{0}]  Request Body: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $js | Write-Verbose 
+						"[{0}] Request Body: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $js | Write-Verbose 
 
 					}
 
@@ -16930,8 +16930,41 @@ function Get-HPOVRemoteSupportEntitlementStatus
 
 				}
 
-				$_EntitlementStatus = New-Object HPOneView.RemoteSupport.ContractAndWarrantyStatus ($_Resource.name,
+				# Get resource name
+				switch ($_Resource.type)
+				{
+
+					'server-hardware'
+					{
+
+						if ($null -ne $_Resource.serverName)
+						{
+
+							$_ResourceName = $_Resource.serverName
+
+						}
+
+						else
+						{
+
+							$_ResourceName = $_Resource.name
+
+						}
+
+					}
+
+					'enclosures'
+					{
+
+						$_ResourceName = $_Resource.name
+
+					}
+
+				}
+
+				$_EntitlementStatus = New-Object HPOneView.RemoteSupport.ContractAndWarrantyStatus ($_ResourceName,
 																									$_Uri,
+																									$_Resource.serialNumber,
 																									$_ResourceEntitlementStatus.entitlementPackage,
 																									$_ResourceEntitlementStatus.entitlementStatus,
 																									$_ResourceEntitlementStatus.offerStatus,
@@ -16964,12 +16997,13 @@ function Get-HPOVRemoteSupportEntitlementStatus
 
 				"[{0}] Remote Support is disabled for the resource, returning ." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				$_EntitlementStatus = New-Object HPOneView.RemoteSupport.ContractAndWarrantyStatus ($_Resource.name,
+				$_EntitlementStatus = New-Object HPOneView.RemoteSupport.ContractAndWarrantyStatus ($_ResourceName,
 																									$_Uri,
+																									$_Resource.serialNumber,
+																									$false,
+																									'INVALID',
 																									$_Resource.ApplianceConnection
 																									)
-				$_EntitlementStatus.IsEntitled = $false
-				$_EntitlementStatus.EntitlementStatus = 'INVALID'
 				
 			}
 
@@ -31761,7 +31795,7 @@ function New-HPOVLogicalEnclosure
 			'PSCustomObject'
 			{
 
-				"[{0]}] Synergy Frame object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Enclosure | Out-String) | Write-Verbose 
+				"[{0}] Synergy Frame object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Enclosure | Out-String) | Write-Verbose 
 
 				if ($Enclosure.category -ne 'enclosures')
 				{
@@ -64176,6 +64210,11 @@ function Get-InterconnectBayObject
 			default 
 			{
 
+				#Should we throw an exception here?
+				# $ExceptionMessage = "The specified Interconnect Bay type was not"
+				# $ErrorRecord = New-ErrorRecord HPOneView.SnmpTrapDestination InvalidTrapSeverity InvalidArgument 'InterconnectBay' -Message ("The provided SNMP Trap Severity {0} is unsupported.  Please check the value, making sure it is one of these values: {1}." -f $_severity, ([System.String]::Join(", ", $SnmpTrapSeverityEnums)))
+
+				# $PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 				$_interconnectObject = $null
 
 			}
@@ -65908,7 +65947,7 @@ function New-HPOVUplinkSet
 						if ($_p.Count -ge 3)
 						{
 
-							'[{0}] Port configuration is Synergy Ethernet' -f $MyInvocation.InvocationName.ToString().ToUpper()
+							'[{0}] Port configuration is Synergy Ethernet' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 							[string]$EnclosureID = $InputObject.enclosureUris[$_p[0].TrimStart('enclosureEnclosure')-1]
 
@@ -65925,26 +65964,24 @@ function New-HPOVUplinkSet
 
 							}
 
-							'[{0}] Processing Frame "{1}", Bay "{2}", Port "{3}"' -f $MyInvocation.InvocationName.ToString().ToUpper(), $EnclosureID, $bay, $uplinkPort
+							'[{0}] Processing Frame "{1}", Bay "{2}", Port "{3}"' -f $MyInvocation.InvocationName.ToString().ToUpper(), $EnclosureID, $bay, $uplinkPort | Write-Verbose
 
-							"[{0}] Looking for Interconnect URI for Bay $($bay)" -f $MyInvocation.InvocationName.ToString().ToUpper(), $bay | Write-Verbose
+							"[{0}] Looking for Interconnect URI for Bay {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $bay | Write-Verbose
 
 							#Loop through Interconnect Map Entry Template items looking for the provided Interconnet Bay number
-							ForEach ($l in ($InputObject.interconnectmaptemplate.interconnectmapentrytemplates | ? enclosureIndex -eq $EnclosureID)) 
+							ForEach ($l in ($InputObject.interconnectMap.interconnectMapEntries | ? enclosureIndex -eq $EnclosureID)) 
 							{ 
-
-								#$found = $l.logicalLocation.locationEntries | ? { $_.type -eq "Bay" -and $_.relativeValue -eq $bay }
-																
-								if ($l.logicalLocation.locationEntries | ? { $_.type -eq "Bay" -and $_.relativeValue -eq $bay }) 
+	
+								if ($l.location.locationEntries | ? { $_.type -eq "Bay" -and $_.relativeValue -eq $bay }) 
 								{
 
 									$permittedIcUri = $l.permittedInterconnectTypeUri
 
-									write-verbose "[{0}]] Found permitted Interconnect Type URI {1} for Bay {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $permittedIcUri, $bay | Write-Verbose
+									"[{0}]] Found permitted Interconnect Type URI {1} for Bay {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $permittedIcUri, $bay | Write-Verbose
 
 								}
 
-							} 
+							}
 
 						}
 
@@ -65998,12 +66035,21 @@ function New-HPOVUplinkSet
 							} 
 
 						}
+
+						# Generate error that Interconnect could not be found from the LI
+						if ($null -eq $permittedIcUri)
+						{
+
+							$ExceptionMessage = 'The Interconnect Bay ID {0} could not be identified within the provided Logical Interconnect resource object.' -f $bay
+							$ErrorRecord = New-ErrorRecord HPOneView.UplinkSetResourceException UnsupportedLogicalInterconnectResource InvalidArgument 'InputObject' -Message $ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+						}
 						
-						#Get Interconnect Type object in order to get relative port ID
+						# Get Interconnect Type object in order to get relative port ID
 						Try
 						{
 
-							$_interconnecttype = Send-HPOVRequest $permittedIcUri -Hostname $InputObject.ApplianceConnection.Name
+							$_interconnecttype = Send-HPOVRequest -Uri $permittedIcUri -Hostname $InputObject.ApplianceConnection.Name
 
 						}
 
@@ -66109,14 +66155,14 @@ function New-HPOVUplinkSet
 						
 						}
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding Uplink Set to LIG: $($_logicalLocation | out-string)"
+						"[{0}] Adding Uplink Set to LIG: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_logicalLocation | out-string) | Write-Verbose
 							
 						[void]$_liUplinkSetObject.portConfigInfos.Add($_location)
 
 					}
 
 					#Network Objects
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Network Uris"
+					"[{0}] Getting Network Uris" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					$_networkUris = GetNetworkUris -_Networks $Networks -_ApplianceConnection $ApplianceConnection
 
@@ -66141,7 +66187,7 @@ function New-HPOVUplinkSet
 					if ($NativeEthNetwork)
 					{
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Native Ethernet Network Uri"
+						"[{0}] Getting Native Ethernet Network Uri" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						$_liUplinkSetObject | Add-Member -NotePropertyName nativeNetworkUri -NotePropertyValue $null
 
@@ -66172,26 +66218,26 @@ function New-HPOVUplinkSet
 						
 					}  
 	
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($InputObject.name) Uplink Set object: $($_liUplinkSetObject | convertto-json -depth 99)"
+					"[{0}] {1} Uplink Set object: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name, ($_liUplinkSetObject | convertto-json -depth 99) | Write-Verbose
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request..."
+					"[{0}] Sending request..." | Write-Verbose
 
 					Try
 					{
 						
-						$resp = Send-HPOVRequest $UplinkSetsUri POST $_liUplinkSetObject -Hostname $InputObject.ApplianceConnection.Name
+						$resp = Send-HPOVRequest -uri $UplinkSetsUri -method POST -body $_liUplinkSetObject -Hostname $InputObject.ApplianceConnection.Name
 
-						if ($PSBoundParameters['Async'])
+						if (-not $PSBoundParameters['Async'])
 						{
 
-							$resp
+							$resp | Wait-HPOVTaskComplete
 
 						}
 
 						else
 						{
 
-							$resp | Wait-HPOVTaskComplete
+							$resp
 
 						}
 
@@ -66215,7 +66261,8 @@ function New-HPOVUplinkSet
 					if ($Type -eq 'Imagestreamer' -and $InputObject.enclosureType -notmatch 'SY')
 					{
 
-						$ErrorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'Resource' -TargetType 'PSObject' -Message "The -Resource Parameter value does not contain the ApplianceConnection object property.  Please validate the object was retrieved from Get-HPOVLogicalInterconnectGroup or a resource URI via Send-HPOVRequest."
+						$ExceptionMessage = "The -Resource Parameter value does not contain the ApplianceConnection object property.  Please validate the object was retrieved from Get-HPOVLogicalInterconnectGroup or a resource URI via Send-HPOVRequest."
+						$ErrorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'InputObject' -TargetType 'PSObject' -Message $ExceptionMessage
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -66438,26 +66485,26 @@ function New-HPOVUplinkSet
 						if ($PrimaryPort -match $_p -and $EthMode -eq "Failover") 
 						{
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Setting Uplink Set mode to 'Failover', and Primary Port to '$PrimaryPort'"
+							"[{0}] Setting Uplink Set mode to 'Failover', and Primary Port to '{1}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PrimaryPort | Write-Verbose 
 
 							$_ligUplinkSetObject.primaryPortLocation | Add-Member -NotePropertyName locationEntries -NotePropertyValue (New-Object System.Collections.ArrayList)
 
 							$_ligUplinkSetObject.mode = $EthMode
 
-							$_EnclosureLogicalLocation = NewObject -UplinkSetLogicalLocationEntry
-							$_EnclosureLogicalLocation.type = 'Enclosure'
+							$_EnclosureLogicalLocation               = NewObject -UplinkSetLogicalLocationEntry
+							$_EnclosureLogicalLocation.type          = 'Enclosure'
 							$_EnclosureLogicalLocation.relativeValue = [int]$EnclosureID
 
 							[void]$_ligUplinkSetObject.primaryPortLocation.locationEntries.Add($_EnclosureLogicalLocation)
 
-							$_BayLogicalLocation = NewObject -UplinkSetLogicalLocationEntry
-							$_BayLogicalLocation.type = 'Bay'
+							$_BayLogicalLocation               = NewObject -UplinkSetLogicalLocationEntry
+							$_BayLogicalLocation.type          = 'Bay'
 							$_BayLogicalLocation.relativeValue = [int]$bay
 
 							[void]$_ligUplinkSetObject.primaryPortLocation.locationEntries.Add($_BayLogicalLocation)
 
-							$_PortLogicalLocation = NewOBject -UplinkSetLogicalLocationEntry
-							$_PortLogicalLocation.type = 'Port'
+							$_PortLogicalLocation               = NewOBject -UplinkSetLogicalLocationEntry
+							$_PortLogicalLocation.type          = 'Port'
 							$_PortLogicalLocation.relativeValue = [int]$_portRelativeValue.portNumber
 
 							[void]$_ligUplinkSetObject.primaryPortLocation.locationEntries.Add($_PortLogicalLocation)
@@ -66479,13 +66526,13 @@ function New-HPOVUplinkSet
 						
 						}
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Adding Uplink Set to LIG: $($_logicalLocation | out-string)"
+						"[{0}] Adding Uplink Set to LIG: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_logicalLocation | out-string) | Write-Verbose
 							
 						[void]$_ligUplinkSetObject.logicalPortConfigInfos.Add($_logicalLocation)
 
 					}
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Network Uris"
+					"[{0}] Getting Network Uris" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 				
 					$_NetworkUris = GetNetworkUris -_Networks $Networks -_ApplianceConnection $ApplianceConnection
 
@@ -66498,7 +66545,7 @@ function New-HPOVUplinkSet
 					if ($NativeEthNetwork)
 					{
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting Native Ethernet Network Uri"
+						"[{0}] Getting Native Ethernet Network Uri" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						$_ligUplinkSetObject | Add-Member -NotePropertyName nativeNetworkUri -NotePropertyValue $null
 
@@ -66522,16 +66569,16 @@ function New-HPOVUplinkSet
 
 					}					
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($InputObject.name) Uplink Set object: $($_ligUplinkSetObject | convertto-json -depth 99)"
+					"[{0}] {1} Uplink Set object: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name, ($_ligUplinkSetObject | convertto-json -depth 99) | Write-Verbose
 
-					#Rebuld uplinkset collection
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $($InputObject.name) Rebuilding UplinkSet template collection."
+					# Rebuld uplinkset collection
+					"[{0}] {1} Rebuilding UplinkSet template collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 
-					'[{0}] UplinkSets to readd: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(),$InputObject.uplinkSets.Count | Write-Verbose
+					'[{0}] UplinkSets to readd: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.uplinkSets.Count | Write-Verbose
 
 					$InputObject.uplinkSets | % {
 
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Saving Uplink Set object to new collection: {0}" -f $_.name | Write-Verbose
+						"[{0}] Saving Uplink Set object to new collection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_.name | Write-Verbose
 
 						[void]$_NewUplinkSetCol.Add($_)
 
@@ -66541,11 +66588,11 @@ function New-HPOVUplinkSet
 										
 					[Array]$InputObject.uplinkSets = $_NewUplinkSetCol
 
-					'[{0}] UplinkSets after rebuild: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(),$InputObject.uplinkSets.Count | Write-Verbose
+					'[{0}] UplinkSets after rebuild: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.uplinkSets.Count | Write-Verbose
 
 					'[{0}] Updated Resource: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), ($InputObject | ConvertTo-Json -Depth 99 | Out-String) | Write-Verbose
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending request..."
+					'[{0}] Sending request...' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					Try
 					{
@@ -66581,7 +66628,8 @@ function New-HPOVUplinkSet
 				default
 				{
 
-					$ErrorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'Resource' -TargetType 'PSObject' -Message "The Resource Parameter value provided is not a Logical Interconnect Group or Logical Interconnect object.  Please check the value and try again."
+					$ExceptionMessage = "The Resource Parameter value provided is not a Logical Interconnect Group or Logical Interconnect object.  Please check the value and try again."
+					$ErrorRecord = New-ErrorRecord ArgumentException InvalidParameter InvalidArgument 'Resource' -TargetType 'PSObject' -Message $ExceptionMessage
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
@@ -70982,6 +71030,7 @@ function Get-HPOVOSDeploymentPlan
 	(
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
 		[String]$Name,
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
@@ -71297,52 +71346,73 @@ function Get-HPOVOSDeploymentPlanAttribute
 
 		}
 
-		#$_PlanAttributeNicNames = New-Object System.Collections.ArrayList
 		$_OSDeploymentSettingsCollection = New-Object 'HPOneView.ServerProfile.OSDeployment.OsDeploymentPlanParametersCollection[HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter]'
 
-		$ExpectedParamForNic = @{
-            connectionid = $null;
-            dhcp         = $False;
-            ipv4disable  = $False;
-            networkuri   = $null;
-            constraint   = "auto"
-        }
-
-		#Build initial collection of Build Plan Parameters
-		ForEach ($_PlanAttribute in $InputObject.additionalParameters)
+		if ($InputObject.category -eq 'server-profile-templates')
 		{
 
-			'[{0}] Attribute name: {1}, type: {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.caType | Write-Verbose
+			# Process the osDeploymentSettings.osCustomAttributes for plan attributs to return
 
-			if ($_PlanAttribute.caType -eq 'nic')
+			ForEach ($_SptDeploymentPlanAttribute in $InputObject.osDeploymentSettings.osCustomAttributes)
 			{
 
-				ForEach ($AdditionalNicParam in ($ExpectedParamForNic.GetEnumerator() | Sort keys ))
-				{
+				'[{0}] Add {1} = {2} into OsCustomAttributesCollection' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_SptDeploymentPlanAttribute.name, $_SptDeploymentPlanAttribute.value | Write-Verbose
 
-					$_ParameterName = '{0}.{1}' -f $_PlanAttribute.name, $AdditionalNicParam.key
-
-					'[{0}] Add "{1}" NIC "{2}" = "{3}" into OsCustomAttributesCollection' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_ParameterName, $AdditionalNicParam.value | Write-Verbose					
-
-					$_Attribute = New-Object HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter($_ParameterName, $AdditionalNicParam.value)
-
-					[void]$_OSDeploymentSettingsCollection.Add($_Attribute)
-
-				}
-
-			}
-
-			if ([System.Convert]::ToBoolean($_PlanAttribute.caEditable) -and $_PlanAttribute.caType -ne 'nic')
-			{
-
-				'[{0}] Add {1} = {2} into OsCustomAttributesCollection' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.value | Write-Verbose
-
-				$_PlanAttribute = New-Object HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter ($_PlanAttribute.name, $_PlanAttribute.value)
+				$_PlanAttribute = New-Object HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter ($_SptDeploymentPlanAttribute.name, $_SptDeploymentPlanAttribute.value)
 
 				[void]$_OSDeploymentSettingsCollection.Add($_PlanAttribute)
 
 			}
 
+		}
+
+		elseif ($InputObject.category -eq 'os-deployment-plans')
+		{
+
+			$ExpectedParamForNic = @{
+				connectionid = $null;
+				dhcp         = $False;
+				ipv4disable  = $False;
+				networkuri   = $null;
+				constraint   = "auto"
+			}
+
+			#Build initial collection of Build Plan Parameters
+			ForEach ($_PlanAttribute in $InputObject.additionalParameters)
+			{
+
+				'[{0}] Attribute name: {1}, type: {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.caType | Write-Verbose
+
+				if ($_PlanAttribute.caType -eq 'nic')
+				{
+
+					ForEach ($AdditionalNicParam in ($ExpectedParamForNic.GetEnumerator() | Sort keys ))
+					{
+
+						$_ParameterName = '{0}.{1}' -f $_PlanAttribute.name, $AdditionalNicParam.key
+
+						'[{0}] Add "{1}" NIC "{2}" = "{3}" into OsCustomAttributesCollection' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_ParameterName, $AdditionalNicParam.value | Write-Verbose					
+
+						$_Attribute = New-Object HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter($_ParameterName, $AdditionalNicParam.value)
+
+						[void]$_OSDeploymentSettingsCollection.Add($_Attribute)
+
+					}
+
+				}
+
+				if ([System.Convert]::ToBoolean($_PlanAttribute.caEditable) -and $_PlanAttribute.caType -ne 'nic')
+				{
+
+					'[{0}] Add {1} = {2} into OsCustomAttributesCollection' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.value | Write-Verbose
+
+					$_PlanAttribute = New-Object HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter ($_PlanAttribute.name, $_PlanAttribute.value)
+
+					[void]$_OSDeploymentSettingsCollection.Add($_PlanAttribute)
+
+				}
+
+			}
 		}
 
 		$_OSDeploymentSettingsCollection
@@ -72613,9 +72683,9 @@ function New-HPOVServerProfile
 
 						"[{0}] Recieved PSCustomObject for ServerProfileTemplate." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-						"[{0}] Recource Name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.name  | Write-Verbose
+						"[{0}] Resource Name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.name  | Write-Verbose
 
-						"[{0}] Recource Category: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.category | Write-Verbose
+						"[{0}] Resource Category: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.category | Write-Verbose
 
 						if ($ServerProfileTemplate.category -ne 'server-profile-templates')
 						{
@@ -72635,7 +72705,7 @@ function New-HPOVServerProfile
 						if ($ServerProfileTemplate.StartsWith($ServerProfileTemplatesUri))
 						{
 
-							"[{0}] Resource URI recieved.  Getting resource object from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+							"[{0}] Resource URI recieved. Getting resource object from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 							Try
 							{
@@ -72678,7 +72748,7 @@ function New-HPOVServerProfile
 					
 				}
 
-				"[{0}]  Requesting new Server Profile from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+				"[{0}] Requesting new Server Profile from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 				Try
 				{
@@ -72913,6 +72983,40 @@ function New-HPOVServerProfile
 
 				}
 
+				# Process OSDeploymentAttributes for SP from SPT
+				# Do we need to first look at the osDeploymentSettings at all for Constraints?
+				if ($PSBoundParameters['OSDeploymentAttributes'])
+				{
+
+					If ($ApplianceConnection.ApplianceType -ne 'Composer')
+					{
+
+						$ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentAttributes parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					ForEach ($_PlanAttribute in $ServerProfile.osDeploymentSettings.osCustomAttributes)
+					{
+
+                        			if (($ServerProfile.osDeploymentSettings.osCustomAttributes | ? { $_.Name -match ('{0}.constraint' -f $_PlanAttribute.name)}) -and 'Auto', 'DHCP' -notcontains $_PlanAttribute.value -and -not ($OSDeploymentAttributes | ? name -eq $_PlanAttribute.name))
+						{
+
+							$ExceptionMessage = 'The attribute {0} requires a value and is not provided in the OSDeploymentAttributes.' -f $_PlanAttribute.name
+							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.OSDeploymentAttributeResourceException InvalidOperation InvalidArgument 'OSDeploymentAttributes' -Message $ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+							
+						}
+
+						'[{0}] Setting {1} attribute to {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, ($OSDeploymentAttributes | ? name -eq $_PlanAttribute.name).value | Write-Verbose
+
+						($ServerProfile.osDeploymentSettings.osCustomAttributes | ? name -eq $_PlanAttribute.name).value = ($OSDeploymentAttributes | ? name -eq $_PlanAttribute.name).value
+
+					}
+
+				}
+
 			}
 
 			else
@@ -72933,6 +73037,59 @@ function New-HPOVServerProfile
 				$ServerProfile.wwnType            = $WwnAssignment
 				$ServerProfile.serialNumber       = $Serialnumber
 				$ServerProfile.uuid               = $Uuid
+
+				#Process OSDeploymentPlan
+				if ($PSBoundParameters['OSDeploymentPlan'])
+				{
+
+					If ($ApplianceConnection.ApplianceType -ne 'Composer')
+					{
+
+						$ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentPlan parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					if ($OSDeploymentPlan.type -ne 'Osdp')
+					{
+
+						$ExceptionMessage = 'The provided OSDeploymentPlan parameter value is not a valid OS Deployment Plan resource.' -f $ApplianceConnection.Name
+						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.OSDeploymentPlanResourceException InvalidOperation InvalidArgument 'OSDeploymentPlan' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+						
+					}
+
+					$_OSDeploymentSettings = NewObject -OSDeploymentSettings
+					$_OSDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
+
+					ForEach ($_PlanAttribute in $OSDeploymentAttributes)
+					{
+
+						if ($_PlanAttribute -isnot [HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter])
+						{
+
+							$ExceptionMessage = 'The provided OSDeploymentAttribute parameter value is not a valid resource.' -f $ApplianceConnection.Name
+							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.OSDeploymentAttributeResourceException InvalidOperation InvalidArgument 'OSDeploymentAttributes' -Message $ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}						
+
+						$_PlanAttributeSetting = NewObject -OSDeploymentPlanSetting
+						$_PlanAttributeSetting.name  = $_PlanAttribute.name
+						$_PlanAttributeSetting.value = $_PlanAttribute.value
+
+						'[{0}] Setting {1} attribute to {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.value | Write-Verbose
+
+						[void]$_OSDeploymentSettings.osCustomAttributes.Add($_PlanAttributeSetting)
+
+					}
+
+					$ServerProfile | Add-Member -NotePropertyName osDeploymentSettings -NotePropertyValue $null -Force
+
+					$ServerProfile.osDeploymentSettings = $_OSDeploymentSettings
+
+				}
 
 			}
 
@@ -73471,51 +73628,6 @@ function New-HPOVServerProfile
 			{
 
 				$ServerProfile.enclosureBay = $EnclosureBay
-
-			}			
-
-			#Process OSDeploymentPlan
-			if ($PSBoundParameters['OSDeploymentPlan'])
-			{
-
-				If ($ApplianceConnection.ApplianceType -ne 'Composer')
-				{
-
-					$ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentPlan parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-				}
-
-				if ($OSDeploymentPlan.type -ne 'Osdp')
-				{
-
-					#Throw error
-					
-				}
-
-				$_OSDeploymentSettings = NewObject -OSDeploymentSettings
-				$_OSDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
-
-				ForEach ($_PlanAttribute in $OSDeploymentAttributes)
-				{
-
-					if ($_PlanAttribute -isnot [HPOneView.ServerProfile.OSDeployment.OSDeploymentParameter])
-					{
-
-						#Throw error
-
-					}
-
-					$_PlanAttributeSetting = NewObject -OSDeploymentPlanSetting
-					$_PlanAttributeSetting.name  = $_PlanAttribute.name
-					$_PlanAttributeSetting.value = $_PlanAttribute.value
-
-					[void]$_OSDeploymentSettings.osCustomAttributes.Add($_PlanAttributeSetting)
-
-				}				
-
-				$ServerProfile.osDeploymentSettings = $_OSDeploymentSettings
 
 			}
 			
@@ -75108,10 +75220,12 @@ function New-HPOVServerProfileTemplate
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[ValidateNotNullOrEmpty()]
 		[HPOneView.Appliance.OSDeploymentPlan]$OSDeploymentPlan,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[ValidateNotNullOrEmpty()]
 		[Object]$OSDeploymentPlanAttributes,
 	
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
@@ -75141,6 +75255,7 @@ function New-HPOVServerProfileTemplate
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[ValidateNotNullOrEmpty()]
 		[array]$BootOrder,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
@@ -75162,6 +75277,7 @@ function New-HPOVServerProfileTemplate
 		[string]$HostOStype,
 
 		[Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
+		[ValidateNotNullOrEmpty()]
 		[object]$StorageVolume,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
@@ -75372,7 +75488,7 @@ function New-HPOVServerProfileTemplate
 			if ($ServerHardwareType.StartsWith($script:ServerHardwareTypesUri))
 			{ 
 						
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT URI Provided: $ServerHardwareType" 
+				"[{0}] SHT URI Provided: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerHardwareType | Write-Verbose
 
 				$_spt.serverHardwareTypeUri = $ServerHardwareType
 
@@ -75396,7 +75512,7 @@ function New-HPOVServerProfileTemplate
 			else 
 			{
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] SHT Name Provided: $ServerHardwareType"
+				"[{0}] SHT Name Provided: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerHardwareType | Write-Verbose
 
 				Try
 				{
@@ -75673,7 +75789,12 @@ function New-HPOVServerProfileTemplate
 			"[{0}] Setting OS Deployment Plan." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			$_spt | Add-Member -NotePropertyName osDeploymentSettings -NotePropertyValue (NewObject -SPTOSDeploymentSettings)
+			
+			"[{0}] Setting OS Deployment Plan URI: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $OSDeploymentPlan.uri | Write-Verbose
 			$_spt.osDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
+
+			"[{0}] Number of OS Deployment Plan Custom Attributes to set: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $OSDeploymentPlanAttributes.Count | Write-Verbose
+			"[{0}] Setting OS Deployment Plan Custom Attributes: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($OSDeploymentPlanAttributes | Out-String) | Write-Verbose
 			$_spt.osDeploymentSettings.osCustomAttributes  = $OSDeploymentPlanAttributes
 
 		}
@@ -76602,7 +76723,7 @@ function Join-HPOVServerProfileToTemplate
 					Try 
 					{
 
-						$templateUri = (Get-HPOVServerProfileTemplate $template -appliance $ApplianceConnection).Uri
+						$templateUri = (Get-HPOVServerProfileTemplate -Name $template -appliance $ApplianceConnection -ErrorAction Stop).Uri
 
 					}
 
@@ -76670,7 +76791,7 @@ function Join-HPOVServerProfileToTemplate
 					Try
 					{
 
-						$thisProfile = Get-HPOVServerProfile $ServerProfile -appliance $_Connection
+						$thisProfile = Get-HPOVServerProfile -Name $ServerProfile -appliance $_Connection -ErrorAction Stop
 
 					}
 
@@ -77088,7 +77209,7 @@ function New-HPOVServerProfileAssign
 			try 
 			{ 
 				
-				$ServerProfile = Get-HPOVServerProfile -name $ServerProfile -ApplianceConnection $ApplianceConnection
+				$ServerProfile = Get-HPOVServerProfile -name $ServerProfile -ApplianceConnection $ApplianceConnection -ErrorAction Stop
 			
 			}
 			
@@ -77588,7 +77709,8 @@ function Copy-HPOVServerProfile
 			if ($serverDevice.serverProfileUri) 
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerPropfileResourceAlreadyExists ResourceExists 'Copy-HPOVProfile' -Message "A server profile is already assigned to $($serverDevice.name) ($(Get-HPOVServerProfile $serverDevice.serverProfileUri).name). Please try specify another server."
+				$ExceptionMessage = "A server profile is already assigned to {0} ({1}). Please try specify another server." -f $serverDevice.name, (Send-HPOVRequest $serverDevice.serverProfileUri -appliance $ApplianceConnection).name
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerPropfileResourceAlreadyExists ResourceExists 'ServerProfile' -Message $ExceptionMessage
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)                
 		
 			}
@@ -77996,7 +78118,7 @@ function Remove-HPOVServerProfile
 				Try
 				{
 
-					$_profile = Get-HPOVServerProfile $_profile -ApplianceConnection $ApplianceConnection
+					$_profile = Get-HPOVServerProfile -Name $_profile -ApplianceConnection $ApplianceConnection -ErrorAction Stop
 
 				}
 				
@@ -78249,7 +78371,7 @@ function Remove-HPOVServerProfileTemplate
 				Try
 				{
 
-					$_spt = Get-HPOVServerProfileTemplate -Name $_spt -ApplianceConnection $ApplianceConnection
+					$_spt = Get-HPOVServerProfileTemplate -Name $_spt -ApplianceConnection $ApplianceConnection -ErrorAction Stop
 
 				}
 				
@@ -90381,7 +90503,7 @@ function New-HPOVLicense
 	{
 
 		#Loop through all keys, and add one by one.
-		foreach ($_lk in $LicenseKey)
+		foreach ($_lk in ($LicenseKey | ? { -not $_.startswith("#") }))
 		{
 
 			"[{0}] Processing LicenseKey: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_lk | write-verbose 

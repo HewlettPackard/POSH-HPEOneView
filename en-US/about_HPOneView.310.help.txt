@@ -32,6 +32,22 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 3.10.1471.1581
+     -- [#287] Fixed New-HPOVLogicalEnclosure where inadvertant string was in a verbose output
+        statement causing a non-terminating error.
+     -- [#289] Fixed New-HPOVUplinkSet where HPE Synergy Logical Interconnect resources were not
+        handled correctly to identify the requested fabric bay.
+     -- [#292] Fixed Storage.formats.ps1xml to display the correct HPOneView.Storage.Volume and 
+        HPOneView.Storage.VolumeTemplate resource objects.
+     -- Fixed New-HPOVServerProfile to support providing OS Deployment Plan Attributes
+        when creating a Server Profile from an Server Profile Template or not.
+     -- [#288] Enhanced New-HPOVLicense to filter out comment lines in license file.
+     -- Enhanced Get-HPOVOSDeploymentPlanAttribute to return OS Custom Attributes related to a
+        Server Profile Template.
+     -- [#290] Enhanced HPOneView.RemoteSupport.ContractAndWarrantyStatus and Get-HPOVRemoteSupportEntitlementStatus
+        to report resource serial number and Server Hostname (if configured in the iLO) for Server hardware
+        resource objects.
+
     Release 3.10.1416.3042
 
      -- Fixed Get-HPOVManagedSan to support -ErrorAction parameter.

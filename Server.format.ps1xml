@@ -125,7 +125,6 @@
         </ListEntries>
       </ListControl>
     </View>
-    
     <!--ServerHardwareType FT-->
     <View>
       <Name>ServerHardwareType</Name>
@@ -998,8 +997,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
     <!--ServerProfileMessage FT-->
     <View>
       <Name>ServerProfileMessage</Name>
@@ -1074,8 +1071,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
-
     <!--HPOneView.ServerProfile.CompliancePreview FL-->
     <View>
       <Name>ServerProfileCompliancePreview</Name>
@@ -1153,7 +1148,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
     <!--ContractAndWarrantyStatus FT-->
     <View>
       <Name>ContractAndWarrantyStatus</Name>
@@ -1165,6 +1159,10 @@
         <TableHeaders>
           <TableColumnHeader>
             <Label>ResourceName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ResourceSerialNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1184,10 +1182,6 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>ObligationStartDate</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
             <Label>ObligationEndDate</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -1200,6 +1194,9 @@
                 <PropertyName>ResourceName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>ResourceSerialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>IsEntitled</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
@@ -1210,9 +1207,6 @@
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>CoverageDays</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>ObligationStartDate</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>ObligationEndDate</PropertyName>
