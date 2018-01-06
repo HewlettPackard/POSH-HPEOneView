@@ -35,12 +35,21 @@ GLBOAL CONNECTION TRACKING OBJECT
        'Hostname' parameter in Connect-HPOVMgmt.
     -- SessionID - Appliance API Auth session ID
     -- UserName - Username that was authenticated with to the appliance
-    -- AuthLoginDomain - Authentication Directory resource used to
+    -- AuthLoginDomain - Authentication Directory resource name used to
        authenticate user.
     -- Default - Boolean value that tracks which connection is the default.
        Use the Set-HPOVApplianceDefaultConnection Cmdlet to control the value
     -- SSLChecked - library specific property to handle SSL certificate
-       verification.
+       verification. (DEPRECATED and no longer valid)
+    -- ApplianceType - Indicates connected appliance type.  Used for cetain
+       Cmdlet validation.
+    -- AuthType - Credential or Certificate/Two-Factor authentication.
+    -- ActivePermissions - A collection of HPOnewView.Appliance.ConnectionPermission
+       objects that contain the Scope and Role available to the authenticated
+       user.
+    -- ApplianceSecurityRoles - The allowed roles by the connected appliance.
+       Property value is used to validate roles when assigning to Directory
+       groups or local user accounts.
     -- Default - used to define which connection is the 'default' for Cmdlet
        processing. Use the Set-HPOVApplianceDefaultConnection Cmdlet to modify 
        this value.
@@ -122,10 +131,10 @@ SETTING DEFAULT APPLIANCE CONNECTION
 	1            hpov1.domain.com Administrator LOCAL           False
 	2            hpov2.domain.com Administrator LOCAL           True
 
-CUSTOM NOTEPROPERTY VALUE IN OBJECTS
+APPLIANCECONNECTION PROPERTY VALUE IN OBJECTS
 
-    When using the various CMDLETs, the returned resource object(s) will contain a custom 
-	NoteProperty, called ApplianceConnection [HPOneView.Library.ApplianceConnection]:
+    When using the various CMDLETs, the returned resource object(s) will contain a 
+    property called ApplianceConnection [HPOneView.Library.ApplianceConnection]:
 
 	-----------------------
 	| ApplianceConnection |
@@ -148,4 +157,5 @@ SEE ALSO
 
     https://github.com/HewlettPackard/POSH-HPOneView
     http://hp.com/go/oneviewcommunity
-	Help about_HPOneView.310
+	Get-Help about_HPOneView.400
+    Get-Help about_Appliance_Connection_Permissions

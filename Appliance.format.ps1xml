@@ -1,5 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
+  <SelectionSets>
+    <SelectionSet>
+      <Name>ApplianceTrustedCertificateTypes</Name>
+      <Types>
+        <TypeName>HPOneView.Appliance.TrustedCertificate</TypeName>
+        <TypeName>HPOneView.Appliance.TrustedCertificateAuthority</TypeName>
+      </Types>
+    </SelectionSet>
+    <SelectionSet>
+      <Name>ApplianceSnmpTrapDestinationTypes</Name>
+      <Types>
+        <TypeName>HPOneView.Appliance.SnmpV1TrapDestination</TypeName>
+        <TypeName>HPOneView.Appliance.SnmpV3TrapDestination</TypeName>
+      </Types>
+    </SelectionSet>
+  </SelectionSets>
+  <Controls>
+    <!--ApplianceTrustedCertificateTypes-GroupingFormat-->
+    <Control>
+      <Name>ApplianceTrustedCertificateTypes-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Type: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      Switch ($_.type) {
+
+                      'CertificateAuthorityInfo' { "CertificateAuthority" }
+                      'CertificateInfoV2'        { "Certificate" }
+
+                      }
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <Control>
+      <Name>ApplianceSnmpTrapDestinationTypes-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Type: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.Type
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+  </Controls>
 	<ViewDefinitions>
     <!--HPOneView.Appliance.ScopeCollection FT-->
     <View>
@@ -32,7 +102,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Name</PropertyName>
@@ -124,7 +194,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -161,7 +231,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -223,7 +293,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>remoteSyslogDestination</PropertyName>
@@ -251,7 +321,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Destination</Label>
@@ -282,7 +352,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Message</Label>
@@ -325,7 +395,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>Message</PropertyName>
@@ -545,7 +615,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>enableRemoteSupport</PropertyName>
@@ -579,7 +649,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Enabled</Label>
@@ -636,7 +706,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>'{0} {1}' -f $_.firstName, $_.lastName</ScriptBlock>
@@ -693,7 +763,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -715,17 +785,23 @@
         </TableRowEntries>
       </TableControl>
     </View>
+
+
     <!--HPOneView.Appliance.TrustedCertificate FT-->
     <View>
       <Name>ApplianceTrustedCertificate</Name>
       <ViewSelectedBy>
         <TypeName>HPOneView.Appliance.TrustedCertificate</TypeName>
       </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>ApplianceTrustedCertificateTypes-GroupingFormat</CustomControlName>
+      </GroupBy>
       <TableControl>
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>AliasName</Label>
+            <Label>Name</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader> 
           <TableColumnHeader>
@@ -745,22 +821,75 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <PropertyName>aliasName</PropertyName>
+                <ScriptBlock>$_.certificateDetails.commonName</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[DateTime]$_.certDetails.validFrom</ScriptBlock>
+                <ScriptBlock>[DateTime]$_.certificateDetails.validFrom</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[DateTime]$_.certDetails.validUntil</ScriptBlock>
+                <ScriptBlock>[DateTime]$_.certificateDetails.validUntil</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>         
+    </View>
+
+    <!--HPOneView.Appliance.TrustedCertificateAuthority FT-->
+    <View>
+      <Name>ApplianceTrustedCertificate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.TrustedCertificateAuthority</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>ApplianceTrustedCertificateTypes-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader> 
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader> 
+          <TableColumnHeader>
+            <Label>ValidFrom</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader> 
+          <TableColumnHeader>
+            <Label>ValidUntil</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader> 
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <ScriptBlock>$_.certificateDetails.commonName</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>certStatus</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[DateTime]$_.certificateDetails.validFrom</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[DateTime]$_.certificateDetails.validUntil</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>  
+
+
     <!--HPOneView.Appliance.RemoteSupport.Schedule FT-->
     <View>
       <Name>RemoteSupportSchedule</Name>
@@ -863,7 +992,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>streetAddress1</PropertyName>
@@ -923,11 +1052,11 @@
 				</ListEntries>
 			</ListControl>
 		</View>
-    <!--ApplianceSnmpCommunity FT-->
+    <!--SnmpReadCommunity FT-->
     <View>
-      <Name>SnmpCommunity</Name>
+      <Name>SnmpReadCommunity</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Appliance.SnmpCommunity</TypeName>
+        <TypeName>HPOneView.Appliance.SnmpReadCommunity</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
@@ -945,10 +1074,10 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>communityString</PropertyName>
+                <PropertyName>CommunityString</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -981,7 +1110,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -1036,7 +1165,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -1073,7 +1202,7 @@
 						<ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
             </ListItem>
 							<ListItem>
 								<Label>Name</Label>
@@ -1220,7 +1349,7 @@
 								<PropertyName>enabled</PropertyName>
 							</TableColumnItem>
       				<TableColumnItem>
-								<PropertyName>roles</PropertyName>
+								<ScriptBlock>$_.permissions.roleName</ScriptBlock>
 							</TableColumnItem>
     					<TableColumnItem>
 								<PropertyName>emailAddress</PropertyName>
@@ -1230,6 +1359,45 @@
 							</TableColumnItem>
       				<TableColumnItem>
 								<PropertyName>mobilePhone</PropertyName>
+							</TableColumnItem>
+						</TableColumnItems>
+					</TableRowEntry>
+				</TableRowEntries>
+			</TableControl>
+		</View>  
+    <!--ConnectionPermission FT-->
+		<View>
+			<Name>ConnectionPermission</Name>
+			<ViewSelectedBy>
+				<TypeName>HPOneView.Appliance.ConnectionPermission</TypeName>
+			</ViewSelectedBy>
+			<TableControl>
+        <AutoSize/>
+				<TableHeaders>
+					<TableColumnHeader>
+						<Label>RoleName</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+          <TableColumnHeader>
+						<Label>ScopeName</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+        	<TableColumnHeader>
+						<Label>Active</Label>
+						<Alignment>Left</Alignment>
+					</TableColumnHeader>
+				</TableHeaders>
+				<TableRowEntries>
+					<TableRowEntry>
+						<TableColumnItems>
+							<TableColumnItem>
+								<PropertyName>RoleName</PropertyName>
+							</TableColumnItem>
+            	<TableColumnItem>
+								<PropertyName>ScopeName</PropertyName>
+							</TableColumnItem>
+    					<TableColumnItem>
+								<PropertyName>Active</PropertyName>
 							</TableColumnItem>
 						</TableColumnItems>
 					</TableRowEntry>
@@ -1270,7 +1438,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>allowLocalLogin</PropertyName>
@@ -1323,7 +1491,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -1354,7 +1522,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -1435,7 +1603,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -1512,7 +1680,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Roles</Label>
+            <Label>Permissions</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1520,7 +1688,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>egroup</PropertyName>
@@ -1529,7 +1697,7 @@
                 <PropertyName>loginDomain</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>roles</PropertyName>
+                <ScriptBlock>'{0}' -f [String]::Join(', ', $_.permissions.roleName)</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -1582,7 +1750,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Date</Label>
@@ -1801,7 +1969,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -2193,7 +2361,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>networkId</PropertyName>
@@ -2233,7 +2401,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>NetworkID</Label>
@@ -2321,7 +2489,7 @@
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -2367,7 +2535,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -2607,7 +2775,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>'{0}' -f (Get-Date $_.dateTime)</ScriptBlock>
@@ -2641,7 +2809,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Time</Label>
@@ -2844,7 +3012,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>enabled</PropertyName>
@@ -2966,7 +3134,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -3020,7 +3188,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -3051,7 +3219,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -3113,7 +3281,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -3144,7 +3312,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -3214,7 +3382,7 @@
             <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
@@ -3254,7 +3422,7 @@
             <ListItems>
               <ListItem>
                 <Label>Appliance</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
               <ListItem>
                 <Label>Name</Label>
@@ -3520,7 +3688,7 @@
               </ListItem>
               <ListItem>
                 <Label>ApplianceConnection</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>
@@ -3569,12 +3737,399 @@
               </ListItem>
               <ListItem>
                 <Label>ApplianceConnection</Label>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>ApplianceConnection</PropertyName>
               </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
       </ListControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV3EngineId FT-->
+    <View>
+      <Name>SnmpV3User</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV3User</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Username</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SecurityLevel</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AuthenticationProtocol</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PrivacyProtocol</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Username</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>SecurityLevel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AuthenticationProtocol</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PrivacyProtocol</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV3User FL-->
+    <View>
+      <Name>SnmpV3User</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV3User</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Username</Label>
+                <PropertyName>userName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>SecurityLevel</Label>
+                <PropertyName>securityLevel</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>AuthenticationProtocol</Label>
+                <PropertyName>authenticationProtocol</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>PrivacyProtocol</Label>
+                <PropertyName>privacyProtocol</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV3EngineId FT-->
+    <View>
+      <Name>SnmpV3EngineId</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV3EngineId</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+        <TableColumnHeader>
+            <Label>EngineID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>EngineID</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV3EngineId FL-->
+    <View>
+      <Name>SnmpV3EngineId</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV3EngineId</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>EngineID</Label>
+                <PropertyName>EngineID</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV1TrapDestination FT-->
+    <View>
+      <Name>SnmpV1TrapDestination</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV1TrapDestination</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>ApplianceSnmpTrapDestinationTypes-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>DestinationAddress</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CommunityString</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>DestinationAddress</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Port</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CommunityString</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV1TrapDestination FL-->
+    <View>
+      <Name>SnmpV1TrapDestination</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV1TrapDestination</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>ApplianceSnmpTrapDestinationTypes-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>DestinationAddress</Label>
+                <PropertyName>destinationAddress</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Port</Label>
+                <PropertyName>Port</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>CommunityString</Label>
+                <PropertyName>CommunityString</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV3TrapDestination FT-->
+    <View>
+      <Name>SnmpV3TrapDestination</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV3TrapDestination</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>ApplianceSnmpTrapDestinationTypes-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>DestinationAddress</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SnmpV3User</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>DestinationAddress</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Port</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>SnmpV3User</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.SnmpV3TrapDestination FL-->
+    <View>
+      <Name>SnmpV3TrapDestination</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SnmpV3TrapDestination</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>ApplianceSnmpTrapDestinationTypes-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>DestinationAddress</Label>
+                <PropertyName>destinationAddress</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Port</Label>
+                <PropertyName>Port</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>SnmpV3User</Label>
+                <PropertyName>SnmpV3User</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Appliance.ProxyServer FT-->
+    <View>
+      <Name>ProxyServer</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ProxyServer</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Server</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Port</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Username</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Server</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Port</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Username</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPOneView.Appliance.ProxyServer FL-->
+    <View>
+      <Name>ProxyServer</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ProxyServer</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Server</Label>
+                <PropertyName>Server</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Port</Label>
+                <PropertyName>Port</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Username</Label>
+                <PropertyName>Username</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPOneView.Appliance.ApplianceLocaleDateTime FT-->
+    <View>
+      <Name>ApplianceLocaleDateTime</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.ApplianceLocaleDateTime</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>DateTime</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>TimeZone</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SyncWithHost</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>NtpServers</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>DateTime</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>TimeZone</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>SyncWithHost</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>NtpServers</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions>
 </Configuration>
