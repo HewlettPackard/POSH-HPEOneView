@@ -9,7 +9,7 @@ clone_folder: C:\projects\HPOneView.400
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
 environment:
-  ACCESS_TOKEN:
+  access_token:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
 build: off
 test_script:
@@ -45,7 +45,6 @@ skip_commits:
     - '**/*.xml'
     - '**/*.txt'
     - '*.md'
-    - '*.yml'
     - .github/*.md
 
 
