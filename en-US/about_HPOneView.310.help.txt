@@ -4,7 +4,7 @@ TOPIC
 
 COPYRIGHT
 
-    (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 
 LICENSE
 
@@ -31,6 +31,14 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 3.10
 	
 WHAT'S NEW
+
+    Release 3.10.1560.1882
+     -- Fixed Get-HPOVServerProfile where providing a Server Hardware resource would generate an
+        API exception message.
+     -- Fixed Get-HPOVIloSso where providing a Server Hardware resource via -InputObject parameter
+        would generate an invalid property type exception.
+     -- Updated Version reporting of the appliance to handle certain scenarios.
+     -- The library will now only allow TLS communications to HPE OneView.
 
     Release 3.10.1471.1581
      -- [#287] Fixed New-HPOVLogicalEnclosure where inadvertant string was in a verbose output

@@ -40692,6 +40692,20 @@ This parameter is only applicable with Private volumes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetPortAssignment</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetAddresses</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, Default, ServerProfileObjectEphmeralVol, ServerProfileObject">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -40841,6 +40855,20 @@ This parameter is only applicable with Private volumes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetPortAssignment</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetAddresses</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, Default, ServerProfileObjectEphmeralVol, ServerProfileObject">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -40940,6 +40968,20 @@ This parameter is only applicable with Private volumes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetPortAssignment</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetAddresses</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, Default, ServerProfileObjectEphmeralVol, ServerProfileObject">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -41045,6 +41087,20 @@ This parameter is only applicable with Private volumes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetPortAssignment</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetAddresses</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, Default, ServerProfileObjectEphmeralVol, ServerProfileObject">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -41142,6 +41198,20 @@ Use to indicate this volume is a bootable device.  When using this parameter, th
 This parameter is only applicable with Private volumes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetPortAssignment</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetAddresses</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, Default, ServerProfileObjectEphmeralVol, ServerProfileObject">
 					<maml:name>ApplianceConnection</maml:name>
@@ -41197,6 +41267,20 @@ Use to indicate this volume is a bootable device.  When using this parameter, th
 This parameter is only applicable with Private volumes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetPortAssignment</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
+					<maml:name>TargetAddresses</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, Default, ServerProfileObjectEphmeralVol, ServerProfileObject">
 					<maml:name>ApplianceConnection</maml:name>
@@ -41400,6 +41484,28 @@ Accepted values:
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default" aliases="wwpns">
+				<maml:name>TargetAddresses</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default" aliases="None">
+				<maml:name>TargetPortAssignment</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -41767,6 +41873,17 @@ When the Connection Type is Ethernet, this affects PXE boot.  If the Connection 
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>New-HPOVServerProfileConnection</maml:name>
@@ -41996,7 +42113,7 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SecureString</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -42147,7 +42264,7 @@ Target FC array WWPN.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -42262,7 +42379,7 @@ When the Connection Type is Ethernet, this affects PXE boot.  If the Connection 
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -42277,7 +42394,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -76788,5 +76905,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2017-10-11T19:22:44:58.586Z-->
+	<!--Edited on: 2018-01-09T01:16:36:07.077Z-->
 </helpItems>

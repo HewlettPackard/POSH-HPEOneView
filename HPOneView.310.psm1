@@ -2,7 +2,7 @@
 # HPE OneView PowerShell Library
 ##############################################################################
 ##############################################################################
-## (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+## (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 
@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '3.10.1471.1581'
+[Version]$ModuleVersion = '3.10.1560.1882'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -3918,14 +3918,23 @@ function RestClient
 
 		$url = $Appliance + $uri
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Building new [System.Net.HttpWebRequest] object for $method https://$url"
+		"[{0}] Building new [System.Net.HttpWebRequest] object for {1} https://{2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $method, $url | Write-Debug
 
 	}
 
 	Process 
 	{
 
+		"[{0}] Setting TLS only comms." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Debug
+
+		[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls -bor [Net.SecurityProtocolType]::Tls11 -bor [Net.SecurityProtocolType]::Tls12
+
+		"[{0}] {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ([Net.ServicePointManager]::SecurityProtocol | Out-String) | Write-Debug
+		
 		[System.Net.ServicePointManager]::DefaultConnectionLimit = 16
+
+		"[{0}] Building new RestClient object." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Debug
+
 		[System.Net.HttpWebRequest]$restClient              = [System.Net.HttpWebRequest]::Create("https://$url")
 		[String]$restClient.Method                          = $method
 		[int]$restClient.Timeout                            = 20000
@@ -3944,6 +3953,8 @@ function RestClient
 			$restClient.ContentType += '-patch+json'
 
 		}
+
+		"[{0}] RestClient Object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($RestClient | Out-String) | Write-Debug
  
 		# Set the callback to check for null certificate and thumbprint matching.
 		#This method is only supported in PowerShell 4 or greater
@@ -4621,6 +4632,15 @@ function Send-HPOVRequest
 					$reader.close()
 
 					"[{0}] FinalResponse: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $FinalResponse | Write-Verbose
+
+					$DuplicateiLOPattern = '\"[I|i]LO\"\:\[\"\d\.\d+\"\],'
+
+					if ([RegEx]::Matches($FinalResponse, $DuplicateiLOPattern, 'IgnoreCase'))
+					{
+
+						$FinalResponse = [Regex]::Replace($FinalResponse, $DuplicateiLOPattern, "")
+
+					}
 
 					$resp = ConvertFrom-JSON -InputObject $FinalResponse        
 
@@ -6237,7 +6257,7 @@ function Connect-HPOVMgmt
 		try 
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Sending auth request"
+			"[{0}] Sending auth request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			$_LoginDetails = Send-HPOVRequest $ApplianceLoginDomainDetails -Hostname $Hostname
 
@@ -6265,7 +6285,7 @@ function Connect-HPOVMgmt
 		catch [HPOneView.Appliance.AuthSessionException] 
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Exception Caught."
+			"[{0}] Authentication Exception Caught." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			$_ErrorId = $_.FullyQualifiedErrorId.Split(',')[0]
 
@@ -6277,7 +6297,7 @@ function Connect-HPOVMgmt
 				'LoginMessageAcknowledgementRequired'
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Authentication Exception Caught."
+					"[{0}] Authentication Exception Caught." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					#Get LoginMessage from appliance.
 					Try
@@ -6297,7 +6317,7 @@ function Connect-HPOVMgmt
 							0 
 							{
 
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Submitting auth request again, with login message acknowledgement."
+								"[{0}] Submitting auth request again, with login message acknowledgement." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 							
 								$_authinfo | Add-Member -NotePropertyName loginMsgAck -NotePropertyValue $True
 
@@ -6321,7 +6341,7 @@ function Connect-HPOVMgmt
 							1
 							{
 
-								Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] User selected 'No'."
+								"[{0}] User selected 'No'." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 								'You are not authenticated to {0}, as you chose not to accept the Login Message acknowledgement.' -f $Hostname | Write-Warning 
 
@@ -6373,7 +6393,7 @@ function Connect-HPOVMgmt
 		catch [HPOneview.Appliance.PasswordChangeRequired] 
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Password needs to be changed. Use Set-HPOVInitialPassword if this is first time setup, or Set-HPOVUserPassword to update your own accounts password."
+			"[{0}] Password needs to be changed. Use Set-HPOVInitialPassword if this is first time setup, or Set-HPOVUserPassword to update your own accounts password." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
 
@@ -6386,7 +6406,7 @@ function Connect-HPOVMgmt
 		catch [Net.WebException] 
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($resp)"
+			"[{0}] Response: $($resp)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
 
@@ -6423,6 +6443,7 @@ function Connect-HPOVMgmt
 			"[{0}] Session received: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $($_RedactedResp | Out-String) | Write-Verbose
 			
 			(${Global:ConnectedSessions} | ? Name -EQ $Hostname).SessionID = $resp.sessionID
+			(${Global:ConnectedSessions} | ? Name -EQ $Hostname).Username  = $UserName
 	
 			#Get list of supported Roles from the appliance
 			"[{0}] Getting list of supported roles from appliance." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -6479,7 +6500,7 @@ function Connect-HPOVMgmt
 			Try
 			{
 
-				$_applianceversioninfo = New-Object HPOneView.Appliance.Version ([Version]($applVersionInfo.softwareVersion.Replace('-','.')), (Get-HPOVXApiVersion -ApplianceConnection $Hostname).currentVersion, $applVersionInfo.modelNumber)
+				$_applianceversioninfo = New-Object HPOneView.Appliance.Version ([Version]($applVersionInfo.softwareVersion.Replace('-',$null)), (Get-HPOVXApiVersion -ApplianceConnection $Hostname).currentVersion, $applVersionInfo.modelNumber)
 				
 				$PSLibraryVersion | Add-Member -NotePropertyName $Hostname -NotePropertyValue $_applianceversioninfo -Force
 
@@ -27163,7 +27184,7 @@ function Get-HPOVIloSso
 				Try 
 				{
 	
-					$ApplianceConnection = Test-HPOVAuth $InputObject.ApplianceConnection
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
 				}
 
@@ -65925,36 +65946,38 @@ function New-HPOVUplinkSet
 
 					}
 
-					#Add Logical Interconnect object URI to Uplink Set Object
+					# Add Logical Interconnect object URI to Uplink Set Object
 					$_liUplinkSetObject.logicalInterconnectUri = $InputObject.uri
 
-					#Get list of interconnects within LI resource
+					# Get list of interconnects within LI resource
 					$_liInterconnects = $InputObject.interconnectMap.interconnectMapEntries
 				
 					"[{0}] Uplink Ports to Process: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [System.String]::Join(', ', $UplinkPorts) | Write-Verbose
 
-					#Loop through requested Uplink Ports
+					# Loop through requested Uplink Ports
 					$port              = New-Object System.Collections.ArrayList
 					$uslogicalLocation = New-Object System.Collections.ArrayList
 
 					foreach ($_p in $UplinkPorts)
 					{
 
-						#Split string to get bay and port
+						# Split string to get bay and port
 						$_p = $_p.Split(':')
 
-						#Synergy uplink config
+						# Synergy uplink config
 						if ($_p.Count -ge 3)
 						{
 
 							'[{0}] Port configuration is Synergy Ethernet' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-							[string]$EnclosureID = $InputObject.enclosureUris[$_p[0].TrimStart('enclosureEnclosure')-1]
+							# This is causing an issue with getting the frame ID, which should not be the enclosureUri
+							# [string]$EnclosureID = $InputObject.enclosureUris[$_p[0].TrimStart('enclosureEnclosure')-1]
+							[string]$EnclosureID = $_p[0].TrimStart('enclosureEnclosure')
 
-							#remove bay so we just have the ID
+							# remove bay so we just have the ID
 							$bay = $_p[1].ToLower().TrimStart('bayBay') -replace " ",$null
 							
-							#Get faceplate portName (Need to make sure Synergy Uplink Port format which uses : instead of . for subport delimiter is replaced correctly)
+							# Get faceplate portName (Need to make sure Synergy Uplink Port format which uses : instead of . for subport delimiter is replaced correctly)
 							$uplinkPort = $_p[2]
 
 							if ($_p.Count -eq 4)
@@ -65968,7 +65991,7 @@ function New-HPOVUplinkSet
 
 							"[{0}] Looking for Interconnect URI for Bay {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $bay | Write-Verbose
 
-							#Loop through Interconnect Map Entry Template items looking for the provided Interconnet Bay number
+							# Loop through Interconnect Map Entry Template items looking for the provided Interconnet Bay number
 							ForEach ($l in ($InputObject.interconnectMap.interconnectMapEntries | ? enclosureIndex -eq $EnclosureID)) 
 							{ 
 	
@@ -71583,6 +71606,8 @@ function Get-HPOVServerProfile
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 
+			$_ServerProfileFromHardwareFlag = $false
+
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
 			if ($PSBoundParameters['Label'])
@@ -71662,9 +71687,25 @@ function Get-HPOVServerProfile
 						'server-hardware'
 						{
 
-							"[{0}] Filtering for Server Hardware: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+							if (-not $InputObject.serverProfileUri)
+							{
+							
+								"[{0}] Filtering for Server Hardware Type from Server Hardware: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 
-							$uri += "&filter=serverHardwareUri EQ '{0}'" -f $InputObject.uri
+								$uri += "&filter=serverHardwareTypeUri EQ '{0}'" -f $InputObject.serverHardwareTypeUri
+
+							}
+							
+							else
+							{
+
+								"[{0}] Returning specific Server Profile for {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+
+								$uri = $InputObject.serverProfileUri.Clone()
+
+								$_ServerProfileFromHardwareFlag = $true
+
+							}							
 
 						}
 
@@ -71704,7 +71745,15 @@ function Get-HPOVServerProfile
 
 					$PSCmdlet.ThrowTerminatingError($_)
 
-				}      
+				}
+
+				# Workaround for retreive a single server profile resource that is not otherwise a collection
+				if ($_ServerProfileFromHardwareFlag)
+				{
+
+					$profiles = [PSCustomObject]@{members = $profiles.PSObject.Copy()}
+
+				}
 
 				if ($PSBoundParameters['Unassigned']) 
 				{
@@ -71716,14 +71765,14 @@ function Get-HPOVServerProfile
 				if ($profiles.members.count -eq 0 -and $Name)
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile Resource Name was provided, yet no results were found.  Generate Error."
+					"[{0}] Profile Resource Name was provided, yet no results were found.  Generate Error." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					$Exceptionmessage = "The specified Server Profile '{0}' was not found on '{1}' appliance connection. Please check the name again, and try again." -f $Name, $_appliance.Name
 					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerProfileResourceNotFound ObjectNotFound "Name" -Message $ExceptionMessage
 					$PSCmdlet.WriteError($ErrorRecord)
 
 				}
-			
+
 				foreach ($_profile in $profiles.members)
 				{
 				
@@ -78905,6 +78954,7 @@ function New-HPOVServerProfileConnection
 		[ValidateNotNullOrEmpty()]
 		[SecureString]$MutualChapSecret,
 
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Common")]
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Ethernet")]
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "FC")]
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ISCSI")]
@@ -78919,7 +78969,7 @@ function New-HPOVServerProfileConnection
 
 		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] ParameterSet: + $($PSCmdlet.ParameterSetName)"
+		"[{0}] ParameterSet: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PSCmdlet.ParameterSetName | Write-Verbose
 
 		$Caller = (Get-PSCallStack)[1].Command
 
@@ -80045,6 +80095,25 @@ function New-HPOVServerProfileAttachVolume
 		[Alias ('Bootable')]
 		[switch]$BootVolume,
 
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ManualLunIdType")]
+		[Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+		[Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[ValidateSet ('Auto', 'TargetPorts')]
+		[String]$TargetPortAssignment = 'Auto',
+
+		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter (Mandatory = $False, ParameterSetName = "ManualLunIdType")]
+		[Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachAuto")]
+		[Parameter (Mandatory = $False, ParameterSetName = "DynamicVolAttachManual")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('wwpns')]
+		[Array]$TargetAddresses,
+
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObject")]
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "ServerProfileObjectEphmeralVol")]
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
@@ -80643,7 +80712,7 @@ function New-HPOVServerProfileAttachVolume
 
 			}
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of available storage systems"
+			"[{0}] Getting list of available storage systems" -f $MyInvocation.InvocationName.ToString().ToUpper()| Write-Verbose
 			
 			#Get list of available storage system targets and the associated Volumes based on the EG and SHT provided
 			Try
@@ -80661,7 +80730,7 @@ function New-HPOVServerProfileAttachVolume
 			
 			}
 			
-			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage Systems: {0}" -f ($_AvailStorageSystems | fl | out-string) | Write-Verbose
+			"[{0}] Available Storage Systems: {1}" -$MyInvocation.InvocationName.ToString().ToUpper(), ($_AvailStorageSystems | fl | out-string) | Write-Verbose
 			
 			#Error on no available storage systems
 			if (-not ($_AvailStorageSystems)) 
@@ -80672,7 +80741,7 @@ function New-HPOVServerProfileAttachVolume
 			
 			}
 					
-			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Volumes to Process {0}" -f ($_volumeAttachments | fl | out-string) | Write-Verbose 
+			"[{0}] Volumes to Process {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_volumeAttachments | fl | out-string) | Write-Verbose 
 					
 			$i = 0
 					
@@ -80685,7 +80754,7 @@ function New-HPOVServerProfileAttachVolume
 				if (-not($_volume.id))
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] No VolumeID value provided.  Getting next volume id value."
+					"[{0}] No VolumeID value provided.  Getting next volume id value." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					$id = 1
 
@@ -80709,25 +80778,26 @@ function New-HPOVServerProfileAttachVolume
 
 				}
 
-				#If the storage paths array is null, Process connections to add mapping
+				# // TODO Process TargetAddresses note property to handle descrete SAN path mapping.  Will also need to add this logic to New-HPOVServerProfile and New-HPOVServerProfileTemplate
+				# If the storage paths array is null, Process connections to add mapping
 				if (-not($_volume.storagePaths)) 
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage Paths value is Null. Building connection mapping."
+					"[{0}] Storage Paths value is Null. Building connection mapping." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-					#Static Volume, must have volumeUri attribute present to be valid
+					# Static Volume, must have volumeUri attribute present to be valid
 					if ($_volume.volumeUri) 
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Getting list of attachable volumes"
+						"[{0}] Getting list of attachable volumes" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-						#Get list of attachable Volumes (i.e. they are not assigned private or are shareable volumes)
+						# Get list of attachable Volumes (i.e. they are not assigned private or are shareable volumes)
 						Try
 						{
 
 							$_AttachableVolumes = (Send-HPOVRequest -Uri $AttachableStorageVolumesUri -Count 1000 -appliance $ServerProfile.ApplianceConnection.Name).members
 
-							#Get storage volume name for reporting purposes
+							# Get storage volume name for reporting purposes
 							$_VolumeName = (Send-HPOVRequest $_volume.volumeUri -appliance $ServerProfile.ApplianceConnection.Name).name
 
 						}
@@ -80739,32 +80809,32 @@ function New-HPOVServerProfileAttachVolume
 
 						}
 
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing Volume ID: {0}" -f $_volume.id  | Write-Verbose 
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Looking to see if volume '{0} ({1})' is attachable" -f $_volume.volumeUri, $_VolumeName | Write-Verbose 
+						"[{0}] Processing Volume ID: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_volume.id  | Write-Verbose 
+						"[{0}] Looking to see if volume '{2} ({3})' is attachable" -f $MyInvocation.InvocationName.ToString().ToUpper(),$_volume.volumeUri, $_VolumeName | Write-Verbose 
 											   
-						#validate volume is attachable
+						# validate volume is attachable
 						$_AttachableVolFound = $_AttachableVolumes | ? uri -eq $_volume.volumeUri
 
-						#If it is available, continue Processing
+						# If it is available, continue Processing
 						if ($_AttachableVolFound) 
 						{
 					
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] '$($_AttachableVolFound.uri) ($($_AttachableVolFound.name))' volume is attachable"
+							"[{0}] '$($_AttachableVolFound.uri) ($($_AttachableVolFound.name))' volume is attachable" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
-							#validate the volume that is available, is also avialable to the server hardware type and enclosure group
+							# validate the volume that is available, is also avialable to the server hardware type and enclosure group
 							$_VolumeToStorageSystem = $_AvailStorageSystems | ? storageSystemUri -eq $_AttachableVolFound.storageSystemUri
 					
-							#If available, Process the volume networks
+							# If available, Process the volume networks
 							if ($_VolumeToStorageSystem) 
 							{ 
 									
-								#Check to make sure profile connections exist.
+								# Check to make sure profile connections exist.
 								if ($ServerProfile.connections -and $ServerProfile.connections.functionType -contains "FibreChannel") 
 								{
 
-									Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Profile has connections"
+									"[{0}] Profile has connections" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 										
-									#loop through profile connections
+									# loop through profile connections
 									$found = 0
 
 									foreach ($_volConnection in $_AttachableVolFound.availableNetworks) 
@@ -80854,7 +80924,7 @@ function New-HPOVServerProfileAttachVolume
 							if ($_StorageSystemVolCreate) 
 							{
 										
-								"[$($MyInvocation.InvocationName.ToString().ToUpper())] Available Storage System targets: {0}" -f ($storageSystemVolCreate.storageSystemUri -join ", ") | Write-Verbose 
+								"[{0}] Available Storage System targets: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($storageSystemVolCreate.storageSystemUri -join ", ") | Write-Verbose 
 										
 								#loop through profile connections
 								$found = 0
@@ -80870,12 +80940,68 @@ function New-HPOVServerProfileAttachVolume
 										#Keep track of the connections found for error reporting later
 										$found++
 
-										"[$($MyInvocation.InvocationName.ToString().ToUpper())] Mapping connection ID '{0}' -> volume ID '{1}'" -f $_ProfileConnection.id, $_volumeAttachments[$i].id | Write-Verbose
+										"[{0}] Mapping connection ID '{1}' -> volume ID '{2}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ProfileConnection.id, $_volumeAttachments[$i].id | Write-Verbose
 												
 										$_StoragePath = NewObject -StoragePath
 
 										$_StoragePath.connectionId = $_ProfileConnection.id
 										$_StoragePath.isEnabled    = $True
+
+										if ($PSBoundParameters['TargetAddresses'])
+										{
+
+											"[{0}] Getting FC network to get associated SAN." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+											#$_uri = "{0}/reachable-ports?query=expectedNetworkUri EQ '{1}'" -f $_VolumeToStorageSystem.uri, $profileConnection.networkUri
+											$_StoragePath.targetSelector = 'TargetPorts'
+
+											Try
+											{
+
+												$_ServerProfileConnectionNetwork = Send-HPOVRequest -Uri $profileConnection.networkUri -Hostname $ServerProfile.ApplianceConnection
+
+											}
+
+											Catch
+											{
+
+												$PSCmdlet.ThrowTerminatingError($_)
+
+											}
+
+											$_StorageSystemExpectedMappedPorts = $_AvailStorageSystems.ports | ? expectedSanUri -eq $_ServerProfileConnectionNetwork.managedSanUri
+
+											ForEach ($_PortID in $TargetAddresses)
+											{
+
+												"[{0}] Looking for {1} host port from available storage system." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PortID | Write-Verbose
+
+												if ($WwnAddressPattern.Match($_PortID))
+												{
+
+													$_PortType = 'name'
+
+												}
+
+												elseif ($StoreServeTargetPortIDPattern.Match($_PortID))
+												{
+
+													$_PortType = 'address'
+
+												}
+
+												ForEach ($_HostPort in ($_StorageSystemExpectedMappedPorts | ? $_PortType -match $_PortID))
+												{
+
+													"[{0}] Adding {1} ({2}) host port to targets." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_HostPort.address, $_HostPort.name | Write-Verbose
+
+													[void]$_StoragePath.targets.Add($_HostPort.address)
+
+												}
+
+											}
+
+										}
 
 										[void]$_volume.storagePaths.Add($_StoragePath)
 
@@ -80934,12 +81060,12 @@ function New-HPOVServerProfileAttachVolume
 
 			ConvertTo-Json $ServerProfile -dept 99 | Write-Verbose
 
-			"[$($MyInvocation.InvocationName.ToString().ToUpper())] Updating Server Profile with new Storage Volume Attachments: {0}" -f $ServerProfile.name | Write-Verbose 
+			"[{0}] Updating Server Profile with new Storage Volume Attachments: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfile.name | Write-Verbose 
 
 			Try
 			{
 
-				$_Task = Send-HPOVRequest $ServerProfile.uri PUT $ServerProfile -Hostname $ServerProfile.ApplianceConnection
+				$_Task = Send-HPOVRequest -Uri $ServerProfile.uri -Method PUT -Body $ServerProfile -Hostname $ServerProfile.ApplianceConnection
 
 			}
 
@@ -80956,6 +81082,21 @@ function New-HPOVServerProfileAttachVolume
 		
 		else
 		{
+
+			if ($PSBoundParameters['TargetAddresses'])
+			{
+
+				"[{0}] Adding TargetPortAssignmentType and TargetAddresses to volume attachment members." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				ForEach ($_VolAttachment in $_volumeAttachments)
+				{
+
+					$_volumeAttachments | Add-Member -NotePropertyName TargetPortAssignmentType -NotePropertyValue $TargetPortAssignment
+					$_volumeAttachments | Add-Member -NotePropertyName TargetAddresses -NotePropertyValue $TargetAddresses
+
+				}				
+
+			}
 
 			return $_volumeAttachments
 
