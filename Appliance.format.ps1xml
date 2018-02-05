@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
   <SelectionSets>
+    <!-- ApplianceTrustedCertificateTypes -->
     <SelectionSet>
       <Name>ApplianceTrustedCertificateTypes</Name>
       <Types>
@@ -8,11 +9,23 @@
         <TypeName>HPOneView.Appliance.TrustedCertificateAuthority</TypeName>
       </Types>
     </SelectionSet>
+    <!-- ApplianceSnmpTrapDestinationTypes -->
     <SelectionSet>
       <Name>ApplianceSnmpTrapDestinationTypes</Name>
       <Types>
         <TypeName>HPOneView.Appliance.SnmpV1TrapDestination</TypeName>
         <TypeName>HPOneView.Appliance.SnmpV3TrapDestination</TypeName>
+      </Types>
+    </SelectionSet>
+    <!-- PowerDeliveryDeviceTypes -->
+    <SelectionSet>
+      <Name>PowerDeliveryDeviceTypes</Name>
+      <Types>
+        <TypeName>HPOneView.PowerDeliveryDevice</TypeName>
+        <TypeName>HPOneView.PowerDeliveryDevice.PduAcModule</TypeName>
+        <TypeName>HPOneView.PowerDeliveryDevice.LoadSegment</TypeName>
+        <TypeName>HPOneView.PowerDeliveryDevice.OutletBar</TypeName>
+        <TypeName>HPOneView.PowerDeliveryDevice.Outlet</TypeName>        
       </Types>
     </SelectionSet>
   </SelectionSets>
@@ -46,6 +59,7 @@
         </CustomEntries>
       </CustomControl>
     </Control>
+    <!--ApplianceSnmpTrapDestinationTypes-GroupingFormat-->
     <Control>
       <Name>ApplianceSnmpTrapDestinationTypes-GroupingFormat</Name>
       <CustomControl>
@@ -59,6 +73,30 @@
                   <ExpressionBinding>
                     <ScriptBlock>
                       $_.Type
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <!--PowerDeliveryDevice-GroupingFormat-->
+    <Control>
+      <Name>PowerDeliveryDevice-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>DeviceType: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.deviceType
                     </ScriptBlock>
                   </ExpressionBinding>
                   <NewLine/>
@@ -785,8 +823,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
-
     <!--HPOneView.Appliance.TrustedCertificate FT-->
     <View>
       <Name>ApplianceTrustedCertificate</Name>
@@ -837,7 +873,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
     <!--HPOneView.Appliance.TrustedCertificateAuthority FT-->
     <View>
       <Name>ApplianceTrustedCertificate</Name>
@@ -888,8 +923,6 @@
         </TableRowEntries>
       </TableControl>
     </View>  
-
-
     <!--HPOneView.Appliance.RemoteSupport.Schedule FT-->
     <View>
       <Name>RemoteSupportSchedule</Name>
@@ -1259,21 +1292,25 @@
 								<Label>Product</Label>
 								<PropertyName>Product</PropertyName>
 							</ListItem>
-							<ListItem>
-								<Label>AvailableCapacity</Label>
-								<PropertyName>availableCapacity</PropertyName>
+              <ListItem>
+								<Label>Type</Label>
+								<PropertyName>Type</PropertyName>
 							</ListItem>
 							<ListItem>
-								<Label>ConsumedCapacity</Label>
-								<ScriptBlock>$_.nodes.count</ScriptBlock>
+								<Label>Capacity</Label>
+								<PropertyName>Capacity</PropertyName>
 							</ListItem>
 							<ListItem>
-								<Label>TotalCapacity</Label>
-								<PropertyName>TotalCapacity</PropertyName>
+								<Label>Allocated</Label>
+								<PropertyName>Allocated</PropertyName>
 							</ListItem>
 							<ListItem>
-								<Label>UnlicensedCount</Label>
-								<ScriptBlock>[int]$_.unlicensedCount</ScriptBlock>
+								<Label>Available</Label>
+								<PropertyName>Available</PropertyName>
+							</ListItem>
+              <ListItem>
+								<Label>Nodes</Label>
+								<PropertyName>Nodes</PropertyName>
 							</ListItem>
 						</ListItems>
 					</ListEntry>
@@ -4131,5 +4168,309 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <!-- HPOneView.PowerDeliveryDevice FT-->
+    <View>
+      <Name>PowerDeliveryDevice</Name>
+      <ViewSelectedBy>
+        <!-- <TypeName>HPOneView.PowerDeliveryDevice</TypeName> -->
+        <SelectionSetName>PowerDeliveryDeviceTypes</SelectionSetName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>deviceType</PropertyName>
+        <CustomControlName>PowerDeliveryDevice-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LineVoltage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PhaseType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerFeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LineVoltage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhaseType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>feedIdentifier</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPOneView.PowerDeliveryDevice.LoadSegment FT-->
+    <View>
+      <Name>PowerDeliveryDeviceLoadSegment</Name>
+      <ViewSelectedBy>
+        <!-- <TypeName>HPOneView.PowerDeliveryDevice.LoadSegment</TypeName> -->
+        <SelectionSetName>PowerDeliveryDeviceTypes</SelectionSetName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>deviceType</PropertyName>
+        <CustomControlName>PowerDeliveryDevice-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LineVoltage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PhaseType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerFeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LineVoltage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhaseType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>feedIdentifier</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPOneView.PowerDeliveryDevice.PduAcModule FT-->
+    <View>
+      <Name>PowerDeliveryDevicePduAcModule</Name>
+      <ViewSelectedBy>
+        <!-- <TypeName>HPOneView.PowerDeliveryDevice.PduAcModule</TypeName> -->
+        <SelectionSetName>PowerDeliveryDeviceTypes</SelectionSetName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>deviceType</PropertyName>
+        <CustomControlName>PowerDeliveryDevice-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LineVoltage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PhaseType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerFeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LineVoltage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhaseType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>feedIdentifier</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPOneView.PowerDeliveryDevice.Outlet FT-->
+    <View>
+      <Name>PowerDeliveryDeviceOutlet</Name>
+      <ViewSelectedBy>
+        <!-- <TypeName>HPOneView.PowerDeliveryDevice.Outlet</TypeName> -->
+        <SelectionSetName>PowerDeliveryDeviceTypes</SelectionSetName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>deviceType</PropertyName>
+        <CustomControlName>PowerDeliveryDevice-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Power</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LineVoltage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PhaseType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerFeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Power</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LineVoltage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhaseType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>feedIdentifier</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPOneView.PowerDeliveryDevice.OutletBar FT-->
+    <View>
+      <Name>PowerDeliveryDeviceOutletBar</Name>
+      <ViewSelectedBy>
+        <!-- <TypeName>HPOneView.PowerDeliveryDevice.OutletBar</TypeName> -->
+        <SelectionSetName>PowerDeliveryDeviceTypes</SelectionSetName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>deviceType</PropertyName>
+        <CustomControlName>PowerDeliveryDevice-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LineVoltage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PhaseType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerFeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LineVoltage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhaseType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>feedIdentifier</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
   </ViewDefinitions>
 </Configuration>

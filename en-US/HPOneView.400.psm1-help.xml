@@ -485,7 +485,7 @@ Add-HPOVEnclosure will attempt a connection to the XML Reply interface to examin
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Add-HPOVEnclosure</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>Hostname</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-oa]
@@ -494,7 +494,7 @@ IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</m
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Managed">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed">
 					<maml:name>EnclosureGroup</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-eg, -enclGroupName]
@@ -521,7 +521,7 @@ Administrator Account password of the OA specified.  Value can be [String] or [S
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed">
 					<maml:name>LicensingIntent</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-license, -l]
@@ -535,7 +535,7 @@ Accepted values are
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed">
 					<maml:name>Baseline</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-fwIso, -fwBaselineIsoFilename]
@@ -549,7 +549,7 @@ $Name = "HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed">
 					<maml:name>ForceInstallFirmware</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-forceFw, -forceInstall]
@@ -558,21 +558,21 @@ $Name = "HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>Scope</maml:name>
 					<maml:description>
 						<maml:para>Provide an array of &lt;HPOneView.Appliance.ScopeResource&gt; Scope resource(s) to initially add.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>Async</maml:name>
 					<maml:description>
 						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -600,7 +600,185 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Add-HPOVEnclosure</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>Hostname</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-oa]
+
+IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed">
+					<maml:name>EnclosureGroup</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-eg, -enclGroupName]
+
+Enclosure Group Name to associate with the enclosure to import.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential">
+					<maml:name>Credential</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">PSCredential</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed">
+					<maml:name>LicensingIntent</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-license, -l]
+
+Specifies whether the intent is to apply either OneView or OneView w/o iLO licenses to the servers in the enclosure being imported.
+
+Accepted values are
+
+	* OneView
+	* OneViewNoiLO</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed">
+					<maml:name>Baseline</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-fwIso, -fwBaselineIsoFilename]
+
+Baseline File Name, Name, URI or Object.
+
+Examples:
+
+$FileName = "bp-hp-service-pack-for-proliant-oneview-2014-11-30-05.iso"
+$Name = "HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed">
+					<maml:name>ForceInstallFirmware</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-forceFw, -forceInstall]
+
+ Force the installation of the provided Firmware Baseline.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Provide an array of &lt;HPOneView.Appliance.ScopeResource&gt; Scope resource(s) to initially add.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para>When attempting to add a Server to the appliance, the appliance will validate the target Server is not already claimed.  If it is, this parameter is used when the server has been claimed by another appliance to bypass the confirmation prompt, and force add the server resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Add-HPOVEnclosure</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>Hostname</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-oa]
+
+IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed">
+					<maml:name>EnclosureGroup</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-eg, -enclGroupName]
+
+Enclosure Group Name to associate with the enclosure to import.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential">
+					<maml:name>Credential</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">PSCredential</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredCredential, Monitored">
+					<maml:name>Monitored</maml:name>
+					<maml:description>
+						<maml:para>Add the specified enclosure for monitor only management.  You can view hardware for inventory and status information only.  Omitting this parameter, you can apply configurations, deploy server profiles, monitor operation status, collect statistics, and alert users to specific conditions.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>Scope</maml:name>
+					<maml:description>
+						<maml:para>Provide an array of &lt;HPOneView.Appliance.ScopeResource&gt; Scope resource(s) to initially add.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para>When attempting to add a Server to the appliance, the appliance will validate the target Server is not already claimed.  If it is, this parameter is used when the server has been claimed by another appliance to bypass the confirmation prompt, and force add the server resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Add-HPOVEnclosure</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>Hostname</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-oa]
@@ -627,28 +805,28 @@ Administrator Account password of the OA specified.  Value can be [String] or [S
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredCredential, Monitored">
 					<maml:name>Monitored</maml:name>
 					<maml:description>
 						<maml:para>Add the specified enclosure for monitor only management.  You can view hardware for inventory and status information only.  Omitting this parameter, you can apply configurations, deploy server profiles, monitor operation status, collect statistics, and alert users to specific conditions.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>Scope</maml:name>
 					<maml:description>
 						<maml:para>Provide an array of &lt;HPOneView.Appliance.ScopeResource&gt; Scope resource(s) to initially add.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>Async</maml:name>
 					<maml:description>
 						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -677,7 +855,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Managed, Monitored" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored" aliases="None">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -692,7 +870,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
 					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
@@ -703,7 +881,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed" aliases="fwIso, fwBaselineIsoFilename">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed" aliases="fwIso, fwBaselineIsoFilename">
 				<maml:name>Baseline</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-fwIso, -fwBaselineIsoFilename]
@@ -732,7 +910,18 @@ $Name = "HP Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Managed" aliases="eg, EnclGroupName">
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential" aliases="None">
+				<maml:name>Credential</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">PSCredential</command:parameterValue>
+				<dev:type>
+					<maml:name>PSCredential</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed" aliases="eg, EnclGroupName">
 				<maml:name>EnclosureGroup</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-eg, -enclGroupName]
@@ -745,7 +934,7 @@ Enclosure Group Name to associate with the enclosure to import.</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed" aliases="forceFw, forceInstall">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed" aliases="forceFw, forceInstall">
 				<maml:name>ForceInstallFirmware</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-forceFw, -forceInstall]
@@ -758,7 +947,7 @@ Enclosure Group Name to associate with the enclosure to import.</maml:para>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored" aliases="oa">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored" aliases="oa">
 				<maml:name>Hostname</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-oa]
@@ -771,7 +960,7 @@ IP Address, Hostname or FQDN of the Primary C7000 Onboard Administrator (OA).</m
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed" aliases="license, l">
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, Managed" aliases="license, l">
 				<maml:name>LicensingIntent</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-license, -l]
@@ -789,7 +978,7 @@ Accepted values are
 				</dev:type>
 				<dev:defaultValue>OneView</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Monitored" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="MonitoredCredential, Monitored" aliases="None">
 				<maml:name>Monitored</maml:name>
 				<maml:description>
 					<maml:para>Add the specified enclosure for monitor only management.  You can view hardware for inventory and status information only.  Omitting this parameter, you can apply configurations, deploy server profiles, monitor operation status, collect statistics, and alert users to specific conditions.</maml:para>
@@ -813,7 +1002,7 @@ Administrator Account password of the OA specified.  Value can be [String] or [S
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Managed, Monitored" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ManagedCredential, MonitoredCredential, Managed, Monitored" aliases="None">
 				<maml:name>Scope</maml:name>
 				<maml:description>
 					<maml:para>Provide an array of &lt;HPOneView.Appliance.ScopeResource&gt; Scope resource(s) to initially add.</maml:para>
@@ -1343,21 +1532,32 @@ Directory Username to authenticate with in order to validate LDAP configuration.
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
 					<maml:name>Username</maml:name>
 					<maml:description>
-						<maml:para>Administrator account of the target iPDU.</maml:para>
+						<maml:para>Warning: This parameter is being deprecated. Please transition to the -Credential parameter.
+
+Administrator account of the target iPDU.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>Password</maml:name>
 					<maml:description>
-						<maml:para>Account password of the iPDU specified.</maml:para>
+						<maml:para>Warning: This parameter is being deprecated. Please transition to the -Credential parameter.
+
+Account password of the iPDU specified.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)">
+					<maml:name>Credential</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">PSCredential</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -1367,6 +1567,20 @@ Specify one HPOneView.Appliance.Connection object or Name property value.
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>TrustLeafCertificate</maml:name>
+					<maml:description>
+						<maml:para>If the iPDU SSL certificate is not trusted, use this Cmdlet to add the certificate to the appliance trust store.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Force</maml:name>
@@ -1393,7 +1607,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="4" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -1408,6 +1622,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
 				<maml:name>Confirm</maml:name>
 				<maml:description>
@@ -1416,6 +1641,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="3" parameterSetName="(All)" aliases="None">
+				<maml:name>Credential</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter if you want to provide a PSCredential object instead.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">PSCredential</command:parameterValue>
+				<dev:type>
+					<maml:name>PSCredential</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -1441,23 +1677,38 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="None">
 				<maml:name>Password</maml:name>
 				<maml:description>
-					<maml:para>Account password of the iPDU specified.</maml:para>
+					<maml:para>Warning: This parameter is being deprecated. Please transition to the -Credential parameter.
+
+Account password of the iPDU specified.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>TrustLeafCertificate</maml:name>
+				<maml:description>
+					<maml:para>If the iPDU SSL certificate is not trusted, use this Cmdlet to add the certificate to the appliance trust store.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
 				<maml:name>Username</maml:name>
 				<maml:description>
-					<maml:para>Administrator account of the target iPDU.</maml:para>
+					<maml:para>Warning: This parameter is being deprecated. Please transition to the -Credential parameter.
+
+Administrator account of the target iPDU.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -16395,7 +16646,9 @@ My Directory Group1               domain1                                 {Stora
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Report</maml:name>
 					<maml:description>
-						<maml:para>Generate a report of installed or required licenses, their type and assigned Nodes.</maml:para>
+						<maml:para>PARAMETER IS BEING DEPRECATED.
+
+Generate a report of installed or required licenses, their type and assigned Nodes.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -16432,7 +16685,9 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Report</maml:name>
 				<maml:description>
-					<maml:para>Generate a report of installed or required licenses, their type and assigned Nodes.</maml:para>
+					<maml:para>PARAMETER IS BEING DEPRECATED.
+
+Generate a report of installed or required licenses, their type and assigned Nodes.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -16506,73 +16761,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:para />
 				</maml:introduction>
 				<dev:code>Get-HPOVLicense
-Product           : HP OneView Advanced
-AvailableCapacity : 1
-ConsumedCapacity  : 0
-TotalCapacity     : 1
-UnlicensedCount   : 0
 
-Product           : HP OneView Advanced
-AvailableCapacity : 1
-ConsumedCapacity  : 0
-TotalCapacity     : 1
-UnlicensedCount   : 0
-
-Product           : HP OneView Advanced
-AvailableCapacity : 16
-ConsumedCapacity  : 16
-TotalCapacity     : 32
-UnlicensedCount   : 0
-
-Product           : HP OneView Advanced w/o iLO
-AvailableCapacity : 9
-ConsumedCapacity  : 7
-TotalCapacity     : 16
-UnlicensedCount   : 0
+Product   : HPE OneView Advanced
+Type      : Permanent
+Capacity  : 64
+Allocated : 30
+Available : 34
+Nodes     : {Encl2, bay 7, Encl2, bay 4, Encl2, bay 13, Encl1, bay 8...}
 
 </dev:code>
 				<dev:remarks>
 					<dev:para>Retrieve all installed license objects on the connected appliance(s).</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>Get-HPOVLicense -report
-License Name        Available Total Associated Nodes
-------------        --------- ----- ----------------
-HPE OneView Advanced       242   256               14
-
-
-
-Device        License Type Applied Date
-------        ------------ ------------
-Encl1, bay 1  Permanent    12/8/2014 
-Encl1, bay 11 Permanent    12/8/2014 
-Encl1, bay 12 Permanent    12/8/2014
-Encl1, bay 13 Permanent    12/8/2014
-Encl1, bay 14 Permanent    12/8/2014 
-Encl1, bay 15 Permanent    12/8/2014 
-Encl1, bay 16 Permanent    12/8/2014 
-Encl1, bay 2  Permanent    12/8/2014 
-Encl1, bay 3  Permanent    12/8/2014 
-Encl1, bay 4  Permanent    12/8/2014
-Encl1, bay 5  Permanent    12/8/2014 
-Encl1, bay 6  Permanent    12/8/2014 
-Encl1, bay 7  Permanent    12/8/2014 
-Encl1, bay 8  Permanent    12/8/2014 
-
-</dev:code>
-				<dev:remarks>
-					<dev:para>Generate a report of licensed resources.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -19595,14 +19794,27 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Get-HPOVPowerDevice</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)">
 					<maml:name>Name</maml:name>
 					<maml:description>
 						<maml:para>The name of the power device resource to be returned.  All power device resources will be returned if omitted.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)">
+					<maml:name>Type</maml:name>
+					<maml:description>
+						<maml:para>Filter the Power Delivery Device type.  Allowed values:
+
+	* HPIpduCore
+	* HPIpduAcModule
+	* LoadSegment
+	* HPIpduOutletBar
+	* HPIpduOutlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -19611,13 +19823,13 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="2" parameterSetName="(All)" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -19626,18 +19838,35 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 
 Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="0" parameterSetName="(All)" aliases="None">
 				<maml:name>Name</maml:name>
 				<maml:description>
 					<maml:para>The name of the power device resource to be returned.  All power device resources will be returned if omitted.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="1" parameterSetName="(All)" aliases="None">
+				<maml:name>Type</maml:name>
+				<maml:description>
+					<maml:para>Filter the Power Delivery Device type.  Allowed values:
+
+	* HPIpduCore
+	* HPIpduAcModule
+	* LoadSegment
+	* HPIpduOutletBar
+	* HPIpduOutlet.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
@@ -36335,6 +36564,17 @@ This parameter is only available for 2.00.07 or newer appliances.</maml:para>
 					<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
+					<maml:name>LldpAddressingMode</maml:name>
+					<maml:description>
+						<maml:para>Specify the IP address format type to support.  Allowed values:
+
+	* IPv4
+	* IPv6
+	* IPv4AndIPv6</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
 					<maml:name>SNMP</maml:name>
 					<maml:description>
 						<maml:para>SNMP Settings to define SNMP configruation.  Use New-HPOVSnmpConfiguration and New-HPOVSnmpTrapDestination Cmdlets to create the necessary SNMP Configuration object.</maml:para>
@@ -36544,6 +36784,17 @@ This parameter is only available for 2.00.07 or newer appliances.</maml:para>
 						<maml:para>When enabled, the enclosure name and serial number are encapsulated in the Chassis ID TLV LLDPDU transmitted by interconnect uplink ports.
 
 This parameter is only available for 2.00.07 or newer appliances.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000">
+					<maml:name>LldpAddressingMode</maml:name>
+					<maml:description>
+						<maml:para>Specify the IP address format type to support.  Allowed values:
+
+	* IPv4
+	* IPv6
+	* IPv4AndIPv6</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
 				</command:parameter>
@@ -36908,6 +37159,21 @@ Required: Yes, if IGMP snooping is enabled</maml:para>
 					<maml:name>Array</maml:name>
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, C7000" aliases="None">
+				<maml:name>LldpAddressingMode</maml:name>
+				<maml:description>
+					<maml:para>Specify the IP address format type to support.  Allowed values:
+
+	* IPv4
+	* IPv6
+	* IPv4AndIPv6</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Boolean</command:parameterValue>
+				<dev:type>
+					<maml:name>Boolean</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="C7000" aliases="FastMACRefresh">
 				<maml:name>MacRefreshInterval</maml:name>
@@ -45639,6 +45905,13 @@ Default: 2500</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>LagName</maml:name>
+					<maml:description>
+						<maml:para>Specify the LAG Name for a Synergy Ethernet connection.  Allowed value is 'LAG1' - 'LAG24'.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Common">
 					<maml:name>BootVolumeSource</maml:name>
 					<maml:description>
@@ -45670,6 +45943,17 @@ When the Connection Type is Ethernet, this affects PXE boot.  If the Connection 
 	Default: NotBootable</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one HPOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 			</command:syntaxItem>
 			<command:syntaxItem>
@@ -45748,6 +46032,13 @@ Default: 2500</maml:para>
 	Default: False</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>LagName</maml:name>
+					<maml:description>
+						<maml:para>Specify the LAG Name for a Synergy Ethernet connection.  Allowed value is 'LAG1' - 'LAG24'.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Common">
 					<maml:name>BootVolumeSource</maml:name>
@@ -45900,7 +46191,7 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SecureString</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -46003,6 +46294,13 @@ Default: 2500</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>LagName</maml:name>
+					<maml:description>
+						<maml:para>Specify the LAG Name for a Synergy Ethernet connection.  Allowed value is 'LAG1' - 'LAG24'.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Common">
 					<maml:name>BootVolumeSource</maml:name>
 					<maml:description>
@@ -46051,7 +46349,7 @@ Target FC array WWPN.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -46148,6 +46446,13 @@ Default: 2500</maml:para>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>LagName</maml:name>
+					<maml:description>
+						<maml:para>Specify the LAG Name for a Synergy Ethernet connection.  Allowed value is 'LAG1' - 'LAG24'.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>Priority</maml:name>
 					<maml:description>
 						<maml:para>Optional boot option for this connection, but Required if -bootable is specified.  Allowed values:
@@ -46166,7 +46471,7 @@ When the Connection Type is Ethernet, this affects PXE boot.  If the Connection 
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -46181,7 +46486,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="ISCSI, FC, Ethernet, Common" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -46410,6 +46715,17 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 					<maml:name>Int32</maml:name>
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common" aliases="None">
+				<maml:name>LagName</maml:name>
+				<maml:description>
+					<maml:para>Specify the LAG Name for a Synergy Ethernet connection.  Allowed value is 'LAG1' - 'LAG24'.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				<dev:type>
+					<maml:name>String</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="None">
 				<maml:name>MAC</maml:name>
@@ -46943,6 +47259,13 @@ Default: SizeAndTechnology</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD">
+					<maml:name>EraseDataOnDelete</maml:name>
+					<maml:description>
+						<maml:para>Indicates if the logical drive should be erased when it is deleted from or with the Server Profile.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD, Default">
 					<maml:name>Bootable</maml:name>
 					<maml:description>
@@ -47018,6 +47341,17 @@ NOTE: Auto is not supported when attempting to create an HPE Synergy D3940 Logic
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>Auto</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD" aliases="None">
+				<maml:name>EraseDataOnDelete</maml:name>
+				<maml:description>
+					<maml:para>Indicates if the logical drive should be erased when it is deleted from or with the Server Profile.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="SynergyJBOD" aliases="None">
 				<maml:name>MaxDriveSize</maml:name>
@@ -56371,7 +56705,7 @@ Directory Username to authenticate with in order to validate LDAP configuration.
 
 Provide the License URI or object to remove.</maml:para>
 					</maml:description>
-					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="true" variableLength="False">HPOneView.Appliance.License</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -56435,9 +56769,9 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 
 Provide the License URI or object to remove.</maml:para>
 				</maml:description>
-				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="true" variableLength="False">HPOneView.Appliance.License</command:parameterValue>
 				<dev:type>
-					<maml:name>Object</maml:name>
+					<maml:name>HPOneView.Appliance.License</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -56457,7 +56791,7 @@ Provide the License URI or object to remove.</maml:para>
 			<!--Input Types-->
 			<command:inputType>
 				<dev:type>
-					<maml:name>System.Management.Automation.PSCustomObject</maml:name>
+					<maml:name>HPOneView.Appliance.License</maml:name>
 				</dev:type>
 				<maml:description>
 					<maml:para>HPE OneView License object</maml:para>
@@ -56493,7 +56827,7 @@ Provide the License URI or object to remove.</maml:para>
 					<maml:para />
 				</maml:introduction>
 				<dev:code>$LicenseKeys = Get-HPOVlicense
-Remove-HPOVLicense $LicenseKeys[0]
+Remove-HPOVLicense -InputObject $LicenseKeys[0]
 
 </dev:code>
 				<dev:remarks>
@@ -58267,18 +58601,25 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<command:syntaxItem>
 				<maml:name>Remove-HPOVPowerDevice</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
-					<maml:name>PowerDevice</maml:name>
+					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>The Power Device object(s), name(s) or uri(s) to be removed from management.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
-					<maml:name>force</maml:name>
+					<maml:name>Force</maml:name>
 					<maml:description>
 						<maml:para>Set to $true to force-remove the power device.  Force-removing will succeed even when there are connectivity issues or resource errors.
 
 When the request is accepted by the appliance, it does not return an Async Task Resource.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -58326,6 +58667,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
 				<maml:name>Confirm</maml:name>
 				<maml:description>
@@ -58337,8 +58689,21 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name">
-				<maml:name>PowerDevice</maml:name>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Force</maml:name>
+				<maml:description>
+					<maml:para>Set to $true to force-remove the power device.  Force-removing will succeed even when there are connectivity issues or resource errors.
+
+When the request is accepted by the appliance, it does not return an Async Task Resource.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name, PowerDevice">
+				<maml:name>InputObject</maml:name>
 				<maml:description>
 					<maml:para>The Power Device object(s), name(s) or uri(s) to be removed from management.</maml:para>
 				</maml:description>
@@ -58358,19 +58723,6 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
-				<maml:name>force</maml:name>
-				<maml:description>
-					<maml:para>Set to $true to force-remove the power device.  Force-removing will succeed even when there are connectivity issues or resource errors.
-
-When the request is accepted by the appliance, it does not return an Async Task Resource.</maml:para>
-				</maml:description>
-				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
-				<dev:type>
-					<maml:name>SwitchParameter</maml:name>
-				</dev:type>
-				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -63146,12 +63498,12 @@ When the request is accepted by the appliance, it does not return an Async Task 
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Remove-HPOVUser</maml:name>
-				<command:parameter required="" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
 					<maml:name>InputObject</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The user account object to be removed.</maml:para>
 					</maml:description>
-					<command:parameterValue required="" variableLength="False" />
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -63208,14 +63560,14 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="u, user, UserName, Name">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="u, user, UserName, Name">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The user account object to be removed.</maml:para>
 				</maml:description>
-				<command:parameterValue required="" variableLength="False" />
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
-					<maml:name />
+					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -82402,7 +82754,7 @@ The Server object or Name, or can be a Server Profile object.</maml:para>
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Update-HPOVServerProfile</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Reapply, Default">
 					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Profile, -ServerProfile]
@@ -82410,7 +82762,7 @@ The Name or Resource Object of the specific Server Profile to update.</maml:para
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)">
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Reapply, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -82421,7 +82773,106 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply, Default">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para>When using this parameter, an HPOneView.ServerProfile.CompliancePreview object is returned, which contains the operations that will be performed.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Update-HPOVServerProfile</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Reapply, Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Profile, -ServerProfile]
+The Name or Resource Object of the specific Server Profile to update.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>Reapply</maml:name>
+					<maml:description>
+						<maml:para>Use to perform the Reapply Server Profile operation.  Server should be powered off to perform certain operations.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>Baseline</maml:name>
+					<maml:description>
+						<maml:para>Re-apply Baseline.  If setting is Firmware only, the associated server hardware must be powered off.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>AdapterAndBoot</maml:name>
+					<maml:description>
+						<maml:para>Re-apply Boot settings, including adapter boot preference.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>Connections</maml:name>
+					<maml:description>
+						<maml:para>Re-apply Vitual Connect connections.  Will re-provision downlink ports and connection templates for the provided server profile.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>LocalStorage</maml:name>
+					<maml:description>
+						<maml:para>Re-apply Local Storage settings.  This will cause the SmartArray to rescan for disks that should be part of the configured Logical Disk.  Server Hardware must be powered off in order for operation to be successful.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>SANStorage</maml:name>
+					<maml:description>
+						<maml:para>Re-apply SAN storage settings.  Only applies to SAN zoning and volume presentation, and not recreating SAN volumes.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>BIOS</maml:name>
+					<maml:description>
+						<maml:para>Re-apply BIOS settings.  Gen8 server hardware must be powered off for this operation to be allowed.  Gen9 and newer can be performed while the server hardware is powered on.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply">
+					<maml:name>OSDeployment</maml:name>
+					<maml:description>
+						<maml:para>Re-apply OS Deployment Plan settings.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Reapply, Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s). If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
 						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
@@ -82446,7 +82897,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="1" parameterSetName="(All)" aliases="Appliance">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>AdapterAndBoot</maml:name>
+				<maml:description>
+					<maml:para>Re-apply Boot settings, including adapter boot preference.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Reapply, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -82461,10 +82923,32 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply, Default" aliases="None">
 				<maml:name>Async</maml:name>
 				<maml:description>
 					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>BIOS</maml:name>
+				<maml:description>
+					<maml:para>Re-apply BIOS settings.  Gen8 server hardware must be powered off for this operation to be allowed.  Gen9 and newer can be performed while the server hardware is powered on.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>Baseline</maml:name>
+				<maml:description>
+					<maml:para>Re-apply Baseline.  If setting is Firmware only, the associated server hardware must be powered off.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -82483,7 +82967,18 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="profile, ServerProfile">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>Connections</maml:name>
+				<maml:description>
+					<maml:para>Re-apply Vitual Connect connections.  Will re-provision downlink ports and connection templates for the provided server profile.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Reapply, Default" aliases="profile, ServerProfile">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Profile, -ServerProfile]
@@ -82494,6 +82989,50 @@ The Name or Resource Object of the specific Server Profile to update.</maml:para
 					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>LocalStorage</maml:name>
+				<maml:description>
+					<maml:para>Re-apply Local Storage settings.  This will cause the SmartArray to rescan for disks that should be part of the configured Logical Disk.  Server Hardware must be powered off in order for operation to be successful.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>OSDeployment</maml:name>
+				<maml:description>
+					<maml:para>Re-apply OS Deployment Plan settings.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>Reapply</maml:name>
+				<maml:description>
+					<maml:para>Use to perform the Reapply Server Profile operation.  Server should be powered off to perform certain operations.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Reapply" aliases="None">
+				<maml:name>SANStorage</maml:name>
+				<maml:description>
+					<maml:para>Re-apply SAN storage settings.  Only applies to SAN zoning and volume presentation, and not recreating SAN volumes.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="wi">
 				<maml:name>WhatIf</maml:name>
@@ -83284,5 +83823,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2018-01-06T04:30:19:01.019Z-->
+	<!--Edited on: 2018-02-05T05:15:30:52.529Z-->
 </helpItems>

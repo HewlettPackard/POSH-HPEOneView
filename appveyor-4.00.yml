@@ -8,9 +8,6 @@ image: labwmf5
 clone_folder: C:\projects\HPOneView.400
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
-environment:
-  access_token:
-    secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
 build: off
 test_script:
 - ps: >-
@@ -34,6 +31,7 @@ skip_commits:
     - '**/*.xml'
     - '**/*.txt'
     - '*.md'
+    - '*.yml'
     - .github/*.md
 
 

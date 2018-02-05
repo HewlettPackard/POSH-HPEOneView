@@ -1,11 +1,11 @@
-##############################################################################
+﻿##############################################################################
 # AddStorageSystem_Sample.ps1
 # - Example script for adding a supported Storage System, creating Storage Pools
 #   and Storage Volumes
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,10 +28,10 @@ THE SOFTWARE.
 #>
 ##############################################################################
 
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneview.400)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.400
 
 }
 

@@ -1,5 +1,55 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
+<Controls>
+    <!--ServerHardware.Firmware-GroupingFormat-->
+    <Control>
+      <Name>ServerHardware.Firmware-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Server: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.ServerName
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <!--Enclosure.Firmware-GroupingFormat-->
+    <Control>
+      <Name>EnclosureFirmware-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Enclosure: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.EnclosureName
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+  </Controls>
   <ViewDefinitions>
     <!--ServerHardware FT-->
     <View>
@@ -1276,6 +1326,92 @@
         </TableRowEntries>
       </TableControl>
     </View> 
-    
+    <!-- HPOneView.ServerHardware.Firmware FT-->
+    <View>
+      <Name>ServerHardware.Firmware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerHardware.Firmware</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>ServerName</PropertyName>
+        <CustomControlName>ServerHardware.Firmware-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Component</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Installed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Component</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Installed</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View> 
+    <!-- HPOneView.Enclosure.Firmware FT-->
+    <View>
+      <Name>Enclosure.Firmware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Enclosure.Firmware</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>EnclosureName</PropertyName>
+        <CustomControlName>EnclosureFirmware-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Component</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Installed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Component</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Installed</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View> 
+
   </ViewDefinitions> 
 </Configuration>

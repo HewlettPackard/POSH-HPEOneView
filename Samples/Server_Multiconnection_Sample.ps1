@@ -1,4 +1,4 @@
-##############################################################################
+﻿##############################################################################
 # Server_Multiconnection_Sample.ps1
 #
 # Example script to demonstrate creating a Server Profile with the following:
@@ -11,7 +11,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,10 +33,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneview.400)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.400
 
 }
 

@@ -1,10 +1,10 @@
-##############################################################################
+﻿##############################################################################
 # Appliance_Backup_Sample.ps1
 # - Example script to automate appliance backup
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2015 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2018 Hewlett-Packard Development Company, L.P.
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -78,10 +78,10 @@ if (-not(Test-Path $Location))
 
 }
 
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneview.400)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.400
 
 }
 

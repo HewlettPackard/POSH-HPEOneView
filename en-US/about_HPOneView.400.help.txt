@@ -32,6 +32,26 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.00.1587.3400
+
+     -- [#303] Updated internal class method for parsing a certificates Subject Alternative Name.
+     -- [#305] Fixed Update-HPOVEnclosure where the wrong URI was being passed to the appliance,
+        resulting in an API exception for a monitored enclosure resource.
+     -- [#306] Removed restriction of creating VLAN ID 1.
+     -- [#311] Fixed Reset-HPOVEnclosureDevice where execution would generate "cannot call a method 
+        on a null-valued expression" exception.
+     -- Fixed New-HPOVServerProfileConnection where pipeline wasn't being handled correctly when passing
+        Network object via pipeline.
+     -- Added -EraseDataOnDelete parameter to New-HPOVServerProfileLogicalDisk Cmdlet.
+     -- Added -LagName parameter to New-HPOVServerProfileConnection to support Synergy Virtual Connect
+        MLAG functionality.
+     -- Updated sample scripts.
+     -- Added -TrustLeafCertificate parameter support to Add-HPOVPowerDevice for iPDU's with
+        a self-signed/untrusted certificate, as a shortcut to importing the certificate using
+        Import-HPOVApplianceTrustedCertificate.
+     -- Updated Get-HPOVLicense to return an updated class object. 
+     -- Deprecated -Report switch in Get-HPOVLicense.
+
     Release 4.00.1554.2229
 
      -- First release of HPE OneView 4.00 PowerShell library.
