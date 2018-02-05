@@ -1,4 +1,4 @@
-##############################################################################
+﻿##############################################################################
 # Appliance_Backup_Sample.ps1
 # - Example script to automate appliance backup
 #
@@ -78,10 +78,10 @@ if (-not(Test-Path $Location))
 
 }
 
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneView.310)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.310
 
 }
 

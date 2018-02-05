@@ -1,11 +1,11 @@
-##############################################################################
+﻿##############################################################################
 # Configure_IIS_WebDav_ExternalRepo_Sample.ps1
 # - Configure IIS WebDav server to support OneView 3.10 External Repository.
 #   Windows Server 2012 R2 or Windows Server 2016
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy

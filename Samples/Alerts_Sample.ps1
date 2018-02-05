@@ -1,11 +1,11 @@
-##############################################################################
+﻿##############################################################################
 # Alerts_Sample.ps1
 # - Example scripts for creating a user account, and retrieving alerts specific
 #   to the new user.
 #
 #   VERSION 3.1
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,10 +28,10 @@ THE SOFTWARE.
 
 #>
 ##############################################################################
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneView.310)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.310
 
 }
 

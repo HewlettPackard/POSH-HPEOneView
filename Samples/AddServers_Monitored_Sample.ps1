@@ -1,10 +1,10 @@
-##############################################################################
+﻿##############################################################################
 # AddServers_Monitored_Sample.ps1
 # - Example script for importing multiple servers to be monitored.
 #
 #   VERSION 1.1
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,10 +47,10 @@ if (-not(Test-Path $CSV -PathType Leaf))
 
 }
 
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneView.310)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.310
 
 }
 

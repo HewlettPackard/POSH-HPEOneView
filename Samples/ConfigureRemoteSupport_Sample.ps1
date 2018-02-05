@@ -1,10 +1,10 @@
-##############################################################################
+﻿##############################################################################
 # ConfigureRemoteSupport_Sample.ps1
 # - Example script to configure Remote Support
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -108,10 +108,10 @@ param
 
 )
 
-if (-not (Get-Module HPOneview.300)) 
+if (-not (Get-Module HPOneView.310)) 
 {
 
-    Import-Module POSH-HPOneView.300
+    Import-Module POSH-HPOneView.310
 
 }
 

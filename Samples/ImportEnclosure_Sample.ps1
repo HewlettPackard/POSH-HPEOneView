@@ -1,10 +1,10 @@
-##############################################################################
+﻿##############################################################################
 # ImportEnclosure_Sample.ps1
 # - Example scripts for importing an enclosure to a specific EG.
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2017 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,10 +27,10 @@ THE SOFTWARE.
 #>
 ##############################################################################
 
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneView.310)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.310
 
 }
 

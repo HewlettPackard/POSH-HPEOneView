@@ -1,4 +1,4 @@
-##############################################################################
+﻿##############################################################################
 # DefineLogicalInterconnectGroup_AA_VC_Sample.ps1
 # - Example script for creating Logical Interconnect Group with A/A VC Networking.
 #
@@ -26,10 +26,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-if (-not (get-module HPOneview.300)) 
+if (-not (get-module HPOneView.310)) 
 {
 
-    Import-Module HPOneView.300
+    Import-Module HPOneView.310
 
 }
 

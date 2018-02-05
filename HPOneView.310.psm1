@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '3.10.1560.1882'
+[Version]$ModuleVersion = '3.10.1588.1229'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -85302,8 +85302,8 @@ function New-HPOVLdapDirectory
 		[Alias ('u','user')]
 		[String]$Username,
 
-		[Parameter (ValueFromPipeline, Mandatory, ParameterSetName = "AD")]
-		[Parameter (ValueFromPipeline, Mandatory, ParameterSetName = "LDAP")]
+		[Parameter (ValueFromPipeline, Mandatory = $false, ParameterSetName = "AD")]
+		[Parameter (ValueFromPipeline, Mandatory = $false, ParameterSetName = "LDAP")]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('p','pass')]
 		[Object]$Password,
