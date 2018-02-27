@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <Configuration>
 <Controls>
-    <!--ServerHardware.Firmware-GroupingFormat-->
+    <!--ServerHardware+Firmware-GroupingFormat-->
     <Control>
-      <Name>ServerHardware.Firmware-GroupingFormat</Name>
+      <Name>ServerHardware+Firmware-GroupingFormat</Name>
       <CustomControl>
         <CustomEntries>
           <CustomEntry>
@@ -14,7 +14,7 @@
                   <Text>Server: </Text>
                   <ExpressionBinding>
                     <ScriptBlock>
-                      $_.ServerName
+                      $_.Name
                     </ScriptBlock>
                   </ExpressionBinding>
                   <NewLine/>
@@ -25,7 +25,7 @@
         </CustomEntries>
       </CustomControl>
     </Control>
-    <!--Enclosure.Firmware-GroupingFormat-->
+    <!--Enclosure+Firmware-GroupingFormat-->
     <Control>
       <Name>EnclosureFirmware-GroupingFormat</Name>
       <CustomControl>
@@ -38,7 +38,7 @@
                   <Text>Enclosure: </Text>
                   <ExpressionBinding>
                     <ScriptBlock>
-                      $_.EnclosureName
+                      $_.Name
                     </ScriptBlock>
                   </ExpressionBinding>
                   <NewLine/>
@@ -1326,15 +1326,15 @@
         </TableRowEntries>
       </TableControl>
     </View> 
-    <!-- HPOneView.ServerHardware.Firmware FT-->
+    <!-- HPOneView.ServerHardware+Firmware FT-->
     <View>
-      <Name>ServerHardware.Firmware</Name>
+      <Name>ServerHardware+Firmware</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.ServerHardware.Firmware</TypeName>
+        <TypeName>HPOneView.ServerHardware+Firmware</TypeName>
       </ViewSelectedBy>
       <GroupBy>
-        <PropertyName>ServerName</PropertyName>
-        <CustomControlName>ServerHardware.Firmware-GroupingFormat</CustomControlName>
+        <PropertyName>Name</PropertyName>
+        <CustomControlName>ServerHardware+Firmware-GroupingFormat</CustomControlName>
       </GroupBy>
       <TableControl>
         <AutoSize/>
@@ -1344,22 +1344,37 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>ComponentType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Installed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineVersion</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>BaselineName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>
+          </TableColumnHeader>          
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
+            <Wrap/>
             <TableColumnItems>
               <TableColumnItem>
                 <PropertyName>Component</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>ComponentType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>Installed</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineVersion</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>BaselineName</PropertyName>
@@ -1369,25 +1384,33 @@
         </TableRowEntries>
       </TableControl>
     </View> 
-    <!-- HPOneView.Enclosure.Firmware FT-->
+    <!-- HPOneView.Enclosure+Firmware FT-->
     <View>
-      <Name>Enclosure.Firmware</Name>
+      <Name>Enclosure+Firmware</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Enclosure.Firmware</TypeName>
+        <TypeName>HPOneView.Enclosure+Firmware</TypeName>
       </ViewSelectedBy>
       <GroupBy>
-        <PropertyName>EnclosureName</PropertyName>
+        <PropertyName>Name</PropertyName>
         <CustomControlName>EnclosureFirmware-GroupingFormat</CustomControlName>
       </GroupBy>
       <TableControl>
         <AutoSize/>
         <TableHeaders>
-          <TableColumnHeader>
+        <TableColumnHeader>
             <Label>Component</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>ComponentModel</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Installed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Baseline</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1398,11 +1421,17 @@
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
-              <TableColumnItem>
+            <TableColumnItem>
                 <PropertyName>Component</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>ComponentModel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>Installed</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineVersion</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>BaselineName</PropertyName>
@@ -1412,6 +1441,5 @@
         </TableRowEntries>
       </TableControl>
     </View> 
-
   </ViewDefinitions> 
 </Configuration>

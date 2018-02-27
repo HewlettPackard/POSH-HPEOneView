@@ -32,6 +32,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.00.1609.2700
+
+     -- [#312] Fixed New-HPOVServerProfileTemplate regression with Shared Storage validation. 
+     -- [#313] Fixed New-HPOVServerProfileVolumeAttach regression with Shared Storage validation. 
+     -- Added Get-HPOVServiceAlert Cmdlet to assist with reporting HPE OneView Remote Support
+        events.
+     -- Refactored Get-HPOVAlert to use Index, and properly support DateTime ranges.
+     -- Refactored Show-HPOVFirmwareReport to handle reporting better.
+     -- Fixed issue with Get-HPOVCommandTrace where setting verbose preferences would fail.
+     -- Fixed regression in New-HPOVServerProfile where assigning to an Enclosure Bay would
+        result in an exception 'The value specified for the enclosure "name":"Unknown", 
+        "uri":"null" is not valid or not supported'.
+
     Release 4.00.1587.3400
 
      -- [#303] Updated internal class method for parsing a certificates Subject Alternative Name.

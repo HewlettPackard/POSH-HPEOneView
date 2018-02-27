@@ -10748,7 +10748,11 @@ Alerts for the specified resource will be returned.</maml:para>
 		<maml:relatedLinks>
 			<!--Related Links-->
 			<maml:navigationLink>
-				<maml:linkText>Clear-HPOVAlert</maml:linkText>
+				<maml:linkText>Set-HPOVAlert</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServiceAlert</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -25037,6 +25041,321 @@ Test 1                 False             False Unassigned    Normal
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVServerProfileTemplate</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<!--GET-HPOVSERVICEALERT-->
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--GET-HPOVSERVICEALERT-->
+		<command:details>
+			<command:name>Get-HPOVServiceAlert</command:name>
+			<maml:description>
+				<maml:para>Generate report of HPE OneView Remote Support service events.</maml:para>
+			</maml:description>
+			<command:verb>Get</command:verb>
+			<command:noun>HPOVServiceAlert</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>HPE OneView automatically checks if your hardware has a valid entitlement to Hewlett Packard Enterprise support. A valid entitlement is a Hewlett Packard Enterprise warranty or an active contract. If a valid entitlement to support is found, HPE OneView Remote Support opens a support case for a hardware failure. This Cmdlet allows administrators to display and/or export service events logged by the HPE OneView appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Get-HPOVServiceAlert</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Use to filter for the supported hardware resource object.  Enclosures, Server Hardware and Server Profile objects are supported.  If an Enclosure resource is provided, only the Enclousre service events are queried.  Associated Server Hardare within the enclosure is not.  If providing a Server Profile object, it must be assigned to a supported hardware platform.  If the Server Profile has moved between hardware resources, only the currently assigned server hardware resource object will be used to query for service events.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>State</maml:name>
+					<maml:description>
+						<maml:para>Specify the state of the Service Alert.  The state is not correlated to the associated Alert.
+
+	* Closed - The state of Service event when the service call is closed.
+	* Error - The Service request has some error None This is a default state.
+	* Open - The state of Service event when the service call is open.
+	* Pending - The state of Service event when the service call is pending.
+	* Received - The state of Service event when the service call is received.
+	* Submitted - The state of Service event when the service call is submitted.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">string</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Count</maml:name>
+					<maml:description>
+						<maml:para>Specify the number of service alerts to return.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">int</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>TimeSpan</maml:name>
+					<maml:description>
+						<maml:para>Specify a TimeSpan object in number of days.  Cannot be combined with -Start and -End parameters.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">TimeSpan</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Start</maml:name>
+					<maml:description>
+						<maml:para>DateTime object of the start date and time to being query.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>End</maml:name>
+					<maml:description>
+						<maml:para>DateTime object of the end date and time accompanied with the -Start parameter.  If omitted, the current time of the PC is used.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Count</maml:name>
+				<maml:description>
+					<maml:para>Specify the number of service alerts to return.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">int</command:parameterValue>
+				<dev:type>
+					<maml:name>int</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>End</maml:name>
+				<maml:description>
+					<maml:para>DateTime object of the end date and time accompanied with the -Start parameter.  If omitted, the current time of the PC is used.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				<dev:type>
+					<maml:name>DateTime</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Use to filter for the supported hardware resource object.  Enclosures, Server Hardware and Server Profile objects are supported.  If an Enclosure resource is provided, only the Enclousre service events are queried.  Associated Server Hardare within the enclosure is not.  If providing a Server Profile object, it must be assigned to a supported hardware platform.  If the Server Profile has moved between hardware resources, only the currently assigned server hardware resource object will be used to query for service events.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Start</maml:name>
+				<maml:description>
+					<maml:para>DateTime object of the start date and time to being query.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">DateTime</command:parameterValue>
+				<dev:type>
+					<maml:name>DateTime</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>State</maml:name>
+				<maml:description>
+					<maml:para>Specify the state of the Service Alert.  The state is not correlated to the associated Alert.
+
+	* Closed - The state of Service event when the service call is closed.
+	* Error - The Service request has some error None This is a default state.
+	* Open - The state of Service event when the service call is open.
+	* Pending - The state of Service event when the service call is pending.
+	* Received - The state of Service event when the service call is received.
+	* Submitted - The state of Service event when the service call is submitted.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">string</command:parameterValue>
+				<dev:type>
+					<maml:name>string</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>TimeSpan</maml:name>
+				<maml:description>
+					<maml:para>Specify a TimeSpan object in number of days.  Cannot be combined with -Start and -End parameters.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">TimeSpan</command:parameterValue>
+				<dev:type>
+					<maml:name>TimeSpan</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerHardware</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Server Hardware resource object from Get-HPOVServer.</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerProfile</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Server Profile resource object from Get-HPOVServerProfile.  If the Server Profile is not associated with a server hardware resource, an excpetion is thrown.  If the Server Profile has moved from one server hardware resource to another, only the currently assigned server hardware resource will be queried.</maml:para>
+				</maml:description>
+			</command:inputType>
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.Enclosure</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>An Enclosure resource object from Get-HPOVEnclosure.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.ServiceAlert</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The Service Alert object that contains the CaseID, associated resource name, URI and serial number, and description of the service event.</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Get-HPOVServiceAlert
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get all Service Alerts from the connected appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Get-HPOVServiceAlert -Count 10 
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the first 10 Service Alerts from the connected appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>$TimeSpan = New-TimeSpan -Days 30
+Get-HPOVServiceAlert -Count 10 -TimeSpan $TimeSpan
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the first 10 Service Alerts within the last 30 days from the connected appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 4 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Get-HPOVServiceAlert -Start ([DateTime]"2018-01-05") -End ([DateTime]"2018-01-30")
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the Service Alerts within the specified date range from the connected appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 5 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Get-HPOVServer -Name "Encl1, Bay 1" -ErrorAction Stop | Get-HPOVServiceAlert -Start ([DateTime]"2018-01-05") -End ([DateTime]"2018-01-30")
+</dev:code>
+				<dev:remarks>
+					<dev:para>Get the Service Alerts within the specified date range for the specified server hardware resource from the connected appliance.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVAlert</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVAlert</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Get-HPOVServiceAlert</maml:uri>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -65888,7 +66207,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
-				<maml:linkText>Set-HPOVAlert</maml:linkText>
+				<maml:linkText>Get-HPOVAlert</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -83823,5 +84142,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2018-02-05T06:08:13:95.954Z-->
+	<!--Edited on: 2018-02-26T23:15:00:79.793Z-->
 </helpItems>
