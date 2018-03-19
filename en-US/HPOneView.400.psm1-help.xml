@@ -208,7 +208,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<dev:code>Get-ChildItem C:\Path\srv1-pub.cer | Add-HPOVApplianceTrustedCertificate
 </dev:code>
 				<dev:remarks>
-					<dev:para>Add the resources collected to the MyScope scope.</dev:para>
+					<dev:para>Add the provided offline certificate to the appliance trust store.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -225,7 +225,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				<dev:code>Add-HPOVApplianceTrustedCertificate -ComputerName $RemoteBackupHostname -Port 443 -AliasName backupserver -Async -Outvariable Task
 </dev:code>
 				<dev:remarks>
-					<dev:para>Use the Cmdlet to add the remote backup server to the appliance, and not waiting until completion.</dev:para>
+					<dev:para>Use the Cmdlet to add the remote certificate to the appliance trust store without waiting for the task to complete.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -12553,7 +12553,15 @@ Appliance True    scphost.domain.com SCP                WEEKLY   {MO, WE, FR} 18
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Get-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>New-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVBackup</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -12884,6 +12892,10 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			<!--Related Links-->
 			<maml:navigationLink>
 				<maml:linkText>New-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVBackup</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -33127,6 +33139,10 @@ The full path to where the Support Dump will be saved to.  The downloaded file n
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Save-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Get-HPOVAutomaticBackupConfig</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -40735,6 +40751,13 @@ This Cmdlet will create a new Rack resource.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Model</maml:name>
+					<maml:description>
+						<maml:para>Provide the model of the rack to add.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False" />
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Depth</maml:name>
 					<maml:description>
@@ -40826,6 +40849,17 @@ Default: 2004</maml:para>
 					<maml:name>Int</maml:name>
 				</dev:type>
 				<dev:defaultValue>2004</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Model</maml:name>
+				<maml:description>
+					<maml:para>Provide the model of the rack to add.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Name</maml:name>
@@ -44323,6 +44357,10 @@ $jsonProfiles | foreach-object { New-HPOVServerProfile -import -file $_.fullname
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Update-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -44697,6 +44735,10 @@ The name or object of the server profile resource to modify assignment.</maml:pa
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Remove-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -44830,6 +44872,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 						<maml:para>An existing Server Profile resource object from Get-HPOVServerProfile Cmdlet.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, ServerProfileObjectEphmeralVol, ServerProfileObject">
+					<maml:name>PassThru</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to return the modified Server Profile object.  In order to save the changes, please use the Save-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
 					<maml:name>VolumeID</maml:name>
@@ -45007,6 +45056,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, ServerProfileObjectEphmeralVol, ServerProfileObject">
+					<maml:name>PassThru</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to return the modified Server Profile object.  In order to save the changes, please use the Save-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
 					<maml:name>VolumeID</maml:name>
 					<maml:description>
@@ -45182,6 +45238,13 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 						<maml:para>The Volume Name, URI or Object to attach.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, ServerProfileObjectEphmeralVol, ServerProfileObject">
+					<maml:name>PassThru</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to return the modified Server Profile object.  In order to save the changes, please use the Save-HPOVServerProfile Cmdlet.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, DynamicVolAttachManual, DynamicVolAttachAuto, ManualLunIdType, ServerProfileObjectEphmeralVol, ServerProfileObject, Default">
 					<maml:name>VolumeID</maml:name>
@@ -45816,6 +45879,17 @@ Accepted values:
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="ServerProfileObjectEphmeralVolTemplate, ServerProfileObjectEphmeralVol, ServerProfileObject" aliases="None">
+				<maml:name>PassThru</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to return the modified Server Profile object.  In order to save the changes, please use the Save-HPOVServerProfile Cmdlet.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="DynamicVolAttachManualTemplate, DynamicVolAttachAutoTemplate, ServerProfileObjectEphmeralVolTemplate, DynamicVolAttachManual, DynamicVolAttachAuto, ServerProfileObjectEphmeralVol" aliases="None">
 				<maml:name>Permanent</maml:name>
 				<maml:description>
@@ -46133,6 +46207,10 @@ $StorageVolumeObject = New-HPOVServerProfileAttachVolume -Name 'Template 3 Priva
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Get-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -47409,6 +47487,10 @@ $ImageStreamerBootConnection1 = New-HPOVServerProfileConnection @IscsiParams</de
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>Get-HPOVServerProfileConnetionList</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -47852,6 +47934,10 @@ $NewLogicalDisk = New-HPOVServerProfileLogicalDisk -Name 'LD1_RAID5_900GB_SASHDD
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>New-HPOVServerProfileTemplate</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
@@ -48170,6 +48256,10 @@ C:\&gt; $Controller = New-HPOVServerProfileLogicalDiskController -ControllerID '
 			<!--Related Links-->
 			<maml:navigationLink>
 				<maml:linkText>New-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -49652,6 +49742,10 @@ New-HPOVServerProfileTemplate @params | Wait-HPOVTaskComplete
 			</maml:navigationLink>
 			<maml:navigationLink>
 				<maml:linkText>Copy-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -51545,7 +51639,7 @@ Max volume capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>SnapshotStoragePool</maml:name>
 					<maml:description>
-						<maml:para>Specify the Storage Pool (aka CPG) the Storage Volume Template will use for volume snapshot use.  The provided Storage Pool must already be managed by OneView.  If you omit this value, then the StoragePool parameter value will be used.</maml:para>
+						<maml:para>Specify the Storage Pool (aka CPG) the Storage Volume Template will use for volume snapshot use.  The provided Storage Pool must already be managed by OneView.  If you omit this value, then the StoragePool parameter value will be used.  Only supported with HPE StoreServe platforms.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -51752,7 +51846,7 @@ Default: Thin</maml:para>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="StoreVirtual">
 					<maml:name>EnableAdaptiveOptimization</maml:name>
 					<maml:description>
-						<maml:para>Whether or not Adaptive Optimization is enabled on the storage volume.  Only supported with StoreVirtual</maml:para>
+						<maml:para>Whether or not Adaptive Optimization is enabled on the storage volume.  Only supported with StoreVirtual.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -51845,7 +51939,7 @@ Max volume capacity in GB.  e.g. 20 to specify 20GB.</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="StoreVirtual" aliases="None">
 				<maml:name>EnableAdaptiveOptimization</maml:name>
 				<maml:description>
-					<maml:para>Whether or not Adaptive Optimization is enabled on the storage volume.  Only supported with StoreVirtual</maml:para>
+					<maml:para>Whether or not Adaptive Optimization is enabled on the storage volume.  Only supported with StoreVirtual.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -51997,7 +52091,7 @@ Storage Volume Template name</maml:para>
 			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>SnapshotStoragePool</maml:name>
 				<maml:description>
-					<maml:para>Specify the Storage Pool (aka CPG) the Storage Volume Template will use for volume snapshot use.  The provided Storage Pool must already be managed by OneView.  If you omit this value, then the StoragePool parameter value will be used.</maml:para>
+					<maml:para>Specify the Storage Pool (aka CPG) the Storage Volume Template will use for volume snapshot use.  The provided Storage Pool must already be managed by OneView.  If you omit this value, then the StoragePool parameter value will be used.  Only supported with HPE StoreServe platforms.</maml:para>
 				</maml:description>
 				<command:parameterValue required="false" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -64280,7 +64374,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 					<maml:para />
 				</maml:introduction>
 				<dev:code>$Enclosure = Get-HPOVEnclosure -Name Enclosure1 -ErrorAction Stop
-Reset-HPOVEnclosureDevice -Component FLM -DeviceID 1 -EFuse
+Reset-HPOVEnclosureDevice -Enclosure $Enclosure -Component FLM -DeviceID 1 -EFuse
 </dev:code>
 				<dev:remarks>
 					<dev:para>Reset the FLM in slot 1 by performing an EFuse.</dev:para>
@@ -64297,8 +64391,7 @@ Reset-HPOVEnclosureDevice -Component FLM -DeviceID 1 -EFuse
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>$Enclosure = Get-HPOVEnclosure -Name Enclosure1 -ErrorAction Stop
-Reset-HPOVEnclosureDevice -Component Device -DeviceID 4 -Reset
+				<dev:code>$Task = Get-HPOVEnclosure -Name Enclosure1 -ErrorAction Stop | Reset-HPOVEnclosureDevice -Component Device -DeviceID 4 -Reset
 </dev:code>
 				<dev:remarks>
 					<dev:para>Reset the device in bay 4 by requesting it to reset itself.</dev:para>
@@ -64949,6 +65042,630 @@ Specify one or more HPOneView.Appliance.Connection object(s) or Name property va
 			<maml:navigationLink>
 				<maml:linkText>Online Version:</maml:linkText>
 				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Restore-HPOVCustomBaseline</maml:uri>
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<!--SAVE-HPOVBACKUP-->
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--SAVE-HPOVBACKUP-->
+		<command:details>
+			<command:name>Save-HPOVBackup</command:name>
+			<maml:description>
+				<maml:para>Save existing backups on an appliance.</maml:para>
+			</maml:description>
+			<command:verb>Save</command:verb>
+			<command:noun>HPOVBackup</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>HPE OneView provides the ability to save your configuration settings and management data to a backup file and enables you to use that backup to restore a corrupted appliance in the event of a catastrophic failure.
+
+The backup process involves creating a backup file and then downloading that file so that you can store it to a safe and secure (off-appliance) location for future use. You can schedule automatic backup operations and designate a remote location for the backup file.
+
+Use this cmdlet to save the created appliance backup files.  Use the -SaveRemoteOnly parameter to save the backup file(s) to the remote location if configured on the appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Save-HPOVBackup</maml:name>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Location</maml:name>
+					<maml:description>
+						<maml:para>Specify the directory or UNC path where to save the backup file(s) to.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">string</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="SaveRemoteOnly, default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+			<command:syntaxItem>
+				<maml:name>Save-HPOVBackup</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SaveRemoteOnly">
+					<maml:name>SaveRemoteOnly</maml:name>
+					<maml:description>
+						<maml:para>When appliance automatic backup is configured, use this parameter to specify the backup file(s) should be saved in the remote location, instead of the local PC.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="SaveRemoteOnly, default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="SaveRemoteOnly, default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="save">
+				<maml:name>Location</maml:name>
+				<maml:description>
+					<maml:para>Specify the directory or UNC path where to save the backup file(s) to.</maml:para>
+				</maml:description>
+				<command:parameterValue required="false" variableLength="False">string</command:parameterValue>
+				<dev:type>
+					<maml:name>string</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="SaveRemoteOnly" aliases="None">
+				<maml:name>SaveRemoteOnly</maml:name>
+				<maml:description>
+					<maml:para>When appliance automatic backup is configured, use this parameter to specify the backup file(s) should be saved in the remote location, instead of the local PC.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>None.  You cannot pipe objects to this cmdlet.</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Async Task resource to monitor progress of the backup file saved to the remote location.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+			<command:returnValue>
+				<dev:type>
+					<maml:name>System.IO.FileInfo</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>The saved backup file located on the PC.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Save-HPOVBackup
+</dev:code>
+				<dev:remarks>
+					<dev:para>Save the found backup file</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Save-HPOVBackup -Location \\Server\BackupShare\HPOneView
+</dev:code>
+				<dev:remarks>
+					<dev:para>Save the found backup file to the specified location.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Save-HPOVBackup</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVAutomaticBackupConfig</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVAutomaticBackupConfig</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<!--SAVE-HPOVSERVERPROFILE-->
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--SAVE-HPOVSERVERPROFILE-->
+		<command:details>
+			<command:name>Save-HPOVServerProfile</command:name>
+			<maml:description>
+				<maml:para>Save the contents of a Server Profile to the appliance.</maml:para>
+			</maml:description>
+			<command:verb>Save</command:verb>
+			<command:noun>HPOVServerProfile</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet allows administrators to save the modified Server Profile object within the current PowerShell session to the target appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Save-HPOVServerProfile</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Server Profile object to be saved.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Server Profile object to be saved.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerProfile</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Server Profile resource object from Get-ServerProfile that was modified and needs to be saved.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Async task Resource object for monitoring the enclosure import process.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Save-HPOVServerProfile
+</dev:code>
+				<dev:remarks>
+					<dev:para>Default example</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Save-HPOVServerProfile</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>ConvertTo-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Copy-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfileConnectionList</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfileMessage</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Join-HPOVServerProfileToTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileAssign</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileAttachVolume</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileConnection</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileLogicalDisk</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileLogicalDiskController</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Update-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+		</maml:relatedLinks>
+	</command:command>
+	<!--SAVE-HPOVSERVERPROFILETEMPLATE-->
+	<command:command xmlns:maml="http://schemas.microsoft.com/maml/2004/10" xmlns:command="http://schemas.microsoft.com/maml/dev/command/2004/10" xmlns:dev="http://schemas.microsoft.com/maml/dev/2004/10">
+		<!--SAVE-HPOVSERVERPROFILETEMPLATE-->
+		<command:details>
+			<command:name>Save-HPOVServerProfileTemplate</command:name>
+			<maml:description>
+				<maml:para>Save the contents of a Server Profile Template to the appliance.</maml:para>
+			</maml:description>
+			<command:verb>Save</command:verb>
+			<command:noun>HPOVServerProfileTemplate</command:noun>
+		</command:details>
+		<maml:description>
+			<maml:para>This Cmdlet allows administrators to save the modified Server Profile Template object within the current PowerShell session to the target appliance.</maml:para>
+		</maml:description>
+		<command:syntax>
+			<!--Parameter Sets-->
+			<command:syntaxItem>
+				<maml:name>Save-HPOVServerProfileTemplate</maml:name>
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default">
+					<maml:name>InputObject</maml:name>
+					<maml:description>
+						<maml:para>Server Profile Template object to be saved.</maml:para>
+					</maml:description>
+					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Async</maml:name>
+					<maml:description>
+						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
+					<maml:name>ApplianceConnection</maml:name>
+					<maml:description>
+						<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				</command:parameter>
+			</command:syntaxItem>
+		</command:syntax>
+		<command:parameters>
+			<!--All Parameters-->
+			<command:parameter required="False" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default" aliases="Appliance">
+				<maml:name>ApplianceConnection</maml:name>
+				<maml:description>
+					<maml:para>Aliases [-Appliance]
+
+Specify one or more HPOneView.Appliance.Connection object(s) or Name property value(s).
+
+Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
+				<dev:type>
+					<maml:name>Array</maml:name>
+				</dev:type>
+				<dev:defaultValue>(${Global:ConnectedSessions} | ? Default)</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Async</maml:name>
+				<maml:description>
+					<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>Server Profile Template object to be saved.</maml:para>
+				</maml:description>
+				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+		</command:parameters>
+		<command:inputTypes>
+			<!--Input Types-->
+			<command:inputType>
+				<dev:type>
+					<maml:name>HPOneView.ServerProfileTemplate</maml:name>
+				</dev:type>
+				<maml:description>
+					<maml:para>A Server Profile Template resource object from Get-HPOVServerProfileTemplate that was modified and needs to be saved.</maml:para>
+				</maml:description>
+			</command:inputType>
+		</command:inputTypes>
+		<command:returnValues>
+			<!--Return Values-->
+			<command:returnValue>
+				<dev:type>
+					<maml:name>HPOneView.Appliance.TaskResource [System.Management.Automation.PSCustomObject]</maml:name>
+					<maml:uri />
+				</dev:type>
+				<maml:description>
+					<maml:para>Async task Resource object for monitoring the enclosure import process.
+</maml:para>
+				</maml:description>
+			</command:returnValue>
+		</command:returnValues>
+		<command:examples>
+			<!--Examples-->
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 1 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>Save-HPOVServerProfileTemplate
+</dev:code>
+				<dev:remarks>
+					<dev:para>Default example</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+		</command:examples>
+		<maml:relatedLinks>
+			<!--Related Links-->
+			<maml:navigationLink>
+				<maml:linkText>Online Version:</maml:linkText>
+				<maml:uri>https://github.com/HewlettPackard/POSH-HPOneView/wiki/Save-HPOVServerProfileTemplate</maml:uri>
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>ConvertTo-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Set-HPOVServerProfileTemplate</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServer</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Copy-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileAssign</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Remove-HPOVServerProfile</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVEnclosure</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerHardwareType</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileConnection</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileLogicalDisk</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileLogicalDiskController</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVServerProfileConnectionList</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>New-HPOVServerProfileAttachVolume</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Get-HPOVAvailableDriveType</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Wait-HPOVTaskComplete</maml:linkText>
+				<maml:uri />
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
@@ -66471,9 +67188,11 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 			<command:syntaxItem>
 				<maml:name>Set-HPOVApplianceDefaultConnection</maml:name>
 				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)">
-					<maml:name>Connection</maml:name>
+					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
-						<maml:para>Either the HPOneView.Appliance.Connection object, full or partial value of the connection objects Name property.</maml:para>
+						<maml:para>[Aliases -Connection]
+
+Either the HPOneView.Appliance.Connection object, full or partial value of the connection objects Name property.</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -66481,10 +67200,12 @@ Default Value: ${Global:ConnectSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="Appliance">
-				<maml:name>Connection</maml:name>
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="Appliance, Connection">
+				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
-					<maml:para>Either the HPOneView.Appliance.Connection object, full or partial value of the connection objects Name property.</maml:para>
+					<maml:para>[Aliases -Connection]
+
+Either the HPOneView.Appliance.Connection object, full or partial value of the connection objects Name property.</maml:para>
 				</maml:description>
 				<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -68597,7 +69318,15 @@ New-HPOVBackup
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
+				<maml:linkText>Get-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
 				<maml:linkText>New-HPOVBackup</maml:linkText>
+				<maml:uri />
+			</maml:navigationLink>
+			<maml:navigationLink>
+				<maml:linkText>Save-HPOVBackup</maml:linkText>
 				<maml:uri />
 			</maml:navigationLink>
 			<maml:navigationLink>
@@ -84142,5 +84871,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2018-03-02T04:56:27:66.661Z-->
+	<!--Edited on: 2018-03-19T22:28:02:10.102Z-->
 </helpItems>

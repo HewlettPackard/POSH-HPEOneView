@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.00.1612.2800'
+[Version]$ModuleVersion = '4.00.1630.2612'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -91,7 +91,7 @@ if ($Global:IgnoreCertPolicy) # -or $Global:PesterTest)
 
 }
 
-$Global:Validator = New-Object HPOneView.PKI.SslValidation
+# $Global:Validator = New-Object HPOneView.PKI.SslValidation
 
 $ResourceCategoryEnum = @{
 	ServerHardware           = 'server-hardware';
@@ -1146,7 +1146,8 @@ function NewObject
 					thermalLimit = $null;
 					serialNumber = $null;
 					partNumber   = $null;
-					uHeight      = 0
+					model        = $null;
+					uHeight      = 0;
 					depth        = 0;
 					height       = 0;
 					width        = 0;
@@ -4241,33 +4242,37 @@ function RestClient
 	Process 
 	{
 
-		[System.Net.ServicePointManager]::DefaultConnectionLimit = 16
+		$RestClient = (New-Object HPOneView.Utilities.Net).RestClient($url, $Method, $MaxXAPIVersion)
 
-		[System.Net.HttpWebRequest]$restClient              = [System.Net.WebRequest]::Create($url)
-		[String]$restClient.Method                          = $method
-		[int]$restClient.Timeout                            = 20000
-		[bool]$restClient.KeepAlive                         = $true
-		[String]$restClient.UserAgent                       = "HPEOneview_PowerShell/4.00"
-		[String]$restClient.ContentType                     = 'application/json'
-		[String]$restClient.Accept                          = 'application/json'
-		[String]$restClient.Headers.Item("X-API-Version")   = $MaxXAPIVersion
-		[String]$restClient.Headers.Item("accept-language") = "en_US"
-		[String]$restClient.Headers.Item("accept-encoding") = "gzip, deflate"
-		[String]$restClient.AutomaticDecompression          = "GZip,Deflate,None"
+		# # [System.Net.ServicePointManager]::DefaultConnectionLimit = 16
 
-		if ($method -eq 'PATCH')
-		{
+		# [System.Net.HttpWebRequest]$restClient              = [System.Net.WebRequest]::Create($url)
+		# $restClient.ServerCertificateValidationCallback     = [HPOneView.PKI.SslValidation]::CertificateValidationCallBack()
+		# $RestClient.ServicePoint.ConnectionLimit            = 16
+		# [String]$restClient.Method                          = $method
+		# [int]$restClient.Timeout                            = 20000
+		# [bool]$restClient.KeepAlive                         = $true
+		# [String]$restClient.UserAgent                       = "HPEOneview_PowerShell/4.00"
+		# [String]$restClient.ContentType                     = 'application/json'
+		# [String]$restClient.Accept                          = 'application/json'
+		# [String]$restClient.Headers.Item("X-API-Version")   = $MaxXAPIVersion
+		# [String]$restClient.Headers.Item("accept-language") = "en_US"
+		# [String]$restClient.Headers.Item("accept-encoding") = "gzip, deflate"
+		# [String]$restClient.AutomaticDecompression          = "GZip,Deflate,None"
 
-			$restClient.ContentType += '-patch+json'
+		# if ($method -eq 'PATCH')
+		# {
 
-		}
+		# 	$restClient.ContentType += '-patch+json'
+
+		# }
 
 	}
 
 	End 
 	{
 
-		Return $restClient
+		Return $RestClient
 
 	}
 
@@ -4707,7 +4712,7 @@ function Send-HPOVRequest
 
 				}				
 
-				"[{0}] Request: {1} https://{2}{3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Method, $ApplianceHost.Name, $Uri | Write-Verbose
+				"[{0}] Request: {1} https://{2}{3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $req.Method, $ApplianceHost.Name, $Uri | Write-Verbose
    
 				# Write Verbose the headers if needed
 				$i = 0
@@ -6949,7 +6954,8 @@ function Connect-HPOVMgmt
 			
 			${Global:ConnectedSessions}[$_Index] = $_NewConnection
 
-			$Validator.AddTrustedHost($_NewConnection.Name)
+			# $Validator.AddTrustedHost($_NewConnection.Name)
+			[HPOneView.PKI.SslValidation]::AddTrustedHost($_NewConnection.Name)
 
 			Return $_NewConnection
 
@@ -7422,7 +7428,8 @@ function Disconnect-HPOVMgmt
 						"[{0}] Removing connection from global connection tracker" -f $MyInvocation.InvocationName.ToString().ToUpper()| Write-Verbose
 
 						[void]$Global:ConnectedSessions.Remove($Hostname[$_c])
-						$Validator.RemoveTrustedHost($Hostname[$_c].Name)
+						# $Validator.RemoveTrustedHost($Hostname[$_c].Name)
+						[HPOneView.PKI.SslValidation]::RemoveTrustedHost($Hostname[$_c].Name)
 					
 					}
 				
@@ -7508,7 +7515,8 @@ function Disconnect-HPOVMgmt
 					"[{0}] Removing connection from global connection tracker" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					$Global:ConnectedSessions.Remove($Hostname)
-					$Validator.RemoveTrustedHost($Hostname.Name)
+					# $Validator.RemoveTrustedHost($Hostname.Name)
+					[HPOneView.PKI.SslValidation]::RemoveTrustedHost($Hostname.Name)
 					
 				}
 				
@@ -7553,8 +7561,8 @@ function Set-HPOVApplianceDefaultConnection
 
 		[Parameter (Mandatory, ValueFromPipeline)]
 		[ValidateNotNullOrEmpty()]
-		[Alias ('Appliance')]
-		[Object]$Connection
+		[Alias ('Appliance', 'Connection')]
+		[Object]$ApplianceConnection
 
 	)
 
@@ -7586,7 +7594,7 @@ function Set-HPOVApplianceDefaultConnection
 
 		}
 
-		if ($Connection -is [System.String])
+		if ($ApplianceConnection -is [System.String])
 		{
 
 			"[{0}] Connection Name provided.  Looking in Global connection tracker variable." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -7594,7 +7602,7 @@ function Set-HPOVApplianceDefaultConnection
 			Try
 			{
 
-				$Connection = ${Global:ConnectedSessions} | Where-Object Name -eq $Connection
+				$ApplianceConnection = ${Global:ConnectedSessions} | Where-Object Name -eq $ApplianceConnection
 
 			}
 
@@ -7606,15 +7614,15 @@ function Set-HPOVApplianceDefaultConnection
 				Try
 				{
 
-					$Connection = ${Global:ConnectedSessions} | Where-Object Name -Match $Connection
+					$ApplianceConnection = ${Global:ConnectedSessions} | Where-Object Name -Match $ApplianceConnection
 
 				}
 				
 				Catch
 				{
 
-					$_Message = "Unable to find an appliance connection with the provided Connection Name, {0}.  Please provide the Connection Object or validate the Name and try again." -f $Connection
-					$ErrorRecord = New-ErrorRecord InvalidOperationException ApplianceConnectionNotFound ObjectNotFound 'Connection' -Message $_Message
+					$_Message = "Unable to find an appliance connection with the provided ApplianceConnection Name, {0}.  Please provide the Connection Object or validate the Name and try again." -f $ApplianceConnection
+					$ErrorRecord = New-ErrorRecord InvalidOperationException ApplianceConnectionNotFound ObjectNotFound 'ApplianceConnection' -Message $_Message
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
@@ -7630,19 +7638,19 @@ function Set-HPOVApplianceDefaultConnection
 			
 		}
 
-		if ($Connection -isnot [HPOneView.Appliance.Connection])
-		{
-
-			$_Message = "An invalid connection argument value type was provided, {0}.  Please provide either a [String] or [HPOneView.Appliance.Connection] object." -f $Connection
-			$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidConnectionParameterValue InvalidArgument 'Connection' -TargetType $Connection.GetType().Name -Message $_Message
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-		}
-
 	}
 
 	Process
 	{
+
+		if ($ApplianceConnection -isnot [HPOneView.Appliance.Connection])
+		{
+
+			$ExceptionMessage = "An invalid connection argument value type was provided, {0}.  Please provide either a [String] or [HPOneView.Appliance.Connection] object." -f $ApplianceConnection
+			$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidConnectionParameterValue InvalidArgument 'ApplianceConnection' -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
 
 		# Check for existing Default Connection
 		if (${Global:ConnectedSessions} | Where-Object Default)
@@ -7653,9 +7661,9 @@ function Set-HPOVApplianceDefaultConnection
 
 		}
 
-		"[{0}] Setting {1} as the new default Appliance Connection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $Connection.Name | Write-Verbose
+		"[{0}] Setting {1} as the new default Appliance Connection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $ApplianceConnection.Name | Write-Verbose
 
-		(${Global:ConnectedSessions} | Where-Object Name -eq $Connection.Name).SetDefault($true)
+		(${Global:ConnectedSessions} | Where-Object Name -eq $ApplianceConnection.Name).SetDefault($true)
 
 	}
 
@@ -10259,7 +10267,7 @@ function Install-HPOVUpdate
 			Try
 			{
 				
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Checking if Pending update exists"
+				"[{0}] - Checking if Pending update exists" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 				$_PendingUpdate = Send-HPOVRequest -Uri $ApplianceUpdatePendingUri -Hostname $_appliance
 
@@ -10275,7 +10283,7 @@ function Install-HPOVUpdate
 			if ($_PendingUpdate)
 			{
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Update found $($_PendingUpdate.fileName), $($_PendingUpdate.version)"
+				"[{0}] - Update found '{1}', '{2}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PendingUpdate.fileName, $_PendingUpdate.version | Write-Verbose
 
 				$_PendingUpdate.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.Update.Pending')
 
@@ -10292,7 +10300,7 @@ function Install-HPOVUpdate
 					If (-not($_PendingUpdate)) 
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - No Pending update found. Return is Null"
+						"[{0}] - No Pending update found. Return is Null" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						$ErrorRecord = New-ErrorRecord InvalidOperationException PendingUpdateNotFound ObjectNotFound 'Install-HPOVUpdate' -Message "No Pending update found. Please first upload update and try again."
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -10304,7 +10312,7 @@ function Install-HPOVUpdate
 					If ($PSBoundParameters['DisplayReleaseNotes'])
 					{
 						
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Displaying Release Notes"
+						"[{0}] - Displaying Release Notes" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						# Display Release Notes
 						Try
@@ -10322,7 +10330,7 @@ function Install-HPOVUpdate
 
 						}
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Done. Displayed update release notes."
+						"[{0}] - Done. Displayed update release notes." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					}
 					
@@ -10336,8 +10344,8 @@ function Install-HPOVUpdate
 					if (-not($_PendingUpdate)) 
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Stage Only"
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - UPLOAD FILE: $($File)"
+						"[{0}] - Stage Only" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+						"[{0}] - UPLOAD FILE: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $File | Write-Verbose
 
 						Try 
 						{
@@ -10345,7 +10353,7 @@ function Install-HPOVUpdate
 							# Upload update
 							$FileName = Get-Item $File
 
-							$_upload = Upload-File $ApplianceUpdateImageUri $File $_appliance.Name
+							$_upload = Upload-File -Uri $ApplianceUpdateImageUri -File $File -ApplianceConnection $_appliance.Name
 					
 						}
 
@@ -10360,7 +10368,7 @@ function Install-HPOVUpdate
 						If ($PSBoundParameters['DisplayReleaseNotes'])
 						{
 						
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Displaying Release Notes"
+							"[{0}] - Displaying Release Notes" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 							# Display Release Notes
 							Try
@@ -10378,7 +10386,7 @@ function Install-HPOVUpdate
 
 							}
 
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Done. Displayed update release notes."
+							"[{0}] - Done. Displayed update release notes." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						}
 
@@ -10389,8 +10397,9 @@ function Install-HPOVUpdate
 					else 
 					{
 					
-						$ErrorRecord = New-ErrorRecord HPOneView.Appliance.FirmwareUpdateException PendingUpdateConflict ResourceExists 'Install-HPOVUpdate' -Message "An existing appliance update has been staged. Version: $($PendingUpdate.version) Filename: $($PendingUpdate.fileName)  Please use the -InstallUpdate Parameter to proceed with the update, or use Remove-HPOVPendingUpdate cmdlet to remove the staged update."
-						Throw $ErrorRecord
+						$ExceptionMessage = "An existing appliance update has been staged. Version: '{0}' Filename: '{1}'  Please use the -InstallUpdate Parameter to proceed with the update, or use Remove-HPOVPendingUpdate cmdlet to remove the staged update." -f $PendingUpdate.version, $PendingUpdate.fileName
+						$ErrorRecord = New-ErrorRecord HPOneView.Appliance.FirmwareUpdateException PendingUpdateConflict ResourceExists 'File' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
 
@@ -10403,12 +10412,13 @@ function Install-HPOVUpdate
 					if ($_PendingUpdate) 
 					{
 
-						$ErrorRecord = New-ErrorRecord InvalidOperationException PendingUpdateFound ResourceExists 'Install-HPOVUpdate' -Message "A Pending update was found.  File name: $($PendingUpdate.fileName); Update Version: $($PendingUpdate.version). Please remove the update before continuing and try again."
+						$ExceptionMessage = "A Pending update was found.  File name: '{0}'; Update Version: '{1}'. Please remove the update before continuing and try again." -f $PendingUpdate.version, $PendingUpdate.fileName
+						$ErrorRecord = New-ErrorRecord InvalidOperationException PendingUpdateFound ResourceExists 'File' -Message $ExceptionMessage
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 					
 					}
 									
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - UPLOAD FILE: $($File)"
+					"[{0}] - UPLOAD FILE: '{1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $File | Write-Verbose
 
 					Try 
 					{
@@ -10416,10 +10426,10 @@ function Install-HPOVUpdate
 						# Upload update
 						$FileName = Get-Item $File
 
-						$PendingUpdate = Upload-File $ApplianceUpdateImageUri $File $_appliance.Name
+						$PendingUpdate = Upload-File -Uri $ApplianceUpdateImageUri -File $File -ApplianceConnection $_appliance.Name
 
 						# Pause for 30 seconds? need to make sure appliance has finished Processing update file before invoking update
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Sleeping for 5 seconds."
+						"[{0}] - Sleeping for 5 seconds." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						Start-Sleep -Seconds 5
 				
@@ -10428,7 +10438,7 @@ function Install-HPOVUpdate
 					Catch 
 					{
 
-						$ErrorRecord = New-ErrorRecord InvalidOperationException UploadUpdateFailed InvalidResult 'Install-HPOVUpdate' -Message $_.Exception.Message
+						$ErrorRecord = New-ErrorRecord InvalidOperationException UploadUpdateFailed InvalidResult 'File' -Message $_.Exception.Message
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
@@ -10445,7 +10455,7 @@ function Install-HPOVUpdate
 				If ((-not($_PendingUpdate)) -and ($PSCmdlet.ParameterSetName -eq "StageInstall")) 
 				{
 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - No Pending update found. Return is Null"
+					"[{0}] - No Pending update found. Return is Null" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					$ErrorRecord = New-ErrorRecord InvalidOperationException StorageSystemResourceNotFound ObjectNotFound 'Install-HPOVUpdate' -Message "No Pending update found. Please first upload update and try again."
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -10468,7 +10478,14 @@ function Install-HPOVUpdate
 					{
 
 						# Display eula of update
-						(New-Object System.Net.WebClient).DownloadString($Uri) | ConvertFrom-HTML -NoClobber
+
+						$_WebClient = (New-Object HPOneView.Utilities.Net).RestClient($Url, 'GET', 0)
+
+						[System.Net.WebResponse]$_response = $_WebClient.GetResponse()
+						$_reader = New-Object IO.StreamReader($_response.GetResponseStream())
+						$_reader.ReadToEnd() | ConvertFrom-HTML -NoClobber
+						$_reader.close()
+						# (New-Object System.Net.WebClient).DownloadString($Uri) | ConvertFrom-HTML -NoClobber
 
 					}
 
@@ -10505,7 +10522,7 @@ function Install-HPOVUpdate
 					if ($PSCmdlet.ShouldProcess($_appliance.Name,"upgrade appliance using $($_PendingUpdate.fileName)")) 
 					{
 
-						Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Appliance reboot required and user selected YES or passed -Confirm:`$false, executing Invoke-Upgrade"
+						"[{0}] - Appliance reboot required and user selected YES or passed -Confirm:`$false, executing Invoke-Upgrade" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 						Try
 						{
@@ -10539,7 +10556,7 @@ function Install-HPOVUpdate
 						{
 
 							# If here, user chose "No", End Processing
-							Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - User selected NO."
+							"[{0}] - User selected NO." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 							$resp = $Null
 
@@ -10552,7 +10569,7 @@ function Install-HPOVUpdate
 				else
 				{
 					 
-					Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Appliance reboot NOT required, executing Invoke-Upgrade"
+					"[{0}] - Appliance reboot NOT required, executing Invoke-Upgrade" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					Try
 					{
@@ -10581,7 +10598,7 @@ function Install-HPOVUpdate
 	End
 	{
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] - Finished"
+		"[{0}] - Finished" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 	}
 
@@ -10619,7 +10636,7 @@ function Invoke-Upgrade
 		{
 
 			$uri = "{0}?file={1}" -f $ApplianceUpdatePendingUri, $PendingUpdate.fileName
-			$_updateTask = Send-HPOVRequest -Uri $uri -Method PUT -Hostname $PendingUpdate.ApplianceConnection.Name
+			$_updateTask = Send-HPOVRequest -Uri $uri -Method PUT -Hostname $PendingUpdate.ApplianceConnection
 
 		}
 		
@@ -10632,6 +10649,8 @@ function Invoke-Upgrade
 
 		$sw = [System.Diagnostics.Stopwatch]::StartNew()
 
+		$_PreviousTaskStep = $null
+
 		# Loop to display progress-bar
 		Do 
 		{
@@ -10640,8 +10659,10 @@ function Invoke-Upgrade
 			Try
 			{
 
-				#$_MonitorUpdate = Send-HPOVRequest -Uri $ApplianceUpdateNotificationUri -Hostname $PendingUpdate.ApplianceConnection.Name
-				$_MonitorUpdate = Send-HPOVRequest -Uri $ApplianceUpdateMonitorUri -Hostname $PendingUpdate.ApplianceConnection.Name
+				$_MonitorUpdate = Send-HPOVRequest -Uri $ApplianceUpdateMonitorUri -Hostname $PendingUpdate.ApplianceConnection
+
+				$_PreviousTaskStep = $_MonitorUpdate.taskStep.Remove(" ")
+
 			}
 		
 			Catch
@@ -10654,14 +10675,32 @@ function Invoke-Upgrade
 					Try
 					{
 
-						#$_MonitorUpdate = Send-HPOVRequest -Uri $ApplianceUpdateNotificationUri -Hostname $PendingUpdate.ApplianceConnection.Name
-						$_MonitorUpdate = Send-HPOVRequest -Uri $ApplianceUpdateMonitorUri -Hostname $PendingUpdate.ApplianceConnection.Name
+						$_MonitorUpdate = Send-HPOVRequest -Uri $ApplianceUpdateMonitorUri -Hostname $PendingUpdate.ApplianceConnection
+
+						$_PreviousTaskStep = $_MonitorUpdate.taskStep.Remove(" ")
+
 					}
 				
 					Catch
 					{
 
-						$PSCmdlet.ThrowTerminatingError($_)
+						if ($_PreviousTaskStep -eq 'TS_STOP_SERVICE' -and $_.Message -match 'The operation has timed out')
+						{
+
+							"[{0}] Appliance is likely rebooting. Waiting 5 minutes." -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+							Start-Sleep -Seconds 600
+
+							Continue
+
+						}
+
+						else
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}						
 
 					}
 
@@ -10766,7 +10805,7 @@ function Invoke-Upgrade
 				
 		$sw.Stop()
 
-		Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Upgrade operation took $($sw.elapsed.minutes)min, $($sw.elapsed.seconds)sec."
+		"[{0}] Upgrade operation took {1}min, {2}sec." -f $MyInvocation.InvocationName.ToString().ToUpper(), $sw.elapsed.minutes, $sw.elapsed.seconds | Write-Verbose
 
 		# Retrieve final update status
 		Try
@@ -13164,15 +13203,21 @@ function Set-HPOVApplianceNetworkConfig
 
 			"[{0}] Add appliance address {1} to TrustedHosts collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $IPv4Addr.IPAddressToString | Write-Verbose
 
-			$Validator.AddTrustedHost($IPv4Addr.IPAddressToString)
+			# $Validator.AddTrustedHost($IPv4Addr.IPAddressToString)
+			[HPOneView.PKI.SslValidation]::AddTrustedHost($IPv4Addr.IPAddressToString)
 			
 			# Check to make sure we connect to a OneView appliance
 			Try
 			{
 
-				$Url = "http://{0}" -f $IPv4Addr.IPAddressToString
-				
-				$_resp = (New-Object System.Net.WebClient).DownloadString($Url)
+				$Url = "https://{0}" -f $IPv4Addr.IPAddressToString
+
+				$_WebClient = (New-Object HPOneView.Utilities.Net).RestClient($Url, 'GET', 0)
+
+				[System.Net.WebResponse]$_response = $_WebClient.GetResponse()
+				$_reader = New-Object IO.StreamReader($_response.GetResponseStream())
+				$_resp = $_reader.ReadToEnd()
+				$_reader.close()
 
 			}
 
@@ -13222,12 +13267,14 @@ function Set-HPOVApplianceNetworkConfig
 
 				"[{0}] Updating Global Connection Sessions appliance object with new appliance address: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $IPv4Addr.IPAddressToString | Write-Verbose
 				
-				if ($Validator.TrustedHosts.ContainsKey($ApplianceConnection.Name))
+				# if ($Validator.TrustedHosts.ContainsKey($ApplianceConnection.Name))
+				if ([HPOneView.PKI.SslValidation]::TrustedHosts.ContainsKey($ApplianceConnection.Name))
 				{
 
 					"[{0}] Removing appliance address {1} from TrustedHosts collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $ApplianceConnection.Name | Write-Verbose
 
-					$Validator.RemoveTrustedHost($ApplianceConnection.Name)
+					# $Validator.RemoveTrustedHost($ApplianceConnection.Name)
+					[HPOneView.PKI.SslValidation]::RemoveTrustedHost($ApplianceConnection.Name)
 
 				}			
 
@@ -23835,12 +23882,235 @@ function Get-HPOVBackup
 
 }
 
-# // TODO DEVELOP DOCUMENT TEST
+# // TODO DOCUMENT TEST
 function Save-HPOVBackup
 {
 
-	Throw "Not implemented."
+	# .ExternalHelp HPOneView.400.psm1-help.xml
 
+	[CmdletBinding (DefaultParameterSetName = "default")]
+	Param 
+	(
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ("save")]
+		[string]$Location = (get-location).Path,
+
+		[Parameter (Mandatory, ParameterSetName = "SaveRemoteOnly")]
+		[Switch]$SaveRemoteOnly,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SaveRemoteOnly")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
+
+	)
+
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+			For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		# Validate the path exists.  If not, create it.
+		if ($PSBoundParameters['Location'] -and -not(Test-Path $Location))
+		{
+			 
+			"[{0}] Directory does not exist.  Creating directory..." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			
+			New-Item $Location -itemtype directory | Out-Null
+
+		}
+
+	}
+
+	Process
+	{
+
+		ForEach ($_appliance in $ApplianceConnection)
+		{
+
+			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
+
+			# Check to see if Automatic Backup is set on the appliance.
+			Try
+			{
+
+				$_AutomaticBackup = Send-HPOVRequest -Uri $ApplianceAutoBackupConfUri -Hostname $_appliance
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			"[{0}] Getting appliance created backup file" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			Try
+			{
+
+				$_CurrentBackup = Send-HPOVRequest -Uri $ApplianceBackupUri -Hostname $_appliance
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			if ($_CurrentBackup.Count -eq 0)
+			{
+
+				"[{0}] Appliance does not contain a backup file.  Generate non-terminating error." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$ExceptionMessage = 'No backup files were found on "{0}" appliance.' -f $_appliance
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.ApplianceBackupException EmptyBackupFileList ObjectNotFound ApplianceConnection -Message $ExceptionMessage
+				$PSCmdlet.WriteError($ErrorRecord)
+
+			}
+
+			else
+			{
+
+				ForEach ($_BackupToDownload in $_CurrentBackup.members)
+				{
+
+					if ($_AutomaticBackup.enabled -and $PSBoundParameters['SaveRemoteOnly'])
+					{
+
+						"[{0}] Appliance supports remtoe backups.  Saving backup file to remote location: {1}/{2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_AutomaticBackup.remoteServerName, $_AutomaticBackup.remoteServerDir | Write-Verbose
+
+						Try
+						{
+
+							Send-HPOVRequest -Uri $_BackupToDownload.saveUri -Method PUT -Hostname $_BackupToDownload.ApplianceConnection | Wait-HPOVTaskComplete
+							
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+					}
+					
+					else
+					{
+
+						Try
+						{
+							
+							$_Results = Download-File $_BackupToDownload.downloadUri $_appliance $Location
+
+							[System.IO.FileInfo]$_Results.file
+
+						}
+
+						Catch
+						{
+
+							$PSCmdlet.ThrowTerminatingError($_)
+
+						}
+
+					}	
+
+				}
+				
+			}
+
+		}
+
+	}
+
+	End
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+	
 }
 
 function New-HPOVBackup 
@@ -23985,14 +24255,14 @@ function New-HPOVBackup
 
 			}
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Please wait while the appliance backup is generated.  This can take a few minutes..."
+			"[{0}] Please wait while the appliance backup is generated.  This can take a few minutes..." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			Try
 			{
 				
 				$_taskStatus = Send-HPOVRequest -Uri $ApplianceBackupUri -Method POST -Hostname $_appliance | Wait-HPOVTaskComplete -timeout (New-Timespan -minutes 45)
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Response: $($_taskStatus | out-string)"
+				"[{0}] Response: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $($_taskStatus | out-string) | Write-Verbose
 
 				$_backupObject = Send-HPOVRequest -Uri $_taskStatus.associatedResource.resourceUri -Hostname $_appliance
 				
@@ -24018,7 +24288,7 @@ function New-HPOVBackup
 
 					$_resp = Download-File $_backupObject.downloadUri $_appliance $Location
 
-					[void]$_BackupFileStatusCollection.Add($_resp)
+					[void]$_BackupFileStatusCollection.Add([System.IO.FileInfo]$_resp.file)
 
 				}
 			
@@ -24039,7 +24309,7 @@ function New-HPOVBackup
 				Try
 				{
 
-					$_resp = Send-HPOVRequest $_backupObject.saveUri PUT -Hostname $_appliance
+					$_resp = Send-HPOVRequest -Uri $_backupObject.saveUri -Method PUT -Hostname $_appliance
 
 				}
 
@@ -25063,26 +25333,45 @@ function Upload-File
 
 		}
 
-		elseif ($uploadResponseStream.Headers['Location'])
+		elseif ($null -ne $uploadResponseStream.Headers)
 		{
 
-			try
+			if ($uploadResponseStream.Headers['Location'])
 			{
 
-				"[{0}] Response is a task resource provided by HTTP Location header." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+				try
+				{
 
-				$uploadResponse = Send-HPOVRequest -Uri $uploadResponseStream.Headers['Location'] -Hostname $ApplianceConnection.Name
+					"[{0}] Response is a task resource provided by HTTP Location header." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+					$uploadResponse = Send-HPOVRequest -Uri $uploadResponseStream.Headers['Location'] -Hostname $ApplianceConnection.Name
+
+				}
+
+				catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}			
 
 			}
 
-			catch
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				"[{0}] Response does not contain any HTTP headers or task location." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			}			
 
 		}		
+		
+		if ($uploadResponseStream)
+		{
+			
+			$uploadResponseStream.Close()
+
+		}
 
 		Return $uploadResponse
 
@@ -25748,12 +26037,12 @@ function Remove-HPOVScmbCertificate
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 
-			Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] Processing '$($_appliance.Name)' appliance connection (of $($ApplianceConnection.count))"
+			"[{0}] Processing '{1}' appliance connection (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.count | Write-Verbose
 
 			Try
 			{
 
-				$_keys = Send-HPOVRequest $RabbitMQKeyPairUri -Hostname $_appliance
+				$_keys = Send-HPOVRequest -Uri $RabbitMQKeyPairUri -Hostname $_appliance
 
 			}
 
@@ -26519,6 +26808,10 @@ function New-HPOVRack
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
+		[String]$Model,
+
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
 		[Int]$Depth = 1000,
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
@@ -26630,6 +26923,7 @@ function New-HPOVRack
 		$_Rack.thermalLimit  = $ThermalLimit
 		$_Rack.serialNumber  = $SerialNumber
 		$_Rack.partNumber    = $PartNumber
+		$_Rack.model         = $Model
 		$_Rack.depth         = $Depth
 		$_Rack.height        = $Height
 		$_Rack.uHeight       = $UHeight
@@ -26648,7 +26942,6 @@ function New-HPOVRack
 			$PSCmdlet.ThrowTerminatingError($_)
 
 		}
-
 
 	}
 
@@ -29052,14 +29345,6 @@ function Set-HPOVDataCenterRemoteSupport
 
 			}
 
-
-
-
-
-
-
-
-
 		}
 
 		# Update Remote Support DC if needed
@@ -29076,7 +29361,7 @@ function Set-HPOVDataCenterRemoteSupport
 				if (-not $Async.IsPresent)
 				{
 
-					$_UpdateDCLocationResults | Wait-HPOVTaskComplete
+					$_UpdateDCLocationResults = $_UpdateDCLocationResults | Wait-HPOVTaskComplete
 
 					if ($_UpdateDCLocationResults.taskState -ne 'Completed')
 					{
@@ -29089,12 +29374,7 @@ function Set-HPOVDataCenterRemoteSupport
 
 				}
 
-				else
-				{
-
-					$_UpdateDCLocationResults
-					
-				}				
+				$_UpdateDCLocationResults
 
 			}
 
@@ -48138,12 +48418,12 @@ function Get-HPOVStorageVolume
 				$_Category = 'category=storage-volumes'
 
 				# Build the final URI
-				$_uri = '{0}?{1}&sort=name:asc&query={2}' -f $IndexUri,  [String]::Join('&', $_Category), [String]::Join(' AND ', $_Query.ToArray())
+				$_uri = '{0}?{1}&sort=name:asc&query={2}' -f $IndexUri, [String]::Join('&', $_Category), [String]::Join(' AND ', $_Query.ToArray())
 
 				Try
 				{
 
-					[Array]$_ResourcesFromIndexCol = Get-AllIndexResources -Uri $_uri -ApplianceConnection $_appliance
+					$_ResourcesFromIndexCol = Get-AllIndexResources -Uri $_uri -ApplianceConnection $_appliance
 
 				}
 
@@ -48154,13 +48434,24 @@ function Get-HPOVStorageVolume
 
 				}
 
-				# Need to figure out an alternative than using $AttachableStorageVolumesUri or /rest/storage-volumes/attachable-volumes
 				if ($Available)
 				{
 
 					"[{0}] Looking for available volumes to attach." -f $MyInvocation.InvocationName.ToString().ToUpper(), $Label | Write-Verbose
 
-					$_TempCollection = $_ResourcesFromIndexCol.Clone()
+					if ($_ResourcesFromIndexCol -is [System.Collections.IEnumerable])
+					{
+
+						$_TempCollection = $_ResourcesFromIndexCol.Clone()
+
+					}
+
+					else
+					{
+
+						$_TempCollection = $_ResourcesFromIndexCol.PSObject.Copy()
+
+					}
 
 					ForEach ($_member in $_TempCollection)
 					{
@@ -48190,7 +48481,7 @@ function Get-HPOVStorageVolume
 
 								"[{0}] Volume attachment found for {1}.  Removing from final collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_member.name | Write-Verbose
 
-								[void]$_ResourcesFromIndexCol.Remove($_member)
+								$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | ? name -ne $_member.name
 
 							}							
 
@@ -77763,7 +78054,7 @@ function New-HPOVServerProfile
 				$_AllNetworkUrisCollection  = New-Object System.Collections.ArrayList
 
 				# Build list of network URI's from connections
-				ForEach ($_Connection in $ServerProfile.connectionSettings.connections) 
+				ForEach ($_Connection in ($ServerProfile.connectionSettings.connections | Where-Object { -not $_.networkUri.StartsWith($NetworkSetsUri) })) 
 				{
 
 					[void]$_AllNetworkUrisCollection.Add($_Connection.networkUri)
@@ -80619,7 +80910,6 @@ function Join-HPOVServerProfileToTemplate
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
 			{
 
@@ -80644,7 +80934,6 @@ function Join-HPOVServerProfileToTemplate
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -80691,12 +80980,12 @@ function Join-HPOVServerProfileToTemplate
 
 			}
 
-			If ($profile -is [string] -and $profile.startswith('/rest/'))
+			If ($ServerProfile -is [string] -and $ServerProfile.startswith('/rest/'))
 			{
 
-				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $profile"
+				Write-Verbose "[$($MyInvocation.InvocationName.ToString().ToUpper())] $ServerProfile"
 
-				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidProfileParameter InvalidArgument 'Profile' -Message "Profile Parameter as URI is not supported with multiple appliance connections."
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidProfileParameter InvalidArgument 'ServerProfile' -Message "ServerProfile Parameter as URI is not supported with multiple appliance connections."
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
@@ -83519,9 +83808,7 @@ function New-HPOVServerProfileConnection
 
 			"[{0}] Connection object boot priority: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileConnectionBootPriorityEnum[$Priority] | Write-Verbose 
 
-			$_conn.boot.priority = $ServerProfileConnectionBootPriorityEnum[$Priority]
-
-			
+			$_conn.boot.priority = $ServerProfileConnectionBootPriorityEnum[$Priority]			
 
 		}		
 
@@ -83687,15 +83974,50 @@ function Set-HPOVServerProfileConnection
 function Remove-HPOVServerProfileConnection
 {
 
+	<#
+
+	# .ExternalHelp HPOneView.400.psm1-help.xml
+	
+	[CmdletBinding (DefaultParameterSetName = "ConnectionName")]
+	Param 
+	(
+
+		# Server Profile resource
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "ConnectionName")]
+		[ValidateNotNullOrEmpty()]
+		[Object]$InputObject,
+
+		[Parameter (Mandatory, ParameterSetName = "ConnectionName")]
+		[ValidateNotNullOrEmpty()]
+		[String]$ConnectionName,
+
+		[Parameter (Mandatory, ParameterSetName = "ConnectionID")]
+		[ValidateNotNullOrEmpty()]
+		[Int]$ConnectionID
+
+		[Parameter (Mandatory, ParameterSetName = 'PassThru')]
+		[Switch]$PassThru,
+
+		[Parameter (Mandatory = $false)]
+		[ValidateNotNullOrEmpty()]
+		[Switch]$Async,
+
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
+	)
+
+	#>
+
 	Throw "Not implemented."
 
 }
 
+#// DOCUMENTATION TEST
 function Save-HPOVServerProfile
 {
-
-	
-	<#
 
 	# .ExternalHelp HPOneView.400.psm1-help.xml
 	
@@ -83719,9 +84041,319 @@ function Save-HPOVServerProfile
 
 	)
 
-	#>
+	Begin 
+	{
 
-	Throw "Not implemented."
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		If (-not $PSBoundParameters['InputObject'])
+		{
+
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+			{
+
+				For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+	}
+
+	Process
+	{
+
+		if ($InputObject.category -ne $ResourceCategoryEnum.ServerProfile)
+		{
+
+			$ExceptionMessage = 'The provided object {0} is not supported.  Only Server Profile are supported resources.' -f $InputObject.name
+			$ErrorRecord = New-ErrorRecord HPOneview.InputObjectResourceException InvalidInputObjectResource InvalidArgument "InputObject" -TargetType 'PSObject' -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecords)
+
+		}
+
+		"[{0}] Attempting to save '{1}' Server Profile resource." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+
+		Try
+		{
+
+			$_Resp = Send-HPOVRequest -Uri $InputObject.uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+		if (-not $PSBoundParameters['Async'])
+		{
+
+			$_Resp | Wait-HPOVTaskComplete
+
+		}
+
+		else
+		{
+
+			$_Resp
+
+		}
+
+	}
+
+	End
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+
+}
+
+#// DOCUMENTATION TEST
+function Save-HPOVServerProfileTemplate
+{
+
+	# .ExternalHelp HPOneView.400.psm1-help.xml
+	
+	[CmdletBinding (DefaultParameterSetName = "Default")]
+	Param 
+	(
+
+		# Server Profile resource
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Object]$InputObject,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Switch]$Async,
+
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+
+	)
+
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		If (-not $PSBoundParameters['InputObject'])
+		{
+
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+			{
+
+				For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+	}
+
+	Process
+	{
+
+		if ($InputObject.category -ne $ResourceCategoryEnum.ServerProfileTemplate)
+		{
+
+			$ExceptionMessage = 'The provided object {0} is not supported.  Only Server Profile Template are supported resources.' -f $InputObject.name
+			$ErrorRecord = New-ErrorRecord HPOneview.InputObjectResourceException InvalidInputObjectResource InvalidArgument "InputObject" -TargetType 'PSObject' -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecords)
+
+		}
+
+		"[{0}] Attempting to save '{1}' Server Profile Template resource." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+
+		Try
+		{
+
+			$_Resp = Send-HPOVRequest -Uri $InputObject.uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection
+
+		}
+
+		Catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+		if (-not $PSBoundParameters['Async'])
+		{
+
+			$_Resp | Wait-HPOVTaskComplete
+
+		}
+
+		else
+		{
+
+			$_Resp
+
+		}
+
+	}
+
+	End
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
 
 }
 
@@ -84141,6 +84773,11 @@ function New-HPOVServerProfileAttachVolume
 		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVolTemplate")]
 		[ValidateScript ({ $ServerProfilesCategory,$ServerProfileTemplatesCategory -contains $_.category })]
 		[Object]$ServerProfile,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObject")]
+		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
+		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVolTemplate")]
+		[Switch]$PassThru,
 		
 		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $False, ParameterSetName = "ServerProfileObject")]
@@ -85167,6 +85804,8 @@ function New-HPOVServerProfileAttachVolume
 		if ($PSBoundParameters['ServerProfile'])
 		{
 
+			$_ServerProfile = $ServerProfile.PSObject.Copy()
+
 			# Validate Server Profile and Server Hardware resource supports StRM operations
 			Try
 			{
@@ -85203,13 +85842,13 @@ function New-HPOVServerProfileAttachVolume
 				if (-not($PSBoundParameters['HostOsType']))
 				{
 
-					$"The -HostOSType parmater is required when the Server Profile is not already configured for managing SAN Storage.  Please specify the HostOSType Parameter in your call."
+					$ExceptionMessage = "The -HostOSType parmater is required when the Server Profile is not already configured for managing SAN Storage.  Please specify the HostOSType Parameter in your call."
 					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException MissingHostOSTypeParameterValue InvalidArgument 'ServerProfile' -TargetType 'PSObject' -Message $ExceptionMessage
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
 				}
 
-				$ServerProfile.sanStorage = [PSCustomObject]@{
+				$_ServerProfile.sanStorage = [PSCustomObject]@{
 						
 					hostOSType        = $ServerProfileSanManageOSType.($HostOsType);
 					manageSanStorage  = $true;
@@ -85230,7 +85869,7 @@ function New-HPOVServerProfileAttachVolume
 
 					$_ExistingVols = $ServerProfile.sanStorage.volumeAttachments.Clone()					
 
-					$ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
+					$_ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
 
 					$_ExistingVols | ForEach-Object {
 
@@ -85258,7 +85897,7 @@ function New-HPOVServerProfileAttachVolume
 
 						}
 
-						[void]$ServerProfile.sanStorage.volumeAttachments.Add($_)
+						[void]$_ServerProfile.sanStorage.volumeAttachments.Add($_)
 
 					}
 
@@ -85267,7 +85906,7 @@ function New-HPOVServerProfileAttachVolume
 				else
 				{
 
-					$ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
+					$_ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
 
 				}
 
@@ -85276,7 +85915,7 @@ function New-HPOVServerProfileAttachVolume
 			$_AllNetworkUrisCollection  = New-Object System.Collections.ArrayList
 
 			# Build list of network URI's from connections
-			ForEach ($_Connection in $ServerProfile.connectionSettings.connections) 
+			ForEach ($_Connection in ($ServerProfile.connectionSettings.connections | Where-Object { -not $_.networkUri.StartsWith($NetworkSetsUri)})) 
 			{
 
 				[void]$_AllNetworkUrisCollection.Add($_Connection.networkUri)
@@ -85349,10 +85988,10 @@ function New-HPOVServerProfileAttachVolume
 
 					$Found = $false
 
-					While (-not($Found))
+					While (-not $Found)
 					{
 
-						if (-not($ServerProfile.sanStorage.volumeAttachments | Where-Object id -eq $id))
+						if (-not($_ServerProfile.sanStorage.volumeAttachments | Where-Object id -eq $id))
 						{
 
 							$_volume.id = $id
@@ -85387,12 +86026,12 @@ function New-HPOVServerProfileAttachVolume
 							"[{0}] '{1} ({2})' volume is attachable" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_AttachableVolFound.uri, $_AttachableVolFound.name | Write-Verbose
 
 							# Check to make sure profile connections exist.
-							if ($null -ne $ServerProfile.connectionSettings.connections) # -and $ServerProfile.connectionSettings.connections.functionType -contains "FibreChannel") 
+							if ($null -ne $_ServerProfile.connectionSettings.connections)
 							{
 
 								"[{0}] Profile has connections" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 									
-								# loop through profile connections
+								# Loop through profile connections
 								$found = 0
 
 								foreach ($_volNetwork in $_AttachableVolFound.reachableNetworks) 
@@ -85401,9 +86040,9 @@ function New-HPOVServerProfileAttachVolume
 									$_StoragePath = NewObject -StoragePath
 
 									# Looking for $volConnection
-									$profileConnection = $ServerProfile.connectionSettings.connections | Where-Object networkUri -eq $_volNetwork
+									$_ProfileConnection = $ServerProfile.connectionSettings.connections | Where-Object networkUri -eq $_volNetwork
 
-									if ($profileConnection) 
+									if ($_ProfileConnection) 
 									{
 
 										# Keep track of the connections found for error reporting later
@@ -85411,7 +86050,7 @@ function New-HPOVServerProfileAttachVolume
 
 										"[{0}] Mapping connection ID '{1}' -> volume ID '{2}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ProfileConnection.id, $_volumeAttachments[$i].id | Write-Verbose
 
-										$_StoragePath.connectionId = $profileConnection.id
+										$_StoragePath.connectionId = $_ProfileConnection.id
 										$_StoragePath.isEnabled = $True
 
 										if ($PSBoundParameters['TargetAddresses'])
@@ -85425,7 +86064,7 @@ function New-HPOVServerProfileAttachVolume
 											Try
 											{
 
-												$_ServerProfileConnectionNetwork = Send-HPOVRequest -Uri $profileConnection.networkUri -Hostname $ServerProfile.ApplianceConnection
+												$_ServerProfileConnectionNetwork = Send-HPOVRequest -Uri $_ProfileConnection.networkUri -Hostname $ServerProfile.ApplianceConnection
 
 											}
 
@@ -85531,7 +86170,7 @@ function New-HPOVServerProfileAttachVolume
 										
 								"[{0}] Available Storage System targets: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($storageSystemVolCreate.storageSystemUri -join ", ") | Write-Verbose 
 										
-								# L oop through profile connections
+								# Loop through profile connections
 								$found = 0
 
 								foreach ($_storageSystemNetworks in $_StorageSystemVolCreate.availableNetworks) 
@@ -85651,32 +86290,46 @@ function New-HPOVServerProfileAttachVolume
 
 				"[{0}] Attaching '{1}' Storage Volume to volumeAttachments collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_AttachableVolFound.name | Write-Verbose
 
-				[void]$ServerProfile.sanStorage.volumeAttachments.Add($_volume)
+				[void]$_ServerProfile.sanStorage.volumeAttachments.Add($_volume)
 
 				$i++
 
 			}
 
 			# Workaround to remove a possible NULL entry in the volumeAttachments collection
-			[void]$ServerProfile.sanStorage.volumeAttachments.Remove($null)
+			[void]$_ServerProfile.sanStorage.volumeAttachments.Remove($null)
 
-			"[{0}] Updating Server Profile with new Storage Volume Attachments: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfile.name | Write-Verbose 
-
-			Try
+			if (-not $PSBoundParameters['PassThru'])
 			{
 
-				$_Task = Send-HPOVRequest -Uri $ServerProfile.uri -Method PUT -Body $ServerProfile -Hostname $ServerProfile.ApplianceConnection
+				"[{0}] Updating Server Profile with new Storage Volume Attachments: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfile.name | Write-Verbose 
+
+				Try
+				{
+
+					$_Task = Send-HPOVRequest -Uri $_ServerProfile.uri -Method PUT -Body $_ServerProfile -Hostname $_ServerProfile.ApplianceConnection
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+				
+				Return $_Task
 
 			}
 
-			Catch
+			else
 			{
 
-				$PSCmdlet.ThrowTerminatingError($_)
+				"[{0}] Returning Server Profile to caller with new Storage Volume Attachments: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfile.name | Write-Verbose 
 
-			}
-			
-			Return $_Task
+				return $_ServerProfile
+
+			}			
 
 		}
 		
@@ -89256,7 +89909,6 @@ function Add-HPOVApplianceTrustedCertificate
 	Param 
 	(
 
-		# Supports both CA and SSL Host Base64 Certs
 		[Parameter (Mandatory = $false, ValueFromPipeline, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[System.IO.FileInfo]$Path,
@@ -89265,7 +89917,6 @@ function Add-HPOVApplianceTrustedCertificate
 		[ValidateNotNullOrEmpty()]
 		[String]$CertObject,
 
-		# Only supports SSL Hosts
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[String]$ComputerName,
@@ -103030,7 +103681,7 @@ Export-ModuleMember -function Remove-HPOVExternalRepository
 Export-ModuleMember -function New-HPOVSupportDump
 Export-ModuleMember -function New-HPOVBackup
 Export-ModuleMember -function Get-HPOVBackup
-# Export-ModuleMember -function Save-HPOVBackup
+Export-ModuleMember -function Save-HPOVBackup
 Export-ModuleMember -function New-HPOVRestore
 Export-ModuleMember -function Get-HPOVAutomaticBackupConfig
 Export-ModuleMember -function Set-HPOVAutomaticBackupConfig
@@ -103206,6 +103857,8 @@ Export-ModuleMember -function ConvertTo-HPOVServerProfileTemplate
 Export-ModuleMember -function Remove-HPOVServerProfileTemplate
 Export-ModuleMember -function New-HPOVServerProfileLogicalDisk 
 Export-ModuleMember -function New-HPOVServerProfileLogicalDiskController
+Export-ModuleMember -function Save-HPOVServerProfile
+Export-ModuleMember -function Save-HPOVServerProfileTemplate
 
 # Facilities
 Export-ModuleMember -function Get-HPOVRack

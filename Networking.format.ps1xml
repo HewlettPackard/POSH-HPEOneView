@@ -382,23 +382,23 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Typical Bandwidth</Label>
+            <Label>PreferredBandwidth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Max Bandwidth</Label>
+            <Label>MaxBandwidth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Auto Login Redistribution</Label>
+            <Label>AutoLoginRedistribution</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Link Stability Interval</Label>
+            <Label>LinkStabilityInterval</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Managed SAN</Label>
+            <Label>ManagedSAN</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -465,7 +465,7 @@
                 <PropertyName>fabricType</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Associated SAN</Label>
+                <Label>AssociatedSAN</Label>
                 <ScriptBlock>
 
                   if ($_.managedSanUri) { (Send-HPOVRequest -uri $_.managedSanUri -Hostname $_.ApplianceConnection.Name).name }
@@ -474,7 +474,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>SAN Manager</Label>
+                <Label>SANManager</Label>
                 <ScriptBlock>
                   
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -484,15 +484,15 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Preferred Bandwidth</Label>
+                <Label>PreferredBandwidth</Label>
                 <PropertyName>defaultMaximumBandwidth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Max Bandwidth</Label>
+                <Label>MaxBandwidth</Label>
                 <PropertyName>defaultMaximumBandwidth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Uplink Set</Label>
+                <Label>UplinkSet</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -502,7 +502,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Used By Server Profiles</Label>
+                <Label>UsedByServerProfiles</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -512,7 +512,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Used by Storage Systems</Label>
+                <Label>UsedByStorageSystems</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -548,19 +548,19 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>vlanId</Label>
+            <Label>VlanId</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Typical Bandwidth</Label>
+            <Label>PreferredBandwidth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Max Bandwidth</Label>
+            <Label>MaxBandwidth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Associated SAN</Label>
+            <Label>AssociatedSAN</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -621,22 +621,22 @@
                 <PropertyName>vlanId</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Preferred Bandwidth</Label>
+                <Label>PreferredBandwidth</Label>
                 <PropertyName>defaultMaximumBandwidth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Max Bandwidth</Label>
+                <Label>MaxBandwidth</Label>
                 <PropertyName>defaultMaximumBandwidth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Associated SAN</Label>
+                <Label>AssociatedSAN</Label>
                 <ScriptBlock>
                   if ($_.managedSanUri) { (Send-HPOVRequest -uri $_.managedSanUri -Hostname $_.ApplianceConnection.Name).name }
                   else { $Null }
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>SAN Manager</Label>
+                <Label>SANManager</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -646,7 +646,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Uplink Set</Label>
+                <Label>UplinkSet</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -656,7 +656,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Used By Server Profiles</Label>
+                <Label>UsedByServerProfiles</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
@@ -684,11 +684,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Preferred Bandwidth</Label>
+            <Label>PreferredBandwidth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Maximum Bandwidth</Label>
+            <Label>MaximumBandwidth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -696,11 +696,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Server Profiles</Label>
+            <Label>ServerProfiles</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Server Profile Templates</Label>
+            <Label>ServerProfileTemplates</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -765,11 +765,11 @@
                 <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Preferred Bandwidth</Label>
+                <Label>PreferredBandwidth</Label>
                 <PropertyName>typicalBandwidth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Maximum Bandwidth</Label>
+                <Label>MaximumBandwidth</Label>
                 <PropertyName>maximumBandwidth</PropertyName>
               </ListItem>
               <ListItem>
@@ -784,13 +784,13 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Untagged Network</Label>
+                <Label>UntaggedNetwork</Label>
                 <ScriptBlock>
                   (Send-HPOVRequest $_.nativeNetworkUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Used By Server Profiles</Label>
+                <Label>UsedByServerProfiles</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -hostname $_.ApplianceConnection.Name
@@ -800,7 +800,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Used By Server Profile Templates</Label>
+                <Label>UsedByServerProfileTemplates</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -hostname $_.ApplianceConnection.Name
@@ -832,7 +832,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Enclosure Groups</Label>
+            <Label>EnclosureGroups</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -872,18 +872,18 @@
                 <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Enclosure Groups</Label>
+                <Label>EnclosureGroups</Label>
                 <ScriptBlock>
                   $indexResults = Send-HPOVRequest "/rest/index/associations?childUri=$($_.uri)&amp;name=ENCLOSURE_GROUP_TO_LOGICAL_INTERCONNECT_GROUP" -hostname $_.ApplianceConnection.Name
                   ($indexResults.members | % { Send-HPOVRequest $_.parentUri -hostname $_.ApplianceConnection.Name}).name
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Interconnect Settings</Label>
+                <Label>InterconnectSettings</Label>
                 <PropertyName>ethernetSettings</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Utilization Sampling</Label>
+                <Label>UtilizationSampling</Label>
                 <PropertyName>telemetryConfiguration</PropertyName>
               </ListItem>
               <ListItem>
@@ -891,7 +891,7 @@
                 <PropertyName>snmpConfiguration</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Port Monitoring</Label>
+                <Label>PortMonitoring</Label>
                 <PropertyName>portMonitor</PropertyName>
               </ListItem>
             </ListItems>
@@ -917,11 +917,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Stacking Health</Label>
+            <Label>StackingHealth</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Consistency State</Label>
+            <Label>ConsistencyState</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -933,7 +933,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Firmware Baseline</Label>
+            <Label>FirmwareBaseline</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -992,11 +992,11 @@
                 <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Stacking Health</Label>
+                <Label>StackingHealth</Label>
                 <PropertyName>stackingHealth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Consistency State</Label>
+                <Label>ConsistencyState</Label>
                 <ScriptBlock>$global:logicalInterconnectConsistencyStatusEnum[$_.consistencyStatus]</ScriptBlock>
               </ListItem>
               <ListItem>
@@ -1011,7 +1011,7 @@
                 <ScriptBlock>"{0}" -f (Send-HPOVRequest $_.logicalInterconnectGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Firmware Baseline</Label>
+                <Label>FirmwareBaseline</Label>
                 <ScriptBlock>
                   $baseline = Send-HPOVRequest "$($_.uri)/firmware" -Hostname $_.ApplianceConnection.Name
                   if ($baseline.fwBaseline -eq 'UnDefined' -and $baseline.name -eq 'UnKnown') { $baseline.sppName = "Managed Manually" }
@@ -1019,11 +1019,11 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Interconnect Settings</Label>
+                <Label>InterconnectSettings</Label>
                 <PropertyName>ethernetSettings</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Utilization Sampling</Label>
+                <Label>UtilizationSampling</Label>
                 <PropertyName>telemetryConfiguration</PropertyName>
             </ListItem>
               <ListItem>
@@ -1031,7 +1031,7 @@
                 <PropertyName>snmpConfiguration</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Port Monitoring</Label>
+                <Label>PortMonitoring</Label>
                 <PropertyName>portMonitor</PropertyName>
               </ListItem>
             </ListItems>
@@ -1057,15 +1057,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Read Community</Label>
+            <Label>ReadCommunity</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Trap Destinations</Label>
+            <Label>TrapDestinations</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>SNMP Access</Label>
+            <Label>SNMPAccess</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1111,15 +1111,15 @@
                 <PropertyName>systemContact</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Read Community</Label>
+                <Label>ReadCommunity</Label>
                 <PropertyName>readCommunity</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Trap Destinations</Label>
+                <Label>TrapDestinations</Label>
                 <ScriptBlock>$_.trapDestinations | % { $_.trapDestination }</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>SNMP Access</Label>
+                <Label>SNMPAccess</Label>
                 <PropertyName>snmpAccess</PropertyName>
               </ListItem>
             </ListItems>
@@ -1255,27 +1255,27 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>% Share</Label>
+            <Label>%Share</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Max Share</Label>
+            <Label>MaxShare</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Real time</Label>
+            <Label>Realtime</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Egress DOT1P Priority</Label>
+            <Label>EgressDOT1PPriority</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Ingress DOT1P Value(s)</Label>
+            <Label>IngressDOT1PValue</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Ingress DSCP Value(s)</Label>
+            <Label>IngressDSCPValue</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1323,7 +1323,7 @@
           <ListEntry>
             <ListItems>
               <ListItem>
-                <Label>Traffic Class</Label>
+                <Label>TrafficClass</Label>
                 <ScriptBlock>$_.qosTrafficClass.className</ScriptBlock>
               </ListItem>
               <ListItem>
@@ -1331,27 +1331,27 @@
                 <ScriptBlock>$_.qosTrafficClass.enabled</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>% Share</Label>
+                <Label>%Share</Label>
                 <ScriptBlock>$_.qosTrafficClass.bandwidthShare</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Max Share</Label>
+                <Label>MaxShare</Label>
                 <ScriptBlock>$_.qosTrafficClass.maxBandwidth</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Real time</Label>
+                <Label>Realtime</Label>
                 <ScriptBlock>$_.qosTrafficClass.realTime</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Egress DOT1P Priority</Label>
+                <Label>EgressDOT1PPriority</Label>
                 <ScriptBlock>$_.qosTrafficClass.egressDot1pValue</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Ingress DOT1P Value(s)</Label>
+                <Label>IngressDOT1PValue</Label>
                 <ScriptBlock>$_.qosClassificationMapping.dot1pClassMapping</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Ingress DSCP Value(s)</Label>
+                <Label>IngressDSCPValue</Label>
                 <ScriptBlock>$_.qosClassificationMapping.dscpClassMapping</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -1491,7 +1491,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Logical Interconnect</Label>
+            <Label>LogicalInterconnect</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1503,15 +1503,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>SerialNumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Firmware</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
             <Label>Model</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>Serial Number</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1544,13 +1544,13 @@
                 <PropertyName>powerState</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
                 <PropertyName>firmwareVersion</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>model</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>serialNumber</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -1580,7 +1580,7 @@
                 <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Logical Interconnect</Label>
+                <Label>LogicalInterconnect</Label>
                 <ScriptBlock>
                   if ($_.state -ne 'Inventory' -and $_.state -ne 'Monitored')
                   {
@@ -1602,7 +1602,11 @@
                 <PropertyName>powerState</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>IP Address</Label>
+                <Label>SerialNumber</Label>
+                <PropertyName>serialNumber</PropertyName>
+              </ListItem>  
+              <ListItem>
+                <Label>IPAddress</Label>
                 <ScriptBlock>$_.ipAddressList.ipAddress</ScriptBlock>
               </ListItem>
               <ListItem>
@@ -1612,11 +1616,7 @@
               <ListItem>
                 <Label>Model</Label>
                 <PropertyName>model</PropertyName>
-              </ListItem>
-              <ListItem>
-                <Label>Serial Number</Label>
-                <PropertyName>serialNumber</PropertyName>
-              </ListItem>                
+              </ListItem>              
             </ListItems>
           </ListEntry>
         </ListEntries>
@@ -1636,7 +1636,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Part Number</Label>
+            <Label>PartNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
          </TableHeaders>
@@ -1669,7 +1669,7 @@
                 <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Part Number</Label>
+                <Label>PartNumber</Label>
                 <PropertyName>partNumber</PropertyName>
               </ListItem>
             </ListItems>
@@ -1708,7 +1708,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Uplink Set</Label>
+            <Label>UplinkSet</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1716,15 +1716,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Speed (Gb/s)</Label>
+            <Label>Speed</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>LAG ID</Label>
+            <Label>LAGID</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Connected To</Label>
+            <Label>ConnectedTo</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1806,15 +1806,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Server Hardware</Label>
+            <Label>ServerHardware</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Adapter Port</Label>
+            <Label>AdapterPort</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Server Profile</Label>
+            <Label>ServerProfile</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1950,7 +1950,7 @@
                 <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Logical Interconnect</Label>
+                <Label>LogicalInterconnect</Label>
                 <ScriptBlock>
                   (Send-HPOVRequest $_.logicalInterconnectUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
@@ -1964,11 +1964,11 @@
                 <PropertyName>reachability</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Connection Mode</Label>
+                <Label>ConnectionMode</Label>
                 <PropertyName>connectionMode</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>LACP Timer</Label>
+                <Label>LACPTimer</Label>
                 <ScriptBlock>
 
                   switch ($_.lacpTimer) {
@@ -2040,7 +2040,7 @@
                 <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Logical Interconnect</Label>
+                <Label>LogicalInterconnect</Label>
                 <ScriptBlock>
                   (Send-HPOVRequest $_.logicalInterconnectUri -Hostname $_.ApplianceConnection.Name).name
                 </ScriptBlock>
@@ -2054,7 +2054,7 @@
                 <PropertyName>reachability</PropertyName>
               </ListItem>
               <ListItem>          
-                <Label>Login redistribution</Label>
+                <Label>LoginRedistribution</Label>
                 <ScriptBlock>
 
                   Switch ([String](Send-HPOVRequest $_.fcNetworkUris[0] -Hostname $_.ApplianceConnection.Name).autoLoginRedistribution) {
@@ -2076,7 +2076,7 @@
               </ListItem>
               <ListItem>
             
-                <Label>Uplink Ports</Label>
+                <Label>UplinkPorts</Label>
 
                 <ScriptBlock>
 
@@ -2119,23 +2119,23 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Configured Speed</Label>
+                <Label>ConfiguredSpeed</Label>
                 <PropertyName>desiredSpeed</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Connected Speed</Label>
+                <Label>ConnectedSpeed</Label>
                 <ScriptBlock>
                   "{0}" -f $global:getUplinkSetPortSpeeds["$($global:_tempPortReport.operationalSpeed)"]
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>LAG ID</Label>
+                <Label>LAGID</Label>
                 <ScriptBlock>
                   "{0}" -f $global:_tempPortReport.lagId
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>LLDP Neighbor</Label>
+                <Label>LLDPNeighbor</Label>
                 <ScriptBlock>
                   "{0} [{1}], {2} {3}" -f $global:_tempPortReport.neighbor.remoteSystemName,$(if (-not $global:_tempPortReport.neighbor.remoteMgmtAddress) { $global:_tempPortReport.neighbor.remoteChassisId } else {$global:_tempPortReport.neighbor.remoteMgmtAddress}),$global:_tempPortReport.neighbor.remotePortDescription, $global:_tempPortReport.neighbor.remotePortId
                 </ScriptBlock>
@@ -2169,17 +2169,17 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Configured Speed</Label>
+                <Label>ConfiguredSpeed</Label>
                 <PropertyName>desiredSpeed</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Connected Speed</Label>
+                <Label>ConnectedSpeed</Label>
                 <ScriptBlock>
                   "{0}" -f $global:getUplinkSetPortSpeeds["$($global:_tempPortReport.operationalSpeed)"]
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Fabric Connection</Label>
+                <Label>FabricConnection</Label>
                 <ScriptBlock>
                   "{0}" -f $global:_tempPortReport.fcPortProperties.opOnlineReason
                 </ScriptBlock>
@@ -2213,27 +2213,27 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Kb/s</Label>
+            <Label>RxKb/s</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Kb/s</Label>
+            <Label>TxKb/s</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Packets</Label>
+            <Label>RxPackets</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Packets</Label>
+            <Label>TxPackets</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Non-Unicast PPS</Label>
+            <Label>RxNon-UnicastPPS</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Non-Unicast PPS</Label>
+            <Label>TxNon-UnicastPPS</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2285,39 +2285,39 @@
                 <PropertyName>portName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Rx Kb/s</Label>
+                <Label>RxKb/s</Label>
                 <ScriptBlock>"{0}Kbps ({1}min)" -f ($_.advancedStatistics.receiveKilobitsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Tx Kb/s</Label>
+                <Label>TxKb/s</Label>
                 <ScriptBlock>"{0}Kbps ({1}min)" -f ($_.advancedStatistics.transmitKilobitsPerSec -split ":")[0],($_.sampleInterval / 60)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>In Discards</Label>
+                <Label>InDiscards</Label>
                 <PropertyName>$_.commonStatistics.rfc1213IfInDiscards</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Out Discards</Label>
+                <Label>OutDiscards</Label>
                 <PropertyName>$_.commonStatistics.rfc1213IfOutDiscards</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>In Errors</Label>
+                <Label>InErrors</Label>
                 <PropertyName>$_.commonStatistics.rfc1213IfInErrors</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Out Errors</Label>
+                <Label>OutErrors</Label>
                 <PropertyName>$_.commonStatistics.rfc1213IfOutErrors</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>CRC Errors Rx/Tx</Label>
+                <Label>CRCErrorsRx/Tx</Label>
                 <PropertyName>$_.commonStatistics.rfc1757StatsCRCAlignErrors</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>MTU Exceeded Discards Rx/Tx</Label>
+                <Label>MTUExceededDiscardsRx/Tx</Label>
                 <PropertyName>$_.commonStatistics.rfc1493Dot1DBasePortMtuExceededDiscards</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Giants Rx/Tx</Label>
+                <Label>GiantsRx/Tx</Label>
                 <PropertyName>$_.commonStatistics.rfc2665Dot3StatsFrameTooLongs</PropertyName>
               </ListItem>
             </ListItems>
@@ -2343,27 +2343,27 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Throughput</Label>
+            <Label>RxThroughput</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Throughput</Label>
+            <Label>TxThroughput</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Frames (Total)</Label>
+            <Label>RxFrames</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Frames (Total)</Label>
+            <Label>TxFrames</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Bytes (Total)</Label>
+            <Label>RxBytes</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Bytes (Total)</Label>
+            <Label>TxBytes</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2415,39 +2415,39 @@
                 <PropertyName>portName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Rx Throughput</Label>
+                <Label>RxThroughput</Label>
                 <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcRxByteRate / 1MB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Tx Throughput</Label>
+                <Label>TxThroughput</Label>
                 <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcTxByteRate / 1MB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Rx Frames (Total)</Label>
+                <Label>RxFrames</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Tx Frames (Total)</Label>
+                <Label>TxFrames</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
             </ListItem>
               <ListItem>
-                <Label>Invalid CRC</Label>
+                <Label>InvalidCRC</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcInvalidCRC</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Link Failures</Label>
+                <Label>LinkFailures</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcLinkFailures</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Link Resets</Label>
+                <Label>LinkResets</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcNumberLinkResets</ScriptBlock>
             </ListItem>
               <ListItem>
-                <Label>Loss of Sync</Label>
+                <Label>LossofSync</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcLossOfSynchronization</ScriptBlock>             
             </ListItem>
               <ListItem>
-                <Label>BB Credit Frame Failures</Label>
+                <Label>BBCreditFrameFailures</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcBBCreditFrameFailures</ScriptBlock>
             </ListItem>
             </ListItems>
@@ -2473,27 +2473,27 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Throughput</Label>
+            <Label>RxThroughput</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Throughput</Label>
+            <Label>TxThroughput</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Frames (Total)</Label>
+            <Label>RxFrames</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Frames (Total)</Label>
+            <Label>TxFrames</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Rx Bytes (Total)</Label>
+            <Label>RxBytes</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Tx Bytes (Total)</Label>
+            <Label>TxBytes</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2545,39 +2545,39 @@
                 <PropertyName>portName</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Rx Throughput</Label>
+                <Label>RxThroughput</Label>
                 <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcRxByteRate / 1MB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Tx Throughput</Label>
+                <Label>TxThroughput</Label>
                 <ScriptBlock>"{0:0.##} MB/s" -f ($_.fcStatistics.fcTxByteRate / 1MB)</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Rx Frames (Total)</Label>
+                <Label>RxFrames</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Tx Frames (Total)</Label>
+                <Label>TxFrames</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcTotalRxFrames</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Invalid CRC</Label>
+                <Label>InvalidCRC</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcInvalidCRC</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Link Failures</Label>
+                <Label>LinkFailures</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcLinkFailures</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Link Resets</Label>
+                <Label>LinkResets</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcNumberLinkResets</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Loss of Sync</Label>
+                <Label>LossofSync</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcLossOfSynchronization</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>BB Credit Frame Failures</Label>
+                <Label>BBCreditFrameFailures</Label>
                 <ScriptBlock>"{0}" -f $_.fcStatistics.fcBBCreditFrameFailures</ScriptBlock>
               </ListItem>
             </ListItems>
@@ -2607,7 +2607,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Enclosure Groups</Label>
+            <Label>EnclosureGroups</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2692,7 +2692,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Enclosure Groups</Label>
+                <Label>EnclosureGroups</Label>
                 <ScriptBlock>
                   $indexResults = Send-HPOVRequest "/rest/index/associations?childUri=$($_.uri)&amp;name=ENCLOSURE_GROUP_TO_LOGICAL_INTERCONNECT_GROUP" -hostname $_.ApplianceConnection.Name
                   ($indexResults.members | % { Send-HPOVRequest $_.parentUri -hostname $_.ApplianceConnection.Name}).name
@@ -2717,7 +2717,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Part Number</Label>
+            <Label>PartNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2750,7 +2750,7 @@
                 <PropertyName>name</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Part Number</Label>
+                <Label>PartNumber</Label>
                 <PropertyName>partNumber</PropertyName>
               </ListItem>
             </ListItems>
@@ -2780,7 +2780,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Logical Interconnect</Label>
+            <Label>LogicalInterconnect</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -2800,7 +2800,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Serial Number</Label>
+            <Label>SerialNumber</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -2869,7 +2869,7 @@
                 <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Logical Interconnect</Label>
+                <Label>LogicalInterconnect</Label>
                 <ScriptBlock>
                   if ($_.state -ne 'Inventory' -or $_.state -ne 'Monitored')
                   {
@@ -2891,7 +2891,7 @@
                 <PropertyName>powerState</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>IP Address</Label>
+                <Label>IPAddress</Label>
                 <PropertyName>interconnectIP</PropertyName>
               </ListItem>
               <ListItem>
@@ -2903,7 +2903,7 @@
                 <PropertyName>model</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Serial Number</Label>
+                <Label>SerialNumber</Label>
                 <PropertyName>serialNumber</PropertyName>
               </ListItem>
             </ListItems>
@@ -2993,7 +2993,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Number of Switches</Label>
+            <Label>NumberofSwitches</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -3069,15 +3069,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Consistency State</Label>
+            <Label>ConsistencyState</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Logical Switch Group</Label>
+            <Label>LogicalSwitchGroup</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>vPC ID</Label>
+            <Label>vPCID</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -3137,27 +3137,27 @@
                 <PropertyName>status</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Stacking Health</Label>
+                <Label>StackingHealth</Label>
                 <PropertyName>stackingHealth</PropertyName>
               </ListItem>
               <ListItem>
-                <Label>Logical Switch Group</Label>
+                <Label>LogicalSwitchGroup</Label>
                 <ScriptBlock>'{0}' -f (Send-HPOVRequest $_.logicalSwitchGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Consistency State</Label>
+                <Label>ConsistencyState</Label>
                 <ScriptBlock>$logicalInterconnectConsistencyStatusEnum[$_.consistencyStatus]</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>vPC Domain ID</Label>
+                <Label>vPCDomainID</Label>
                 <ScriptBlock>'{0}' -f $_.logicalSwitchDomainInfo.domainId</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Primary Switch</Label>
+                <Label>PrimarySwitch</Label>
                 <ScriptBlock>"{0}" -f ($_.logicalSwitchDomainInfo.perSwitchDomain | ? vpcRole -eq 'primary').ipAddress</ScriptBlock>
               </ListItem>
               <ListItem>
-                <Label>Secondary Switch</Label>
+                <Label>SecondarySwitch</Label>
                 <ScriptBlock>"{0}" -f ($_.logicalSwitchDomainInfo.perSwitchDomain | ? vpcRole -eq 'secondary').ipAddress</ScriptBlock>
               </ListItem>
             </ListItems>

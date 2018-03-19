@@ -32,6 +32,24 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.00.1630.2612
+     -- [#326] Fixed New-HPOVServerProfileVolumeAttach where Network Set URI's were being passed
+        to the API resulting in an HTTP 400 exception.
+     -- Fixed Get-HPOVStorageVolume where "Array is fixed size" exception when using -Available
+        parameter.
+     -- [#327] Re-factored HPOneView.PKI.SslValidation.CertificateValidationCallBack use with internal
+        RestClient method to avoid overloading System.Net.ServicePointManager
+        ServerCertificateValidationCallback delegate property globally.
+     -- [#323] Added -PassThru parameter support to New-HPOVServerProfileVolumeAttach Cmdlet.
+     -- [#323] Added Save-HPOVServerProfile Cmdlet to save ServerProfile resources to appliance.
+     -- [#323] Added Save-ServerProfileTemplate Cmdlet to save ServerProfileTemplate resources 
+        to appliance.
+     -- Added missing -Model parameter to New-HPOVRack.
+     -- Changed New-HPOVBackup return object when saving file locally (without Remote Location setup
+        or using the -Force parameter) to [System.IO.FileInfo] object.
+     -- Added Save-HPOVBackup to save appliance stored backups to local filesystem or remote backup
+        location.
+
     Release 4.00.1612.2800
 
      -- [#312] Fixed New-HPOVServerProfileTemplate regression with Shared Storage validation. 
