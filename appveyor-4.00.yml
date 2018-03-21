@@ -15,6 +15,13 @@ test_script:
 
     Start-PoshTest
 notifications:
+- provider: Webhook
+  url: https://webhooks.gitter.im/e/16d4b9581293e5e56a9d
+  method: POST
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
+
 - provider: Email
   to:
   - chris.lynch@hpe.com
