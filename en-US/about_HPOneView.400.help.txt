@@ -32,6 +32,19 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.00.1672.1789
+     -- Fixed Get-HPOVScmbCertificate where the appliance CA certificate wasn't being properly returned.
+     -- Get-HPOVScmbCertificate now returns the System.IO.FileInfo objects for the certificates from the
+        appliance.
+     -- [#320] Increased timeout for Remove-HPOVScmbCertificate to help address syncronous timeout waiting 
+        for DELETE request to complete.
+     -- Fixed Install-HPOVUpdate to address API change.
+     -- [#323] Added Convert-HPOVServerProfile and Convert-HPOVServerProfileTemplate Cmdlets.
+     -- [#330] Added HPE BladeSystem Virtual Connect Fibre Channel 16GB module to New-HPOVLogicalInterconnectGroup.
+     -- [#334] Fixed New-HPOVServerProfileTemplate bootable connection logic to properly detect for bootable
+        connections when -ManageBoot is $false.
+     -- Fixed Get-HPOVServer to support wildcard search with -ServerName parameter.
+
     Release 4.00.1630.2612
      -- [#326] Fixed New-HPOVServerProfileVolumeAttach where Network Set URI's were being passed
         to the API resulting in an HTTP 400 exception.

@@ -1,5 +1,3 @@
-[![Join the chat at https://gitter.im/POSH-HPOneView/Lobby](https://badges.gitter.im/POSH-HPOneView/Lobby.svg)](https://gitter.im/POSH-HPOneView/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge) 
-
 
 AppVeyor 3.00 Branch | AppVeyor 3.10 Branch | AppVeyor 4.00 Branch
 -------------------- | -------------------- | ---------------------

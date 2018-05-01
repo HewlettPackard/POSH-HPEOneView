@@ -65,6 +65,10 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>ServerName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Status</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -103,6 +107,9 @@
             <TableColumnItems>
               <TableColumnItem>
                 <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serverName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>status</PropertyName>

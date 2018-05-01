@@ -3,11 +3,26 @@ branches:
   only:
   - 4.00
 skip_tags: true
-build_cloud: doc-hyp-01
+skip_commits:
+  files:
+    - LICENSE
+    - '*.psd1'
+    - '**/*.xml'
+    - '**/*.txt'
+    - '*.md'
+    - '*.yml'
+    - .github/*.md
+
+build_cloud:
+- doc-hyp-01
+- doc-hyp-02
 image: labwmf5
 clone_folder: C:\projects\HPOneView.400
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
+environment:
+  ACCESS_TOKEN:
+    secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
 build: off
 test_script:
 - ps: >-
@@ -21,7 +36,6 @@ notifications:
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: true
-
 - provider: Email
   to:
   - chris.lynch@hpe.com
@@ -30,15 +44,3 @@ notifications:
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: false
-
-skip_commits:
-  files:
-    - LICENSE
-    - '*.psd1'
-    - '**/*.xml'
-    - '**/*.txt'
-    - '*.md'
-    - '*.yml'
-    - .github/*.md
-
-
