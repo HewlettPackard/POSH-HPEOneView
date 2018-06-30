@@ -107,6 +107,30 @@
         </CustomEntries>
       </CustomControl>
     </Control>
+    <!--ApplianceSecurityProtocolMode-GroupingFormat-->
+    <Control>
+      <Name>ApplianceSecurityProtocolMode-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Mode: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.Mode
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
   </Controls>
 	<ViewDefinitions>
     <!--HPOneView.Appliance.ScopeCollection FT-->
@@ -4573,6 +4597,57 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
+    </View>
+    <!--HPOneView.Appliance.SecurityProtocol FT-->
+    <View>
+      <Name>SecurityProtocol</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.SecurityProtocol</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>Mode</PropertyName>
+        <CustomControlName>ApplianceSecurityProtocolMode-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ModeIsEnabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CipherSuites</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Enabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ModeIsEnabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CipherSuites</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
   </ViewDefinitions>
 </Configuration>

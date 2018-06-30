@@ -77,7 +77,7 @@ param
 
 )
 
-if (-not (get-module HPOneview.400)) 
+if (-not (get-module HPOneView.410)) 
 {
 
     Import-Module POneView.400
@@ -594,6 +594,6 @@ end_marker'
 
     Disconnect-HPOVMgmt
 
-	Remove-Module HPOneView.400
+	Remove-Module HPOneView.410
 
 #endregion

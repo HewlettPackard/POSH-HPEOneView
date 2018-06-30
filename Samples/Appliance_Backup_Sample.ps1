@@ -78,10 +78,10 @@ if (-not(Test-Path $Location))
 
 }
 
-if (-not (get-module HPOneview.400)) 
+if (-not (get-module HPOneView.410)) 
 {
 
-    Import-Module HPOneView.400
+    Import-Module HPOneView.410
 
 }
 
