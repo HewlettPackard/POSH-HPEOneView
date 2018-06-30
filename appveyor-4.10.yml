@@ -1,7 +1,7 @@
-﻿version: 4.00.{build}
+﻿version: 4.10.{build}
 branches:
   only:
-  - 4.00
+  - 4.10
 skip_tags: true
 skip_commits:
   files:
@@ -13,10 +13,9 @@ skip_commits:
     - '*.yml'
     - .github/*.md
 
-build_cloud:
-- doc-hyp-01
+build_cloud: doc-hyp-02
 image: labwmf5
-clone_folder: C:\projects\HPOneView.400
+clone_folder: C:\projects\HPOneView.410
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
 environment:
@@ -39,7 +38,7 @@ notifications:
   to:
   - chris.lynch@hpe.com
   - chris.lynch@outlook.com
-  subject: POSH-HPOneView.400 AppVeyor Results
+  subject: POSH-HPOneView.410 AppVeyor Results
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: false
