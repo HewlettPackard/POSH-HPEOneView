@@ -1182,7 +1182,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>ObligationEndDate</Label>
+            <Label>OfferEndDate</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -1209,7 +1209,7 @@
                 <PropertyName>CoverageDays</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>ObligationEndDate</PropertyName>
+                <PropertyName>OfferEndDate</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

@@ -32,6 +32,11 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 3.10.1731.3550
+     -- Refactored Install-HPOVUpdate.
+     -- Fixed New-HPOVServerProfileVolumeAttach where it would improperly process volume
+        and connection validation.
+
     Release 3.10.1588.1229
      -- Updated New-HPOVLdapDirectory to support SecureString prompt for -Password parameter.    
      -- Updated library sample scripts with correct module name and license.

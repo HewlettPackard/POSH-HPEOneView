@@ -26578,7 +26578,7 @@ Wait-HPOVTaskComplete $task
 			<!--Parameter Sets-->
 			<command:syntaxItem>
 				<maml:name>Install-HPOVUpdate</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Stage, Update">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Stage, Update">
 					<maml:name>File</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-f]
@@ -26600,7 +26600,7 @@ Appliance Update file to install.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="StageInstall, List, Stage, Update">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="StageInstall, List, Stage, Update">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -26628,7 +26628,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			</command:syntaxItem>
 			<command:syntaxItem>
 				<maml:name>Install-HPOVUpdate</maml:name>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Stage, Update">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Stage, Update">
 					<maml:name>File</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-f]
@@ -26650,7 +26650,7 @@ Appliance Update file to install.</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="StageInstall, List, Stage, Update">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="StageInstall, List, Stage, Update">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -26692,7 +26692,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">String</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="StageInstall, List, Stage, Update">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="StageInstall, List, Stage, Update">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -26735,7 +26735,7 @@ List any pending updates on the appliance that might have been staged.</maml:par
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="StageInstall, List, Stage, Update">
+				<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="StageInstall, List, Stage, Update">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Aliases [-Appliance]
@@ -26764,7 +26764,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="StageInstall, List, Stage, Update" aliases="Appliance">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="StageInstall, List, Stage, Update" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-Appliance]
@@ -26812,7 +26812,7 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="true" globbing="False" pipelineInput="false" position="named" parameterSetName="Stage, Update" aliases="f">
+			<command:parameter required="true" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="Stage, Update" aliases="f">
 				<maml:name>File</maml:name>
 				<maml:description>
 					<maml:para>Aliases [-f]
@@ -49332,6 +49332,13 @@ In order for an administrator to remove an Alert, the administrator must be assi
 					</maml:description>
 					<command:parameterValue required="true" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Force</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="" variableLength="False" />
+				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
@@ -49378,6 +49385,17 @@ Default Value: ${Global:ConnectedSessions} | ? Default</maml:para>
 			</command:parameter>
 			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
 				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Force</maml:name>
 				<maml:description>
 					<maml:para />
 				</maml:description>
@@ -58573,7 +58591,7 @@ Default Value: ${Global:ConnectSessions}</maml:para>
 					<maml:para />
 				</maml:introduction>
 				<dev:code>$Enclosure = Get-HPOVEnclosure -Name Enclosure1 -ErrorAction Stop
-Reset-HPOVEnclosureDevice -Component FLM -DeviceID 1 -EFuse
+Reset-HPOVEnclosureDevice -Enclosure $Enclosure -Component FLM -DeviceID 1 -EFuse
 </dev:code>
 				<dev:remarks>
 					<dev:para>Reset the FLM in slot 1 by performing an EFuse.</dev:para>
@@ -58590,8 +58608,7 @@ Reset-HPOVEnclosureDevice -Component FLM -DeviceID 1 -EFuse
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>$Enclosure = Get-HPOVEnclosure -Name Enclosure1 -ErrorAction Stop
-Reset-HPOVEnclosureDevice -Component Device -DeviceID 4 -Reset
+				<dev:code>$Task = Get-HPOVEnclosure -Name Enclosure1 -ErrorAction Stop | Reset-HPOVEnclosureDevice -Component Device -DeviceID 4 -Reset
 </dev:code>
 				<dev:remarks>
 					<dev:para>Reset the device in bay 4 by requesting it to reset itself.</dev:para>
@@ -76905,5 +76922,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2018-02-05T15:03:37:58.587Z-->
+	<!--Edited on: 2018-06-29T04:15:37:75.753Z-->
 </helpItems>
