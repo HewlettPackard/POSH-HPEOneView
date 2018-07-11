@@ -14,7 +14,7 @@ skip_commits:
     - .github/*.md
 
 build_cloud: doc-hyp-04
-image: labwmf5
+image: win10-ent-worker
 clone_folder: C:\projects\HPOneView.410
 init:
 - ps: $env:PSModulePath += ";C:\Projects"
