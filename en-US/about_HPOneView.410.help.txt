@@ -32,10 +32,25 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.10.1767.2248
+
+       * Updated Get-HPOVApplianceTrustedCertificate to return strictly typed named classes
+         [HPOneView.Appliance.TrustedCertificateAuthority] and [HPOneView.Appliance.TrustedCertificate].
+       * Added pipeline and inputobject support to Get-HPOVApplianceTrustedCertificate in order to
+         return trusted certificates for server hardware or enclosures.
+       * Updated Get-HPOVStoragePool to return strongly typed class [HPOneView.Storage.StoragePool].
+       * Added Set-HPOVStoragePool to replace Add-HPOVStoragePool to match the UI.
+       * Added Rack Manager Cmdlet support for Superdome Flex: Get-HPOVRackManager, Add-HPOVRackManager, 
+         Update-HPOVRackManager and Remote-HPOVRackManager
+       * [#350] Began depreating support of seperate Username and Password parameters, and added PSCredential 
+         support to Invoke-HPOVVcmMigration.
+       * [#349] Fixed verbose call within Invoke-HPOVVcmMigration which was causing a PowerShell
+         exception.
+       * Fixed some regression issues with Install-HPOVUpdate.
+
     Release 4.10.1718.2245
 
        * Initial 4.10 release.
-     
 
 LONG DESCRIPTION
 
