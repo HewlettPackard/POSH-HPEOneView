@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.10.1767.2250'
+[Version]$ModuleVersion = '4.10.1802.1882'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -80,24 +80,26 @@ if ($Global:IgnoreCertPolicy)
 }
 
 $ResourceCategoryEnum = @{
-	Baseline                 = 'firmware-drivers'
-	ServerHardware           = 'server-hardware';
-	ServerHardwareType       = 'server-hardware-types'
-	ServerProfile            = 'server-profiles';
-	ServerProfileTemplate    = 'server-profile-templates';
-	Enclosure                = 'enclosures';
-	LogicalEnclosure         = 'logical-enclosures';
-	EnclosureGroup           = 'enclosure-groups';
-	Interconnect             = 'interconnects';
-	LogicalInterconnect      = 'logical-interconnects';
-	LogicalInterconnectGroup = 'logical-interconnect-groups';
-	ClusterProfile           = 'hypervisor-cluster-profiles';
-	HypervisorManager        = 'hypervisor-managers';
-	HypervisorCluster        = 'hypervisor-clusters';
-	ClusterNode              = 'hypervisor-hosts';
-	FabricManager            = 'fabric-managers';
-	FabricManagerTenant      = 'tenants';
-	RackManager              = 'rack-managers'
+	Baseline                    = 'firmware-drivers';
+	ServerHardware              = 'server-hardware';
+	ServerHardwareType          = 'server-hardware-types';
+	ServerProfile               = 'server-profiles';
+	ServerProfileTemplate       = 'server-profile-templates';
+	Enclosure                   = 'enclosures';
+	LogicalEnclosure            = 'logical-enclosures';
+	EnclosureGroup              = 'enclosure-groups';
+	Interconnect                = 'interconnects';
+	LogicalInterconnect         = 'logical-interconnects';
+	LogicalInterconnectGroup    = 'logical-interconnect-groups';
+	SasLogicalInterconnectGroup = 'sas-logical-interconnect-groups';
+	SasLogicalInterconnect      = 'sas-logical-interconnects';
+	ClusterProfile              = 'hypervisor-cluster-profiles';
+	HypervisorManager           = 'hypervisor-managers';
+	HypervisorCluster           = 'hypervisor-clusters';
+	ClusterNode                 = 'hypervisor-hosts';
+	FabricManager               = 'fabric-managers';
+	FabricManagerTenant         = 'tenants';
+	RackManager                 = 'rack-managers'
 }
 
 #------------------------------------
@@ -4470,6 +4472,10 @@ function Send-HPOVRequest
 
 		"[{0}] BEGIN" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
 		if ($uri -eq $ApplianceLoginSessionsUri -and $Method -eq 'POST')
 		{
 
@@ -5382,6 +5388,16 @@ function Send-HPOVRequest
 									"[{0}] $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) Request was '$method' at '$uri'." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 									$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException InsufficientPrivilege AuthenticationError 'Send-HPOVRequest' -Message ("[Send-HPOVRequest]: {0}.  Request was '{1}' at '{2}'. " -f (${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).ErrorResponse.message, $method, $uri )
+									$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+								}
+
+								elseif ((${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).ErrorResponse.errorCode -eq "INVALID_REPOSITORY_CREDENTIALS") 
+								{
+
+									"[{0}] $((${Global:ResponseErrorObject} | ? Name -eq $ApplianceHost.Name).ErrorResponse.message) Request was '$method' at '$uri'." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+									$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthPrivilegeException ExternalRepositoryCredentials AuthenticationError $Caller -Message ("{0}" -f (${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).ErrorResponse.message)
 									$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 								}
@@ -6536,8 +6552,7 @@ function Connect-HPOVMgmt
 			# Store the entire auth request for later deletion when issuing Disconnect-HPOVmgmt
 			[HPOneView.Appliance.Connection]$ApplianceConnection = New-Object HPOneView.Appliance.Connection($tmpConnectionId, 
 																											$Hostname, 
-																											$UserName) #, 
-																											# $AuthLoginDomain)
+																											$UserName)
 
 			if (-not(${Global:ConnectedSessions} | Where-Object Default)) 
 			{ 
@@ -11691,7 +11706,7 @@ function Get-HPOVXApiVersion
 
 				[HPOneView.Appliance.Connection]$ApplianceConnection = New-TemporaryConnection $ApplianceConnection
 
-				$ApplianceConnection.Name = $_ApplianceName
+				# $ApplianceConnection.Name = $_ApplianceName
 
 				"[{0}] $($ApplianceConnection | Format-List * )" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 			
@@ -20993,7 +21008,7 @@ function Get-HPOVBaseline
 
 				}
 
-				$_baseline.locations = [String]::Join(', ', $_Locations.ToArray())
+				# $_baseline.locations = [String]::Join(', ', $_Locations.ToArray())
 
 				$_FwComponentsList = New-Object "System.Collections.Generic.List[HPOneView.Appliance.Baseline+FwComponent]"
 
@@ -25577,7 +25592,7 @@ function Download-File
 function Upload-File 
 {
 
-	<#
+    <#
 
 		.SYNOPSIS
 		Upload a file to the appliance.
@@ -25622,400 +25637,888 @@ function Upload-File
 
 	#>
 
-	[CmdletBinding ()]
+    [CmdletBinding ()]
 
-	Param 
-	(
+    Param 
+    (
 
-		[Parameter (Mandatory)]
-		[ValidateNotNullOrEmpty()]
-		[Alias ('u')]
-		[string]$uri,
+        [Parameter (Mandatory)]
+        [ValidateNotNullOrEmpty()]
+        [Alias ('u')]
+        [string]$uri,
 
-		[Parameter (Mandatory)]
-		[Alias ('f')]
-		[ValidateScript({Test-Path $_})]
-		[string]$File,
+        [Parameter (Mandatory)]
+        [Alias ('f')]
+        [ValidateScript( {Test-Path $_})]
+        [System.IO.FileInfo]$File,
 
-		[Parameter (Mandatory = $false)]
-		[ValidateNotNullorEmpty()]
-		[Object]$AddHeader,
+        [Parameter (Mandatory = $false)]
+        [ValidateNotNullorEmpty()]
+        [Object]$AddHeader,
 
-		[Parameter (Mandatory = $false)]
-		[ValidateSet ('PUT', 'POST')]
-		[String]$Method = 'POST',
+        [Parameter (Mandatory = $false)]
+        [ValidateSet ('PUT', 'POST')]
+        [String]$Method = 'POST',
 		
-		[Parameter (Mandatory = $false)]
-		[Alias ('Hostname')]
-		[ValidateNotNullorEmpty()]
-		[object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
+        [Parameter (Mandatory = $false)]
+        [Alias ('Hostname')]
+        [ValidateNotNullorEmpty()]
+        [object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
 
-	)
+    )
 
-	Begin 
-	{
+    Begin 
+    {
 
-		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+        "[{0}] Bound PS Parameters: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
 
-		$Caller = (Get-PSCallStack)[1].Command
+        $Caller = (Get-PSCallStack)[1].Command
 
-		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+        "[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+        "[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
-		{
+        if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+        {
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection Parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            $ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection Parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-		}
+        }
 
-		elseif  ($ApplianceConnection.Count -gt 1)
-		{
+        elseif ($ApplianceConnection.Count -gt 1)
+        {
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection Parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect Parameter value.  Please correct this and try again.'
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            $ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection Parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect Parameter value.  Please correct this and try again.'
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-		}
+        }
 
-		else
-		{
+        else
+        {
 
-			Try 
-			{
+            Try 
+            {
 	
-				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+                $ApplianceConnection = Test-HPOVAuth $ApplianceConnection
 
-			}
+            }
 
-			Catch [HPOneview.Appliance.AuthSessionException] 
-			{
+            Catch [HPOneview.Appliance.AuthSessionException] 
+            {
 
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
-				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                $ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-			}
+            }
 
-			Catch 
-			{
+            Catch 
+            {
 
-				$PSCmdlet.ThrowTerminatingError($_)
+                $PSCmdlet.ThrowTerminatingError($_)
 
-			}
+            }
 
-		}
+        }
 		
-	}
+    }
 	
-	Process 
-	{
+    Process 
+    {
 
-		$_fileObj = Get-Item -path $File
+        # $_fileObj = Get-Item -path $File
 		
-		$fs = New-Object IO.FileStream ($File, $FSOpenMode, $FSRead)
+        $fs = New-Object IO.FileStream ($File.FullName, $FSOpenMode, $FSRead)
 
-		[string]$filename = $_fileObj.name
+        # [string]$filename = $_fileObj.name
 
-		"[{0}] Uploading {1} file to appliance, this may take a few minutes..." -f $MyInvocation.InvocationName.ToString().ToUpper(), $filename | Write-Verbose
+        "[{0}] Uploading {1} file to appliance, this may take a few minutes..." -f $MyInvocation.InvocationName.ToString().ToUpper(), $File.FullName | Write-Verbose
 
-		try 
-		{
+        try 
+        {
 
-			$uri = "{0}?uploadfilename={1}" -f $uri, $filename
-
-			[System.Net.httpWebRequest]$uploadRequest = RestClient $Method $uri -Appliance $ApplianceConnection.Name
-
-			$boundary                                     = "---------------------------" + [DateTime]::Now.Ticks.ToString("x")
-			[byte[]]$BoundaryBytes                        = [System.Text.Encoding]::UTF8.GetBytes("`r`n--" + $boundary + "`r`n");
-			$disposition                                  = "Content-Disposition: form-data; name=`"file`"; filename=`"{0}`";`r`nContent-Type: application/octet-stream`r`n`r`n" -f $_fileObj.Name
-			[byte[]]$ContentDispBytes                     = [System.Text.Encoding]::UTF8.GetBytes($disposition);
-			[byte[]]$EndBoundaryBytes                     = [System.Text.Encoding]::UTF8.GetBytes("`r`n--" + $boundary + "--`r`n")
-
-			$uploadRequest.Timeout                        = 1200000
-			$uploadRequest.ContentType                    = "multipart/form-data; boundary={0}" -f $boundary
-			$uploadRequest.Headers.Item("auth")           = $ApplianceConnection.SessionID
-			$uploadRequest.Headers.Item("uploadfilename") = $filename
-			$uploadRequest.AllowWriteStreamBuffering      = $false
-			$uploadRequest.SendChunked                    = $false
-			$uploadRequest.ContentLength                  = $BoundaryBytes.length + $ContentDispBytes.length + $_fileObj.Length + $EndBoundaryBytes.Length
-			$uploadRequest.Headers.Item("ContentLength")  = $BoundaryBytes.length + $ContentDispBytes.length + $_fileObj.Length + $EndBoundaryBytes.Length
-
-			ForEach ($_Header in $AddHeader)
+			$uri = "{0}?uploadfilename={1}" -f $uri, $File.Name
+			
+			# $_encoding = $null
+			$_DispositionContentType = "application/octet-stream"
+			
+			if ($File.Extension -eq '.crl')
 			{
 
-				$uploadRequest.Headers.($_Header.Name) = $_Header.Value
+				# $_encoding = [System.Text.Encoding]::GetEncoding("iso-8859-1")
 
+				$_DispositionContentType = "application/pkix-crl"
+
+				"[{0}] Setting HttpWebRequest body encoding to 'ISO-8859-1': {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [Bool]$_encoding | Write-Verbose
+				
 			}
 
-			"[{0}] Request: POST {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $uri | Write-Verbose
+			"[{0}] Setting Disposition Content-Type to: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_DispositionContentType | Write-Verbose			
 
-			$i = 0
+            [System.Net.httpWebRequest]$uploadRequest = RestClient $Method $uri -Appliance $ApplianceConnection.Name
 
-			foreach ($h in $uploadRequest.Headers) 
-			{
+            $boundary = "---------------------------" + [DateTime]::Now.Ticks.ToString("x")
+            [byte[]]$BoundaryBytes = [System.Text.Encoding]::UTF8.GetBytes("`r`n--" + $boundary + "`r`n");
+            $disposition = "Content-Disposition: form-data; name=`"file`"; filename=`"{0}`";`r`nContent-Type: {1}`r`n`r`n" -f $File.Name, $_DispositionContentType
+            [byte[]]$ContentDispBytes = [System.Text.Encoding]::UTF8.GetBytes($disposition);
+            [byte[]]$EndBoundaryBytes = [System.Text.Encoding]::UTF8.GetBytes("`r`n--" + $boundary + "--`r`n")
+
+            $uploadRequest.Timeout = 1200000
+            $uploadRequest.ContentType = "multipart/form-data; boundary={0}" -f $boundary
+            $uploadRequest.Headers.Item("auth") = $ApplianceConnection.SessionID
+            $uploadRequest.Headers.Item("uploadfilename") = $File.Name
+            $uploadRequest.AllowWriteStreamBuffering = $false
+            $uploadRequest.SendChunked = $false
+            $uploadRequest.ContentLength = $BoundaryBytes.length + $ContentDispBytes.length + $File.Length + $EndBoundaryBytes.Length
+			$uploadRequest.Headers.Item("ContentLength") = $BoundaryBytes.length + $ContentDispBytes.length + $File.Length + $EndBoundaryBytes.Length
+
+            ForEach ($_Header in $AddHeader)
+            {
+
+                $uploadRequest.Headers.($_Header.Name) = $_Header.Value
+
+            }
+
+            "[{0}] Request: POST {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $uri | Write-Verbose
+
+            $i = 0
+
+            foreach ($h in $uploadRequest.Headers) 
+            {
 				
-				"[{0}] Request Header ({1}) {2} : {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $i, $h, $uploadRequest.Headers[$i] | Write-Verbose
+                "[{0}] Request Header ({1}) {2} : {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $i, $h, $uploadRequest.Headers[$i] | Write-Verbose
 				
-				$i++
+                $i++
 			
-			}
+            }
 
-			$rs = $uploadRequest.GetRequestStream()
+            $rs = $uploadRequest.GetRequestStream()
 
-			[byte[]]$readbuffer = New-Object byte[] (4096*1024)		
-			$rs.write($BoundaryBytes,0,$BoundaryBytes.Length);
-			$rs.write($ContentDispBytes,0,$ContentDispBytes.Length);
+            [byte[]]$readbuffer = New-Object byte[] (4096 * 1024)		
+            $rs.write($BoundaryBytes, 0, $BoundaryBytes.Length);
+            $rs.write($ContentDispBytes, 0, $ContentDispBytes.Length);
 
-			# This is used to keep track of the file upload progress.
-			$numBytesToRead = $fs.Length    
-			[int64]$numBytesRead = 0
+            # This is used to keep track of the file upload progress.
+            $numBytesToRead = $fs.Length    
+            [int64]$numBytesRead = 0
 
-			if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
-			{ 
+            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+            { 
 			
-				 "[{0}] Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                "[{0}] Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 			
-			}
+            }
 
-			$_sw = [System.Diagnostics.Stopwatch]::StartNew()
-			$_progresssw = [System.Diagnostics.Stopwatch]::StartNew()
+            $_sw = [System.Diagnostics.Stopwatch]::StartNew()
+            $_progresssw = [System.Diagnostics.Stopwatch]::StartNew()
 
-			while ($byteCount = $fs.Read($readbuffer,0,$readbuffer.length))
-			{				
+            while ($byteCount = $fs.Read($readbuffer, 0, $readbuffer.length))
+            {
 
-				$rs.write($readbuffer,0,$byteCount)
-				$rs.flush()
+				$rs.write($readbuffer, 0, $byteCount)
+                
+                $rs.flush()
 			
-				# Keep track of where we are at clearduring the read operation
-				$_numBytesRead += $bytecount
+                # Keep track of where we are at clearduring the read operation
+                $_numBytesRead += $bytecount
 
-				# Use the Write-Progress cmd-let to show the progress of uploading the file.
-				[int]$_percent = [math]::floor(($_numBytesRead / $fs.Length) * 100)
+                # Use the Write-Progress cmd-let to show the progress of uploading the file.
+                [int]$_percent = [math]::floor(($_numBytesRead / $fs.Length) * 100)
 
-				# Elapsed time to calculat throughput
-				[int]$_elapsed = $_sw.ElapsedMilliseconds / 1000
+                # Elapsed time to calculat throughput
+                [int]$_elapsed = $_sw.ElapsedMilliseconds / 1000
 				
-				if ($_elapsed -ne 0 ) 
-				{
+                if ($_elapsed -ne 0 ) 
+                {
 
-					[single]$_transferrate = [Math]::Round(($_numBytesRead/$_elapsed) / 1mb)
+                    [single]$_transferrate = [Math]::Round(($_numBytesRead / $_elapsed) / 1mb)
 				
-				} 
+                } 
 				
-				else 
-				{
+                else 
+                {
 
-					[single]$_transferrate = 0.0
+                    [single]$_transferrate = 0.0
 				
-				}
+                }
 
-				$status = "({0:0}MB of {1:0}MB transferred @ {2}MB/s) Completed {3}%" -f ($_numBytesRead / 1MB), ($numBytesToRead / 1MB), $_transferrate, $_percent
+                $status = "({0:0}MB of {1:0}MB transferred @ {2}MB/s) Completed {3}%" -f ($_numBytesRead / 1MB), ($numBytesToRead / 1MB), $_transferrate, $_percent
 
-				# Handle the call from -Verbose so Write-Progress does not get borked on display.
-				if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
-				{ 
+                # Handle the call from -Verbose so Write-Progress does not get borked on display.
+                if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+                { 
 
-					"[{0}] Uploading file {1}, status: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $fileName, $status | Write-Verbose
+                    "[{0}] Uploading file {1}, status: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $fileName, $status | Write-Verbose
 					
-				}
+                }
 				  
-				else 
-				{ 
+                else 
+                { 
 
-					if ($_progresssw.Elapsed.TotalMilliseconds -ge 500)
-					{
+                    if ($_progresssw.Elapsed.TotalMilliseconds -ge 500)
+                    {
 
-						if ($_numBytesRead % 1mb -eq 0) 
-						{ 
+                        if ($_numBytesRead % 1mb -eq 0) 
+                        { 
 							
-							Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation $status -PercentComplete $_percent 
+                            Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation $status -PercentComplete $_percent 
 						
-						}
+                        }
 
-					}
+                    }
 
-				}
+                }
 
-			}
+            }
 
-			"[{0}] Finalizing upload." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+            "[{0}] Finalizing upload." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			$fs.close()
+            $fs.close()
 
-			$rs.write($EndBoundaryBytes,0,$EndBoundaryBytes.Length)
+            $rs.write($EndBoundaryBytes, 0, $EndBoundaryBytes.Length)
 
-			$rs.close()
+            $rs.close()
 
-			$_sw.stop()
-			$_sw.Reset()
+            $_sw.stop()
+            $_sw.Reset()
 
-			Write-Progress -activity "Upload File" -status "Uploading $Filename" -Complete
+            Write-Progress -activity "Upload File" -status "Uploading $Filename" -Complete
 
-		}
+        }
 
-		catch [System.Exception] 
-		{
+        catch [System.Exception] 
+        {
 
-			# Dispose if still exist
-			if ($rs) { $rs.close() }
-			if ($fs) { $fs.close() }
+			Write-Verbose "Exception caught while uploading file."
 
-			if ($_sw.IsRunning) 
-			{ 
+			Write-Verbose ("Exception: {0}" -f $_.Exception.Message)
+			Write-Verbose ("InnerException: {0}" -f $_.Exception.InnerException.Message)
+
+			if ($fs)
+            {
+
+				$fs.close() 
 				
-				$_sw.Stop() 
-				$_sw.Reset()
+            }
+
+            if ($_sw.IsRunning) 
+            { 
+				
+                $_sw.Stop() 
+                $_sw.Reset()
 			
+            }
+
+            # Dispose if still exist
+            if ($rs)
+            {
+
+				$rs.close() 
+				
 			}
 
-			$PSCmdlet.ThrowTerminatingError($_)
+            $PSCmdlet.ThrowTerminatingError($_)
 
-		}
+        }
 
-		try 
-		{
+        try 
+        {
 
-			"[{0}] Upload Request completed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+            "[{0}] Upload Request completed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 		
-			if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
-			{
+            if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+            {
 
-				"[{0}] Waiting for completion response from appliance." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                "[{0}] Waiting for completion response from appliance." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			}
+            }
 
-			else 
-			{ 
+            else 
+            { 
 
-				Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation "Waiting for completion response from appliance." -percentComplete $_percent 
+                Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation "Waiting for completion response from appliance." -percentComplete $_percent 
 			
-			}
+            }
 
-			[Net.httpWebResponse]$WebResponse = $uploadRequest.getResponse()
+            [Net.httpWebResponse]$WebResponse = $uploadRequest.getResponse()
 			
-			"[{0}] Response Status: ({1}) {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [int]$WebResponse.StatusCode, $WebResponse.StatusDescription | Write-Verbose
+            "[{0}] Response Status: ({1}) {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [int]$WebResponse.StatusCode, $WebResponse.StatusDescription | Write-Verbose
 			
-			$uploadResponseStream = $WebResponse.GetResponseStream()
+            $uploadResponseStream = $WebResponse.GetResponseStream()
 
-			# Read the response & convert to JSON
-			$reader       = New-Object System.IO.StreamReader($uploadResponseStream)
-			$responseJson = $reader.ReadToEnd()
+            # Read the response & convert to JSON
+            $reader = New-Object System.IO.StreamReader($uploadResponseStream)
+            $responseJson = $reader.ReadToEnd()
 
-			$uploadResponse = ConvertFrom-Json $responseJson
+            $uploadResponse = ConvertFrom-Json $responseJson
 
-			$uploadResponseStream.Close()
+            $uploadResponseStream.Close()
 
-			# need to parse the output to know when the upload is truly complete
-			"[{0}] Response: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($uploadResponse | out-string) | Write-Verbose
+            # need to parse the output to know when the upload is truly complete
+            "[{0}] Response: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($uploadResponse | out-string) | Write-Verbose
 
-			$uploadRequest = $Null
+            $uploadRequest = $Null
 			
-			# Dispose if still exist
-			if ($rs) { $rs.close() }
-			if ($fs) { $fs.close() }
+            # Dispose if still exist
+            if ($rs)
+            {
+                $rs.close() 
+            }
+            if ($fs)
+            {
+                $fs.close() 
+            }
 
-			Write-Progress -activity "Upload File" -CurrentOperation "Uploading $Filename " -Completed
+            Write-Progress -activity "Upload File" -CurrentOperation "Uploading $Filename " -Completed
 
-		}
+        }
 
-		catch [Net.WebException] 
-		{
+        catch [Net.WebException] 
+        {
 
-			"[{0}] WebException caught. Getting exception response from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+            "[{0}] WebException caught. Getting exception response from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
  
-			Try
-			{
+            Try
+            {
 
-				$sr = New-Object IO.StreamReader ($_.Exception.Response.GetResponseStream())
+                $sr = New-Object IO.StreamReader ($_.Exception.Response.GetResponseStream())
 
-			}
+            }
 			
-			Catch
-			{
+            Catch
+            {
 
-				$PSCmdlet.ThrowTerminatingError($_)
+                $PSCmdlet.ThrowTerminatingError($_)
 
-			}
+            }
 			
-			$errorObject = $sr.readtoEnd() | ConvertFrom-Json
+            $errorObject = $sr.readtoEnd() | ConvertFrom-Json
 			
-			"[{0}] Error Response from API: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($errorObject | Out-String) | Write-Verbose
+            "[{0}] Error Response from API: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($errorObject | Out-String) | Write-Verbose
 
-			# dispose if still exist
-			if ($rs) { $rs.close() }
-			if ($fs) { $fs.close() }
+            # dispose if still exist
+            if ($rs)
+            {
+                $rs.close() 
+            }
+            if ($fs)
+            {
+                $fs.close() 
+            }
 
-			$sr.close()
+            $sr.close()
 
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.UploadFileException $errorObject.ErrorCode InvalidResult 'Upload-File' -Message $errorObject.Message -InnerException $_.Exception
+            $ErrorRecord = New-ErrorRecord HPOneview.Appliance.UploadFileException $errorObject.ErrorCode InvalidResult 'Upload-File' -Message $errorObject.Message -InnerException $_.Exception
 
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 			
-		}
+        }
 
-	}
+    }
 
-	End 
-	{
+    End 
+    {
 
-		# Handle file uploads that generate task resource (i.e. Upload SPP Baseline)
-		if ($uploadResponse.category -eq "tasks") 
-		{
+        # Handle file uploads that generate task resource (i.e. Upload SPP Baseline)
+        if ($uploadResponse.category -eq "tasks") 
+        {
 			
-			"[{0}] Response is a task resource"	 -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose	
+            "[{0}] Response is a task resource" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose	
 
-			$uploadResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.TaskResource") }
+            $uploadResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0, "HPOneView.Appliance.TaskResource") }
 
-			Add-Member -InputObject $uploadResponse -NotePropertyName ApplianceConnection -NotePropertyValue (New-Object HPOneView.Library.ApplianceConnection($ApplianceConnection.Name, $ApplianceConnection.ConnectionId)) -Force 
+            Add-Member -InputObject $uploadResponse -NotePropertyName ApplianceConnection -NotePropertyValue (New-Object HPOneView.Library.ApplianceConnection($ApplianceConnection.Name, $ApplianceConnection.ConnectionId)) -Force 
 
-		}
+        }
 
-		elseif ($null -ne $uploadResponseStream.Headers)
-		{
+        elseif ($null -ne $uploadResponseStream.Headers)
+        {
 
-			if ($uploadResponseStream.Headers['Location'])
-			{
+            if ($uploadResponseStream.Headers['Location'])
+            {
 
-				try
-				{
+                try
+                {
 
-					"[{0}] Response is a task resource provided by HTTP Location header." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                    "[{0}] Response is a task resource provided by HTTP Location header." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-					$uploadResponse = Send-HPOVRequest -Uri $uploadResponseStream.Headers['Location'] -Hostname $ApplianceConnection.Name
+                    $uploadResponse = Send-HPOVRequest -Uri $uploadResponseStream.Headers['Location'] -Hostname $ApplianceConnection.Name
 
-				}
+                }
 
-				catch
-				{
+                catch
+                {
 
-					$PSCmdlet.ThrowTerminatingError($_)
+                    $PSCmdlet.ThrowTerminatingError($_)
 
-				}			
+                }			
 
-			}
+            }
 
-			else
-			{
+            else
+            {
 
-				"[{0}] Response does not contain any HTTP headers or task location." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                "[{0}] Response does not contain any HTTP headers or task location." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			}			
+            }			
 
-		}		
+        }		
 		
-		if ($uploadResponseStream)
-		{
+        if ($uploadResponseStream)
+        {
 			
-			$uploadResponseStream.Close()
+            $uploadResponseStream.Close()
 
-		}
+        }
 
-		Return $uploadResponse
+        Return $uploadResponse
 
-	}
+    }
 
 }
+
+# function Upload-File 
+# {
+
+# 	<#
+
+# 		.SYNOPSIS
+# 		Upload a file to the appliance.
+
+# 		.DESCRIPTION
+# 		This cmdlet will upload a file to the appliance that can accepts file uploads (SPP firmware bundle, Appliance Restore, and Appliance Updates.)
+
+# 		.Parameter URI
+# 		Location where to upload file to.
+
+# 		.Parameter File
+# 		Full path to the file to be uploaded.
+
+# 		.Parameter AddHeader
+# 		Provide a Hashtable of additional HTTP headers to include
+		
+# 		.Parameter ApplianceConnection
+# 		Appliance Connection
+
+# 		.INPUTS
+# 		None.  You cannot pipe objects to this cmdlet.
+
+# 		.OUTPUTS
+# 		Write-Progress
+# 		The progress of uploading the file to the appliance.
+
+# 		.LINK
+# 		Add-HPOVBaseline
+
+# 		.LINK
+# 		New-HPOVRestore
+
+# 		.EXAMPLE
+# 		PS C:\> Upload-File "/rest/firmware-bundles" "C:\Users\me\Documents\SPP2012060B.2012_0525.1.iso"
+
+# 		Upload a new SPP into the appliance.
+
+# 		.EXAMPLE
+# 		PS C:\> Upload-File "/rest/restores" "C:\Users\me\Documents\appliance.bak"
+
+# 		Upload a backup file to restore in the appliance.
+
+# 	#>
+
+# 	[CmdletBinding ()]
+
+# 	Param 
+# 	(
+
+# 		[Parameter (Mandatory)]
+# 		[ValidateNotNullOrEmpty()]
+# 		[Alias ('u')]
+# 		[string]$uri,
+
+# 		[Parameter (Mandatory)]
+# 		[Alias ('f')]
+# 		[ValidateScript({Test-Path $_})]
+# 		[string]$File,
+
+# 		[Parameter (Mandatory = $false)]
+# 		[ValidateNotNullorEmpty()]
+# 		[Object]$AddHeader,
+
+# 		[Parameter (Mandatory = $false)]
+# 		[ValidateSet ('PUT', 'POST')]
+# 		[String]$Method = 'POST',
+		
+# 		[Parameter (Mandatory = $false)]
+# 		[Alias ('Hostname')]
+# 		[ValidateNotNullorEmpty()]
+# 		[object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
+
+# 	)
+
+# 	Begin 
+# 	{
+
+# 		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+# 		$Caller = (Get-PSCallStack)[1].Command
+
+# 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+# 		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+# 		if (-not($ApplianceConnection -is [HPOneView.Appliance.Connection]) -and (-not($ApplianceConnection -is [System.String])))
+# 		{
+
+# 			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionDataType InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection Parameter is not type [HPOneView.Appliance.Connection] or [System.String].  Please correct this value and try again.'
+# 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+# 		}
+
+# 		elseif  ($ApplianceConnection.Count -gt 1)
+# 		{
+
+# 			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException MultipleApplianceConnections InvalidArgument 'ApplianceConnection' -Message 'The specified ApplianceConnection Parameter contains multiple Appliance Connections.  This CMDLET only supports 1 Appliance Connection in the ApplianceConnect Parameter value.  Please correct this and try again.'
+# 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+# 		}
+
+# 		else
+# 		{
+
+# 			Try 
+# 			{
+	
+# 				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+# 			}
+
+# 			Catch [HPOneview.Appliance.AuthSessionException] 
+# 			{
+
+# 				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -TargetType $ApplianceConnection.GetType().Name -Message $_.Exception.Message -InnerException $_.Exception
+# 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+# 			}
+
+# 			Catch 
+# 			{
+
+# 				$PSCmdlet.ThrowTerminatingError($_)
+
+# 			}
+
+# 		}
+		
+# 	}
+	
+# 	Process 
+# 	{
+
+# 		$_fileObj = Get-Item -path $File
+		
+# 		$fs = New-Object IO.FileStream ($File, $FSOpenMode, $FSRead)
+
+# 		[string]$filename = $_fileObj.name
+
+# 		"[{0}] Uploading {1} file to appliance, this may take a few minutes..." -f $MyInvocation.InvocationName.ToString().ToUpper(), $filename | Write-Verbose
+
+# 		try 
+# 		{
+
+# 			$uri = "{0}?uploadfilename={1}" -f $uri, $filename
+
+# 			[System.Net.httpWebRequest]$uploadRequest = RestClient $Method $uri -Appliance $ApplianceConnection.Name
+
+# 			$boundary                                     = "---------------------------" + [DateTime]::Now.Ticks.ToString("x")
+# 			[byte[]]$BoundaryBytes                        = [System.Text.Encoding]::UTF8.GetBytes("`r`n--" + $boundary + "`r`n");
+# 			$disposition                                  = "Content-Disposition: form-data; name=`"file`"; filename=`"{0}`";`r`nContent-Type: application/octet-stream`r`n`r`n" -f $_fileObj.Name
+# 			[byte[]]$ContentDispBytes                     = [System.Text.Encoding]::UTF8.GetBytes($disposition);
+# 			[byte[]]$EndBoundaryBytes                     = [System.Text.Encoding]::UTF8.GetBytes("`r`n--" + $boundary + "--`r`n")
+
+# 			$uploadRequest.Timeout                        = 1200000
+# 			$uploadRequest.ContentType                    = "multipart/form-data; boundary={0}" -f $boundary
+# 			$uploadRequest.Headers.Item("auth")           = $ApplianceConnection.SessionID
+# 			$uploadRequest.Headers.Item("uploadfilename") = $filename
+# 			$uploadRequest.AllowWriteStreamBuffering      = $false
+# 			$uploadRequest.SendChunked                    = $false
+# 			$uploadRequest.ContentLength                  = $BoundaryBytes.length + $ContentDispBytes.length + $_fileObj.Length + $EndBoundaryBytes.Length
+# 			$uploadRequest.Headers.Item("ContentLength")  = $BoundaryBytes.length + $ContentDispBytes.length + $_fileObj.Length + $EndBoundaryBytes.Length
+
+# 			ForEach ($_Header in $AddHeader)
+# 			{
+
+# 				$uploadRequest.Headers.($_Header.Name) = $_Header.Value
+
+# 			}
+
+# 			"[{0}] Request: POST {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $uri | Write-Verbose
+
+# 			$i = 0
+
+# 			foreach ($h in $uploadRequest.Headers) 
+# 			{
+				
+# 				"[{0}] Request Header ({1}) {2} : {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $i, $h, $uploadRequest.Headers[$i] | Write-Verbose
+				
+# 				$i++
+			
+# 			}
+
+# 			$rs = $uploadRequest.GetRequestStream()
+
+# 			[byte[]]$readbuffer = New-Object byte[] (4096*1024)		
+# 			$rs.write($BoundaryBytes,0,$BoundaryBytes.Length);
+# 			$rs.write($ContentDispBytes,0,$ContentDispBytes.Length);
+
+# 			# This is used to keep track of the file upload progress.
+# 			$numBytesToRead = $fs.Length    
+# 			[int64]$numBytesRead = 0
+
+# 			if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+# 			{ 
+			
+# 				 "[{0}] Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			
+# 			}
+
+# 			$_sw = [System.Diagnostics.Stopwatch]::StartNew()
+# 			$_progresssw = [System.Diagnostics.Stopwatch]::StartNew()
+
+# 			while ($byteCount = $fs.Read($readbuffer,0,$readbuffer.length))
+# 			{				
+
+# 				$rs.write($readbuffer,0,$byteCount)
+# 				$rs.flush()
+			
+# 				# Keep track of where we are at clearduring the read operation
+# 				$_numBytesRead += $bytecount
+
+# 				# Use the Write-Progress cmd-let to show the progress of uploading the file.
+# 				[int]$_percent = [math]::floor(($_numBytesRead / $fs.Length) * 100)
+
+# 				# Elapsed time to calculat throughput
+# 				[int]$_elapsed = $_sw.ElapsedMilliseconds / 1000
+				
+# 				if ($_elapsed -ne 0 ) 
+# 				{
+
+# 					[single]$_transferrate = [Math]::Round(($_numBytesRead/$_elapsed) / 1mb)
+				
+# 				} 
+				
+# 				else 
+# 				{
+
+# 					[single]$_transferrate = 0.0
+				
+# 				}
+
+# 				$status = "({0:0}MB of {1:0}MB transferred @ {2}MB/s) Completed {3}%" -f ($_numBytesRead / 1MB), ($numBytesToRead / 1MB), $_transferrate, $_percent
+
+# 				# Handle the call from -Verbose so Write-Progress does not get borked on display.
+# 				if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+# 				{ 
+
+# 					"[{0}] Uploading file {1}, status: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $fileName, $status | Write-Verbose
+					
+# 				}
+				  
+# 				else 
+# 				{ 
+
+# 					if ($_progresssw.Elapsed.TotalMilliseconds -ge 500)
+# 					{
+
+# 						if ($_numBytesRead % 1mb -eq 0) 
+# 						{ 
+							
+# 							Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation $status -PercentComplete $_percent 
+						
+# 						}
+
+# 					}
+
+# 				}
+
+# 			}
+
+# 			"[{0}] Finalizing upload." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+# 			$fs.close()
+
+# 			$rs.write($EndBoundaryBytes,0,$EndBoundaryBytes.Length)
+
+# 			$rs.close()
+
+# 			$_sw.stop()
+# 			$_sw.Reset()
+
+# 			Write-Progress -activity "Upload File" -status "Uploading $Filename" -Complete
+
+# 		}
+
+# 		catch [System.Exception] 
+# 		{
+
+# 			# Dispose if still exist
+# 			if ($rs) { $rs.close() }
+# 			if ($fs) { $fs.close() }
+
+# 			if ($_sw.IsRunning) 
+# 			{ 
+				
+# 				$_sw.Stop() 
+# 				$_sw.Reset()
+			
+# 			}
+
+# 			$PSCmdlet.ThrowTerminatingError($_)
+
+# 		}
+
+# 		try 
+# 		{
+
+# 			"[{0}] Upload Request completed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+		
+# 			if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+# 			{
+
+# 				"[{0}] Waiting for completion response from appliance." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+# 			}
+
+# 			else 
+# 			{ 
+
+# 				Write-Progress -activity "Upload File" -status "Uploading $Filename" -CurrentOperation "Waiting for completion response from appliance." -percentComplete $_percent 
+			
+# 			}
+
+# 			[Net.httpWebResponse]$WebResponse = $uploadRequest.getResponse()
+			
+# 			"[{0}] Response Status: ({1}) {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [int]$WebResponse.StatusCode, $WebResponse.StatusDescription | Write-Verbose
+			
+# 			$uploadResponseStream = $WebResponse.GetResponseStream()
+
+# 			# Read the response & convert to JSON
+# 			$reader       = New-Object System.IO.StreamReader($uploadResponseStream)
+# 			$responseJson = $reader.ReadToEnd()
+
+# 			$uploadResponse = ConvertFrom-Json $responseJson
+
+# 			$uploadResponseStream.Close()
+
+# 			# need to parse the output to know when the upload is truly complete
+# 			"[{0}] Response: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($uploadResponse | out-string) | Write-Verbose
+
+# 			$uploadRequest = $Null
+			
+# 			# Dispose if still exist
+# 			if ($rs) { $rs.close() }
+# 			if ($fs) { $fs.close() }
+
+# 			Write-Progress -activity "Upload File" -CurrentOperation "Uploading $Filename " -Completed
+
+# 		}
+
+# 		catch [Net.WebException] 
+# 		{
+
+# 			"[{0}] WebException caught. Getting exception response from API." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+ 
+# 			Try
+# 			{
+
+# 				$sr = New-Object IO.StreamReader ($_.Exception.Response.GetResponseStream())
+
+# 			}
+			
+# 			Catch
+# 			{
+
+# 				$PSCmdlet.ThrowTerminatingError($_)
+
+# 			}
+			
+# 			$errorObject = $sr.readtoEnd() | ConvertFrom-Json
+			
+# 			"[{0}] Error Response from API: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($errorObject | Out-String) | Write-Verbose
+
+# 			# dispose if still exist
+# 			if ($rs) { $rs.close() }
+# 			if ($fs) { $fs.close() }
+
+# 			$sr.close()
+
+# 			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.UploadFileException $errorObject.ErrorCode InvalidResult 'Upload-File' -Message $errorObject.Message -InnerException $_.Exception
+
+# 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+			
+# 		}
+
+# 	}
+
+# 	End 
+# 	{
+
+# 		# Handle file uploads that generate task resource (i.e. Upload SPP Baseline)
+# 		if ($uploadResponse.category -eq "tasks") 
+# 		{
+			
+# 			"[{0}] Response is a task resource"	 -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose	
+
+# 			$uploadResponse | ForEach-Object { $_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.TaskResource") }
+
+# 			Add-Member -InputObject $uploadResponse -NotePropertyName ApplianceConnection -NotePropertyValue (New-Object HPOneView.Library.ApplianceConnection($ApplianceConnection.Name, $ApplianceConnection.ConnectionId)) -Force 
+
+# 		}
+
+# 		elseif ($null -ne $uploadResponseStream.Headers)
+# 		{
+
+# 			if ($uploadResponseStream.Headers['Location'])
+# 			{
+
+# 				try
+# 				{
+
+# 					"[{0}] Response is a task resource provided by HTTP Location header." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+# 					$uploadResponse = Send-HPOVRequest -Uri $uploadResponseStream.Headers['Location'] -Hostname $ApplianceConnection.Name
+
+# 				}
+
+# 				catch
+# 				{
+
+# 					$PSCmdlet.ThrowTerminatingError($_)
+
+# 				}			
+
+# 			}
+
+# 			else
+# 			{
+
+# 				"[{0}] Response does not contain any HTTP headers or task location." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+# 			}			
+
+# 		}		
+		
+# 		if ($uploadResponseStream)
+# 		{
+			
+# 			$uploadResponseStream.Close()
+
+# 		}
+
+# 		Return $uploadResponse
+
+# 	}
+
+# }
  
 function Get-HPOVScmbCertificates 
 {
@@ -33839,7 +34342,7 @@ function Update-HPOVServer
 		[Alias ("name",'Server')]
 		[object]$InputObject,
 
-		[Parameter (Mandatory, ParameterSetName = "RefreshWithCredentials")]
+		[Parameter (Mandatory = $false, ParameterSetName = "RefreshWithCredentials")]
 		[String]$Hostname,
 
 		[Parameter (Mandatory, ParameterSetName = "RefreshWithCredentials")]
@@ -34055,16 +34558,16 @@ function Update-HPOVServer
 
 		"[{0}] Refreshing Server Hardware device: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_InputObject.name | Write-Verbose 
 		
-		$_uri = $InputObject.uri + "/refreshState"
+        $_uri = $_InputObject.uri + "/refreshState"
 
-		$body = @{
+		$_body = @{
 			
 			refreshState = 'RefreshPending'
 			
 		}
 
 		# NEED TO VALIDATE THE CORRECT STATEREASON
-		if ($_InputObject.state -ieq 'Unmanaged' -and $_InputObject.stateReason -ieq 'Unconfigured ')
+		if ($_InputObject.state -ieq 'Unmanaged' -and $_InputObject.stateReason -ieq 'Unconfigured')
 		{
 
 			if (-not $PSBoundParameters['Credential'])
@@ -34079,9 +34582,9 @@ function Update-HPOVServer
 			if (-not $PSBoundParameters['Hostname'])
 			{
 
-				$ExceptionMessage = "The appliance can no longer communicate with {0} server hardware, and requires a Hostname/IPAddress." -f $_InputObject.name
-				$ErrorRecord = New-ErrorRecord HPOneView.Library.UnsupportedArgumentException MissingRequiredHostnameParameter InvalidOperation 'Hostname' -Message $ExceptionMessage
-				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+				"[{0}] Caller did not supply Hostname.  Will use server hardware mpHostInfo value: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_InputObject.mpHostInfo.mpHostName | Write-Verbose
+
+				$Hostname = $_InputObject.mpHostInfo.mpHostName
 
 			}
 
@@ -34094,7 +34597,7 @@ function Update-HPOVServer
 		Try
 		{
 
-			$_resp = Send-HPOVRequest -Uri $_uri -Method PUT -Body $body -Hostname $_InputObject.ApplianceConnection
+            $_resp = Send-HPOVRequest -Uri $_uri -Method PUT -Body $_body -Hostname $_InputObject.ApplianceConnection
 		
 		}
 		
@@ -34128,6 +34631,321 @@ function Update-HPOVServer
 
 	}
 
+}
+
+# // TODO: TEST DOCUMENT
+function Update-HPOVServerHardwareLicenseIntent
+{
+
+	# .ExternalHelp HPOneView.410.psm1-help.xml
+
+	[CmdletBinding (DefaultParameterSetName = 'Default')]
+	Param 
+	(
+	
+		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
+		[Alias ("name",'Server')]
+		[Object]$InputObject,
+
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Switch]$Async,
+
+		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
+	
+	)
+
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		if (-not($PSBoundParameters['InputObject']))
+		{
+
+			"[{0}] Server object provided by pipeline." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			$PipelineInput = $True
+
+		}
+
+		else
+		{
+
+			"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+			{
+
+				For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
+				{
+
+					Try 
+					{
+			
+						$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+					}
+
+					Catch [HPOneview.Appliance.AuthSessionException] 
+					{
+
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					Catch 
+					{
+
+						$PSCmdlet.ThrowTerminatingError($_)
+
+					}					
+
+				}
+
+			}
+
+			else
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+	}
+	
+	Process 
+	{
+
+		# Validate input object type
+		# Checking if the input is System.String and is NOT a URI
+		if (($InputObject -is [string]) -and (-not($InputObject.StartsWith($ServerHardwareUri)))) 
+		{
+			
+			"[{0}] Server is a Server Name: $($InputObject)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			"[{0}] Getting Server from Name" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			Try
+			{
+
+				$_InputObject = Get-HPOVServer -Name $InputObject -ErrorAction Stop -ApplianceConnection $ApplianceConnection
+
+			}
+			
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		# Checking if the input is System.String and IS a URI
+		elseif (($InputObject -is [string]) -and ($InputObject.StartsWith($ServerHardwareUri))) 
+		{
+			
+			"[{0}] Server is a Server device URI: $($InputObject)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			Try
+			{
+
+				$_InputObject = Send-HPOVRequest -Uri $InputObject -Hostname $ApplianceConnection
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+		
+		}
+
+		# Checking if the input is PSCustomObject, and the category type is server-profiles, which could be passed via pipeline input
+		elseif (($InputObject -is [System.Management.Automation.PSCustomObject]) -and ($InputObject.category -ieq $ResourceCategoryEnum.ServerHardware)) 
+		{
+
+			"[{0}] Server is a Server Device object: $($InputObject.name)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			$_InputObject = $InputObject.PSObject.Copy()
+		
+		}
+
+		# Checking if the input is PSCustomObject, and the category type is server-hardware, which would be passed via pipeline input
+		elseif (($InputObject -is [System.Management.Automation.PSCustomObject]) -and ($InputObject.category -ieq $ResourceCategoryEnum.ServerProfile)) 
+		{
+			
+			"[{0}] Server is a Server Profile object: $($InputObject.name)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			"[{0}] Getting server hardware device assigned to Server Profile." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			if (-not($InputObject.serverHardwareUri))
+			{
+
+				$ExceptionMessage = "The Server Profile '{0}' is unassigned.  This cmdlet only supports Server Profiles that are assigned to Server Hardware resources. Please check the input object and try again." -f $InputObject.name
+				$ErrorRecord = New-ErrorRecord InvalidOperationException ServerProfileUnassigned InvalidArgument 'InputObject' -TargetType $InputObject.GetType().Name -Message $ExceptionMessage
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Try
+			{
+
+				$_InputObject = Send-HPOVRequest -Uri $InputObject.serverHardwareUri -Hostname $ApplianceConnection.Name
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+		
+		}
+
+		else 
+		{
+
+			$ExceptionMessage = "The Parameter 'InputObject' value is invalid.  Please validate the 'InputObject' Parameter value you passed and try again."
+			$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidArgumentValue InvalidArgument 'InputObject' -TargetType $InputObject.GetType().Name -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		# If server is not Managed, generate error
+		if ($_InputObject.state -eq "Monitored")
+		{
+
+			$ExceptionMessage = "The provided server hardware resource {0} is a Monitored resource.  This Cmdlet only supports Managed server hardware." -f $_InputObject.name
+			$ErrorRecord = New-ErrorRecord HPOneView.ServerHardwareResourceException UnsupportedResourceState InvalidArgument 'InputObject' -TargetType $_InputObject.GetType().Name -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		"[{0}] Checking Server Hardware if it is licensed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 
+
+		$_Uri = "/rest/licenses?filter=nodeId EQ '{0}'" -f $_InputObject.uuid
+
+		# The licensing intent of the server is changed, and if a license of the intended type is available, 
+		# it is applied to the server. Once licensed, the only permitted change is an upgrade from "OneViewNoiLO" to "OneView".
+		# The server must be unlicensed and managed in order to be able to update the licensing intent. 
+		# 		[
+		#     { "op": "replace", "path": "/licensingIntent", "value": "OneView"}
+		# ]
+
+
+		Try
+		{
+
+            $_IsLicensed = Send-HPOVRequest -Uri $_uri -Hostname $_InputObject.ApplianceConnection
+		
+		}
+		
+		Catch
+		{
+		
+			$PSCmdlet.ThrowTerminatingError($_)
+		
+		}
+
+		# server is already licensed. generate an error
+		if ($_IsLicensed.members[0].licenseType -ne 'Unlicensedproduct' -and 
+		    $_IsLicensed.members[0].product -eq 'HPE OneView Advanced')
+		{
+
+			$ExceptionMessage = "The provided server hardware resource {0} is a Monitored resource.  This Cmdlet only supports updating the license allocation policy (intent) from 'HPE OneView Advanced without iLO Advanced' to 'HPE OneView Advanced'." -f $_InputObject.name
+			$ErrorRecord = New-ErrorRecord HPOneView.ServerHardwareResourceException UnsupportedLicenseStateChange InvalidOperation 'InputObject' -TargetType $_InputObject.GetType().Name -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+	
+		$_PatchOperation = NewObject -PatchOperation
+
+		$_PatchOperation.op    = "replace"
+		$_PatchOperation.path  =  "/licensingIntent"
+		$_PatchOperation.value = "OneView"
+
+		$_uri = $_InputObject.uri
+
+		Try
+		{
+
+            $_resp = Send-HPOVRequest -Uri $_uri -Method PATCH -Body $_PatchOperation -Hostname $_InputObject.ApplianceConnection
+		
+		}
+		
+		Catch
+		{
+		
+			$PSCmdlet.ThrowTerminatingError($_)
+		
+		}
+
+		if ($PSBoundParameters['Async'])
+		{
+
+			$_resp
+
+		}
+
+		else
+		{
+
+			$_resp | Wait-HPOVTaskComplete
+
+		}
+	
+	}
+
+	End
+	{
+
+		'[{0}] Done.' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+	
 }
 
 function Get-HPOVEnclosureGroup 
@@ -39059,53 +39877,30 @@ function Invoke-HPOVVcmMigration
 
 		}
 
-		if ($OAPassword -is [SecureString])
-		{
-
-			$_OAPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
-			
-		}
-
-		else
-		{
-
-			$_OAPassword = $OAPassword.clone()
-
-		}
-
-		if ($VCMPassword -is [SecureString])
-		{
-
-			$_VCMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($VCMPassword))
-
-		}
-
-		else
-		{
-
-			$_VCMPassword = $VCMPassword.clone()
-
-		}
-
-		if ($VCEMPassword -is [SecureString])
-		{
-
-			$_VCEMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($VCEMPassword))
-
-		}
-
-		else
-		{
-
-			$_VCEMPassword = $VCEMPassword.clone()
-
-		}
-
 		if ($OACredential)
 		{
 
 			$OAUsername  = $OACredential.Username
 			$_OAPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OACredential.Password))
+
+		}
+
+		else
+		{
+
+			if ($OAPassword -is [SecureString])
+			{
+
+				$_OAPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($OAPassword))
+				
+			}
+
+			else
+			{
+
+				$_OAPassword = $OAPassword.clone()
+
+			}
 
 		}
 
@@ -39117,11 +39912,49 @@ function Invoke-HPOVVcmMigration
 
 		}
 
+		else
+		{
+
+			if ($VCMPassword -is [SecureString])
+			{
+
+				$_VCMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($VCMPassword))
+
+			}
+
+			else
+			{
+
+				$_VCMPassword = $VCMPassword.clone()
+
+			}
+
+		}
+
 		if ($VCEMCredential)
 		{
 
 			$VCEMUsername  = $VCEMCredential.Username
 			$_VCEMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($VCEMCredential.Password))
+
+		}
+
+		else
+		{
+
+			if ($VCEMPassword -is [SecureString])
+			{
+
+				$_VCEMPassword = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR($VCEMPassword))
+
+			}
+
+			else
+			{
+
+				$_VCEMPassword = $VCEMPassword.clone()
+
+			}
 
 		}
 
@@ -68152,6 +68985,7 @@ function Update-HPOVLogicalInterconnect
 
 }
 
+# // TODO: Need to make sure HPOneView.Library.CompareObject is Format-Table, and not Format-List?
 Function Compare-LogicalInterconnect
 {
 
@@ -68731,6 +69565,7 @@ Function Compare-LogicalInterconnect
 
             }
 
+			# // TODO: Logic here is incorrect and broken.  Not identifying the corect ports.
             # Process LI Uplink Set Uplink Ports
             foreach ($upPorts in $lu.portConfigInfos) 
             {
@@ -69143,7 +69978,7 @@ Function Compare-LogicalInterconnect
         {
 
             # Is this even right?  There is a logicalInterconnectUris property.  Should that be used, even for C-Class and Synergy?
-            ForEach ($_LogicalInterconnectUri in $InputObject.logicalInterconnectUris)
+            ForEach ($_LogicalInterconnectUri in ($InputObject.logicalInterconnectUris | Where-Object { -not $_.StartsWith($SasLogicalInterconnectsUri) }))
             {
 
                 Try
@@ -69167,7 +70002,8 @@ Function Compare-LogicalInterconnect
                 
                     $_LigObject = Send-HPOVRequest -Uri $_LogicalInterconnect.logicalInterconnectGroupUri -Hostname $ApplianceConnection
                     
-                    $_LogicalInterconnect | Add-Member -NotePropertyName LogicalInterconnectGroup -NotePropertyValue $_LigObject -Force
+					$_LogicalInterconnect | Add-Member -NotePropertyName LogicalInterconnectGroup -NotePropertyValue $_LigObject -Force
+					
                     [void]$_LogicalInterconnects.Add($_LogicalInterconnect)
                 
                 }
@@ -69251,6 +70087,13 @@ Function Compare-LogicalInterconnect
         'Done.' | Write-Verbose
 
     }
+
+}
+
+# // TODO: Compare Enclosure with EG
+function Compare-Enclosure
+{
+
 
 }
 
@@ -83662,7 +84505,7 @@ function Update-HPOVServerProfile
 
 }
 
-function New-HPOVServerProfileAssign 
+function New-HPOVServerProfileAssign
 {
 
 	# .ExternalHelp HPOneView.410.psm1-help.xml
@@ -97508,7 +98351,7 @@ function Add-HPOVApplianceTrustedCertificate
 
 		[Parameter (Mandatory = $false, ValueFromPipeline, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
-		[String]$CertObject,
+		[Object]$CertObject,
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
@@ -97730,7 +98573,36 @@ function Add-HPOVApplianceTrustedCertificate
 					[void]$sb.Append([System.Convert]::ToBase64String($_x509CertObject.RawData, "InsertLineBreaks"))
 					[void]$sb.Append("`n-----END CERTIFICATE-----`n")
 					
-					$CertObject = $sb.ToString().Clone()
+					$_CertObject = $sb.ToString().Clone()
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+			elseif ($CertObject -is [System.Security.Cryptography.X509Certificates.X509Certificate2])
+			{
+	
+				"[{0}] Processing certificate object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $CertObject.ToString() | Write-Verbose
+
+				# Validate cert is valid X509 object
+				Try
+				{
+
+					$_x509CertObject = $CertObject
+
+					$sb = New-Object System.Text.StringBuilder
+					[void]$sb.Append("-----BEGIN CERTIFICATE-----`n")
+					[void]$sb.Append([System.Convert]::ToBase64String($CertObject.RawData, "InsertLineBreaks"))
+					[void]$sb.Append("`n-----END CERTIFICATE-----`n")
+					
+					$_CertObject = $sb.ToString().Clone()
 
 				}
 
@@ -97749,7 +98621,7 @@ function Add-HPOVApplianceTrustedCertificate
 				"[{0}] Base64 Cert object provided" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 				$base64string = $CertObject.Replace("-----BEGIN CERTIFICATE-----`n",$null).Replace("`n-----END CERTIFICATE-----",$null)
-				$CertObject   = $CertObject.Clone()
+				$_CertObject  = $CertObject.Clone()
 				$_x509CertObject = New-Object Security.Cryptography.X509Certificates.X509Certificate2(([System.Convert]::FromBase64String($base64string)), $null)
 
 			}			
@@ -97761,7 +98633,7 @@ function Add-HPOVApplianceTrustedCertificate
 
 				"[{0}] Cert is Issuing authority" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				$_CertificateObject = NewObject -ApplianceTrustedCertAuthority
+				$_Cert = NewObject -ApplianceTrustedCertAuthority
 
 				if (-not $PSBoundParameters['AliasName'])
 				{
@@ -97770,8 +98642,8 @@ function Add-HPOVApplianceTrustedCertificate
 
 				}
 
-				$_CertificateObject.certificateDetails.aliasName  = $AliasName
-				$_CertificateObject.certificateDetails.base64Data = $CertObject #-join "`n"
+				$_Cert.certificateDetails.aliasName  = $AliasName
+				$_Cert.certificateDetails.base64Data = $_CertObject #-join "`n"
 
 				$_CertToImportCollection = [PSCustomObject]@{
 
@@ -97780,7 +98652,7 @@ function Add-HPOVApplianceTrustedCertificate
 					
 				}
 
-				[void]$_CertToImportCollection.members.Add($_CertificateObject)
+				[void]$_CertToImportCollection.members.Add($_Cert)
 
 				$_Uri = $ApplianceTrustedCAStoreUri.Clone()
 
@@ -97792,9 +98664,9 @@ function Add-HPOVApplianceTrustedCertificate
 				"[{0}] Cert is Server Authentication host" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 				# Add the SSL certificate to the appliance
-				$_CertObject = NewObject -ApplianceTrustedSslCertificate
-				$_CertObject.aliasName  = $PSBoundParameters['AliasName']
-				$_CertObject.base64Data = $CertObject -join "`n"
+				$_Cert = NewObject -ApplianceTrustedSslCertificate
+				$_Cert.aliasName  = $PSBoundParameters['AliasName']
+				$_Cert.base64Data = $_CertObject -join "`n"
 
 				$_CertToImportCollection = [PSCustomObject]@{
 
@@ -97803,7 +98675,7 @@ function Add-HPOVApplianceTrustedCertificate
 					
 				}
 
-				[void]$_CertToImportCollection.certificateDetails.Add($_CertObject)
+				[void]$_CertToImportCollection.certificateDetails.Add($_Cert)
 
 				# Throw error that cert does not have the right EnchancedKeyUsage bit set
 				if (-not($_x509CertObject.EnhancedKeyUsageList | Where-Object FriendlyName -notmatch "Server Authentication"))
@@ -98567,7 +99439,7 @@ function Get-HPOVLdapDirectory
 
 				}				
 
-				if ($Found.Count -eq 0)
+				if ($Found.Count -eq 0 -and $PSBoundParameters['Name'])
 				{
 					
 					$ExceptionMessage = "The specified '{0}' Authentication Directory resource not found on Appliance '{1}'.  Please check the name and try again." -f $Name, $_appliance.Name
@@ -112854,6 +113726,7 @@ Export-ModuleMember -function Stop-HPOVServer
 Export-ModuleMember -function Restart-HPOVServer
 Export-ModuleMember -function Remove-HPOVServer
 Export-ModuleMember -function Update-HPOVServer
+Export-ModuleMember -function Update-HPOVServerHardwareLicenseIntent
 Export-ModuleMember -function Get-HPOVRackManager
 Export-ModuleMember -function Add-HPOVRackManager
 Export-ModuleMember -function Update-HPOVRackManager

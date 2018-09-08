@@ -32,25 +32,44 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.10.1802.1882
+    
+     -- Fixed Update-HPOVServer regression when server hardware resource is disconnected
+        from appliance, requiring credential and hostname refresh.
+     -- Updated Update-HPOVServer -Hostname parameter from Required to Optional. If omitted
+        the Cmdlet will now use the value found in $InputObject.mpHostInfo.mpHostName property.
+     -- [#356] Fixed HPOneView.Appliance.Baseline class which Size was inadvertantly set to an Int32
+        property type, instead of Int64.
+     -- [#357] Fixed Send-HPOVRequest to handle HTTP 403 error when attempting to add new remote firmware
+        repository results in an authentication issue, which would inadvertantly remove the ApplianceConnection
+        object from global connection tracker.
+     -- [#359] Fixed Get-HPOVXApiVersion where an unsettable property was trying to be set during temporary
+        appliance connection creation.
+     -- [#361] Fixed Invoke-HPOVVcmMigration where password handling was incorrect.
+     -- Added Update-HPOVServerHardwareLicenseIntent in order to adjust licensed state. Please read Cmdlet
+        help before using.
+
     Release 4.10.1767.2248
 
-       * Updated Get-HPOVApplianceTrustedCertificate to return strictly typed named classes
-         [HPOneView.Appliance.TrustedCertificateAuthority] and [HPOneView.Appliance.TrustedCertificate].
-       * Added pipeline and inputobject support to Get-HPOVApplianceTrustedCertificate in order to
-         return trusted certificates for server hardware or enclosures.
-       * Updated Get-HPOVStoragePool to return strongly typed class [HPOneView.Storage.StoragePool].
-       * Added Set-HPOVStoragePool to replace Add-HPOVStoragePool to match the UI.
-       * Added Rack Manager Cmdlet support for Superdome Flex: Get-HPOVRackManager, Add-HPOVRackManager, 
-         Update-HPOVRackManager and Remote-HPOVRackManager
-       * [#350] Began depreating support of seperate Username and Password parameters, and added PSCredential 
-         support to Invoke-HPOVVcmMigration.
-       * [#349] Fixed verbose call within Invoke-HPOVVcmMigration which was causing a PowerShell
-         exception.
-       * Fixed some regression issues with Install-HPOVUpdate.
+     -- Updated Get-HPOVApplianceTrustedCertificate to return strictly typed named classes
+        [HPOneView.Appliance.TrustedCertificateAuthority] and [HPOneView.Appliance.TrustedCertificate].
+     -- Added pipeline and inputobject support to Get-HPOVApplianceTrustedCertificate in order to
+        return trusted certificates for server hardware or enclosures.
+     -- Updated Get-HPOVStoragePool to return strongly typed class [HPOneView.Storage.StoragePool].
+     -- Added Set-HPOVStoragePool to replace Add-HPOVStoragePool to match the UI.
+     -- Added Rack Manager Cmdlet support for Superdome Flex: Get-HPOVRackManager, Add-HPOVRackManager, 
+        Update-HPOVRackManager and Remote-HPOVRackManager
+     -- [#350] Began depreating support of seperate Username and Password parameters, and added PSCredential 
+        support to Invoke-HPOVVcmMigration.
+     -- [#349] Fixed verbose call within Invoke-HPOVVcmMigration which was causing a PowerShell
+        exception.
+     -- Fixed some regression issues with Install-HPOVUpdate.
+     -- [#3] Fixed Get-HPOVAuditLog filter API call.
+     -- Updated Get-HPOVLogicalInterconnect adding -NonCompliant parameter.
 
     Release 4.10.1718.2245
 
-       * Initial 4.10 release.
+     -- Initial 4.10 release.
 
 LONG DESCRIPTION
 
@@ -58,11 +77,11 @@ LONG DESCRIPTION
     The library can be used as either a CLI or using the core cmdlets to call from
     wrapper scripts.  The core cmdlets are:
 
-        * Connect-HPOVmgmt
-        * Send-HPOVRequest
-        * New-HPOVResource
-        * Set-HPOVResource
-        * Remove-HPOVResource
+      -- Connect-HPOVmgmt
+      -- Send-HPOVRequest
+      -- New-HPOVResource
+      -- Set-HPOVResource
+      -- Remove-HPOVResource
 
     A set of sample scripts are also provided, that show how to fully configure an
     HP OneView appliance from the ground up.
