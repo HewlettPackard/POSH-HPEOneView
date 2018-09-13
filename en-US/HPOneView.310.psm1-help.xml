@@ -41833,6 +41833,20 @@ Default: 2500</maml:para>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>UserDefined</maml:name>
+					<maml:description>
+						<maml:para>Use to specify user defined address values</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
+					<maml:name>MAC</maml:name>
+					<maml:description>
+						<maml:para>Requested MAC address of the connection.  Must be specified if setting WWPN and WWNN, and the connection is mapped to a FlexHBA.</maml:para>
+					</maml:description>
+					<command:parameterValue required="false" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>Bootable</maml:name>
 					<maml:description>
 						<maml:para>Specify to configure bootable settings.  If omitted, then the connection is not bootable, and -priority is set to NotBootable.
@@ -41939,14 +41953,14 @@ Default: 2500</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>UserDefined</maml:name>
 					<maml:description>
 						<maml:para>Use to specify user defined address values</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>MAC</maml:name>
 					<maml:description>
 						<maml:para>Requested MAC address of the connection.  Must be specified if setting WWPN and WWNN, and the connection is mapped to a FlexHBA.</maml:para>
@@ -42179,14 +42193,14 @@ Default: 2500</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>UserDefined</maml:name>
 					<maml:description>
 						<maml:para>Use to specify user defined address values</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>MAC</maml:name>
 					<maml:description>
 						<maml:para>Requested MAC address of the connection.  Must be specified if setting WWPN and WWNN, and the connection is mapped to a FlexHBA.</maml:para>
@@ -42330,14 +42344,14 @@ Default: 2500</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">Int32</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>UserDefined</maml:name>
 					<maml:description>
 						<maml:para>Use to specify user defined address values</maml:para>
 					</maml:description>
 					<command:parameterValue required="false" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet">
+				<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common">
 					<maml:name>MAC</maml:name>
 					<maml:description>
 						<maml:para>Requested MAC address of the connection.  Must be specified if setting WWPN and WWNN, and the connection is mapped to a FlexHBA.</maml:para>
@@ -42624,7 +42638,7 @@ If configuring a Connection for a Server Profile Template, the value will be ign
 				</dev:type>
 				<dev:defaultValue>0</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common" aliases="None">
 				<maml:name>MAC</maml:name>
 				<maml:description>
 					<maml:para>Requested MAC address of the connection.  Must be specified if setting WWPN and WWNN, and the connection is mapped to a FlexHBA.</maml:para>
@@ -42745,7 +42759,7 @@ Target FC array WWPN.</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet" aliases="None">
+			<command:parameter required="false" globbing="False" pipelineInput="false" position="named" parameterSetName="ISCSI, FC, Ethernet, Common" aliases="None">
 				<maml:name>UserDefined</maml:name>
 				<maml:description>
 					<maml:para>Use to specify user defined address values</maml:para>
@@ -76922,5 +76936,5 @@ The uri or object of the task resource to wait for.</maml:para>
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2018-06-29T04:15:37:75.753Z-->
+	<!--Edited on: 2018-09-13T20:37:18:48.483Z-->
 </helpItems>

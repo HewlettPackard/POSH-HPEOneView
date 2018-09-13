@@ -1866,8 +1866,7 @@
 
                   $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT" -Hostname $_.ApplianceConnection.Name
 
-                  $ApplianceConnection = $.ApplianceConnection.Name
-                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $ -Hostname $ApplianceConnection })
+                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ })
 
                   $deviceSlotDisplayHash = @{
 

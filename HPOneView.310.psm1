@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 #Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '3.10.1731.3550'
+[Version]$ModuleVersion = '3.10.1808.1701'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | ? { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -7736,7 +7736,6 @@ function ConvertFrom-HTML
 
 }
 
-# // TODO: DOCUMENTATION UPDATE
 function Start-HPOVLibraryTrace
 {
 
@@ -7755,7 +7754,6 @@ function Start-HPOVLibraryTrace
 
 }
 
-# // TODO: DOCUMENTATION UPDATE
 function Stop-HPOVLibraryTrace
 {
 
@@ -7842,25 +7840,42 @@ function Get-HPOVCommandTrace
 	Process
 	{
 
-		if ($ScriptBlock -isnot [ScriptBlock])
-        {
+		# if ($ScriptBlock -isnot [ScriptBlock])
+        # {
 
-            $ScriptBlock = [scriptblock]::Create("$ScriptBlock -verbose")
+        #     $ScriptBlock = [scriptblock]::Create("$ScriptBlock -verbose")
 
-        }
+        # }
 
-        else
-        {
+        # else
+        # {
         
-            $ScriptBlock = [scriptblock]::Create($ScriptBlock.ToString() + ' -verbose')
+        #     $ScriptBlock = [scriptblock]::Create($ScriptBlock.ToString() + ' -verbose')
         
-		}
+		# }
 
-		'[{0}] ScritpBlock to execute: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $ScriptBlock.ToString() | Write-Verbose
+		# '[{0}] ScritpBlock to execute: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $ScriptBlock.ToString() | Write-Verbose
 
-		"Executing: {0}" -f $ScriptBlock.ToString() | Write-Verbose -Verbose:$True
+		# "Executing: {0}" -f $ScriptBlock.ToString() | Write-Verbose -Verbose:$True
 
-		Invoke-Command -ScriptBlock $ScriptBlock -ErrorVariable CapturedError | Out-Null #.Invoke() | Out-Null
+		# Invoke-Command -ScriptBlock $ScriptBlock -ErrorVariable CapturedError | Out-Null #.Invoke() | Out-Null
+
+		# if ($null -ne $CaptureError)
+		# {
+
+		# 	$CapturedError | Out-Host
+
+		# }
+
+		# ([String]::Join('',(1..80 | % { "-" }))) | Write-Verbose -Verbose:$true
+
+		$sb = New-Object System.Text.StringBuilder
+		[void]$sb.Append("`$VerbosePreference = 'Continue'`n")
+		[void]$sb.Append($ScriptBlock.ToString())
+
+		'[{0}] ScritpBlock to execute: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $sb.ToString() | Write-Verbose
+
+		Invoke-Command -ScriptBlock ([Scriptblock]::Create($sb.ToString())) -ErrorVariable CapturedError | Out-Null
 
 		if ($null -ne $CaptureError)
 		{
@@ -7869,7 +7884,7 @@ function Get-HPOVCommandTrace
 
 		}
 
-		([String]::Join('',(1..80 | % { "-" }))) | Write-Verbose -Verbose:$true
+		([String]::Join('',(1..80 | ForEach-Object { "-" }))) | Write-Verbose -Verbose:$true
 
 	}
 
@@ -31515,7 +31530,7 @@ function Update-HPOVEnclosure
 
 					}
 
-					$_Params = @{ uri = $_enclosure.uri + "/configuration"; method = 'PUT'; body = $_RefreshOptions }
+					$_Params = @{ uri = $_uri; method = 'PUT'; body = $_RefreshOptions }
 						
 				}
 				
@@ -78929,12 +78944,14 @@ function New-HPOVServerProfileConnection
 		[ValidateRange(100,20000)]
 		[int]$RequestedBW = 2500,
 	
+		[Parameter (Mandatory = $false, ParameterSetName = "Common")]
 		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
 		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[Parameter (Mandatory = $false, ParameterSetName = "ISCSI")]
 		[ValidateNotNullOrEmpty()]
 		[switch]$UserDefined,
 
+		[Parameter (Mandatory = $false, ParameterSetName = "Common")]
 		[Parameter (Mandatory = $false, ParameterSetName = "Ethernet")]
 		[Parameter (Mandatory = $false, ParameterSetName = "FC")]
 		[Parameter (Mandatory = $false, ParameterSetName = "ISCSI")]

@@ -32,10 +32,13 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 3.10.1808.1701
+     -- Added support for "server already added" exception to Add-HPOVServer Cmdlet.
+     -- [#362] Fixed Update-HPOVEnclosure where -Refresh would instead invoke a Reapply operation.
+
     Release 3.10.1731.3550
      -- Refactored Install-HPOVUpdate.
-     -- Fixed New-HPOVServerProfileVolumeAttach where it would improperly process volume
-        and connection validation.
+     -- Fixed New-HPOVServerProfileVolumeAttach where it would improperly process volume and connection validation.
 
     Release 3.10.1588.1229
      -- Updated New-HPOVLdapDirectory to support SecureString prompt for -Password parameter.    
