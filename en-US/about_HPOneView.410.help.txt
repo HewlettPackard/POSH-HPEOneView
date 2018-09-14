@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.10.1809.2203
+     -- Updated HPOneView.Appliance.Baseline+FwComponent class to support hanlding non-semantic version
+        strings.
+     -- Added increased timeout for Send-HPOVRequest (RestClient).
+     -- Added telemetry support to measure and record HTTP response times from client to appliance.
+
     Release 4.10.1802.1882
     
      -- Fixed Update-HPOVServer regression when server hardware resource is disconnected

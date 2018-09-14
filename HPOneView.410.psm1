@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.10.1802.1882'
+[Version]$ModuleVersion = '4.10.1809.2203'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -727,18 +727,17 @@ $ResourceCategoryEnum = @{
 	[String]$ApplianceLoginSessionsSmartCardAuthUri     = '/rest/login-sessions/smartcards'
 	[String]$UpdateApplianceSessionAuthUri              = '/rest/login-sessions/auth-token'
 	[String]$ActiveUserSessionsUri                      = '/rest/active-user-sessions'
-	$script:UsersUri                                    = '/rest/users'
-	$script:UserRoleUri                                 = "/rest/users/role"
+	[String]$ApplianceUserAccountsUri                   = '/rest/users'
+	[String]$ApplianceUserAccountRoleUri                = "/rest/users/role"
 	[String]$ApplianceTrustedCertStoreUri               = '/rest/certificates'
 	[string]$ApplianceCertificateValidatorUri           = '/rest/certificates/validator-configuration'
-	[String]$ApplianceTrustedCAStoreUri                 = '/rest/certificates/ca'
+	[String]$ApplianceCertificateAuthorityUri           = '/rest/certificates/ca'
+	[String]$ApplianceInternalCertificateAuthority      = '/rest/certificates/ca?filter=certType:INTERNAL'
 	[String]$ApplianceTrustedCAValidatorUri             = '/rest/certificates/ca/validator'
 	[String]$ApplianceTrustedSslHostStoreUri            = '/rest/certificates/servers'
-	[String]$script:applRabbitmqUri                     = "/rest/certificates/client/rabbitmq"
-	[String]$RabbitMQKeyPairUri                         = "/rest/certificates/client/rabbitmq/keypair/default"
-	[String]$RabbitMQKeyPairCertUri                     = '/rest/certificates/ca/rabbitmq_readonly'
-	[String]$ApplianceCertificateAuthorityUri           = "/rest/certificates/ca"
-	[String]$ApplianceInternalCertificateAuthority      = '/rest/certificates/ca?filter=certType:INTERNAL'
+	[String]$ApplianceScmbRabbitmqUri                   = "/rest/certificates/client/rabbitmq"
+	[String]$ApplianceRabbitMQKeyPairUri                = "/rest/certificates/client/rabbitmq/keypair/default"
+	[String]$ApplianceRabbitMQKeyPairCertUri            = '/rest/certificates/ca/rabbitmq_readonly'
 	[String]$RetrieveHttpsCertRemoteUri                 = "/rest/certificates/https/remote/"
 	[String]$AuthnProvidersUri                          = '/rest/logindomains'
 	[String]$Authn2FALoginCertificateConfigUri          = '/rest/logindomains/logincertificates'
@@ -810,11 +809,19 @@ $WhiteListedURIs = @(
 	"/ui-js/pages/",
 	$ApplianceEulaStatusUri,
 	$ApplianceEulaSaveUri,
-	($usersUri + "/changePassword"),
+	($ApplianceUserAccountsUri + "/changePassword"),
 	"/startstop/rest/component?fields=status",
 	$ApplianceStartProgressUri,
 	$ApplianceLoginDomainDetails
 
+)
+
+$ExtendedTimeoutUris = @(
+	$ApplianceSupportDumpUri,
+	$ApplianceBackupUri,
+	"$LogicalInterconnectsUri/*/support-dumps",
+	$ApplianceScmbRabbitmqUri,
+	$RemoteSupportUri
 )
 
 #######################################################
@@ -4351,6 +4358,18 @@ function RestClient
 
 		$RestClient = (New-Object HPOneView.Utilities.Net).RestClient($url, $Method, $MaxXAPIVersion)
 
+		$GuidRegEx = "$($LogicalInterconnectsUri.Replace('/','\/'))\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/support-dumps"
+
+		if ($ExtendedTimeoutUris -contains $uri -or [RegEx]::Match($uri, $GuidRegEx))
+		{
+
+			"[{0}] Increasing timeout to 10 minutes for '{1}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Uri | Write-Verbose
+
+			# Increase timeout to 10 minutes.
+			$RestClient.Timeout = 600000
+
+		}
+
 	}
 
 	End 
@@ -4630,6 +4649,8 @@ function Send-HPOVRequest
 			do 
 			{
 
+				$_TelemetryStopWatch = [system.diagnostics.stopwatch]::startNew()
+
 				# Used to keep track of async task response
 				$taskReceived = $False
 
@@ -4655,15 +4676,6 @@ function Send-HPOVRequest
 					
 					$req.Headers.Item("auth") = $ApplianceHost.SessionID 
 				
-				}
-				
-				# Increase timeout for synchronous call for Support Dumps to be generated as they are not an Async task.
-				if ($Uri -match "support-dump" -or $Uri -match $RemoteSupportUri)
-				{ 
-				
-					"[{0}] Increasing HttpWebRequest timeout to 200s." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 
-					$req.Timeout = 200000 
-					
 				}
 
 				# Handle additional headers being passed in for updated API (storage volume removal)
@@ -4844,8 +4856,12 @@ function Send-HPOVRequest
 					# Get response from appliance
 					[System.Net.WebResponse]$LastWebResponse = $req.GetResponse()
 
+					$_TelemetryStopWatch.Stop()
+
+					"[{0}] Response time: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_TelemetryStopWatch.Elapsed.ToString() | Write-Verbose
+
 					# Display the response status if verbose output is requested
-					"[{0}] Response Status: {1} ({2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), [int]$LastWebResponse.StatusCode, [String]$LastWebResponse.StatusDescription  | Write-Verbose
+					"[{0}] Response Status: {1} ({2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), [int]$LastWebResponse.StatusCode, [String]$LastWebResponse.StatusDescription | Write-Verbose
 
 					$i = 0
 
@@ -11642,7 +11658,7 @@ function Get-HPOVHealthStatus
 
 			}
 
-			$healthStatus.members  | ForEach-Object { 
+			$healthStatus.members | ForEach-Object { 
 				
 				$_.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.HealthStatus") 
 			
@@ -19809,7 +19825,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 				Try
 				{
 	
-					[Array]$_AssoiatedLEs = (Send-HPOVRequest -Uri $_Uri -Hostname $ApplianceConnection).members  | ForEach-Object { Send-HPOVRequest $_.childUri -Hostname $_.ApplianceConnection.Name}
+					[Array]$_AssoiatedLEs = (Send-HPOVRequest -Uri $_Uri -Hostname $ApplianceConnection).members | ForEach-Object { Send-HPOVRequest $_.childUri -Hostname $_.ApplianceConnection.Name}
 
 					ForEach ($_Uri in $InputObject.enclosureUris)
 					{
@@ -25373,7 +25389,7 @@ function Download-File
 		
 		}
 			
-			"[{0}] Request: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_fileDownload | Write-Verbose
+		"[{0}] Request: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_fileDownload | Write-Verbose
 		
 		Try
 		{
@@ -26669,7 +26685,7 @@ function Get-HPOVScmbCertificates
 			Try
 			{
 
-				$_keys = Send-HPOVRequest -Uri $RabbitMQKeyPairUri -Hostname $_appliance.Name
+				$_keys = Send-HPOVRequest -Uri $ApplianceRabbitMQKeyPairUri -Hostname $_appliance.Name
 
 			}
 
@@ -26686,10 +26702,10 @@ function Get-HPOVScmbCertificates
 					# Generate the client private key request
 					# "[{0}] Body: $($_rabbitbody | Format-List * )" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-					Send-HPOVRequest -Uri $applRabbitmqUri -Method POST -Body $_rabbitbody -Hostname $_appliance.Name | Wait-HPOVTaskComplete | Out-Null
+					Send-HPOVRequest -Uri $ApplianceScmbRabbitmqUri -Method POST -Body $_rabbitbody -Hostname $_appliance.Name | Wait-HPOVTaskComplete | Out-Null
 
 					# Retrieve generated keys
-					$_keys = Send-HPOVRequest -Uri $RabbitMQKeyPairUri -Hostname $_appliance.Name
+					$_keys = Send-HPOVRequest -Uri $ApplianceRabbitMQKeyPairUri -Hostname $_appliance.Name
 
 				}
 
@@ -27185,7 +27201,7 @@ function Remove-HPOVScmbCertificate
 			Try
 			{
 
-				$_keys = Send-HPOVRequest -Uri $RabbitMQKeyPairUri -Hostname $_appliance
+				$_keys = Send-HPOVRequest -Uri $ApplianceRabbitMQKeyPairUri -Hostname $_appliance
 
 			}
 
@@ -27211,7 +27227,7 @@ function Remove-HPOVScmbCertificate
 				Try
 				{
 
-					Send-HPOVRequest -Uri $RabbitMQKeyPairCertUri -Method DELETE -Hostname $_appliance
+					Send-HPOVRequest -Uri $ApplianceRabbitMQKeyPairCertUri -Method DELETE -Hostname $_appliance
 
 				}
 
@@ -31460,17 +31476,30 @@ function Get-HPOVServer
 				switch ($InputObject.category)
 				{
 
-					${ResourceCategoryEnum.ServerProfileTemplate}
+					$ResourceCategoryEnum.ServerProfileTemplate
 					{
 
-						$_SHTUri = $InputObject.serverHardwareTypeUri
+						$_FilterProperty = "serverHardwareTypeUri"
+
+						$_FilterUri = $InputObject.serverHardwareTypeUri
 
 					}
 
-					'server-hardware-types'
+					$ResourceCategoryEnum.ServerProfile
 					{
 
-						$_SHTUri = $InputObject.uri
+						$_FilterProperty = "serverProfileUri"
+
+						$_FilterUri = $InputObject.uri
+
+					}
+
+					$ResourceCategoryEnum.ServerHardwareType
+					{
+
+						$_FilterProperty = "serverHardwareTypeUri"
+
+						$_FilterUri = $InputObject.uri
 
 					}
 
@@ -31499,7 +31528,10 @@ function Get-HPOVServer
 
 				}
 
-				$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object { $_.serverHardwareTypeUri -eq $_SHTUri }
+				"FilterProperty: {0}" -f $_FilterProperty | Write-Verbose
+				"FilterUri: {0}" -f $_FilterUri | Write-Verbose
+
+				$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object { $_.$_FilterProperty -eq $_FilterUri }
 
 			}
 
@@ -39939,7 +39971,7 @@ function Invoke-HPOVVcmMigration
 
 		}
 
-		else
+		elseif ($VCEMUser)
 		{
 
 			if ($VCEMPassword -is [SecureString])
@@ -43814,7 +43846,7 @@ function Show-HPOVFirmwareReport
 						# Get associated Logical Enclosures with Enclosure Group
 						$_uri = '{0}?parentUri={1}&name=ENCLOSURE_GROUP_TO_LOGICAL_ENCLOSURE' -f $AssociationsUri, $_resource.uri
 						[Array]$_ResourcesFromIndexCol = Get-AllIndexResources -Uri $_uri -ApplianceConnection $_resource.ApplianceConnection.Name
-						# [Array]$_LogicalEnclosures = (Send-HPOVRequest -Uri $_uri -Hostname $_resource.ApplianceConnection.Name).members  | ForEach-Object { Send-HPOVRequest $_.childUri -Hostname $_.ApplianceConnection.Name}
+						# [Array]$_LogicalEnclosures = (Send-HPOVRequest -Uri $_uri -Hostname $_resource.ApplianceConnection.Name).members | ForEach-Object { Send-HPOVRequest $_.childUri -Hostname $_.ApplianceConnection.Name}
 
 					}
 					
@@ -43920,7 +43952,7 @@ function Show-HPOVFirmwareReport
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{ 
 						
-						"[{0}] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper()  | Write-Verbose
+						"[{0}] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					}
 			 
@@ -43935,7 +43967,7 @@ function Show-HPOVFirmwareReport
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{ 
 						
-						"[{0}] Completed Collecting Enclosure Group Firmware Information Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper()  | Write-Verbose
+						"[{0}] Completed Collecting Enclosure Group Firmware Information Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					}
 			 
@@ -44059,7 +44091,7 @@ function Show-HPOVFirmwareReport
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{ 
 						
-						"[{0}] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper()  | Write-Verbose
+						"[{0}] Completed Collecting Enclosure Firmware Information - Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					}
 			 
@@ -44074,7 +44106,7 @@ function Show-HPOVFirmwareReport
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{ 
 						
-						"[{0}] Completed Collecting Enclosure Group Firmware Information Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper()  | Write-Verbose
+						"[{0}] Completed Collecting Enclosure Group Firmware Information Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					}
 			 
@@ -44280,7 +44312,7 @@ function Show-HPOVFirmwareReport
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{ 
 						
-						"[{0}] Completed Collecting Interconnect Firmware Information - Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper()  | Write-Verbose
+						"[{0}] Completed Collecting Interconnect Firmware Information - Skipping Write-Progress display." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 					
 					}
 				
@@ -47278,7 +47310,7 @@ function Update-HPOVStorageSystem
 					
 						"[{0}] Storage System resource object provided" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System Name: {0}" -f $_system.name | Write-Verbose
-						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System URI: {0}"  -f $_system.uri  | Write-Verbose
+						"[$($MyInvocation.InvocationName.ToString().ToUpper())] Storage System URI: {0}"  -f $_system.uri | Write-Verbose
 
 					}
 
@@ -67227,7 +67259,7 @@ function Get-HPOVInterconnect
 				
 			"[{0}] Exporting to: $($Export)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			$InterconnectCollection  | convertto-json -Depth 99 | Set-Content -Path $Export -force -encoding UTF8
+			$InterconnectCollection | convertto-json -Depth 99 | Set-Content -Path $Export -force -encoding UTF8
 				
 		}
 
@@ -73228,7 +73260,7 @@ function New-HPOVSnmpTrapDestination
 
 					$_severity = $_severity.SubString(0,1).ToUpper() + $_severity.SubString(1).tolower()
 					
-					"[{0}] Processing {1} Trap Severity." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_severity  | Write-Verbose 
+					"[{0}] Processing {1} Trap Severity." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_severity | Write-Verbose 
 					
 					[void]$_TrapDestination.trapSeverities.Add($_severity)
 
@@ -73254,7 +73286,7 @@ function New-HPOVSnmpTrapDestination
 
 					$_category = $_category.SubString(0,1).ToUpper() + $_category.SubString(1).tolower()
 					
-					"[{0}] Processing {1} VCM Trap Category." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_category  | Write-Verbose 
+					"[{0}] Processing {1} VCM Trap Category." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_category | Write-Verbose 
 
 					[void]$_TrapDestination.vcmTrapCategories.Add($_category)
 
@@ -73285,7 +73317,7 @@ function New-HPOVSnmpTrapDestination
 
 					}
 
-					"[{0}] Processing {1} Enet Trap Category." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_category  | Write-Verbose 
+					"[{0}] Processing {1} Enet Trap Category." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_category | Write-Verbose 
 
 					[void]$_TrapDestination.enetTrapCategories.Add($_category)
 
@@ -73309,7 +73341,7 @@ function New-HPOVSnmpTrapDestination
 
 					}
 
-					"[{0}] Processing {1} FC Trap Category." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_category  | Write-Verbose 
+					"[{0}] Processing {1} FC Trap Category." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_category | Write-Verbose 
 					
 					[void]$_TrapDestination.fcTrapCategories.Add($_category)
 
@@ -80760,49 +80792,51 @@ function Get-HPOVServerProfile
 			if ($PSBoundParameters['InputObject'])
 			{
 
+				"[{0}] Processing InputObject property." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
 				switch ($InputObject.category)
 				{
 
-					'server-hardware'
+					$ResourceCategoryEnum.ServerHardware
 					{
 
-						if (-not $InputObject.serverProfileUri)
+						"[{0}] Filtering for Server Hardware resource '{1}' assigned to a server profile." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+
+						if ($InputObject.serverProfileUri)
 						{
 						
-							"[{0}] Filtering for Server Hardware Type from Server Hardware: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+							"[{0}] Resource is assigned to a server profile." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-							$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverHardwareUri -eq $InputObject.serverHardwareTypeUri
+							$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverHardwareUri -eq $InputObject.uri
 
 						}
-						
-						# else
-						# {
 
-						# 	"[{0}] Returning specific Server Profile for {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+						else
+						{
 
-						# 	$uri = $InputObject.serverProfileUri.Clone()
+							"[{0}] Resource is not assigned to a server profile.  Filtering based on ServerHardwareType" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-						# 	$_ServerProfileFromHardwareFlag = $true
+							$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverHardwareTypeUri -eq $InputObject.serverHardwareTypeUri
 
-						# }							
+						}
 
 					}
 
-					'server-hardware-types'
+					$ResourceCategoryEnum.ServerHardwareType
 					{
 
 						"[{0}] Filtering for Server Hardware Type: {1} [{2}]"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name, $InputObject.model | Write-Verbose
 
-						$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverHardwareUri -eq $InputObject.uri
+						$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverHardwareTypeUri -eq $InputObject.uri
 
 					}
 
-					${ResourceCategoryEnum.ServerProfileTemplate}
+					$ResourceCategoryEnum.ServerProfileTemplate
 					{
 
 						"[{0}] Filtering for Server Profile Template: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 
-						$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverHardwareUri -eq $InputObject.uri
+						$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object serverProfileTemplateUri -eq $InputObject.uri
 
 					}
 
@@ -81850,7 +81884,7 @@ function New-HPOVServerProfile
 
 						"[{0}] Received PSCustomObject for ServerProfileTemplate." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-						"[{0}] Resource Name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.name  | Write-Verbose
+						"[{0}] Resource Name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.name | Write-Verbose
 
 						"[{0}] Resource Category: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfileTemplate.category | Write-Verbose
 
@@ -96388,7 +96422,7 @@ function Get-HPOVUser
 				Try
 				{
 
-					$_user = Send-HPOVRequest ($UsersUri + '/' + $_appliance.Username) -Hostname $_appliance.Name 
+					$_user = Send-HPOVRequest ($ApplianceUserAccountsUri + '/' + $_appliance.Username) -Hostname $_appliance.Name 
 
 					$_user.PSObject.TypeNames.Insert(0,'HPOneView.Appliance.User')
 
@@ -96772,7 +96806,7 @@ function New-HPOVUser
 			Try
 			{
 
-				$_resp = Send-HPOVRequest -Uri $UsersUri -Method POST -Body $_user -Hostname $_appliance
+				$_resp = Send-HPOVRequest -Uri $ApplianceUserAccountsUri -Method POST -Body $_user -Hostname $_appliance
 
 			}
 			
@@ -97324,12 +97358,12 @@ function Set-HPOVUser
 
 			# "[{0}] Updated User object: $($_User )" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			"[{0}] Sending request to update `'$($_User.userName)`' user at '$usersUri'" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			"[{0}] Sending request to update `'$($_User.userName)`' user at '$ApplianceUserAccountsUri'" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			Try
 			{
 
-				$_resp = Send-HPOVRequest $usersUri PUT $_User -Hostname $_User.ApplianceConnection.Name
+				$_resp = Send-HPOVRequest $ApplianceUserAccountsUri PUT $_User -Hostname $_User.ApplianceConnection.Name
 
 			}
 			
@@ -97547,7 +97581,7 @@ function Set-HPOVUserPassword
 				Try
 				{
 
-					$_resp = Send-HPOVRequest $UsersUri PUT $_UpdatePassword -Hostname $_appliance
+					$_resp = Send-HPOVRequest $ApplianceUserAccountsUri PUT $_UpdatePassword -Hostname $_appliance
 
 					if ($_resp.category -eq 'users')
 					{
@@ -97997,7 +98031,7 @@ function Set-HPOVInitialPassword
 		
 		}
 
-		$uri  = $usersUri + "/changePassword"
+		$uri  = $ApplianceUserAccountsUri + "/changePassword"
 
 		Try
 		{
@@ -98654,7 +98688,7 @@ function Add-HPOVApplianceTrustedCertificate
 
 				[void]$_CertToImportCollection.members.Add($_Cert)
 
-				$_Uri = $ApplianceTrustedCAStoreUri.Clone()
+				$_Uri = $ApplianceCertificateAuthorityUri.Clone()
 
 			}
 
@@ -99486,9 +99520,9 @@ function Get-HPOVLdapDirectory
 
 				"[{0}] Saving to: $_SaveLocation" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 				
-				$_directory                  | Select-Object * -ExcludeProperty credential,created,modified,eTag 			
+				$_directory                 | Select-Object * -ExcludeProperty credential,created,modified,eTag 			
 				$_directory.directoryServers | Select-Object * -ExcludeProperty directoryServerCertificateStatus,serverStatus,created,modified,eTag
-				$_directory                  | convertto-json > $_SaveLocation
+				$_directory                 | convertto-json > $_SaveLocation
 			
 			}
 		
@@ -99754,13 +99788,9 @@ function New-HPOVLdapDirectory
 				{
 
 					$__Server = $_Server.PSObject.Copy()
-					
-					# "[{0}] Type: $($__Server.GetType().Name)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					# "[{0}] Type: $($__Server )" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 					# Process the certificate if included, which means TrustLeafCertificate was used with New-HPOVLdapServer
-					if ($null -ne $__Server.directoryServerCertificateBase64Data)
+					if (-not [System.String]::IsNullOrWhiteSpace($_DirectoryServer.directoryServerCertificateBase64Data))
 					{
 
 						"[{0}] Adding directory server certificate to appliance trust store" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -99861,7 +99891,7 @@ function New-HPOVLdapDirectory
 			Catch
 			{
 
-				foreach ($NestedError in (${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).ErrorResponse.nestedErrors) 
+				foreach ($NestedError in (${Global:ResponseErrorObject} | Where-Object Name -eq $_appliance.Name).ErrorResponse.nestedErrors) 
 				{
 
 					if ($NestedError.errorCode -eq "AUTHN_LOGINDOMAIN_SERVER_AUTHENTICATION_ERROR" ) 
@@ -99885,12 +99915,12 @@ function New-HPOVLdapDirectory
 					
 					}
 
-					$ErrorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException $NestedError.errorCode $ErrorCategory $NestedError.errorSource -Message "$($NestedError.message) $($NestedError.details)"
-					$PSCmdlet.WriteError($ErrorRecord)
+					$ErrorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException $NestedError.errorCode $ErrorCategory "New-HPOVLdapDirectory" -Message "$($NestedError.message) $($NestedError.details)"
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 				}
 
-				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException InvalidResult InvalidOperation 'New-HPOVLdap' -Message "$((${Global:ResponseErrorObject} | ? Name -eq $_appliance.Name).ErrorResponse.message) $((${Global:ResponseErrorObject} | ? Name -eq $_appliance.Name).ErrorResponse.details)"
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.LdapDirectoryException InvalidResult InvalidOperation 'New-HPOVLdapDirectory' -Message "$((${Global:ResponseErrorObject} | ? Name -eq $_appliance.Name).ErrorResponse.message) $((${Global:ResponseErrorObject} | ? Name -eq $_appliance.Name).ErrorResponse.details)"
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
