@@ -32,6 +32,34 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.00.1821.1629
+
+     -- Fixed New-HPOVServerProfileLogicalDisk Internal drive allocation policy for HPE Synergy.
+     -- Fixed New-HPOVServerProfileAttachVolume Server Profile and Server Profile Template Connection
+        validation.
+     -- Fixed Enable-HPOVLogicalInterconnectPortMonitoring adding ports to monitor config.
+     -- Added -Force parameter to Remove-HPOVAlert.
+     -- Added Update-HPOVApplianceTrustedAuthorityCrl to update applinace trusted certificate
+        authority CRL.
+     -- Updated Update-HPOVServer -Hostname parameter from Required to Optional. If omitted
+        the Cmdlet will now use the value found in $InputObject.mpHostInfo.mpHostName property.
+     -- Updated Get-HPOVLogicalInterconnect adding -NonCompliant parameter.
+     -- [#334] Updated New-HPOVServerProfileTemplate where -ManageBoot:$false wasn't being honored correctly.
+        Changed -ManagedBoot from SwitchParameter to Boolean type.
+     -- [#335] Updated Get-HPOVRemoteSupportEntitlementStatus to generate a non-terminating error if the resource
+        is an unsupported platform for Remote Support.
+     -- [#338] Added SecureBoot support to New-HPOVServerProfile and New-HPOVServerProfileTemplate.
+     -- [#339] Updated the HPOneView.RemoteSupport.ContractAndWarrantyStatus format view to display the correct end
+        date.
+     -- [#340] Updated Update-HPOVServerProfile to perform all reapply settings as default behavior.
+     -- [#341] Added Set-HPOVEnclosureGroup to support updating c-Class enclosure scripts.
+     -- [#343] Fixed Networking.format.ps1xml with missing Hostname parameter when displaying interconnect
+        downlink port information.
+     -- [#344] Fixed regression in Add-HPOVServer Cmdlet where force add was no longer being honored.
+     -- [#364] Refactored Disconnect-HPOVMgmt to support pipeline and multiple object input.
+     -- [#366] Fixed New-HPOVLdapGroup where -Group validation would not process correctly when providing a
+        String value.
+
     Release 4.00.1672.1789
      -- Fixed Get-HPOVScmbCertificate where the appliance CA certificate wasn't being properly returned.
      -- Get-HPOVScmbCertificate now returns the System.IO.FileInfo objects for the certificates from the

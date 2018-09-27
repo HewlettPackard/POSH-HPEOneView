@@ -1,4 +1,4 @@
-##############################################################################9
+﻿##############################################################################9
 ## (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.400.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.00.1672.1789'
+    ModuleVersion = '4.0.1821.1629'
     
     # ID used to uniquely identify this module
     GUID = '9f892d35-7eda-4de9-aaab-172d6076b2e9'
@@ -121,19 +121,29 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-			ReleaseNotes = "Release 4.00.1672.1789
-			
-		* Fixed Get-HPOVScmbCertificate where the appliance CA certificate wasn't being properly returned.
-		* Get-HPOVScmbCertificate now returns the System.IO.FileInfo objects for the certificates from the appliance.
-		* [#320] Increased timeout for Remove-HPOVScmbCertificate to help address syncronous timeout waiting for DELETE request to complete.
-		* Fixed Install-HPOVUpdate to address API change.
-		* [#323] Added Convert-HPOVServerProfile and Convert-HPOVServerProfileTemplate Cmdlets.
-		* [#330] Added HPE BladeSystem Virtual Connect Fibre Channel 16GB module to New-HPOVLogicalInterconnectGroup.
-		* [#334] Fixed New-HPOVServerProfileTemplate bootable connection logic to properly detect for bootable connections when -ManageBoot is `$false.
-		* Fixed Get-HPOVServer to support wildcard search with -ServerName parameter."
+            ReleaseNotes = 'Release 4.00.1821.1629
+
+* Fixed New-HPOVServerProfileLogicalDisk Internal drive allocation policy for HPE Synergy.
+* Fixed New-HPOVServerProfileAttachVolume Server Profile and Server Profile Template Connection validation.
+* Fixed Enable-HPOVLogicalInterconnectPortMonitoring adding ports to monitor config.
+* Added -Force parameter to Remove-HPOVAlert.
+* Added Update-HPOVApplianceTrustedAuthorityCrl to update applinace trusted certificate authority CRL.
+* Updated Update-HPOVServer -Hostname parameter from Required to Optional. If omitted the Cmdlet will now use the value found in $InputObject.mpHostInfo.mpHostName property.
+* Updated Get-HPOVLogicalInterconnect adding -NonCompliant parameter.
+* Updated New-HPOVServerProfileTemplate where -ManageBoot:$false was not being honored correctly. Changed -ManagedBoot from SwitchParameter to Boolean type.
+* Updated Get-HPOVRemoteSupportEntitlementStatus to generate a non-terminating error if the resource is an unsupported platform for Remote Support.
+* Added SecureBoot support to New-HPOVServerProfile and New-HPOVServerProfileTemplate.
+* Updated the HPOneView.RemoteSupport.ContractAndWarrantyStatus format view to display the correct end date.
+* Updated Update-HPOVServerProfile to perform all reapply settings as default behavior.
+* Added Set-HPOVEnclosureGroup to support updating c-Class enclosure scripts.
+* Fixed Networking.format.ps1xml with missing Hostname parameter when displaying interconnect downlink port information.
+* Fixed regression in Add-HPOVServer Cmdlet where force add was no longer being honored.
+* Refactored Disconnect-HPOVMgmt to support pipeline and multiple object input.
+* Fixed New-HPOVLdapGroup where -Group validation would not process correctly when providing a String value.'
 
 		}
 
 	}
 
 }
+

@@ -830,7 +830,7 @@
         <TypeName>HPOneView.Appliance.TrustedCertificate</TypeName>
       </ViewSelectedBy>
       <GroupBy>
-        <PropertyName>type</PropertyName>
+        <ScriptBlock>$_.GetType().Name</ScriptBlock>
         <CustomControlName>ApplianceTrustedCertificateTypes-GroupingFormat</CustomControlName>
       </GroupBy>
       <TableControl>
@@ -839,34 +839,41 @@
           <TableColumnHeader>
             <Label>Name</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Status</Label>
+            <Label>AliasName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CertificateStatus</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidFrom</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.certificateDetails.commonName</ScriptBlock>
+                <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>status</PropertyName>
+                <PropertyName>AliasName</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[DateTime]$_.certificateDetails.validFrom</ScriptBlock>
+                <PropertyName>CertificateStatus</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[DateTime]$_.certificateDetails.validUntil</ScriptBlock>
+                <ScriptBlock>[DateTime]$_.Certificate.NotBefore</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[DateTime]$_.Certificate.NotAfter</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -880,7 +887,7 @@
         <TypeName>HPOneView.Appliance.TrustedCertificateAuthority</TypeName>
       </ViewSelectedBy>
       <GroupBy>
-        <PropertyName>type</PropertyName>
+        <ScriptBlock>$_.GetType().Name</ScriptBlock>
         <CustomControlName>ApplianceTrustedCertificateTypes-GroupingFormat</CustomControlName>
       </GroupBy>
       <TableControl>
@@ -889,34 +896,41 @@
           <TableColumnHeader>
             <Label>Name</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>Status</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CRLInfo</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidFrom</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.certificateDetails.commonName</ScriptBlock>
+                <PropertyName>Name</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>certStatus</PropertyName>
+                <PropertyName>Status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[DateTime]$_.certificateDetails.validFrom</ScriptBlock>
+                <PropertyName>CRLInfo</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>[DateTime]$_.certificateDetails.validUntil</ScriptBlock>
+                <ScriptBlock>[DateTime]$_.Certificate.NotBefore</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[DateTime]$_.Certificate.NotAfter</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>

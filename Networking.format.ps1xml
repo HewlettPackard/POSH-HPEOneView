@@ -1857,6 +1857,7 @@
                 <ScriptBlock>
 
                   $interconnectUri = $Null
+                  $ApplianceConnection = $_.ApplianceConnection.Name
                   $downlinkPort = $_.portName -replace "d",""
 
                   $portUri = $_.uri -split "/"
@@ -1866,7 +1867,7 @@
 
                   $interconnectIndexCollection = Send-HPOVRequest "/rest/index/associations?childUri=$interconnectUri&amp;name=BLADE_TO_INTERCONNECT" -Hostname $_.ApplianceConnection.Name
 
-                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ })
+                  $sh = ($interconnectIndexCollection.members.parentUri | % { Send-HPOVRequest $_ -Hostname $ApplianceConnection })
 
                   $deviceSlotDisplayHash = @{
 
