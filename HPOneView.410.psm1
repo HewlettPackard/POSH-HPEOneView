@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.10.1809.2203'
+[Version]$ModuleVersion = '4.10.1821.1567'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -61,8 +61,7 @@ if ((get-module -name HPOneView*) -and (-not (get-module -name HPOneView* | ForE
 }
 
 # Region URIs and Enums
-# [String]$script:AuthProviderSetting = "LOCAL"
-${Global:ConnectedSessions}         = New-Object System.Collections.ArrayList
+${Global:ConnectedSessions}         = New-Object HPOneView.Library.ConnectedSessionsList
 ${Global:ResponseErrorObject}       = New-Object System.Collections.ArrayList
 New-Variable -Name DefaultTimeout -Value (New-Timespan -Minutes 20) -Option Constant
 $script:FSOpenMode                  = [System.IO.FileMode]::Open
@@ -105,6 +104,7 @@ $ResourceCategoryEnum = @{
 #------------------------------------
 #  Appliance Configuration
 #------------------------------------
+	[Int]$ApplianceStartupTimeout               = 900
 	[String]$ApplianceStartProgressUri          = '/rest/appliance/progress'
 	[String]$ApplianceVersionUri                = '/rest/appliance/nodeinfo/version'
 	[String]$ApplianceEulaStatusUri             = '/rest/appliance/eula/status'
@@ -272,6 +272,8 @@ $ResourceCategoryEnum = @{
 #------------------------------------
 #  Physical Resource Management
 #------------------------------------
+	[String]$CClassEnclosureTypeUri                 = "/rest/enclosure-types/c7000"
+	[String]$SynergyEnclosureTypeUri                = "/rest/enclosure-types/SY12000"
 	[String]$ServerHardwareUri                      = "/rest/server-hardware"
 	[String]$ServerHardwareFirmwareComplianceUri    = '{0}/firmware-compliance' -f $ServerHardwareUri
 	[String]$script:ServerHardwareTypesUri          = "/rest/server-hardware-types"
@@ -2624,6 +2626,7 @@ function NewObject
 					importConfiguration = $false;
 					mode                = 'RAID'
 					initialize          = $false;
+					driveWriteCache     = "Unmanaged";
 					logicalDrives       = New-Object System.Collections.ArrayList
 
 				}
@@ -2640,7 +2643,8 @@ function NewObject
 					raidLevel         = $null;
 					numPhysicalDrives = $null;
 					driveTechnology   = $null;
-					sasLogicalJBODId  = $null
+					sasLogicalJBODId  = $null;
+					accelerator       = "Unmanaged"
 				
 				}
 
@@ -4360,7 +4364,7 @@ function RestClient
 
 		$GuidRegEx = "$($LogicalInterconnectsUri.Replace('/','\/'))\/[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}\/support-dumps"
 
-		if ($ExtendedTimeoutUris -contains $uri -or [RegEx]::Match($uri, $GuidRegEx))
+		if ($ExtendedTimeoutUris -contains $uri -or ([RegEx]::Match($uri, $GuidRegEx) -and $Uri.StartsWith($LogicalInterconnectsUri)))
 		{
 
 			"[{0}] Increasing timeout to 10 minutes for '{1}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Uri | Write-Verbose
@@ -5304,7 +5308,8 @@ function Send-HPOVRequest
 									
 										"[{0}] Authentication Directory failure.  Likely basd username and/or password from auth dir." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-										${Global:ConnectedSessions}.Remove($ApplianceHost)
+										$ConnectedSessions.RemoveConnection($ApplianceHost)
+										
 										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUsernameOrPassword AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message
 										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
@@ -5316,7 +5321,7 @@ function Send-HPOVRequest
 
 										"[{0}] User session no longer valid, likely due to session timeout. Clearing library runtime global and script variables." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-										${Global:ConnectedSessions}.Remove($ApplianceHost)
+										$ConnectedSessions.RemoveConnection($ApplianceHost)
 
 										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException InvalidUserSession AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message
 										Throw $ErrorRecord
@@ -5338,7 +5343,7 @@ function Send-HPOVRequest
 									'AUTHN_AUTH_FAIL_NO_ROLES'
 									{
 
-										${Global:ConnectedSessions}.Remove($ApplianceHost)
+										$ConnectedSessions.RemoveConnection($ApplianceHost)
 
 										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException NoDirectoryRoleMapping AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message 
 										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -5349,7 +5354,7 @@ function Send-HPOVRequest
 									'AUTHN_LOGINDOMAIN_NO_MEMBER_GROUPS_FOUND'
 									{
 
-										${Global:ConnectedSessions}.Remove($ApplianceHost)
+										$ConnectedSessions.RemoveConnection($ApplianceHost)
 
 										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException NoDirectoryRoleMapping AuthenticationError "Appliance:$($ApplianceHost.Name)" -Message $_Message 
 										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -5431,7 +5436,7 @@ function Send-HPOVRequest
 								else 
 								{
 
-									[void]${Global:ConnectedSessions}.Remove($ApplianceHost)
+									$ConnectedSessions.RemoveConnection($ApplianceHost)
 
 									$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidOrTimedoutSession AuthenticationError 'Send-HPOVRequest' -Message "[Send-HPOVRequest]: Your session has timed out or is not valid. Please use Connect-HPOVMgmt to authenticate to your appliance."
 									$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -5927,10 +5932,10 @@ function Get-AllIndexResources
 	Process
 	{
 
-		if (-not $Uri.StartsWith($IndexUri))
+		if (-not $Uri.StartsWith($IndexUri) -and -not $Uri.StartsWith($AssociationsUri))
 		{
 
-			Throw ("URI is incorrect.  Does not begin with {0}." -f $IndexUri)
+			Throw ("URI is incorrect.  Does not begin with {0} or {1}." -f $IndexUri, $AssociationsUri)
 
 		}
 
@@ -5953,12 +5958,28 @@ function Get-AllIndexResources
 		ForEach ($_IndexEntry in $_IndexResults.members)
 		{
 
-			"[{0}] Get full object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_IndexEntry.name | Write-Verbose
+			if ($Uri.StartsWith($AssociationsUri))
+			{
+
+				"[{0}] Get full associated object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$_Uri = $_IndexEntry.childUri
+
+			}
+
+			else
+			{
+
+				"[{0}] Get full object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_IndexEntry.name | Write-Verbose
+
+				$_Uri = $_IndexEntry.uri
+
+			}		
 
 			Try
 			{
 
-				$_FullIndexEntry = Send-HPOVRequest -Uri $_IndexEntry.uri -Hostname $ApplianceConnection
+				$_FullIndexEntry = Send-HPOVRequest -Uri $_Uri -Hostname $ApplianceConnection
 
 			}
 
@@ -6389,9 +6410,9 @@ function Wait-HPOVApplianceStart
 				}
 
 			}
-
+ 
 			# Timeout after 10 minutes
-			if ($_SW.Elapsed.TotalSeconds -ge 900)
+			if ($_SW.Elapsed.TotalSeconds -ge $ApplianceStartupTimeout)
 			{
 
 				$_SW.Stop()
@@ -6411,7 +6432,7 @@ function Wait-HPOVApplianceStart
 
 			"[{0}] Removing temporary Session object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			[void]${Global:ConnectedSessions}.Remove($ApplianceConnection)
+			$ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 		}
 
@@ -6631,7 +6652,7 @@ function Connect-HPOVMgmt
 			if ($applianceVersion -and $applianceVersion -lt $MinXAPIVersion ) 
 			{
 
-				[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+				[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 				# Display terminating error
 				$ErrorRecord = New-ErrorRecord System.NotImplementedException LibraryTooNew OperationStopped $Hostname -Message "The appliance you are connecting to supports an older version of this library.  Please visit https://github.com/HewlettPackard/POSH-HPOneView for a supported version of the library."
@@ -6646,7 +6667,7 @@ function Connect-HPOVMgmt
 
 			"[{0}] Exception caught when checking X-API version." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+			[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 			
 			$PSCmdlet.ThrowTerminatingError($_)
 
@@ -6757,7 +6778,7 @@ function Connect-HPOVMgmt
 		catch [HPOneview.ResourceNotFoundException]
 		{
 
-            [void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+            [void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 			$ExceptionMessage = "The appliance is not configured for 2-Factor authentication.  Please provide a valid username and password in order to authenticate to the appliance."
 			$ErrorRecord = New-ErrorRecord HPOneview.ResourceNotFoundException TwoFactorAuthenticationNotEnabled PermissionDenied 'Certificate' -Message $ExceptionMessage
@@ -6841,7 +6862,7 @@ function Connect-HPOVMgmt
 								'You are not authenticated to {0}, as you chose not to accept the Login Message acknowledgement.' -f $Hostname | Write-Warning 
 
 								# Remove Connection from global tracker
-								[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+								[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 								Return
 
@@ -6864,7 +6885,7 @@ function Connect-HPOVMgmt
 				{
 
 					# Remove Connection from global tracker
-					[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+					[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 					$PSCmdlet.ThrowTerminatingError($_ErrorRecord)
 
@@ -6874,7 +6895,7 @@ function Connect-HPOVMgmt
 				{
 
 					# Remove Connection from global tracker
-					[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+					[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 					#$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AuthSessionException $_ErrorId InvalidResult 'Connect-HPOVMgmt' -Message $_.Exception.Message 
 					$PSCmdlet.ThrowTerminatingError($_ErrorRecord)
@@ -6890,7 +6911,7 @@ function Connect-HPOVMgmt
 
 			"[{0}] Password needs to be changed. Use Set-HPOVInitialPassword if this is first time setup, or Set-HPOVUserPassword to update your own accounts password." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+			[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 			# Throw terminating error
 			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.PasswordChangeRequired PasswordExpired PermissionDenied 'Username' -Message "The password has expired and needs to be updated. Use Set-HPOVInitialPassword if this is first time setup, or Set-HPOVUserPassword to update your own accounts password."
@@ -6903,7 +6924,7 @@ function Connect-HPOVMgmt
 
 			"[{0}] Response: $($resp)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+			[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 			$ErrorRecord = New-ErrorRecord System.Net.WebException ApplianceNotResponding OperationStopped $Hostname -Message "The appliance at $Hostname is not responding on the network.  Check for firewalls or ACL's prohibiting access to the appliance."
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
@@ -6914,7 +6935,7 @@ function Connect-HPOVMgmt
 		catch
 		{
 
-			[void] ${Global:ConnectedSessions}.Remove($ApplianceConnection)
+			[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 			$PSCmdlet.ThrowTerminatingError($_)
 
@@ -7473,10 +7494,10 @@ function Disconnect-HPOVMgmt
 	Param
 	(
 	
-		[Parameter (Mandatory = $false)]
+		[Parameter (Mandatory = $false, ValueFromPipeline, Position = 0)]
 		[ValidateNotNullorEmpty()]
-		[Alias ('Appliance','ApplianceSession')]
-		[Object]$Hostname = (${Global:ConnectedSessions} | Where-Object Default)
+		[Alias ('Appliance', 'ApplianceSession', 'Hostname')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
 	
 	)
 
@@ -7485,192 +7506,108 @@ function Disconnect-HPOVMgmt
 
 		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
 		
-		if (-not($Hostname))
+		if (-not ($ApplianceConnection))
 		{ 
 		
-			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession ResourceUnavailable 'Hostname' -Message "No valid logon session available.  Please use Connect-HPOVMgmt to connecto to an appliance, and then use Disconnect-HPOVmgmt to terminate your session."
+			$ExceptionMessage = "No valid logon session available.  Please use Connect-HPOVMgmt to connecto to an appliance, and then use Disconnect-HPOVmgmt to terminate your session."
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoAuthSession ResourceUnavailable 'ApplianceConnection' -Message $ExceptionMessage
 			$PSCmdlet.WriteError($ErrorRecord)
 			
 		}
 
+		$_ConnectionsToProcess = New-Object System.Collections.ArrayList
+
 	}
 
 	Process 
-	{
+	{	
 
-		if (-not($PSBoundParameters['Hostname']))
-		{
-
-			"[{0}] No hostname(s) or connection(s) provided. Processing all connected sessions." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-		}
-
-		if ($Hostname -is [System.Collections.IEnumerable] -and $Hostname -isnot [System.String])
-		{
-
-			$Hostname = $Hostname.Clone()
-
-			For ($_c = 0; $_c -lt $Hostname.Count; $_c++)
-			{
-
-				'[{0}] Processing Connection {1} of {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $Hostname[$_c].Name, $Hostname.Count | Write-Verbose
-				
-				if ($Hostname[$_c] -is [String])
-				{
-
-					"[{0}] Hostname provide, looking in global connection tracker for connection." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					[HPOneView.Appliance.Connection]$Hostname[$_c] = ${Global:ConnectedSessions} | Where-Object Name -eq $Hostname
-
-				}
-
-				if ($Null -eq $Hostname[$_c] -or $Null -eq $Hostname[$_c].SessionID)
-				{
-
-					'[{0}] User Session not found in $ConnectedSessions' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					if ($Hostname[$_c] -is [HPOneView.Appliance.Connection])
-					{
-
-						$_ConnectionName = $Hostname[$_c].Name
-
-					}
-
-					else
-					{
-				
-						$_ConnectionName  = $Hostname[$_c]
-				
-					}
-
-					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff ObjectNotFound 'Hostname' -Message "User session for '$_ConnectionName' not found in library connection tracker (`${Global:ConnectedSessions}). Did you accidentially remove it, or have you not created a session to an appliance?"
-					$PSCmdlet.WriteError($ErrorRecord)
-
-				}
-		   
-				else
-				{
-
-					'[{0}] Attempting to logoff user {1} from {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $Hostname[$_c].Username, $Hostname[$_c].Name | Write-Verbose
-
-					"[{0}] Sending Delete Session ID request" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Hostname[$_c].Username, $Hostname[$_c].Name | Write-Verbose
-
-					try 
-					{
-				
-						$Resp = Send-HPOVRequest $ApplianceLoginSessionsUri DELETE $Hostname[$_c].SessionId -Hostname $Hostname[$_c].Name
-
-						"[{0}] Removing connection from global connection tracker" -f $MyInvocation.InvocationName.ToString().ToUpper()| Write-Verbose
-
-						[void]$Global:ConnectedSessions.Remove($Hostname[$_c])
-						# $Validator.RemoveTrustedHost($Hostname[$_c].Name)
-						[HPOneView.PKI.SslValidation]::RemoveTrustedHost($Hostname[$_c].Name)
-					
-					}
-				
-					# Need to clean up
-					catch
-					{
-				
-						"[{0}]  Unable to complete logoff. Displaying error" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Hostname[$_c].Username, $Hostname[$_c].Name | Write-Verbose
-						$PSCmdlet.ThrowTerminatingError($_)
-				
-					}
-
-				}
-
-			}
-
-		}
-		
-		else
+		ForEach ($_ApplianceConnection in $ApplianceConnection)
 		{
 
 			# Check first if the Hostname value is a ConnectionID Integer
 			[int]$_tmpValue = 0
 
-			if ([Int]::TryParse($Hostname,[ref]$_tmpValue))
+			if ([Int]::TryParse($_ApplianceConnection, [ref]$_tmpValue))
 			{
 
 				"[{0}] Hostname is ConnectionID {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_tmpValue | Write-Verbose
 
-				[HPOneView.Appliance.Connection]$Hostname = ${Global:ConnectedSessions} | Where-Object ConnectionID -eq $_tmpValue
+				[void]$_ConnectionsToProcess.Add((${Global:ConnectedSessions} | Where-Object ConnectionID -eq $_tmpValue))
 
-				"[{0}] {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Hostname | Out-String) | Write-Verbose
+				"[{0}] Found: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), (${Global:ConnectedSessions} | Where-Object ConnectionID -eq $_tmpValue) | Write-Verbose
 
 			}
 
-			if ($Hostname -is [String])
+			elseif ($_ApplianceConnection -is [String])
 			{
 
 				"[{0}] Hostname provide, looking in global connection tracker for connection." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				[HPOneView.Appliance.Connection]$Hostname = ${Global:ConnectedSessions} | Where-Object Name -eq $Hostname
+				[void]$_ConnectionsToProcess.Add((${Global:ConnectedSessions} | Where-Object Name -eq $_ApplianceConnection))
+
+				"[{0}] Found: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), (${Global:ConnectedSessions} | Where-Object Name -eq $_ApplianceConnection) | Write-Verbose
 
 			}
 
-			if ($Null -eq $Hostname.SessionID)
+			elseif ($Null -eq $_ApplianceConnection.SessionID)
 			{
 
 				'[{0}] User Session not found in $Global:ConnectedSessions' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				if ($Hostname -is [HPOneView.Appliance.Connection])
-				{
-
-					$_ConnectionName = $Hostname.Name
-
-				}
-
-				else
-				{
-				
-					$_ConnectionName  = $Hostname
-				
-				}
-
-				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff ObjectNotFound 'Hostname' -Message "User session for '$_ConnectionName' not found in library connection tracker (`${Global:ConnectedSessions}). Did you accidentially remove it, or have you not created a session to an appliance?"
+				$ExceptionMessage = "User session for '{0}' not found in library connection tracker (`$Global:ConnectedSessions). Did you accidentially remove it, or have you not created a session to an appliance?" -f $_ApplianceConnection.ToString()
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException UnableToLogoff ObjectNotFound 'ApplianceConnection' -Message $ExceptionMessage
 				$PSCmdlet.WriteError($ErrorRecord)
 
 			}
-		   
+		
 			else
 			{
 
-				"[{0}] Processing Connection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Hostname.Name | Write-Verbose
+				"[{0}] Adding Connection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ApplianceConnection | Write-Verbose
 
-				"[{0}] Attempting to logoff user '{1}' from '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $Hostname.Username, $Hostname.Name | Write-Verbose
-
-				"[{0}] Sending Delete Session ID request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-				try 
-				{
-				
-					$Resp = Send-HPOVRequest $ApplianceLoginSessionsUri DELETE $Hostname.SessionId -Hostname $Hostname
-
-					"[{0}] Removing connection from global connection tracker" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					$Global:ConnectedSessions.Remove($Hostname)
-					# $Validator.RemoveTrustedHost($Hostname.Name)
-					[HPOneView.PKI.SslValidation]::RemoveTrustedHost($Hostname.Name)
-					
-				}
-				
-				catch
-				{
-				
-					"[{0}]  Unable to complete logoff. Displaying error" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-					$PSCmdlet.ThrowTerminatingError($_)
-				
-				}
+				[void]$_ConnectionsToProcess.Add($_ApplianceConnection)
 
 			}
 
 		}
-
+		
 	}
 
 	End
 	{
+
+		For ($c = $_ConnectionsToProcess.Count - 1; $c -ge 0; $c--)
+		{
+
+			"[{0}] Processing Connection: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ConnectionsToProcess[$c].Name | Write-Verbose
+
+			"[{0}] Attempting to logoff user '{1}' from '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ConnectionsToProcess[$c].Username, $_ConnectionsToProcess[$c] | Write-Verbose
+
+			"[{0}] Sending Delete Session ID request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			try 
+			{
+			
+				$Resp = Send-HPOVRequest -Uri $ApplianceLoginSessionsUri -Method DELETE -Body $_ConnectionsToProcess[$c].SessionId -Hostname $_ConnectionsToProcess[$c]
+
+				"[{0}] Removing connection from global connection tracker" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$ConnectedSessions.RemoveConnection($_ConnectionsToProcess[$c])
+				
+			}
+			
+			catch
+			{
+			
+				"[{0}]  Unable to complete logoff. Displaying error" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$PSCmdlet.ThrowTerminatingError($_)
+			
+			}
+
+		}
+
 
 		if ($ConnectedSessions.Count -eq 1 -and (-not($ConnectedSessions | Where-Object Default)) -and $null -ne $ConnectedSessions[0])
 		{
@@ -7684,7 +7621,7 @@ function Disconnect-HPOVMgmt
 	}
 
 }
-`
+
 function Set-HPOVApplianceDefaultConnection
 {
 
@@ -7886,14 +7823,16 @@ function Test-HPOVAuth
 						If (-not(${Global:ConnectedSessions} | Where-Object name -eq $_Appliance.Name))
 						{
 
-							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+							$ExceptionMessage = "No Appliance connection session found for '{0}' within `$Global:ConnectedSessions global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again." -f $_Appliance.Name
+							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message $ExceptionMessage
 
 						}
 
 						if ($_Appliance.SessionID -eq 'TemporaryConnection')
 						{
 
-							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionState InvalidOperation "$($Caller):$($_Appliance.Name)" -Message "The ApplianceConnection provided is a Temporary Connection, which is an invlaid state your PowerShell environment has become.  Plesae restart your session and try your calls again."
+							$ExceptionMessage = "The ApplianceConnection provided is a Temporary Connection, which is an invlaid state your PowerShell environment has become.  Plesae restart your session and try your calls again."
+							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException InvalidApplianceConnectionState InvalidOperation "$($Caller):$($_Appliance.Name)" -Message $ExceptionMessage
 
 						}
 
@@ -7907,7 +7846,8 @@ function Test-HPOVAuth
 						if (-not(${Global:ConnectedSessions} | Where-Object name -eq $_Appliance))
 						{
 
-							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message "No connection session found for '$($_Appliance)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+							$ExceptionMessage = "No connection session found for '{0}' within `$Global:ConnectedSessions global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again." -f $_Appliance
+							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message $ExceptionMessage
 
 						}
 
@@ -7928,7 +7868,8 @@ function Test-HPOVAuth
 						If (-not(${Global:ConnectedSessions} | Where-Object name -eq $_Appliance.Name))
 						{
 
-							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+							$ExceptionMessage = "No Appliance connection session found for '{0}' within `$Global:ConnectedSessions global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again." -f $_Appliance.Name
+							$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message $ExceptionMessage
 
 						}
 
@@ -7981,7 +7922,8 @@ function Test-HPOVAuth
 					If (-not(${Global:ConnectedSessions} | Where-Object name -eq $Appliance.Name))
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message "No Appliance connection session found for '$($_Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+						$ExceptionMessage = "No Appliance connection session found for '{0}' within `$Global:ConnectedSessions global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again." -f $_Appliance.Name
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance.Name)" -Message $ExceptionMessage
 
 					}
 
@@ -7993,7 +7935,8 @@ function Test-HPOVAuth
 					if (-not(${Global:ConnectedSessions} | Where-Object name -eq $_Appliance))
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message "No connection session found for '$($_Appliance)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+						$ExceptionMessage = "No connection session found for '{0}' within `$Global:ConnectedSessions global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again." -f $_Appliance
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($_Appliance)" -Message $ExceptionMessage
 
 					}
 
@@ -8009,12 +7952,11 @@ function Test-HPOVAuth
 				{'System.Management.Automation.PSCustomObject', 'HPOneView.Library.ApplianceConnection' -contains $_}
 				{
 
-					# "[{0}] Received PSCustomObject: $($Appliance | Format-List *)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
 					If (-not(${Global:ConnectedSessions} | Where-Object name -eq $Appliance.Name))
 					{
 
-						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($Appliance.Name)" -Message "No Appliance connection session found for '$($Appliance.Name)' within `${Global:ConnectedSessions} global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again."
+						$ExceptionMessage = "No Appliance connection session found for '{0}' within `$Global:ConnectedSessions global variable.  This CMDLET requires at least one active connection to an appliance.  Please use Connect-HPOVMgmt to establish a connection, then try your command again." -f $Appliance.Name
+						$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "$($Caller):$($Appliance.Name)" -Message $ExceptionMessage
 
 					}
 
@@ -11773,7 +11715,7 @@ function Get-HPOVXApiVersion
 
 						"[{0}] Removing temporary Session object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-						[void]${Global:ConnectedSessions}.Remove($_appliance)
+						$ConnectedSessions.RemoveConnection($_appliance)
 
 					}
 
@@ -11813,7 +11755,7 @@ function Get-HPOVXApiVersion
 
 					"[{0}] Removing temporary Session object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-					[void]${Global:ConnectedSessions}.Remove($ApplianceConnection)
+					$ConnectedSessions.RemoveConnection($ApplianceConnection)
 
 				}
 
@@ -11933,7 +11875,7 @@ function Get-HPOVEulaStatus
 
 				"[{0}] Removing temporary Session object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				[void]${Global:ConnectedSessions}.Remove($Appliance)
+				$ConnectedSessions.RemoveConnection($Appliance)
 
 			}
 
@@ -12059,7 +12001,7 @@ function Set-HPOVEulaStatus
 
 				"[{0}] Removing temporary Session object" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-				[void]${Global:ConnectedSessions}.Remove($Appliance)
+				$ConnectedSessions.RemoveConnection($Appliance)
 
 			}
 
@@ -12426,7 +12368,7 @@ function Get-HPOVApplianceDateTime
 			New-Object HPOneView.Appliance.ApplianceLocaleDateTime($_appliancedatetime.locale,
 																   $_appliancedatetime.timezone,
 																   $_appliancedatetime.dateTime,
-																   $_appliancedatetime.ntpServers,
+																   [String[]]$_appliancedatetime.ntpServers,
 																   $SyncWithHost,
 																   $_appliancedatetime.LocaleDisplayName,
 																   $_appliancedatetime.ApplianceConnection)
@@ -19778,7 +19720,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 		switch ($InputObject.category)
 		{
 
-			'enclosures'
+			$ResourceCategoryEnum.Enclosure
 			{
 
 				"[{0}] Processing Enclosure: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
@@ -19787,7 +19729,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 
 			}
 
-			'logical-enclosures'
+			$ResourceCategoryEnum.LogicalEnclosure
 			{
 
 				"[{0}] Processing Logical Enclosure: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
@@ -19815,7 +19757,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 
 			}
 
-			'enclosure-groups'
+			$ResourceCategoryEnum.EnclosureGroup
 			{
 
 				"[{0}] Processing Enclosure Group, and getting associated Logical Enclosures: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
@@ -19859,7 +19801,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 
 			}
 
-			'server-hardware'
+			$ResourceCategoryEnum.ServerHardware
 			{
 
 				"[{0}] Processing server hardware device: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
@@ -19868,7 +19810,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 
 			}
 
-			${ResourceCategoryEnum.ServerProfile}
+			$ResourceCategoryEnum.ServerProfile
 			{
 
 				"[{0}] Processing server profile: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
@@ -36035,7 +35977,7 @@ function Set-HPOVEnclosureGroup
 	(
 
 		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
-		[Alias('Name')]
+		[Alias('EnclosureGroup')]
 		[Object]$InputObject,
 
 		[Parameter (ParameterSetName = 'Default', Mandatory = $false)]
@@ -36046,15 +35988,34 @@ function Set-HPOVEnclosureGroup
 		[ValidateNotNullOrEmpty()]
 		[String]$ConfigurationScript,
 		 
-		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
-		[ValidateNotNullOrEmpty()]
-		[Alias ('LogicalInterconnectGroupUri','LogicalInterconnectGroup')]
-		[object]$LogicalInterconnectGroupMapping,
+		# [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
+		# [ValidateNotNullOrEmpty()]
+		# [Alias ('LogicalInterconnectGroupUri','LogicalInterconnectGroup')]
+		# [object]$LogicalInterconnectGroupMapping,
 
-		[Parameter (ParameterSetName = 'Default', Mandatory = $false)]
-		[Switch]$Async,
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		# [Parameter (Mandatory = $false, ParameterSetName = 'Synergy')]
+		[ValidateSet ('RedundantPowerFeed','RedundantPowerSupply', IgnoreCase = $false)]
+		[string]$PowerRedundantMode = "RedundantPowerFeed",
+
+		# [Parameter (Mandatory = $false, ParameterSetName = 'Synergy')]
+		# [ValidateSet ('AddressPool', 'DHCP', 'External')]
+		# [String]$IPv4AddressType,
+		
+		# [Parameter (Mandatory = $false, ParameterSetName = 'Synergy')]
+		# [ValidateNotNullOrEmpty()]
+		# [object]$AddressPool,
+		
+		# [Parameter (Mandatory = $false, ParameterSetName = 'Synergy')]
+		# [ValidateSet ('None', 'Internal', 'External')]
+		# [String]$DeploymentNetworkType,
+		
+		# [Parameter (Mandatory = $false)]
+		# [ValidateNotNullOrEmpty()]
+		# [object]$DeploymentNetwork,
 
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
+		# [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Synergy')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
 		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
@@ -36156,17 +36117,188 @@ function Set-HPOVEnclosureGroup
 	Process
 	{
 
+		# Validate InputObject
+		if ($InputObject.category -ne $ResourceCategoryEnum['EnclosureGroup'])
+		{
+
+			$ExceptionMessage = "The provided -InputObject value is not an {0} resource.  Please correct the input object and try again." -f $ResourceCategoryEnum['EnclosureGroup']
+			$ErrorRecord = New-ErrorRecord HPOneView.InputObjectResourceException InvalidResourceObject InvalidArgument 'InputObject' -TargetType 'PSObject' -Message $ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		$_EnclosureGroupToUpdate = $null
+
+		try
+		{
+
+			$_EnclosureGroupToUpdate = $InputObject.PSObject.Copy()
+
+		}
+
+		catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
+
+		}
+
+		# Determine operations that need to be performed
 		switch ($PSBoundParameters.Keys)
 		{
+
+			'Name'
+			{
+
+				"[{0}] Updating Name." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$_EnclosureGroupToUpdate.name = $Name
+
+			}
 
 			'ConfigurationScript'
 			{
 
+				# Validate the enclosure group is for c-Class not Synergy
+				if (-not $InputObject.enclosureTypeUri.StartsWith($CClassEnclosureTypeUri))
+				{
+
+					$ExceptionMessage = "The provided -InputObject resource object is not a c-Class enclosure.  Please correct the input object and try again."
+					$ErrorRecord = New-ErrorRecord HPOneView.InputObjectResourceException InvalidResourceObject InvalidArgument 'InputObject' -TargetType 'PSObject' -Message $ExceptionMessage
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
 				"[{0}] Updating configuration script" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				
+				$_Uri = $InputObject.Uri + "/script"
+
+				$_EnclosureGroupToUpdate | Add-Member -NotePropertyName configurationScript -NotePropertyValue $ConfigurationScript
 
 			}
+
+			'PowerRedundantMode'
+			{
+
+				"[{0}] Updating PowerRedundantMode." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$_EnclosureGroupToUpdate.powerMode = $PowerRedundantMode
+
+			}
+
+			'LogicalInterconnectGroupMapping'
+			{
+
+				"[{0}] Updating PowerRedunLogicalInterconnectGroupMappingdantMode." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				foreach ($_FrameLig in $LogicalInterconnectGroupMapping.GetEnumerator())
+				{
+
+					if (($_FrameLig -is [System.Collections.IEnumerable] -and $_FrameLig -isnot [String] -and $_FrameLig -isnot [Array]) -or ($_FrameLig -is [System.Collections.DictionaryEntry]))
+					{
+
+						$_FrameLigIndex = $_FrameLig.Key.ToLower().TrimStart('frameenclosure')
+
+						$_FrameLig = $_FrameLig.Value
+
+						'[{0}] Frame LIG Index ID: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_FrameLigIndex | Write-Verbose
+
+					}	
+
+					ForEach ($_LigEntry in $_FrameLig)
+					{
+
+						'[{0}] Processing LIG: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_LigEntry.name | Write-Verbose
+
+						if (('sas-logical-interconnect-groups' -eq $_LigEntry.category) -or ('-1' -contains $_LigEntry.enclosureIndexes))
+						{
+
+							'[{0}] Frame LIG is either Natasha or Carbon, storing EnclosureIndexID from FrameLigIndex: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_FrameLigIndex | Write-Verbose
+
+							$_EnclosureIndexID = $_FrameLigIndex
+
+						}
+
+						else
+						{
+
+							$_EnclosureIndexID = $null
+
+						}
+
+						if ('logical-interconnect-groups','sas-logical-interconnect-groups' -notcontains $_LigEntry.category)
+						{
+
+							$Message     = "The provided Logical Interconnect Group value for Bay {0} is not a valid Logical Interconnect Group Object {1}." -f $_LigEntry.Name, $_LigEntry.Value.category
+							$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidLogicalInterconnectGroupCategory InvalidType 'LogicalInterconnectGroupMapping' -TargetType 'PSObject' -Message $Message
+						
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}					
+
+						if ($_LigEntry.enclosureType -NotMatch 'SY')
+						{
+
+							$Message     = "The provided Logical Interconnect Group {0} is modeled for the HPE BladeSystem C7000 enclosure type.  Please provide a Synergy Logical Interconnect Grou presource, and try again." -f $_LigEntry.name
+							$ErrorRecord = New-ErrorRecord InvalidOperationException InvalidLogicalInterconnectGroupCategory InvalidType 'LogicalInterconnectGroupMapping' -TargetType 'PSObject' -Message $Message
+						
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
+						
+						# Loop through InterconnectMapTemplate Entries
+						ForEach ($_InterconnectMapTemplate in $_LigEntry.interconnectMapTemplate.interconnectMapEntryTemplates)
+						{
+
+							# Detect I3S setting in the Uplink Sets of the LIG
+							if (-not $_I3SSettingsFound)
+							{
+								
+								$_I3SSettingsFound = $_LigEntry.uplinkSets | Where-Object ethernetNetworkType -eq 'ImageStreamer'
+							
+							}
+
+							$_InterconnectBayMapping = NewObject -InterconnectBayMapping
+
+							$_InterconnectBayMapping.enclosureIndex              = if (-not $_EnclosureIndexID) { $_InterconnectMapTemplate.enclosureIndex } else { $_EnclosureIndexID }
+							$_InterconnectBayMapping.interconnectBay             = ($_InterconnectMapTemplate.logicalLocation.locationEntries | Where-Object type -eq 'Bay').relativeValue
+							$_InterconnectBayMapping.logicalInterconnectGroupUri = $_LigEntry.uri 
+
+							# If LIG is not present in the EG interconnectBayMapping
+							if ((Compare-Object $_EnclosureGroup.interconnectBayMappings -DifferenceObject $_InterconnectBayMapping -Property enclosureIndex,interconnectBay,logicalInterconnectGroupUri -IncludeEqual).SideIndicator -notcontains '==') 
+							{
+
+								'[{0}] Mapping Frame {1} Bay {2} -> {3} ({4})' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_InterconnectBayMapping.enclosureIndex, $_InterconnectBayMapping.interconnectBay, $_LigEntry.Name, $_LigEntry.uri | Write-Verbose
+
+								[void]$_EnclosureGroup.interconnectBayMappings.Add($_InterconnectBayMapping)
+
+								$_c++
+
+							}
+							
+						}
+
+					}	
+
+				}
+
+			}
+
+		}
+
+		"[{0}] Updating enclosure group configuration." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		try
+		{
+
+			Send-HPOVRequest -Uri $_EnclosureGroupToUpdate.Uri -Method PUT -Body $_EnclosureGroupToUpdate -Hostname $InputObject.ApplianceConnection
+
+		}
+
+		catch
+		{
+
+			$PSCmdlet.ThrowTerminatingError($_)
 
 		}
 
@@ -36723,7 +36855,7 @@ function Add-HPOVEnclosure
 
 					"[{0}] - EnclosureGroup object name: '$($EnclosureGroup.name)'" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-					if ($EnclosureGroup.category -ne 'enclosure-groups')
+					if ($EnclosureGroup.category -ne $ResourceCategoryEnum['EnclosureGroup'])
 					{
 
 						$ErrorRecord = New-ErrorRecord HPOneView.EnclosureGroupResourceException InvalidEnclosureGroupObject InvalidArgument 'EnclosureGroup' -TargetType 'PSObject' -Message "The EnclosureGroup Parameter value contains an invalid or unsupported resource category, '$($EnclosureGroup.category)'.  The object category must be 'enclosure-groups'.  Please correct the value and try again."
@@ -37425,13 +37557,14 @@ function Update-HPOVEnclosure
 
 			}
 
-			"[{0}] Enclosure PSObject: $($InputObject | out-string)." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			"[{0}] Enclosure PSObject: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($InputObject | out-string) | Write-Verbose
 
 			# Validate the Input object is the allowed category
-			if ($InputObject.category -ne 'enclosures')
+			if ($InputObject.category -ne $ResourceCategoryEnum['Enclosure'])
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException InvalidEnclosureCategory InvalidArgument 'InputObject' -TargetType 'PSObject' -Message "The provided InputObject object ($($InputObject.name)) category '$($InputObject.category)' is not an allowed value.  Expected category value is 'enclosures'. Please correct your input value."
+				$ExceptionMessage = "The provided InputObject object ({0}) category '{1}' is not an allowed value.  Expected category value is 'enclosures'. Please correct your input value." -f $InputObject.name, $InputObject.category
+				$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException InvalidEnclosureCategory InvalidArgument 'InputObject' -TargetType 'PSObject' -Message $ExceptionMessage
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
@@ -37439,7 +37572,8 @@ function Update-HPOVEnclosure
 			if(-not $InputObject.ApplianceConnection)
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException InvalidEnclosureObject InvalidArgument 'InputObject' -TargetType 'PSObject' -Message "The provided InputObject object ($($InputObject.name)) does not contain the required 'ApplianceConnection' object property. Please correct your input value."
+				$ExceptionMessage = "The provided InputObject object ({0}) does not contain the required 'ApplianceConnection' object property. Please correct your input value." -f $InputObject.name
+				$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException InvalidEnclosureObject InvalidArgument 'InputObject' -TargetType 'PSObject' -Message $ExceptionMessage
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 			}
@@ -37457,7 +37591,7 @@ function Update-HPOVEnclosure
 			ForEach ($_encl in $InputObject)
 			{
 					
-				"[{0}] Enclosure value: $($_encl)." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+				"[{0}] Enclosure value: {1}." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_encl | Write-Verbose
 
 				"[{0}] Looking for Enclosure Name on connected sessions provided" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
@@ -37465,7 +37599,7 @@ function Update-HPOVEnclosure
 				ForEach ($_appliance in $ApplianceConnection)
 				{
 
-					"[{0}] Processing '$($_appliance.Name)' Session." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+					"[{0}] Processing '{1}' Session." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name | Write-Verbose
 
 					Try
 					{
@@ -38110,7 +38244,7 @@ function New-HPOVLogicalEnclosure
 
 				"[{0}] Synergy Frame object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($Enclosure | Out-String) | Write-Verbose 
 
-				if ($Enclosure.category -ne 'enclosures')
+				if ($Enclosure.category -ne $ResourceCategoryEnum['Enclosure'])
 				{
 				
 					$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException InvalidResourceObject InvalidArgument 'Enclosure' -TargetType 'PSObject' -Message "The provided -Enclosure resource object is not an Enclosure or Synergy Frame.  Please correct the input object and try again."
@@ -38244,7 +38378,7 @@ function New-HPOVLogicalEnclosure
 
 				"[{0}] Enclosure Group object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($EnclosureGroup | ConvertTo-Json -Depth 99 | Out-String) | Write-Verbose 
 
-				if ($EnclosureGroup.category -ne 'enclosure-groups')
+				if ($EnclosureGroup.category -ne $ResourceCategoryEnum['EnclosureGroup'])
 				{
 				
 					$ErrorRecord = New-ErrorRecord HPOneView.EnclosureGroupResourceException InvalidResourceObject InvalidArgument -TargetType 'PSObject' -Message "The provided -EnclosureGroup resource object is not an Enclosure Group.  Please correct the input object and try again."
@@ -38292,7 +38426,7 @@ function New-HPOVLogicalEnclosure
 
 					"[{0}] FirmwareBasline object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($FirmwareBasline | Out-String) | Write-Verbose 
 
-					if ($FirmwareBasline.category -ne 'firmware-drivers')
+					if ($FirmwareBasline.category -ne $ResourceCategoryEnum['Baseline'])
 					{
 					
 						$ErrorRecord = New-ErrorRecord HPOneView.FirmwareBaselineResourceException InvalidResourceObject InvalidArgument -TargetType 'PSObject' -Message "The provided -FirmwareBasline resource object is not a Firmwaer Baseline.  Please correct the input object and try again."
@@ -38513,7 +38647,7 @@ function Set-HPOVLogicalEnclosure
 
 				"[{0}] Synergy Frame object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($InputObject | Out-String) | Write-Verbose 
 
-				if ($InputObject.category -ne 'logical-enclosures')
+				if ($InputObject.category -ne $ResourceCategoryEnum['LogicalEnclosure'])
 				{
 				
 					$ExceptionMessage = "The provided -Enclosure resource object is not an Enclosure or Synergy Frame.  Please correct the input object and try again."
@@ -38623,7 +38757,7 @@ function Set-HPOVLogicalEnclosure
 
 						"[{0}] Enclosure Group object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($EnclosureGroup | ConvertTo-Json -Depth 99 | Out-String) | Write-Verbose 
 
-						if ($EnclosureGroup.category -ne 'enclosure-groups')
+						if ($EnclosureGroup.category -ne $ResourceCategoryEnum['EnclosureGroup'])
 						{
 						
 							$ExceptionMessage = "The provided -EnclosureGroup resource object is not an Enclosure Group.  Please correct the input object and try again."
@@ -38860,7 +38994,7 @@ function Update-HPOVLogicalEnclosure
 			"[{0}] LogicalEnclosure PSObject: $($InputObject | Out-String)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			# Validate the Input object is the allowed category
-			if ($InputObject.category -ne 'logical-enclosures')
+			if ($InputObject.category -ne $ResourceCategoryEnum['LogicalEnclosure'])
 			{
 
 				$ErrorRecord = New-ErrorRecord HPOneView.LogicalEnclosureResourceException InvalidLogicalEnclosureCategory InvalidArgument 'InputObject' -TargetType 'PSObject' -Message "The provided LogicalEnclosure object ($($LogicalEnclosure.name)) category '$($LogicalEnclosure.category)' is not an allowed value.  Expected category value is 'logical-enclosures'. Please correct your input value."
@@ -41193,7 +41327,7 @@ function Get-HPOVEnclosure
 
 				"[{0}] Adding Enclosure resource '{1}' to collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_member.name | Write-Verbose 
 
-				$_member.PSObject.TypeNames.Insert(0,'HPOneView.Enclosure')	
+				$_member.PSObject.TypeNames.Insert(0,'HPOneView.Servers.Enclosure')	
 	
 				[void]$_EnclosureCollection.Add($_member) 
 
@@ -43827,7 +43961,7 @@ function Show-HPOVFirmwareReport
 					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
 					{
 						
-						  "[{0}] Collecting Enclosure Firmware Information - {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_ProgressParams | Out-String) | Write-Verbose
+						"[{0}] Collecting Enclosure Firmware Information - {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_ProgressParams | Out-String) | Write-Verbose
 
 					}
 					
@@ -43846,7 +43980,6 @@ function Show-HPOVFirmwareReport
 						# Get associated Logical Enclosures with Enclosure Group
 						$_uri = '{0}?parentUri={1}&name=ENCLOSURE_GROUP_TO_LOGICAL_ENCLOSURE' -f $AssociationsUri, $_resource.uri
 						[Array]$_ResourcesFromIndexCol = Get-AllIndexResources -Uri $_uri -ApplianceConnection $_resource.ApplianceConnection.Name
-						# [Array]$_LogicalEnclosures = (Send-HPOVRequest -Uri $_uri -Hostname $_resource.ApplianceConnection.Name).members | ForEach-Object { Send-HPOVRequest $_.childUri -Hostname $_.ApplianceConnection.Name}
 
 					}
 					
@@ -43865,7 +43998,7 @@ function Show-HPOVFirmwareReport
 
 						"[{0}] Total number of Logical Enclosures to Process: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ResourcesFromIndexCol.Count | Write-Verbose 
 
-						foreach ($_le in $_LogicalEnclosures) 
+						foreach ($_le in $_ResourcesFromIndexCol) 
 						{ 
 
 							# Loop through LE EnclosureUris
@@ -43894,8 +44027,8 @@ function Show-HPOVFirmwareReport
 									ID               = 10;
 									ParentID         = 1;
 									Activity         = "Create Enclosure Firmware Report";
-									CurrentOperation = ("[{0}\{1}] Processing '{2}' Enclosure" -f $_e, $_TotalEnclosures, $_enclosure.name);
-									PercentComplete  = (($_e / $_TotalEnclosures) * 100)
+									CurrentOperation = ("[{0}\{1}] Processing '{2}' Enclosure" -f $_e, $_ResourcesFromIndexCol.Count, $_enclosure.name);
+									PercentComplete  = (($_e / $_ResourcesFromIndexCol.Count) * 100)
 
 								}
 
@@ -44422,8 +44555,8 @@ function Get-EnclosureFirmware
 	Process 
 	{
 		
-		"[{0}] Enclosure Object passed via pipeline: $($PipelineInput)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-		"[{0}] Processing Enclosure firmware report for: '$($Enclosure.name)'" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+		"[{0}] Enclosure Object passed via pipeline: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [bool]$PipelineInput | Write-Verbose
+		"[{0}] Processing Enclosure firmware report for: '{1}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Enclosure.name | Write-Verbose
 
 		# Use the Enclosure FwBaseline if it is set
 		if (($Enclosure.isFwManaged) -and ($null -eq $Baseline)) 
@@ -44607,8 +44740,8 @@ function Get-EnclosureFirmware
 
 						"[{0}] Adding '{1}, OA {2}' to firmware report collection" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Enclosure.name, $_oa.bayNumber | Write-Verbose
 
-						$_EnclosureDeviceReport = New-Object HPOneView.Enclosure+Firmware(("{0}, OA {1}" -f $Enclosure.name, $_oa.bayNumber),
-																						'Onboard Administrator',
+						$_EnclosureDeviceReport = New-Object HPOneView.Servers.Enclosure+Firmware(("{0}, OA {1}" -f $Enclosure.name, $_oa.bayNumber),
+																						'OnboardAdministrator',
 																						'Firmware',
 																						$_oa.fwVersion,
 																						$_BaselineVer,
@@ -44687,14 +44820,14 @@ function Get-EnclosureFirmware
 					
 					}
 
-					$_EnclosureDeviceReport = New-Object HPOneView.Enclosure+Firmware(("{0} (Bay {1})" -f $_em.model, $_em.bayNumber),
+					$_EnclosureDeviceReport = New-Object HPOneView.Servers.Enclosure+Firmware(("{0} (Bay {1})" -f $_em.model.Trim(), $_em.bayNumber),
+																					  'EnclosureManager',
 																					  'Firmware',
 																					  $_em.fwVersion,
 																					  $_BaselineVer,
 																					  $BaselineName,
 																					  $BaselineUri,
 																					  $Enclosure.name,
-																					  $Enclosure.enclosureType,
 																					  $Enclosure.uri,
 																					  $Enclosure.ApplianceConnection)
 
@@ -44889,7 +45022,7 @@ function Get-EnclosureFirmware
 	End 
 	{
 
-		Return $_EnclosureReport
+		Return $_EnclosureReport | Sort-Object Name
 
 	}
 
@@ -45735,7 +45868,7 @@ function Get-InterconnectFirmware
 								
 		}
 
-		$_EnclosureDeviceReport = New-Object HPOneView.Enclosure+Firmware($Interconnect.name,
+		$_EnclosureDeviceReport = New-Object HPOneView.Servers.Enclosure+Firmware($Interconnect.name,
 																		  $Interconnect.model,
 																		  'Firmware',
 																		  $_InterconnectFirmwareVersion,
@@ -82663,10 +82796,11 @@ function New-HPOVServerProfile
 			}
 
 			# User provided UEFI or UEFIOptimized for a non-Gen9 platform.
-			if ($BootMode -ne "BIOS" -and $ServerHardwareType.model -notmatch "Gen9")
+			if ($BootMode -ne "BIOS" -and $ServerHardwareType.model -notmatch "Gen9|Gen10")
 			{
 
-				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootModeNotSupported InvalidArgument 'BootMode' -Message "The -bootMode Parameter was provided and the Server Hardware model '$($serverHardwareType.model)' does not support this Parameter.  Please verify the Server Hardware Type is at least an HPE ProLiant Gen9."
+				$ExceptionMessage = "The -BootMode Parameter was provided and the Server Hardware model '{0}' does not support this Parameter.  Please verify the Server Hardware Type is at least an HPE ProLiant Gen9." -f $ServerHardwareType.model
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootModeNotSupported InvalidArgument 'BootMode' -Message $ExceptionMessage
 				$PSCmdlet.ThrowTerminatingError($ErrorRecord)    
 
 			}
@@ -82691,8 +82825,8 @@ function New-HPOVServerProfile
 						$ServerProfile.hideUnusedFlexNics = $true
 						$ServerProfile.affinity           = $Null
 
-					}						
-
+					}
+					
 				}
 				
 				{$_ -match 'Gen7|Gen8'}
@@ -82768,7 +82902,8 @@ function New-HPOVServerProfile
 						# If ($BootOrder -contains "Floppy" -and $BootMode -match "UEFI")
 						{
 							
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	"The -BootOrder Parameter contains 'Floppy' which is an invalid boot option for a UEFI-based system."
+							$ExceptionMessage = "The -BootOrder Parameter contains 'Floppy' which is an invalid boot option for a UEFI-based system."
+							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	$ExceptionMessage
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 						}
@@ -82797,7 +82932,8 @@ function New-HPOVServerProfile
 						# Elseif (($BootOrder.count -gt 1) -and $BootMode -match 'UEFI')
 						{
 
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	("The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode)
+							$ExceptionMessage = "The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode
+							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	$ExceptionMessage
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 				
 						}
@@ -83260,6 +83396,14 @@ function New-HPOVServerProfile
 						$_ExceptionMessage = "Unsupported LogicalDisk policy with Virtual Machine Appliance.  The requested Controller Mode '{0}' is not supported with the expected Server Hardware Type, which only supports '{1}'" -f $__controller.mode, ([System.String]::Join("', '", $ServerHardwareType.storageCapabilities.controllerModes)) 
 						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedImportConfigurationSetting InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					# Need to set Gen10+ controller mode to Mixed, especially if ImportConfiguration is requested
+					elseif ($__controller.mode -eq 'RAID' -and 'Mixed' -eq $ServerHardwareType.storageCapabilities.controllerModes)
+					{
+
+						$__controller.mode = "Mixed"
 
 					}
 
@@ -86238,7 +86382,7 @@ function New-HPOVServerProfileTemplate
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[Alias ('boot')]
-		[switch]$ManageBoot,
+		[bool]$ManageBoot = $true,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
@@ -86463,6 +86607,15 @@ function New-HPOVServerProfileTemplate
 		$_spt.description                   = $Description
 		$_spt.serverProfileDescription      = $ServerProfileDescription		
 		$_spt.affinity                      = $Affinity
+
+		if (-not $ManageBoot -and ($PSBoundParameters['BootMode'] -or $PSBoundParameters['BootOrder'] -or $PSBoundParameters['PxeBootPolicy']))
+		{
+
+			$ExceptionMessage = "Attempting to set Boot Mode or Boot Order and not enabling ManageBoot is not supported.  Either remove the -BootOrder,-PxeBootPolicy and/or -BootMode parameters, or add -ManageBoot switch parameter."
+			$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileTemplateResourceException InvalidManageBootModeState InvalidArgument 'ManageBoot' -TargetType 'Boolean' -Message	$ExceptionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
 							
 		# Check to see if the serverHardwareType or enclosureGroup is null, and generate error(s) then break.
 		if (-not($ServerHardwareType))
@@ -86644,7 +86797,8 @@ function New-HPOVServerProfileTemplate
 				if ('Unmanaged','BIOS' -notcontains $BootMode)
 				{
 
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootModeNotSupported InvalidArgument 'BootMode' -Message "The -BootMode Parameter was provided and the Server Hardware model '$($serverHardwareType.model)' does not support this Parameter.  Please verify the Server Hardware Type is at least an HPE ProLiant Gen9."
+					$ExceptionMessage = "The -BootMode Parameter was provided and the Server Hardware model '{0}' does not support this Parameter.  Please verify the Server Hardware Type is at least an HPE ProLiant Gen9." -f $ServerHardwareType.model
+					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BootModeNotSupported InvalidArgument 'BootMode' -Message $ExceptionMessage
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)    
 
 				}
@@ -86665,91 +86819,98 @@ function New-HPOVServerProfileTemplate
 
 				"[{0}] Gen 9/10 Server, setting BootMode to: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $BootMode | Write-Verbose 
 
-				$_spt.bootMode = NewObject -ServerProfileBootMode
-
-				switch ($BootMode) 
+				if ($ManageBoot)
 				{
 
-					'Unmanaged'
+					$_spt.bootMode = NewObject -ServerProfileBootMode
+
+					switch ($BootMode) 
 					{
 
-						$_spt.bootMode.manageMode = $false						
-
-					}
-
-					"BIOS" 
-					{
-
-						$_spt.bootMode = NewObject -ServerProfileBootModeLegacyBios
-
-						$_spt.bootMode.manageMode = $true;
-						$_spt.bootMode.mode       = $BootMode;						
-						
-					}
-
-					{ "UEFI","UEFIOptimized" -match $_ } 
-					{
-						
-						$_spt.bootMode.manageMode    = $true;
-						$_spt.bootMode.mode          = $BootMode;
-						$_spt.bootMode.pxeBootPolicy = $PxeBootPolicy
-						
-						if ($ServerHardwareType.model -match 'DL|XL|ML')
+						'Unmanaged'
 						{
 
-							$_spt.boot.manageBoot = $false
+							$_spt.bootMode.manageMode = $false						
 
 						}
-						
+
+						"BIOS" 
+						{
+
+							$_spt.bootMode = NewObject -ServerProfileBootModeLegacyBios
+
+							$_spt.bootMode.manageMode = $true;
+							$_spt.bootMode.mode       = $BootMode;						
+							
+						}
+
+						{ "UEFI","UEFIOptimized" -match $_ } 
+						{
+							
+							$_spt.bootMode.manageMode    = $true;
+							$_spt.bootMode.mode          = $BootMode;
+							$_spt.bootMode.pxeBootPolicy = $PxeBootPolicy
+							
+							if ($ServerHardwareType.model -match 'DL|XL|ML')
+							{
+
+								$_spt.boot.manageBoot = $false
+
+							}
+							
+						}
+
+					}
+
+					"[{0}] Processing Gen 9 Server BootOrder settings." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 
+
+					if ($_spt.boot.manageBoot -and ($BootOrder -contains "Floppy") -and ($BootMode -match "UEFI"))
+					{
+							
+						$ExceptionMessage = "The -BootOrder Parameter contains 'Floppy' which is an invalid boot option for a UEFI-based system."
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	$ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+					}
+
+					elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and $BootMode -eq "BIOS") 
+					{
+
+						"[{0}] No boot order provided for Gen9 Server resource type.  Defaulting to 'CD','USB','HardDisk','PXE'" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+						[System.Collections.ArrayList]$_spt.boot.order = @('CD','USB','HardDisk','PXE')
+				
+					}
+
+					elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI' -and $ServerHardwareType.model -notmatch 'DL')
+					{
+
+						"[{0}] No boot order provided for BL Gen9 Server resource type.  Defaulting to 'HardDisk'." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+						[System.Collections.ArrayList]$_spt.boot.order = @('HardDisk')
+				
+					}
+
+					elseif (($BootOrder.count -gt 1) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI')
+					{
+
+						$ExceptionMessage = "The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	$ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+				
+					}
+
+					elseif ($BootOrder -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI' -and $ServerHardwareType.model -notmatch 'DL')
+					{
+
+						"[{0}] Adding provided BootOrder {1} to Server Profile object." -f $MyInvocation.InvocationName.ToString().ToUpper(), [String]::Join(', ', $BootOrder) | Write-Verbose 
+
+						[System.Collections.ArrayList]$_spt.boot.order = $BootOrder
+
 					}
 
 				}
-
-				"[{0}] Processing Gen 9 Server BootOrder settings." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 
-
-				if ($_spt.boot.manageBoot -and ($BootOrder -contains "Floppy") -and ($BootMode -match "UEFI"))
-				{
-						
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	"The -BootOrder Parameter contains 'Floppy' which is an invalid boot option for a UEFI-based system."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-				}
-
-				elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and ('Unmanaged','UEFI' -notcontains $BootMode)) 
-				{
-
-					"[{0}] No boot order provided for Gen9 Server resource type.  Defaulting to 'CD','USB','HardDisk','PXE'" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					[System.Collections.ArrayList]$_spt.boot.order = @('CD','USB','HardDisk','PXE')
-			
-				}
-
-				elseif ((-not ($PSBoundParameters["BootOrder"])) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI' -and $ServerHardwareType.model -notmatch 'DL')
-				{
-
-					"[{0}] No boot order provided for BL Gen9 Server resource type.  Defaulting to 'HardDisk'." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					[System.Collections.ArrayList]$_spt.boot.order = @('HardDisk')
-			
-				}
-
-				elseif (($BootOrder.count -gt 1) -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI')
-				{
-
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidUEFIBootOrderParameterValue InvalidArgument 'BootOrder' -TargetType 'Array' -Message	("The -BootOrder Parameter contains more than 1 entry, and the system BootMode is set to {0}, which is invalud for a UEFI-based system.  Please check the -BootOrder Parameter and make sure either 'HardDisk' or 'PXE' are the only option." -f $BootMode)
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-			
-				}
-
-				elseif ($BootOrder -and $_spt.boot.manageBoot -and $BootMode -match 'UEFI' -and $ServerHardwareType.model -notmatch 'DL')
-				{
-
-					"[{0}] Adding provided BootOrder {1} to Server Profile object." -f $MyInvocation.InvocationName.ToString().ToUpper(), [String]::Join(', ', $BootOrder) | Write-Verbose 
-
-					[System.Collections.ArrayList]$_spt.boot.order = $BootOrder
-
-				}
-
+				
 			}
 
 		}
@@ -86916,7 +87077,7 @@ function New-HPOVServerProfileTemplate
 		else
 		{
 
-			"[{0}] Setting SPT to not track Connections with derived Server Profiles: {1}." -f $MyInvocation.InvocationName.ToString().ToUpper(), $ManageConnections.IsPresent | Write-Verbose
+			"[{0}] Setting SPT to not track Connections with derived Server Profiles: {1}." -f $MyInvocation.InvocationName.ToString().ToUpper(), (-not [Bool]$ManageConnections.IsPresent) | Write-Verbose
 
 			$_spt.connectionSettings.manageConnections = $ManageConnections.IsPresent
 
@@ -90230,6 +90391,10 @@ function New-HPOVServerProfileLogicalDisk
 		[ValidateSet ('Internal', 'External')]
 		[String]$StorageLocation = "External",
 
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[ValidateSet ('Enabled', 'Disabled', "Unmanaged")]
+		[String]$Accelerator = "Unmanaged",
+
 		[Parameter (Mandatory = $false, ParameterSetName = "SynergyJBOD")]
 		[ValidateNotNullOrEmpty()]
 		[Int]$MinDriveSize,
@@ -90264,7 +90429,9 @@ function New-HPOVServerProfileLogicalDisk
 		$_LogicalDiskCol = New-Object System.Collections.ArrayList
 		if ($PSCmdlet.ParameterSetName -eq 'Default' -and $StorageLocation -eq 'External')
 		{
+
 			$StorageLocation = 'Internal'
+
 		}
 
 	}
@@ -90304,6 +90471,42 @@ function New-HPOVServerProfileLogicalDisk
 				$_LogicalDisk.raidLevel         = $RAID.ToUpper()
 				$_LogicalDisk.numPhysicalDrives = $NumberofDrives
 				$_LogicalDisk.driveTechnology   = $LogicalDiskTypeEnum[$DriveType]
+
+				if ($PSBoundParameters['Accelerator'])
+				{
+
+					Switch ($Accelerator)
+					{
+
+						"Enabled"
+						{
+
+							if ($DriveType -Match "SSD")
+							{
+
+								$_LogicalDisk.accelerator = "IOBypass"
+
+							}
+
+							else
+							{
+
+								$_LogicalDisk.accelerator = "ControllerCache"
+
+							}
+
+						}
+
+						"Disabled"
+						{
+
+							$_LogicalDisk.accelerator = "None"
+
+						}
+
+					}
+
+				}
 
 			}
 
@@ -90423,7 +90626,11 @@ function New-HPOVServerProfileLogicalDiskController
 		[Parameter (Mandatory = $false, ParameterSetName = "Import")]
 		[switch]$Initialize,
 
-		# ONLY VALID FOR SERVERPROFILES.  Need to add validation in New-HPOVServerProfileTemplate to verify the controller doesn't have this value set.
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Import")]
+		[ValidateSet ('Enabled', 'Disabled', "Unmanaged")]
+		[String]$WriteCache = "Unmanaged",
+
 		[Parameter (Mandatory = $false, ParameterSetName = "Import")]
 		[switch]$ImportExistingConfiguration,
 
@@ -90454,7 +90661,16 @@ function New-HPOVServerProfileLogicalDiskController
 			$_ServerProfileController.importConfiguration = $ImportExistingConfiguration.IsPresent
 			$_ServerProfileController.initialize          = $Initialize.IsPresent
 
-		}		
+		}
+
+		if ($PSBoundParameters['WriteCache'])
+		{
+
+			"[{0}] Setting controller write cache: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $WriteCache | Write-Verbose
+
+			$_ServerProfileController.driveWriteCache = $WriteCache
+
+		}
 
 		$_id = 1
 
@@ -90583,6 +90799,8 @@ function New-HPOVServerProfileLogicalDiskController
 			[void]$_ServerProfileController.logicalDrives.Add($LogicalDisk)		
 
 		}
+
+
 
 	}
 
@@ -98056,9 +98274,7 @@ function Set-HPOVInitialPassword
 
 				"[{0}] Removing temporary Session object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				# [HPOneView.PKI.SslValidation]::TrustedCerts.Remove($Appliance)
-
-				[void]${Global:ConnectedSessions}.Remove($Appliance)
+				$ConnectedSessions.RemoveConnection($Appliance)
 
 			}
 
@@ -102046,11 +102262,15 @@ function Show-HPOVLdapGroups
 			if ($PSBoundParameters['Directory'])
 			{
 
+				"[{0}] Validating directory parameter." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
 				switch ($Directory.GetType().Name)
 				{
 
 					'String'
 					{
+
+						"[{0}] Looking for directory by name." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 				
 						Try
 						{
@@ -102071,11 +102291,13 @@ function Show-HPOVLdapGroups
 					'PSCustomObject'
 					{
 
+						"[{0}] Directory object provided." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
 						if ($Directory.type -notmatch 'LoginDomainConfig')
 						{
 
-							$Message     = 'The provided -Directory Parameter value is not a support object type, {0}.  Please verify the object.' -f $Directory.name
-							$ErrorRecord = New-ErrorRecord ArgumentException InvalidGroupCommonName InvalidArgument 'Group' -Message $Message
+							$ExceptionMessage = 'The provided -Directory Parameter value is not a support object type, {0}.  Please verify the object.' -f $Directory.name
+							$ErrorRecord      = New-ErrorRecord ArgumentException InvalidGroupCommonName InvalidArgument 'Group' -Message $ExceptionMessage
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
 						}
@@ -102881,7 +103103,7 @@ function New-HPOVLdapGroup
 					{
 
 						$Message     = 'The provided -Group Parameter value {0} is not a valid Distinguished Name (DN) value.  Please verify the Group DN follows this format: CN=GroupName,OU=OrganizationalUnit,DC=Domain,DC=com' -f $Group
-						$ErrorRecord = New-ErrorRecord ArgumentException InvalidGroupCommonName InvalidArgument 'Group' $Message
+						$ErrorRecord = New-ErrorRecord ArgumentException InvalidGroupCommonName InvalidArgument 'Group' -Message $Message
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
 					}
@@ -102897,7 +103119,7 @@ function New-HPOVLdapGroup
 					{
 
 						$Message     = 'The provided -Group Parameter value {0} does not contain a valid Distinguished Name (DN) value.  Please verify the Group DN follows this format: CN=GroupName,OU=OrganizationalUnit,DC=Domain,DC=com' -f $Group.Name
-						$ErrorRecord = New-ErrorRecord ArgumentException InvalidGroupCommonName InvalidArgument 'Group' -TargetType 'PSObject' $Message
+						$ErrorRecord = New-ErrorRecord ArgumentException InvalidGroupCommonName InvalidArgument 'Group' -TargetType 'PSObject' -Message $Message
 						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
 					}
@@ -113775,6 +113997,7 @@ Export-ModuleMember -function Remove-HPOVLogicalEnclosure
 Export-ModuleMember -function Remove-HPOVEnclosure
 Export-ModuleMember -function Get-HPOVEnclosureGroup
 Export-ModuleMember -function New-HPOVEnclosureGroup
+Export-ModuleMember -function Set-HPOVEnclosureGroup
 Export-ModuleMember -function Remove-HPOVEnclosureGroup
 Export-ModuleMember -function Get-HPOVServerHardwareType -Alias Get-HPOVServerHardwareTypes
 Export-ModuleMember -function Set-HPOVServerHardwareType

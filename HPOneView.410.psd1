@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.410.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.10.1809.2203'
+    ModuleVersion = '4.10.1821.1567'
     
     # ID used to uniquely identify this module
     GUID = '2c99a71e-361b-4ec0-b168-060eac70561d'
@@ -123,11 +123,19 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-			ReleaseNotes = 'Release 4.10.1809.2203
-
-* Updated HPOneView.Appliance.Baseline+FwComponent class to support hanlding non-semantic version strings.
-* Added increased timeout for Send-HPOVRequest (RestClient).
-* Added telemetry support to measure and record HTTP response times from client to appliance.'
+            ReleaseNotes = 'Release 4.10.1821.1567
+    
+* Refactored Disconnect-HPOVMgmt to support pipeline and multiple object input.    
+* Fixed New-HPOVServerProfile mishandling Gen10 boot mode, when setting UEFI or UEFI Optimized.
+* Fixed New-HPOVServerProfile mishandling Gen10 storage controller mode.
+* Updated New-HPOVServerProfileLogicalDiskController to support write cache policy with Gen10 controllers.
+* Fixed Networking.format.ps1xml with missing Hostname parameter when displaying interconnect downlink port information.
+* Fixed New-HPOVLdapGroup where invalid directory group CN validation error was malformed.
+* Added Set-HPOVEnclosureGroup to support updating c-Class enclosure scripts.
+* Updated New-HPOVServerProfileTemplate where -ManageBoot:$false was not being honored correctly. Changed -ManagedBoot from SwitchParameter to Boolean type.
+* Fixed Invoke-HPOVVcmMigration parameters, making the original, unsecure parameters optional.
+* Fixed Show-HPOVFirmwareReport regression with supporting Enclosure Group and Enclosure resources.        
+* Fixed New-HPOVLdapGroup where -Group validation would not process correctly when providing a String value.'
 
 		}
 

@@ -32,7 +32,26 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.10.1821.1567
+    
+     -- [#364] Refactored Disconnect-HPOVMgmt to support pipeline and multiple object input.    
+     -- [#360] Fixed New-HPOVServerProfile mishandling Gen10 boot mode, when setting UEFI or UEFI Optimized.
+     -- Fixed New-HPOVServerProfile mishandling Gen10 storage controller mode.
+     -- Updated New-HPOVServerProfileLogicalDiskController to support write cache policy with Gen10
+        controllers.
+     -- [#343] Fixed Networking.format.ps1xml with missing Hostname parameter when displaying interconnect
+        downlink port information.
+     -- [#366] Fixed New-HPOVLdapGroup where invalid directory group CN validation error was malformed.
+     -- [#341] Added Set-HPOVEnclosureGroup to support updating c-Class enclosure scripts.
+     -- [#334] Updated New-HPOVServerProfileTemplate where -ManageBoot:$false wasn't being honored correctly.
+        Changed -ManagedBoot from SwitchParameter to Boolean type.
+     -- [#361] Fixed Invoke-HPOVVcmMigration parameters, making the original, unsecure parameters optional.
+     -- [#363] Fixed Show-HPOVFirmwareReport regression with supporting Enclosure Group and Enclosure resources.        
+     -- [#366] Fixed New-HPOVLdapGroup where -Group validation would not process correctly when providing a
+        String value.
+         
     Release 4.10.1809.2203
+
      -- Updated HPOneView.Appliance.Baseline+FwComponent class to support hanlding non-semantic version
         strings.
      -- Added increased timeout for Send-HPOVRequest (RestClient).
@@ -69,8 +88,7 @@ WHAT'S NEW
         support to Invoke-HPOVVcmMigration.
      -- [#349] Fixed verbose call within Invoke-HPOVVcmMigration which was causing a PowerShell
         exception.
-     -- Fixed some regression issues with Install-HPOVUpdate.
-     -- [#3] Fixed Get-HPOVAuditLog filter API call.
+     -- Fixed some regression issues with Install-HPOVUpdate.     
      -- Updated Get-HPOVLogicalInterconnect adding -NonCompliant parameter.
 
     Release 4.10.1718.2245

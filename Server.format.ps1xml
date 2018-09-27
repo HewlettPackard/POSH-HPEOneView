@@ -1500,9 +1500,9 @@
     </View> 
     <!-- HPOneView.ServerHardware+Firmware FT-->
     <View>
-      <Name>ServerHardware+Firmware</Name>
+      <Name>Servers+Firmware</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.ServerHardware+Firmware</TypeName>
+        <TypeName>HPOneView.Servers.ServerHardware+Firmware</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <PropertyName>Name</PropertyName>
@@ -1556,11 +1556,11 @@
         </TableRowEntries>
       </TableControl>
     </View> 
-    <!-- HPOneView.Enclosure+Firmware FT-->
+    <!-- HPOneView.Servers.Enclosure+Firmware FT-->
     <View>
       <Name>Enclosure+Firmware</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Enclosure+Firmware</TypeName>
+        <TypeName>HPOneView.Servers.Enclosure+Firmware</TypeName>
       </ViewSelectedBy>
       <GroupBy>
         <PropertyName>Name</PropertyName>
