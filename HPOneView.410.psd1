@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.410.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.10.1821.1567'
+    ModuleVersion = '4.10.1865.3905'
     
     # ID used to uniquely identify this module
     GUID = '2c99a71e-361b-4ec0-b168-060eac70561d'
@@ -123,19 +123,23 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.10.1821.1567
-    
-* Refactored Disconnect-HPOVMgmt to support pipeline and multiple object input.    
-* Fixed New-HPOVServerProfile mishandling Gen10 boot mode, when setting UEFI or UEFI Optimized.
-* Fixed New-HPOVServerProfile mishandling Gen10 storage controller mode.
-* Updated New-HPOVServerProfileLogicalDiskController to support write cache policy with Gen10 controllers.
-* Fixed Networking.format.ps1xml with missing Hostname parameter when displaying interconnect downlink port information.
-* Fixed New-HPOVLdapGroup where invalid directory group CN validation error was malformed.
-* Added Set-HPOVEnclosureGroup to support updating c-Class enclosure scripts.
-* Updated New-HPOVServerProfileTemplate where -ManageBoot:$false was not being honored correctly. Changed -ManagedBoot from SwitchParameter to Boolean type.
-* Fixed Invoke-HPOVVcmMigration parameters, making the original, unsecure parameters optional.
-* Fixed Show-HPOVFirmwareReport regression with supporting Enclosure Group and Enclosure resources.        
-* Fixed New-HPOVLdapGroup where -Group validation would not process correctly when providing a String value.'
+            ReleaseNotes = 'Release 4.10.1865.3905
+
+* Updated New-HPOVServerProfile and New-HPOVServerProfileTemplate with -PassThru parameter, which will return the object back to the caller to modify it before creating it with Save-HPOVServerProfile or Save-HPOVServerProfileTemplate Cmdlets.
+* [#372] Updated HostOSType parameters for New-HPOVServerProfile, New-HPOVServerProfileTemplate, and New-HPOVServerProfileAttachVolume Cmdlets.
+* [#373] Fixed New-HPOVServerProfile where certain parameters were not mapped to the "SPT" ParameterSet.
+* [#374] Fixed Show-HPOVFirmwareReport for server hardware where baseline firmware compliance was not being used correctly.
+* [#375] Fixed incorrect call to generate error for unsupported remote support server hardware.
+* [#361] Fixed Invoke-HPOVVcmMigration parameter regression that was supposed to be fixed in 4.10.1821.1567.
+* Fixed Show-HPOVFirmwareReport where SAS interconnects were not reported.
+* Fixed Get-HPOVInterconnect where SAS Interconnects were not part of the API call to index.
+* Fixed Copy-HPOVServerProfile where server hardware validation was incorrectly being handled.
+* Fixed New-HPOVServerProfile where server hardware validation was incorrectly being handled.
+* Fixed New-HPOVServerProfileConnection where -VirtualFunctions parameter was not being honored correctly.
+* Fixed New-HPOVSnmpConfiguration which was missing SNMPv3 configuration parameters.
+* [#382] Fixed New-HPOVServerProfileTemplate where -BootMode $false would not set the appropriate values to unmanage settings.
+* Updated New-HPOVServerProfile to make -AssignmentType a non-mandatory parameter, which now defaults to "Server".
+* Added Cmdlets to get and set HPE Synergy Reserved VLAN Range; Get-HPOVReservedVlanRange, Set-HPOVReservedVlanRange'
 
 		}
 

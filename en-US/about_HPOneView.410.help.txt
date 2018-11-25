@@ -32,6 +32,29 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.10.1865.3905
+
+     -- Updated New-HPOVServerProfile and New-HPOVServerProfileTemplate with -PassThru parameter, which
+        will return the object back to the caller to modify it before creating it with Save-HPOVServerProfile
+        or Save-HPOVServerProfileTemplate Cmdlets.
+     -- [#372] Updated HostOSType parameters for New-HPOVServerProfile, New-HPOVServerProfileTemplate, and 
+        New-HPOVServerProfileAttachVolume Cmdlets.
+     -- [#373] Fixed New-HPOVServerProfile where certain parameters were not mapped to the "SPT" ParameterSet.
+     -- [#374] Fixed Show-HPOVFirmwareReport for server hardware where baseline firmware compliance was not being used
+        correctly.
+     -- [#375] Fixed incorrect call to generate error for unsupported remote support server hardware.
+     -- [#361] Fixed Invoke-HPOVVcmMigration parameter regression that was supposed to be fixed in 4.10.1821.1567.
+     -- Fixed Show-HPOVFirmwareReport where SAS interconnects were not reported.
+     -- Fixed Get-HPOVInterconnect where SAS Interconnects were not part of the API call to index.
+     -- Fixed Copy-HPOVServerProfile where server hardware validation was incorrectly being handled.
+     -- Fixed New-HPOVServerProfile where server hardware validation was incorrectly being handled.
+     -- Fixed New-HPOVServerProfileConnection where -VirtualFunctions parameter was not being honored correctly.
+     -- Fixed New-HPOVSnmpConfiguration which was missing SNMPv3 configuration parameters.
+     -- [#382] Fixed New-HPOVServerProfileTemplate where -BootMode $false would not set the appropriate values to unmanage
+        settings.
+     -- Updated New-HPOVServerProfile to make -AssignmentType a non-mandatory parameter, which now defaults to "Server".
+     -- Added Cmdlets to get and set HPE Synergy Reserved VLAN Range; Get-HPOVReservedVlanRange, Set-HPOVReservedVlanRange
+
     Release 4.10.1821.1567
     
      -- [#364] Refactored Disconnect-HPOVMgmt to support pipeline and multiple object input.    

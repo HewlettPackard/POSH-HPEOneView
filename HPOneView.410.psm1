@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.10.1821.1567'
+[Version]$ModuleVersion = '4.10.1865.3905'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -90,8 +90,9 @@ $ResourceCategoryEnum = @{
 	Interconnect                = 'interconnects';
 	LogicalInterconnect         = 'logical-interconnects';
 	LogicalInterconnectGroup    = 'logical-interconnect-groups';
-	SasLogicalInterconnectGroup = 'sas-logical-interconnect-groups';
+	SasInterconnect             = 'sas-interconnects';
 	SasLogicalInterconnect      = 'sas-logical-interconnects';
+	SasLogicalInterconnectGroup = 'sas-logical-interconnect-groups';
 	ClusterProfile              = 'hypervisor-cluster-profiles';
 	HypervisorManager           = 'hypervisor-managers';
 	HypervisorCluster           = 'hypervisor-clusters';
@@ -461,6 +462,7 @@ $ResourceCategoryEnum = @{
 	[String]$LogicalSwitchesUri                  = '/rest/logical-switches'
 	[String]$SwitchesUri                         = '/rest/switches'
 	[String]$FabricManagersUri                   = '/rest/fabric-managers'
+	[string]$DomainFabrics                       = '/rest/fabrics'
 	[Hashtable]$LogicalSwitchManagementLevelEnum = @{ 
 		Managed         = 'BASIC_MANAGED'; 
 		Monitored       = 'MONITORED'; 
@@ -599,31 +601,35 @@ $ResourceCategoryEnum = @{
 		LoadBalanced   = 'LoadBalanced'
 	}
 	[PSCustomObject]$ServerProfileSanManageOSType       = @{
-		CitrixXen = "Citrix Xen Server 5.x/6.x";
-		AIX       = "AIX";
-		IBMVIO    = "IBM VIO Server";
-		RHEL4     = "RHE Linux (Pre RHEL 5)";
-		RHEL3     = "RHE Linux (Pre RHEL 5)";
-		RHEL      = "RHE Linux (5.x, 6.x)";
-		RHEV      = "RHE Virtualization (5.x, 6.x)";
-		VMware    = "VMware (ESXi)";
-		Win2k3    = "Windows 2003";
-		Win2k8    = "Windows 2008/2008 R2";
-		Win2k12   = "Windows 2012 / WS2012 R2";
-		OpenVMS   = "OpenVMS";
-		Egenera   = "Egenera";
-		Exanet    = "Exanet";
-		Solaris9  = "Solaris 9/10";
-		Solaris10 = "Solaris 9/10";
-		Solaris11 = "Solaris 11";
-		ONTAP     = "NetApp/ONTAP";
-		OEL       = "OE Linux UEK (5.x, 6.x)";
-		HPUX11iv1 = "HP-UX (11i v1, 11i v2)"
-		HPUX11iv2 = "HP-UX (11i v1, 11i v2)";
-		HPUX11iv3 = "HP-UX (11i v3)";
-		SUSE      = "SuSE (10.x, 11.x)";
-		SUSE9     = "SuSE Linux (Pre SLES 10)";
-		Inform    = "InForm"
+		CitrixXen  = "Citrix Xen Server 5.x/6.x";
+		CitrisXen7 = "Citrix Xen Server 7.x";
+		AIX        = "AIX";
+		IBMVIO     = "IBM VIO Server";
+		RHEL4      = "RHE Linux (Pre RHEL 5)";
+		RHEL3      = "RHE Linux (Pre RHEL 5)";
+		RHEL       = "RHE Linux (5.x, 6.x, 7.x)";
+		RHEV       = "RHE Virtualization (5.x, 6.x)";
+		RHEV7      = "RHE Virtualization 7.x";
+		VMware     = "VMware (ESXi)";
+		Win2k3     = "Windows 2003";
+		Win2k8     = "Windows 2008/2008 R2";
+		Win2k12    = "Windows 2012 / WS2012 R2";
+		Win2k16    = "Windows Server 2016";
+		OpenVMS    = "OpenVMS";
+		Egenera    = "Egenera";
+		Exanet     = "Exanet";
+		Solaris9   = "Solaris 9/10";
+		Solaris10  = "Solaris 9/10";
+		Solaris11  = "Solaris 11";
+		ONTAP      = "NetApp/ONTAP";
+		OEL        = "OE Linux UEK (5.x, 6.x)";
+		OEL7       = "OE Linux UEK 7.x";
+		HPUX11iv1  = "HP-UX (11i v1, 11i v2)"
+		HPUX11iv2  = "HP-UX (11i v1, 11i v2)";
+		HPUX11iv3  = "HP-UX (11i v3)";
+		SUSE       = "SuSE (10.x, 11.x, 12.x)";
+		SUSE9      = "SuSE Linux (Pre SLES 10)";
+		Inform     = "InForm"
 	}
 	[Hashtable]$ServerProfileConnectionTypeEnum         = @{
 
@@ -939,6 +945,7 @@ function NewObject
 		[switch]$RemoteSupportSchedule,
 		[switch]$RemoteSupportSite,
 		[switch]$RemoteSyslog,
+		[switch]$ReservedVlanRange,
 		[switch]$QosConfiguration,
 		[switch]$SanManager,
 		[switch]$SanManagerConnectInfo,
@@ -1008,6 +1015,17 @@ function NewObject
 
 		switch($PSBoundParameters.Keys)
 		{
+
+			'ReservedVlanRange'
+			{
+
+				Return [PSCustomObject]@{
+					start  = 0;
+					length = 0;
+					type   = "vlan-pool"
+				}
+
+			}
 
 			'AddRackManager'
 			{
@@ -5297,7 +5315,7 @@ function Send-HPOVRequest
 									{
 
 										$ExceptionMessage = "The device is not eligible."
-										$ErrorRecord = HPOneView.Appliance.RemoteSupportResourceException DeviceNotEligible InvalidOperation "Server" -Message $ExceptionMessage
+										$ErrorRecord = New-ErrorRecord HPOneView.Appliance.RemoteSupportResourceException DeviceNotEligible InvalidOperation "Server" -Message $ExceptionMessage
 										$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 									}
@@ -19873,7 +19891,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 			{
 
 				$ExceptionMessage = "The device {0} is not eligible for Remote Support." -f $_Resource.name
-				$ErrorRecord = HPOneView.Appliance.RemoteSupportResourceException DeviceNotEligible InvalidOperation "Server" -Message $ExceptionMessage -InnerException $_.Exception.InnerException
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.RemoteSupportResourceException DeviceNotEligible InvalidOperation "Server" -Message $ExceptionMessage -InnerException $_.Exception.InnerException
 				$PSCmdlet.WriteError()
 
 			}
@@ -20059,7 +20077,6 @@ function Update-HPOVRemoteSupportEntitlement
 		$Caller = (Get-PSCallStack)[1].Command
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
-
 		
 		if (-not $PSBoundParameters['InputObject'])
 		{ 
@@ -33358,7 +33375,7 @@ function Add-HPOVRackManager
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Alias ("Appliance")]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -33530,7 +33547,7 @@ function Get-HPOVRackManager
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -36018,7 +36035,7 @@ function Set-HPOVEnclosureGroup
 		# [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Synergy')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -37907,7 +37924,7 @@ function Get-HPOVLogicalEnclosure
 			if ($_appliance -isnot [HPOneView.Appliance.Connection])
 			{
 
-				$_appliance = $ConnectedSessions | ? ConnectionId -eq $_appliance.ConnectionId
+				$_appliance = $ConnectedSessions | Where-Object ConnectionId -eq $_appliance.ConnectionId
 
 			}
 
@@ -38051,7 +38068,7 @@ function Get-HPOVLogicalEnclosure
 
 				"[{0}] Filtering Logical Enclosures for parent Enclosure Group '{1}'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $EnclosureGroup.name | Write-Verbose
 
-				[Array]$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | ? enclosureGroupUri -eq $EnclosureGroup.uri
+				[Array]$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object enclosureGroupUri -eq $EnclosureGroup.uri
 
 			}
 	
@@ -39802,42 +39819,42 @@ function Invoke-HPOVVcmMigration
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAIPAddress,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Alias ('ou')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$OAUserName,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Alias ('op')]
 		[ValidateNotNullOrEmpty()]
 		[System.Object]$OAPassword,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[PSCredential]$OACredential,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Alias ('vu')]
 		[ValidateNotNullOrEmpty()]
 		[System.String]$VCMUserName,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Alias ('vp')]
 		[ValidateNotNullOrEmpty()]
 		[System.Object]$VCMPassword,
 
-		[Parameter (Mandatory, ParameterSetName = "Report")]
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Report")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[PSCredential]$VCMCredential,
 
 		[Parameter (Mandatory = $false, ValueFromPipeline, ParameterSetName = "Report")]
@@ -39885,13 +39902,13 @@ function Invoke-HPOVVcmMigration
 		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
 		[String]$VCEMCMS,
 
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
 		[String]$VCEMUser,
 
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
 		[System.Object]$VCEMPassword,
 
-		[Parameter (Mandatory, ParameterSetName = "VCEMMigration")]
+		[Parameter (Mandatory = $false, ParameterSetName = "VCEMMigration")]
 		[PSCredential]$VCEMCredential,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
@@ -44389,7 +44406,7 @@ function Show-HPOVFirmwareReport
 			
 				}
 
-				$ResourceCategoryEnum.Interconnect
+				{$ResourceCategoryEnum.Interconnect, $ResourceCategoryEnum.SasInterconnect -Contains $_}
 				{ 
 
 					# Keep track of the number of resources
@@ -44730,7 +44747,7 @@ function Get-EnclosureFirmware
 						else 
 						{ 
 							
-							$_BaselineVersions = $BaseLinePolicy.fwComponents | ? swKeyNameList -contains "oa"
+							$_BaselineVersions = $BaseLinePolicy.fwComponents | Where-Object KeyNameList -contains "oa"
 
 							$_BaselineVer = GetNewestVersion -Collection $_BaselineVersions
 							$BaselineName = $Baseline.description
@@ -44812,7 +44829,7 @@ function Get-EnclosureFirmware
 					else 
 					{ 
 						
-						$_BaselineVersions = $BaseLinePolicy.fwComponents | ? swKeyNameList -Contains "em"
+						$_BaselineVersions = $BaseLinePolicy.fwComponents | Where-Object KeyNameList -Contains "em"
 
 						$_BaselineVer = GetNewestVersion -Collection $_BaselineVersions
 						$BaselineName  = $Baseline.description
@@ -44854,7 +44871,7 @@ function Get-EnclosureFirmware
 		Try
 		{			
 			
-			ForEach ($_InterconnectBay in ($Enclosure.interconnectBays | ? { $null -ne $_.interconnectUri }))
+			ForEach ($_InterconnectBay in ($Enclosure.interconnectBays | Where-Object { $null -ne $_.interconnectUri }))
 			{
 				
 				$_Object = Send-HPOVRequest -Uri $_InterconnectBay.interconnectUri -Hostname $Enclosure.ApplianceConnection
@@ -45403,7 +45420,7 @@ function Get-ServerFirmware
 									{
 
 										$_swKeyNameListName = $Server.romVersion.SubString(0,3)
-										$_BaselineVersion = GetNewestVersion -Collection ($Baseline.fwComponents | ? swKeyNameList -contains $_swKeyNameListName)
+										$_BaselineVersion = GetNewestVersion -Collection ($Baseline.fwComponents | Where-Object KeyNameList -contains $_swKeyNameListName)
 
 									}
 
@@ -45411,7 +45428,7 @@ function Get-ServerFirmware
 									{
 
 										$_swKeyNameListName = $MpModelTable.($Server.mpModel)
-										$_BaselineVersion = GetNewestVersion -Collection ($Baseline.fwComponents | ? swKeyNameList -contains $_swKeyNameListName)
+										$_BaselineVersion = GetNewestVersion -Collection ($Baseline.fwComponents | Where-Object KeyNameList -contains $_swKeyNameListName)
 
 									}
 
@@ -45444,7 +45461,7 @@ function Get-ServerFirmware
 
 										}
 
-										$_BaselineVersion = GetNewestVersion -Collection ($Baseline.fwComponents | ? swKeyNameList -contains $_swKeyNameListName)
+										$_BaselineVersion = GetNewestVersion -Collection ($Baseline.fwComponents | Where-Object KeyNameList -contains $_swKeyNameListName)
 
 									}
 
@@ -45476,7 +45493,7 @@ function Get-ServerFirmware
 								$_ComponentVersion = New-Object HPOneView.Servers.ServerHardware+Firmware ($_Component.componentName,
 																											$_Component.componentType,
 																											$_Component.installedVersion,
-																											'N/A',
+																											$_Component.baselineVersion,
 																											$_BaseLinePolicy.name,
 																											$_BaseLinePolicy.uri,
 																											$_servername,
@@ -45593,9 +45610,26 @@ function Get-InterconnectFirmware
 			Try
 			{
 
-				$_Uri = '{0}/firmware' -f $Interconnect.logicalInterconnectUri
+				switch ($Interconnect.category)
+				{
 
-				# $_LogicalInterconnect = Send-HPOVRequest -Uri $Interconnect.logicalInterconnectUri -Hostname $Interconnect.ApplianceConnection.Name
+					'sas-interconnects'
+					{
+
+						$_baseUri = $Interconnect.sasLogicalInterconnectUri
+
+					}
+
+					'interconnects'
+					{
+
+						$_baseUri = $Interconnect.logicalInterconnectUri
+
+					}
+
+				}
+
+				$_Uri = '{0}/firmware' -f $_baseUri
 
 				$_LogicalInterconnectFirmware = Send-HPOVRequest -Uri $_Uri -Hostname $Interconnect.ApplianceConnection
 
@@ -45608,7 +45642,7 @@ function Get-InterconnectFirmware
 
 			}
 
-			if ($_LogicalInterconnectFirmware.sppUri.ToLower() -ne 'unknown')
+			if ($_LogicalInterconnectFirmware.sppUri.ToLower() -ne 'unknown' -and -not [System.String]::IsNullOrWhiteSpace($_LogicalInterconnectFirmware.sppUri))
 			{
 				
 				Try
@@ -45629,7 +45663,7 @@ function Get-InterconnectFirmware
 
 			}
 
-			Else
+			Elseif (-not [System.String]::IsNullOrWhiteSpace($Interconnect.enclosureUri))
 			{
 
 				"[{0}] Baseline was not provided, checking Enclosure Firmware Baseline set." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -45686,6 +45720,20 @@ function Get-InterconnectFirmware
 			
 				}
 
+			}
+
+			else 
+			{ 
+		
+				"[{0}] No Baseline provided." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+				$_BaselinePolicy = [PsCustomObject]@{ 
+							
+					name              = "NoPolicySet"; 
+					baselineShortName = "NoPolicySet" 
+					
+				} 
+		
 			}
 
 		}
@@ -45795,7 +45843,7 @@ function Get-InterconnectFirmware
 
 				}
 
-				'SY12000'
+				default
 				{
 
 					switch ($Interconnect.model)
@@ -45853,16 +45901,9 @@ function Get-InterconnectFirmware
 
 				}
 
-				default
-				{
-
-					Throw ("{0} enclosure type not implemented." -f $Interconnect.enclosureType)
-
-				}
-
 			}
 
-			$_BaselineVersions = $_BaseLinePolicy.fwComponents | ? swKeyNameList -contains $_ComponentType
+			$_BaselineVersions = $_BaseLinePolicy.fwComponents | Where-Object KeyNameList -contains $_ComponentType
 
 			$_BaselineVer = GetNewestVersion -Collection $_BaselineVersions
 								
@@ -45926,12 +45967,12 @@ Function GetNewestVersion
 		foreach ($_Component in $Collection)
 		{
 
-			'Processing {0} version of {1}' -f $_Component.componentVersion, $_Component.name | Write-Verbose
+			'Processing {0} version of {1}' -f $_Component.Version, $_Component.name | Write-Verbose
 
-			if ($_Component.componentVersion -ge $_NewerVersion)
+			if ($_Component.Version -ge $_NewerVersion)
 			{
 
-				$_NewerVersion = $_Component.componentVersion
+				$_NewerVersion = $_Component.Version
 					
 			}
 
@@ -52181,7 +52222,7 @@ function Get-HPOVStorageVolume
 
 								"[{0}] Volume attachment found for {1}.  Removing from final collection." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_member.name | Write-Verbose
 
-								$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | ? name -ne $_member.name
+								$_ResourcesFromIndexCol = $_ResourcesFromIndexCol | Where-Object name -ne $_member.name
 
 							}							
 
@@ -53404,14 +53445,14 @@ function New-HPOVStorageVolume
 
 		$_newVolume.templateUri = $VolumeTemplate.uri
 
-		ForEach ($_PropName in ($VolumeTemplate.properties.PSObject.Members | ? { $_.MemberType -eq 'NoteProperty' -and $_.Name -ne 'templateVersion' }))
+		ForEach ($_PropName in ($VolumeTemplate.properties.PSObject.Members | Where-Object { $_.MemberType -eq 'NoteProperty' -and $_.Name -ne 'templateVersion' }))
 		{
 	
 			$_newVolume.properties | Add-Member -NotePropertyName $_PropName.Name -NotePropertyValue $null
 
 		}
 
-		switch (($VolumeTemplate.properties.PSObject.Members | ? MemberType -eq 'NoteProperty').Name)
+		switch (($VolumeTemplate.properties.PSObject.Members | Where-Object MemberType -eq 'NoteProperty').Name)
 		{
 
 			'name'
@@ -65924,6 +65965,350 @@ function Remove-HPOVAddressPoolRange
 
 }
 
+# // TODO: DOC UNITTEST
+function Get-HPOVReservedVlanRange
+{
+
+	# .ExternalHelp HPOneView.4.10.psm1-help.xml
+
+	[CmdletBinding (DefaultParameterSetName = 'Default')]
+	param
+	(
+
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
+
+	)
+
+	Begin
+	{
+
+		"[{0}] Bound PS Parameters: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(),($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		if (-not($ApplianceConnection) -and -not($ConnectedSessions))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+			{
+
+				Try
+				{
+
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException]
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		else
+		{
+
+			Try
+			{
+
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException]
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		$_FabricManagerCol = New-Object System.Collections.ArrayList
+
+	}
+
+	Process
+	{
+
+		ForEach ($_appliance in $ApplianceConnection)
+		{
+
+			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
+
+			if ($_appliance.ApplianceType -ne 'Composer')
+			{
+	
+				$ExceptionMessage = 'The ApplianceConnection {0} is an HPE OneView Virtual Machine Appliance, which does not support SAS Logical Interconnect Group resources.' -f $_appliance.Name
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+				$PSCmdlet.WriteError($ErrorRecord)
+	
+			}	
+
+			else
+			{
+
+				# Get reserved vlan range from fabric
+				try
+				{
+
+					$_applianceFabrics = Send-HPOVRequest -Uri $DomainFabrics -Hostname $_appliance
+
+				}
+
+				catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				ForEach ($_fabric in $_applianceFabrics.members)
+				{
+
+					New-Object HPOneView.Networking.ReservedVlanRange($_fabric.reservedVlanRange.start,
+																	  $_fabric.reservedVlanRange.length,
+																	  $_fabric.reservedVlanRange.created,
+																	  $_fabric.reservedVlanRange.modified,
+																	  $_fabric.reservedVlanRange.etag,
+																	  $_fabric.reservedVlanRange.uri,
+																	  $_fabric.ApplianceConnection)
+					
+
+				}
+
+			}
+
+		}
+
+	}
+
+	End
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+
+}
+
+# // TODO: DOC UNITTEST
+function Set-HPOVReservedVlanRange
+{
+
+	# .ExternalHelp HPOneView.4.10.psm1-help.xml
+
+	[CmdletBinding (DefaultParameterSetName = 'Default')]
+	param
+	(
+
+		[Parameter (Mandatory, ParameterSetName = 'Default')]
+		[ValidateRange(2, 4095)]
+		[Int]$Start,
+
+		[Parameter (Mandatory, ParameterSetName = 'Default')]
+		[ValidateRange(60, 128)]
+		[int]$Length,
+
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
+
+	)
+
+	Begin
+	{
+
+		"[{0}] Bound PS Parameters: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(),($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		if (-not($ApplianceConnection) -and -not($ConnectedSessions))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+			For ([int]$c = 0; $c -gt $ApplianceConnection.Count; $c++)
+			{
+
+				Try
+				{
+
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException]
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		else
+		{
+
+			Try
+			{
+
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException]
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+		$_FabricManagerCol = New-Object System.Collections.ArrayList
+
+	}
+
+	Process
+	{
+
+		ForEach ($_appliance in $ApplianceConnection)
+		{
+
+			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
+
+			if ($_appliance.ApplianceType -ne 'Composer')
+			{
+	
+				$ExceptionMessage = 'The ApplianceConnection {0} is an HPE OneView Virtual Machine Appliance, which does not support SAS Logical Interconnect Group resources.' -f $_appliance.Name
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+				$PSCmdlet.WriteError($ErrorRecord)
+	
+			}	
+
+			else
+			{
+
+				# Generate error that start and length is larger than allowed 4095
+				if (($Start + $Length) -gt 4095)
+				{
+
+					$ExceptionMessage = 'The provided Length value {0} will exceed the allowed range value beyond 4095.  Specify a lower Start, or shorter Length value.' -f $Length
+					$ErrorRecord = New-ErrorRecord HPOneView.Networking.ReservedVlanRangeException  InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				$_UpdatedVlanRange = NewObject -ReservedVlanRange
+
+				$_UpdatedVlanRange.start = $Start
+				$_UpdatedVlanRange.length = $Length
+
+				# Get reserved vlan range URI from appliance
+				try
+				{
+
+					$_applianceFabrics = Send-HPOVRequest -Uri $DomainFabrics -Hostname $_appliance
+
+				}
+
+				catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				ForEach ($_fabric in $_applianceFabrics.members)
+				{
+
+					$_uri = '{0}/reserved-vlan-range' -f $_fabric.uri
+		
+					Send-HPOVRequest -Uri $_uri -Method PUT -Body $_UpdatedVlanRange -Hostname $_appliance | Wait-HPOVTaskComplete		
+
+				}
+
+			}
+
+		}
+
+	}
+	
+	End
+	{
+
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+	}
+
+}
+
 function Get-HPOVFabricManager
 {
 
@@ -65943,7 +66328,7 @@ function Get-HPOVFabricManager
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -66208,7 +66593,7 @@ function Add-HPOVFabricManager
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -67305,7 +67690,7 @@ function Get-HPOVInterconnect
 			}
 
 			# Build the final URI
-			$_uri = '{0}?category=interconnects&sort=name:asc&query={1}' -f $IndexUri, [String]::Join(' AND ', $_Query.ToArray())
+			$_uri = '{0}?category=interconnects&category=sas-interconnects&sort=name:asc&query={1}' -f $IndexUri, [String]::Join(' AND ', $_Query.ToArray())
 
 			Try
 			{
@@ -67399,7 +67784,7 @@ function Get-HPOVInterconnect
 		else
 		{
 
-			Return $InterconnectCollection
+			Return $InterconnectCollection | Sort type, name
 
 		}
 
@@ -71264,13 +71649,15 @@ function Install-HPOVLogicalInterconnectFirmware
 
 		}
 
+		$_uri = $LogicalInterconnect.uri + "/firmware"
+
 		# Need to prompt user to update or activate firmware, which could cause an outage.
-		if (('Update', 'Stage' -match $Method) -and (-not($Activating)) -and (-not($Staging)))
+		if ($Method -eq 'Update' -and -not $Activating -and -not $Staging)
 		{
 
 			Write-Warning 'Module activation may cause a network outage if Activation Order is Parallel.'
 
-			if ($PSCmdlet.ShouldProcess($LogicalInterconnect.name,'update and activate Interconnect modules')) 
+			if ($PSCmdlet.ShouldProcess($LogicalInterconnect.name, 'update Interconnect modules')) 
 			{
 
 				"[{0}] User was prompted warning and accepted. Sending request." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -71278,7 +71665,7 @@ function Install-HPOVLogicalInterconnectFirmware
 				Try
 				{
 
-					$_taskResults = Send-HPOVRequest -method PUT -uri ($LogicalInterconnect.uri + "/firmware") -body $_Request -Hostname $LogicalInterconnect.ApplianceConnection.Name
+					$_taskResults = Send-HPOVRequest -method PUT -uri $_uri -body $_Request -Hostname $LogicalInterconnect.ApplianceConnection.Name
 
 				}
 
@@ -71309,7 +71696,7 @@ function Install-HPOVLogicalInterconnectFirmware
 			Try
 			{
 
-				$_taskResults = Send-HPOVRequest -method PUT -uri ($LogicalInterconnect.uri + "/firmware") -body $_Request -Hostname $LogicalInterconnect.ApplianceConnection.Name
+				$_taskResults = Send-HPOVRequest -method PUT -uri $_uri -body $_Request -Hostname $LogicalInterconnect.ApplianceConnection
 
 			}
 
@@ -71322,13 +71709,13 @@ function Install-HPOVLogicalInterconnectFirmware
 
 		}
 
-		if (-not($PSBoundParameters['Async']))
+		if (-not($PSBoundParameters['Async']) -and $_taskResults)
 		{
 
 			Try
 			{
 
-				$_taskResults = Wait-HPOVTaskComplete $_taskResults -ApplianceConnection $_taskResults.ApplianceConnection.Name
+				$_taskResults = Wait-HPOVTaskComplete $_taskResults -ApplianceConnection $_taskResults.ApplianceConnection
 
 			}
 
@@ -73165,18 +73552,35 @@ function New-HPOVSnmpConfiguration
 	(
 
 		[Parameter (Mandatory, ParameterSetName = 'Default')]
+		[Parameter (Mandatory, ParameterSetName = 'Snmpv3')]
 		[ValidateNotNullOrEmpty()]
 		[String]$ReadCommunity,
+
+		[Parameter (Mandatory = $False, ParameterSetName = 'Default')]
+		[Parameter (Mandatory = $False, ParameterSetName = 'Snmpv3')]
+		[ValidateNotNullOrEmpty()]
+		[Bool]$SnmpV1,
+
+		[Parameter (Mandatory = $False, ParameterSetName = 'Default')]
+		[Parameter (Mandatory, ParameterSetName = 'Snmpv3')]
+		[ValidateNotNullOrEmpty()]
+		[Bool]$SnmpV3,
+
+		[Parameter (Mandatory, ParameterSetName = 'Snmpv3')]
+		[HPOneView.Networking.SnmpV3User[]]$SnmpV3Users,
 		
 		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Snmpv3")]
 		[ValidateNotNullOrEmpty()]
 		[String]$Contact,
 
 		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Snmpv3")]
 		[ValidateNotNullOrEmpty()]
 		[Array]$AccessList,
 		
 		[Parameter (Mandatory = $False, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $False, ParameterSetName = "Snmpv3")]
 		[ValidateNotNullOrEmpty()]
 		[Array]$TrapDestinations
 
@@ -73215,6 +73619,32 @@ function New-HPOVSnmpConfiguration
 
 				$_SnmpConfig.systemContact = $Contact
 			
+			}
+
+			'Snmpv1'
+			{
+
+				$_SnmpConfig.enabled = $Snmpv1
+
+			}
+
+			'Snmpv3'
+			{
+
+				$_SnmpConfig.v3Enabled = $Snmpv3
+
+			}
+
+			'SnmpV3Users'
+			{
+
+				ForEach ($_SnmpV3User in $SnmpV3Users)
+				{
+
+					[void]$_SnmpConfig.snmpUsers.add($_SnmpV3User)
+
+				}
+
 			}
 
 			'AccessList'
@@ -73297,7 +73727,7 @@ function New-HPOVSnmpTrapDestination
 		[ValidateSet ('Inform', 'Trap', IgnoreCase = $False)]
 		[String]$NotificationType = 'Trap',
 
-		[Parameter (Mandatory, ParameterSetName = "SnmpV3")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SnmpV3")]
 		[ValidateNotNullOrEmpty()]
 		[String]$EngineID,
 		
@@ -81420,12 +81850,12 @@ function New-HPOVServerProfile
 		[ValidateNotNullOrEmpty()]
 		[string]$Name,
 
-		[Parameter (Mandatory, ParameterSetName = "Default")]
-		[Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
-		[Parameter (Mandatory, ParameterSetName = "SPT")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
 		[ValidateSet ("Bay", "Server", "Unassigned")]
 		[Alias ('assign')]
-		[string]$AssignmentType,
+		[String]$AssignmentType = 'Server',
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
@@ -81474,11 +81904,13 @@ function New-HPOVServerProfile
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
 		[ValidateNotNullOrEmpty()]
 		[switch]$Firmware,
 	
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
 		[ValidateNotNullOrEmpty()]
 		[object]$Baseline,
 
@@ -81543,10 +81975,12 @@ function New-HPOVServerProfile
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
 		[switch]$LocalStorage,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
 		[Alias ('LogicalDisk')]
 		[ValidateNotNullorEmpty()]
 		[Object]$StorageController,
@@ -81555,7 +81989,7 @@ function New-HPOVServerProfile
 		[switch]$SANStorage,
 
 		[Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
-		[ValidateSet ('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
+		[ValidateSet ('CitrixXen','CitrixXen7','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','RHEV7','VMware','Win2k3','Win2k8','Win2k12','Win2k16','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
 		[Alias ('OS')]
 		[string]$HostOStype,
 
@@ -81656,7 +82090,12 @@ function New-HPOVServerProfile
 		[Parameter (Mandatory, ParameterSetName = "Import", ValueFromPipeline)]
 		[ValidateNotNullorEmpty()]
 		[Alias ("location","file")]
-		[Object]$ProfileObj
+		[Object]$ProfileObj,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SPT")]
+		[Switch]$Passthru
 
 	)
 	
@@ -81932,16 +82371,7 @@ function New-HPOVServerProfile
 
 			$IscsiIPv4Address = $_TmpCollection.Clone()
 
-		}
-
-		if ($AssignmentType -eq 'Server' -and -not $Server)
-		{
-
-			$ExcpetionMessage = 'A Server resource object or name must be provided when using the "Server" AssignmentType parameter.'
-			$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileTemplateResourceException NullServerNotAllowed InvalidArgument 'Server' -Message $ExcpetionMessage
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-		}
+		}	
 
 		$uri = $ServerProfilesUri
 
@@ -81951,6 +82381,15 @@ function New-HPOVServerProfile
 	
 	Process 
 	{
+
+		if ($AssignmentType -eq 'Server' -and -not $Server)
+		{
+
+			$ExcpetionMessage = 'A Server resource object or name must be provided when using the "Server" AssignmentType parameter.'
+			$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException NullServerNotAllowed InvalidArgument 'Server' -Message $ExcpetionMessage
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
 
 		# Import Server Profile JSON to appliance
 		if ($PSBoundParameters['Import']) 
@@ -83765,80 +84204,93 @@ function New-HPOVServerProfile
 
 		"[{0}] Profile: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($ServerProfile | out-string) | Write-Verbose
 
-		"[{0}] Sending request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-		Try
-		{
-		
-			$Resp = Send-HPOVRequest -Uri $ServerProfilesUri -Method POST -Body $ServerProfile -Hostname $ApplianceConnection
-
-		}
-
-		Catch
+		if (-not $Passthru.IsPresent)
 		{
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			"[{0}] Sending request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-		}
+			Try
+			{
+			
+				$Resp = Send-HPOVRequest -Uri $ServerProfilesUri -Method POST -Body $ServerProfile -Hostname $ApplianceConnection
 
-		Try
-		{
+			}
 
-			$Resp = $Resp | Wait-HPOVTaskStart
-
-			if ($Resp.taskState -eq 'Error')
+			Catch
 			{
 
-				if ($Resp.taskErrors.message -match 'The selected server hardware has health status other than "OK"' -and 
-					$PSCmdlet.ShouldProcess($Server.name, 'The selected server hardware has health status other than "OK". Do you wish to override and assign the Server Profile'))
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			Try
+			{
+
+				$Resp = $Resp | Wait-HPOVTaskStart
+
+				if ($Resp.taskState -eq 'Error')
 				{
 
-					Try
+					if ($Resp.taskErrors.message -match 'The selected server hardware has health status other than "OK"' -and 
+						$PSCmdlet.ShouldProcess($Server.name, 'The selected server hardware has health status other than "OK". Do you wish to override and assign the Server Profile'))
 					{
-					
-						$_Uri = '{0}?force=all' -f $ServerProfilesUri
 
-						$Resp = Send-HPOVRequest -Uri $_Uri -Method POST -Body $ServerProfile -Hostname $ApplianceConnection
-			
+						Try
+						{
+						
+							$_Uri = '{0}?force=all' -f $ServerProfilesUri
+
+							$Resp = Send-HPOVRequest -Uri $_Uri -Method POST -Body $ServerProfile -Hostname $ApplianceConnection
+				
+						}
+				
+						Catch
+						{
+				
+							$PSCmdlet.ThrowTerminatingError($_)
+				
+						}
+
 					}
-			
-					Catch
+
+					else
 					{
-			
-						$PSCmdlet.ThrowTerminatingError($_)
-			
-					}
 
-				}
+						$ExceptionMessage = $resp.taskErrors.message
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidOperation InvalidOperation 'AsyncronousTask' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
 
-				else
-				{
-
-					$ExceptionMessage = $resp.taskErrors.message
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidOperation InvalidOperation 'AsyncronousTask' -Message $ExceptionMessage
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+					}				
 
 				}				
 
-			}				
+			}
 
-		}
+			Catch
+			{
 
-		Catch
-		{
+				$PSCmdlet.ThrowTerminatingError($_)
 
-			$PSCmdlet.ThrowTerminatingError($_)
+			}
 
-		}
-
-		if (-not $PSBoundParameters['Async'])
-		{
+			if (-not $PSBoundParameters['Async'])
+			{
+			
+				$Resp = Wait-HPOVTaskComplete -InputObject $Resp -ApplianceConnection $Resp.ApplianceConnection.Name
 		
-			$Resp = Wait-HPOVTaskComplete -InputObject $Resp -ApplianceConnection $Resp.ApplianceConnection.Name
-	
+			}
+
+			$Resp
+
 		}
 
-		$Resp
+		else
+		{
+
+			# Return the server profile object back to the caller, who can directly modify it, and then use Save-HPOVServerProfile
+			$ServerProfile
+
+		}
 		
 	}
 
@@ -85014,7 +85466,7 @@ function Copy-HPOVServerProfile
 
 	# .ExternalHelp HPOneView.410.psm1-help.xml
 	
-	[CmdletBinding ()]
+	[CmdletBinding (SupportsShouldProcess, ConfirmImpact = 'High')]
 	Param
 	(
 	
@@ -85028,7 +85480,7 @@ function Copy-HPOVServerProfile
 		[string]$DestinationName,
 		
 		[Parameter (Mandatory = $false)]
-		[object]$assign = "unassigned",
+		[object]$Assign = "unassigned",
 
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName)]
 		[ValidateNotNullOrEmpty()]
@@ -85344,7 +85796,7 @@ function Copy-HPOVServerProfile
 				
 				"[{0}] Assign to the Server object: $($assign.name)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				$serverDevice = $assign | Where-Object { $_.applianceConnection.name -eq $_Connection.name }
+				$serverDevice = $assign | Where-Object { $_.applianceConnection.name -eq $ApplianceConnection.name }
 				$profileDestSHT = $serverDevice.serverHardwareTypeUri
 		
 			}
@@ -85401,6 +85853,9 @@ function Copy-HPOVServerProfile
 		}
 
 		$_Profile.connectionSettings.connections = $newConnections
+
+		# Null compliant property
+		$_Profile.templateCompliance = $null
 
 		# Process SAN Volume Attachments
 		if ($_Profile.sanStorage -and $_Profile.sanStorage.volumeAttachments) 
@@ -85591,7 +86046,57 @@ function Copy-HPOVServerProfile
 		Try
 		{
 		
-			$resp = Send-HPOVRequest -Uri $ServerProfilesUri -Method POST -Body $_Profile -appliance $ApplianceConnection
+			$Resp = Send-HPOVRequest -Uri $ServerProfilesUri -Method POST -Body $_Profile -appliance $ApplianceConnection
+
+			Try
+			{
+
+				$Resp = $Resp | Wait-HPOVTaskStart
+
+				if ($Resp.taskState -eq 'Error')
+				{
+
+					if ($Resp.taskErrors.message -match 'The selected server hardware has health status other than "OK"' -and 
+						$PSCmdlet.ShouldProcess($serverDevice.name, 'The selected server hardware has health status other than "OK". Do you wish to override and assign the Server Profile'))
+					{
+
+						Try
+						{
+						
+							$_Uri = '{0}?force=all' -f $ServerProfilesUri
+
+							$Resp = Send-HPOVRequest -Uri $_Uri -Method POST -Body $_Profile -Hostname $ApplianceConnection
+				
+						}
+				
+						Catch
+						{
+				
+							$PSCmdlet.ThrowTerminatingError($_)
+				
+						}
+
+					}
+
+					else
+					{
+
+						$ExceptionMessage = $resp.taskErrors.message
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException InvalidOperation InvalidOperation 'AsyncronousTask' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+					}				
+
+				}				
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 		
 		}
 		
@@ -85602,14 +86107,14 @@ function Copy-HPOVServerProfile
 		
 		}
 		
-		[void]$taskCollection.Add($resp)
+		$resp
 
 	}
 
 	End 
 	{
 		
-		return $taskCollection
+		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 	}
 
@@ -86408,7 +86913,7 @@ function New-HPOVServerProfileTemplate
 		[switch]$SANStorage,
 
 		[Parameter (Mandatory, ParameterSetName = "SANStorageAttach")]
-		[ValidateSet ('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
+		[ValidateSet ('CitrixXen','CitrixXen7','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','RHEV7','VMware','Win2k3','Win2k8','Win2k12','Win2k16','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
 		[Alias ('OS')]
 		[string]$HostOStype,
 
@@ -86454,9 +86959,13 @@ function New-HPOVServerProfileTemplate
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+		[Switch]$PassThru,
+
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)		
 		
 	)
 	
@@ -86857,6 +87366,20 @@ function New-HPOVServerProfileTemplate
 								$_spt.boot.manageBoot = $false
 
 							}
+
+							if ("UEFI" -eq $BootMode -and $ServerHardwareType.model -match "Gen9" -and -not $PSBoundParameters['SecureBoot'])
+							{
+
+								$_spt.bootMode.secureBoot = 'Disabled'
+
+							}
+							
+							elseif ("UEFIOptimized" -eq $BootMode -and $ServerHardwareType.model -match "Gen9" -and -not $PSBoundParameters['SecureBoot'])
+							{
+
+								$_spt.bootMode.secureBoot = 'Unmanaged'
+
+							}
 							
 						}
 
@@ -86908,6 +87431,14 @@ function New-HPOVServerProfileTemplate
 						[System.Collections.ArrayList]$_spt.boot.order = $BootOrder
 
 					}
+
+				}
+
+				else
+				{
+
+					$_spt.boot.manageBoot = $false
+					$_spt.boot.order = $null
 
 				}
 				
@@ -87737,24 +88268,10 @@ function New-HPOVServerProfileTemplate
 
 		"[{0}] Profile JSON Object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_spt | ConvertTo-Json -depth 99) | Write-Verbose
 
-		Try
+		if ($PassThru.IsPresent)
 		{
 
-			$resp = Send-HPOVRequest -uri $ServerProfileTemplatesUri -Method POST -Body $_spt -appliance $ApplianceConnection
-
-		}
-		
-		Catch
-		{
-
-			$PSCmdlet.ThrowTerminatingError($_)
-
-		}
-
-		if ($PSBoundParameters['Async'])
-		{
-
-			$Resp
+			$_spt
 
 		}
 
@@ -87764,27 +88281,53 @@ function New-HPOVServerProfileTemplate
 			Try
 			{
 
-				$Resp | Wait-HPOVTaskComplete -OutVariable Resp
-
-				if ($Resp.taskState -eq 'Error')
-				{
-
-					$ExceptionMessage = $resp.taskErrors.message
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileTemplateResourceException InvalidOperation InvalidOperation 'AsyncronousTask' -Message $ExceptionMessage
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
-
-				}
+				$resp = Send-HPOVRequest -uri $ServerProfileTemplatesUri -Method POST -Body $_spt -appliance $ApplianceConnection
 
 			}
-
+			
 			Catch
 			{
 
 				$PSCmdlet.ThrowTerminatingError($_)
 
 			}
-			
-		}
+
+			if ($PSBoundParameters['Async'])
+			{
+
+				$Resp
+
+			}
+
+			else
+			{
+
+				Try
+				{
+
+					$Resp | Wait-HPOVTaskComplete -OutVariable Resp
+
+					if ($Resp.taskState -eq 'Error')
+					{
+
+						$ExceptionMessage = $resp.taskErrors.message
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileTemplateResourceException InvalidOperation InvalidOperation 'AsyncronousTask' -Message $ExceptionMessage
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)  
+
+					}
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+				
+			}
+
+		}		
 
 	}
 
@@ -89513,7 +90056,7 @@ function New-HPOVServerProfileConnection
 		}
 
 		# Set conneciton boot settings
-		if ($PSboundParameters['Bootable']) # -and ($PSCmdlet.ParameterSetName -ne 'ISCSI' -and $ConnectionType -ne 'iSCSI'))
+		if ($PSboundParameters['Bootable'])
 		{
 
 			if ($Priority -eq 'NotBootable')
@@ -89842,7 +90385,7 @@ function New-HPOVServerProfileConnection
 
 		}
 
-		$_conn = $_conn | Select-Object * -Exclude requestedVFs
+		# $_conn = $_conn | Select-Object * -Exclude requestedVFs
 
 		"[{0}] Connection object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_conn | ConvertTo-Json) | Write-Verbose 
 
@@ -90030,7 +90573,7 @@ function Save-HPOVServerProfile
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
 
 	)
 
@@ -90140,10 +90683,20 @@ function Save-HPOVServerProfile
 
 		"[{0}] Attempting to save '{1}' Server Profile resource." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 
+		$_method = "PUT"
+
+		# If eTag property is null, then this profile needs to be created.
+		if (-not $InputObject.eTag)
+		{
+
+			$_method = "POST"
+
+		}
+
 		Try
 		{
 
-			$_Resp = Send-HPOVRequest -Uri $InputObject.uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection
+			$_Resp = Send-HPOVRequest -Uri $InputObject.uri -Method $_method -Body $InputObject -Hostname $InputObject.ApplianceConnection
 
 		}
 
@@ -90200,7 +90753,7 @@ function Save-HPOVServerProfileTemplate
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | ? Default)
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
 
 	)
 
@@ -90310,10 +90863,20 @@ function Save-HPOVServerProfileTemplate
 
 		"[{0}] Attempting to save '{1}' Server Profile Template resource." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 
+		$_method = "PUT"
+
+		# If eTag property is null, then this profile needs to be created.
+		if (-not $InputObject.eTag)
+		{
+
+			$_method = "POST"
+
+		}
+
 		Try
 		{
 
-			$_Resp = Send-HPOVRequest -Uri $InputObject.uri -Method PUT -Body $InputObject -Hostname $InputObject.ApplianceConnection
+			$_Resp = Send-HPOVRequest -Uri $InputObject.uri -Method $_method -Body $InputObject -Hostname $InputObject.ApplianceConnection
 
 		}
 
@@ -90938,7 +91501,7 @@ function New-HPOVServerProfileAttachVolume
 		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObject")]
 		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVol")]
 		[Parameter (Mandatory = $false, ParameterSetName = "ServerProfileObjectEphmeralVolTemplate")]
-		[ValidateSet ('CitrixXen','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','VMware','Win2k3','Win2k8','Win2k12','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform')]
+		[ValidateSet ('CitrixXen','CitrixXen7','AIX','IBMVIO','RHEL4','RHEL3','RHEL','RHEV','RHEV7','VMware','Win2k3','Win2k8','Win2k12','Win2k16','OpenVMS','Egenera','Exanet','Solaris9','Solaris10','Solaris11','ONTAP','OEL','HPUX11iv1','HPUX11iv2','HPUX11iv3','SUSE','SUSE9','Inform', IgnoreCase=$true)]
 		[Alias ('OS')]
 		[string]$HostOStype,
 
@@ -92781,7 +93344,7 @@ function Add-HPOVHypervisorManager
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -93119,7 +93682,7 @@ function Set-HPOVHypervisorManager
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -93596,7 +94159,7 @@ function Remove-HPOVHypervisorManager
 }
 
 # // TODO: DEV TEST DOCUMENT
-function Get-HPOVCluster
+function Get-HPOVClusterProfile
 {
 
 	# .ExternalHelp HPOneView.4.10.psm1-help.xml
@@ -93611,7 +94174,7 @@ function Get-HPOVCluster
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -93812,7 +94375,7 @@ function Get-HPOVClusterNode
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -94076,10 +94639,184 @@ function Get-HPOVClusterNode
 }
 
 # // TODO: DEV TEST DOCUMENT
-function Get-HPOVClusterProfile
+# Use to get existing VMware hypervisor clusters from hypervisor manager
+# https://10.1.1.21/rest/hypervisor-clusters?filter="hypervisorManagerUri='/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09' OR hypervisorManagerUri='/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01' AND state = 'Unmanaged'"&count=35&start=0&_=1538632464093
+# {"type":"HypervisorClusterList","uri":"/rest/hypervisor-clusters?start=0&count=35","category":"hypervisor-clusters","eTag":null,"created":"2018-10-04T22:49:42.381Z","modified":"2018-10-04T22:49:42.381Z","start":0,"count":17,"total":17,"prevPageUri":null,"nextPageUri":null,"members":[{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/a6d6538b-4620-44ce-8f73-8880ea962df4","name":"ImportCLusterWithoutSwitchSettings","description":null,"hypervisorRefId":"domain-c2022","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"arp-DC","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/9c767437-d905-4c74-bbcb-f5119a786051"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:34.428Z","modified":"2018-10-03T05:35:34.704Z","eTag":"1538544934660/1538544934704","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/76eca44c-e65e-45d7-96d5-dc7c94de3a00","name":"DuplicateEntryCLuster2","description":null,"hypervisorRefId":"domain-c2016","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"arp-DC","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/84a3d44e-4355-411c-a104-f2f24890ab31"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:34.742Z","modified":"2018-10-03T05:35:34.982Z","eTag":"1538544934944/1538544934982","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/5062aa4d-fd52-410c-b24d-094b9c129ea6","name":"ClusterAfterUpgrade","description":null,"hypervisorRefId":"domain-c1966","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"arp-DC","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/c7c7f80a-c41f-4581-a915-50a999ed23ba"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:35.030Z","modified":"2018-10-03T05:35:35.217Z","eTag":"1538544935217/1538544935217","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/53263fc4-d894-4358-8ac7-6cbb96edbc2b","name":"ArpCLusSep10","description":null,"hypervisorRefId":"domain-c1846","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"arp-DC","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/e24f0f7d-a7ec-4093-aca3-8e8b929637a3","/rest/hypervisor-hosts/535462da-bba5-47bb-8281-9ce5943c9079"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:35.282Z","modified":"2018-10-03T05:35:35.425Z","eTag":"1538544935390/1538544935425","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/7909ca79-015b-49c9-aa86-32da008bcab3","name":"Cluster_Epco_2","description":null,"hypervisorRefId":"domain-c1997","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"DC1_Reg","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":false,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/19394341-a435-49bb-af7a-5e97ce1b389e"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:37.624Z","modified":"2018-10-03T05:35:37.789Z","eTag":"1538544937759/1538544937789","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/02f25112-4d47-44e2-aba8-01dff5fb48f9","name":"Cluster_test","description":null,"hypervisorRefId":"domain-c2008","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"DC1_Reg","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":false,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/e3f46d41-c2fe-4fc5-8693-fc36bea121cc"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:37.820Z","modified":"2018-10-03T05:35:37.998Z","eTag":"1538544937955/1538544937998","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/a6af7c66-47e0-4448-80a0-07e24f7ce720","name":"Cluster_Epco","description":null,"hypervisorRefId":"domain-c1952","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"DC1_Reg","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/c5f28bc0-99c7-44bc-a8b3-046d2ed6367c","/rest/hypervisor-hosts/de3e6c98-d9d8-4069-84ca-5e7d9eff8b91"],"category":"hypervisor-clusters","created":"2018-10-03T05:35:38.031Z","modified":"2018-10-03T05:35:38.308Z","eTag":"1538544938308/1538544938308","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/c831668c-b1eb-489d-8624-e4d5ff1f8897","name":"monika1","description":null,"hypervisorRefId":"domain-c8008","hypervisorManagerUri":"/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09","path":"MonikaUpdated123","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":[],"category":"hypervisor-clusters","created":"2018-10-03T05:47:58.816Z","modified":"2018-10-03T05:47:59.040Z","eTag":"1538545679040/1538545679040","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/3a4d0b30-8994-4107-b1c2-46ec906ff58d","name":"empty clp","description":null,"hypervisorRefId":"domain-c8916","hypervisorManagerUri":"/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09","path":"MonikaUpdated123","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":true},"hypervisorHostUris":[],"category":"hypervisor-clusters","created":"2018-10-03T05:47:59.149Z","modified":"2018-10-03T05:48:00.141Z","eTag":"1538545679801/1538545680141","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/e6ceb7fe-f209-4239-81ad-447b130c2b53","name":"C7K-111","description":null,"hypervisorRefId":"domain-c6179","hypervisorManagerUri":"/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09","path":"MonikaUpdated123","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/64e2c7b1-7e30-4268-9a63-eaad439da537","/rest/hypervisor-hosts/61ad7b8a-5891-4030-acaf-fe237739ce14"],"category":"hypervisor-clusters","created":"2018-10-03T05:48:00.162Z","modified":"2018-10-03T05:48:00.656Z","eTag":"1538545680579/1538545680656","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/b1d57765-665e-4a88-b087-357417292243","name":"HCP_mulitconnection","description":null,"hypervisorRefId":"domain-c8820","hypervisorManagerUri":"/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09","path":"DC1","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/8ed8e9a6-927e-4510-90d5-79b3280e6e25"],"category":"hypervisor-clusters","created":"2018-10-03T05:48:08.151Z","modified":"2018-10-03T05:48:08.643Z","eTag":"1538545688541/1538545688643","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/d7d1e3c7-8eb5-4c2a-9d74-1cb2faac79fb","name":"test","description":null,"hypervisorRefId":"domain-c8430","hypervisorManagerUri":"/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09","path":"DC1","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":[],"category":"hypervisor-clusters","created":"2018-10-03T05:48:08.730Z","modified":"2018-10-03T05:48:09.475Z","eTag":"1538545689323/1538545689475","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/80e15318-220b-4755-a61b-d522f5d0f1e7","name":"nipun_test","description":null,"hypervisorRefId":"domain-c8827","hypervisorManagerUri":"/rest/hypervisor-managers/552cfe2a-ea25-4466-9bec-ff8b385f3d09","path":"DC1_Reg","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/c338c54a-42a5-4bb1-b28b-97a67d3fd65c"],"category":"hypervisor-clusters","created":"2018-10-03T05:48:19.069Z","modified":"2018-10-03T05:48:19.518Z","eTag":"1538545699459/1538545699518","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/c417f36c-7068-4c7c-adbd-2a492fc4fb8b","name":"sm_cluster","description":null,"hypervisorRefId":"domain-c2251","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"sneha_dc","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":["/rest/hypervisor-hosts/0969df8f-0338-42ff-892d-57ed52d63ee1"],"category":"hypervisor-clusters","created":"2018-10-03T06:07:15.120Z","modified":"2018-10-03T06:07:15.628Z","eTag":"1538546835628/1538546835628","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/27142fe0-a0cc-4075-98dc-4345aabf7286","name":"New Cluster","description":null,"hypervisorRefId":"domain-c2275","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"Monika_Updated123_Renamed","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":false,"haEnabled":false},"hypervisorHostUris":[],"category":"hypervisor-clusters","created":"2018-10-03T08:42:12.082Z","modified":"2018-10-03T11:10:16.351Z","eTag":"1538565016351/1538565016351","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/1ec6e1eb-39df-48b7-b805-0f6e4f4b4f82","name":"iscsicls","description":null,"hypervisorRefId":"domain-c2303","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"DC1","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":[],"category":"hypervisor-clusters","created":"2018-10-04T06:22:29.996Z","modified":"2018-10-04T06:26:54.048Z","eTag":"1538634414048/1538634414048","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false},{"type":"HypervisorCluster","uri":"/rest/hypervisor-clusters/1ddb362e-846d-4ff9-99e1-b99ddc5b9621","name":"cluster","description":null,"hypervisorRefId":"domain-c2310","hypervisorManagerUri":"/rest/hypervisor-managers/2d8e233f-572d-45dc-a57a-9276b7957c01","path":"DC1","hypervisorClusterProfileUri":null,"hypervisorClusterConfig":{"type":"Vmware","drsEnabled":true,"haEnabled":false},"hypervisorHostUris":[],"category":"hypervisor-clusters","created":"2018-10-04T08:34:14.550Z","modified":"2018-10-04T08:34:14.680Z","eTag":"1538642054656/1538642054680","status":"Disabled","state":"Unmanaged","refreshState":"NotRefreshing","stateReason":"None","hasVms":false}]}
+function Show-HPOVHypervisorCluster
 {
 
+	# .ExternalHelp HPOneView.410.psm1-help.xml
 
+	[CmdletBinding ()]
+	Param 
+	(
+
+		[Parameter (Mandatory = $false)]
+		[ValidateNotNullOrEmpty()]
+		[String]$Name,
+
+		[Parameter (Mandatory = $false)]
+		[ValidateNotNullOrEmpty()]
+		[Alias ('Appliance')]
+		[Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
+
+	)
+	
+	Begin 
+	{
+
+		"[{0}] Bound PS Parameters: {1}"  -f $MyInvocation.InvocationName.ToString().ToUpper(), ($PSBoundParameters | out-string) | Write-Verbose
+
+		$Caller = (Get-PSCallStack)[1].Command
+
+		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
+
+		"[{0}] Verify auth" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+		if (-not($ApplianceConnection) -and -not(${Global:ConnectedSessions}))
+		{
+
+			$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError "ApplianceConnection" -Message "No Appliance connection session found.  Please use Connect-HPOVMgmt to establish a connection, then try your command agian."
+			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+		}
+
+		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+		{
+
+			For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
+			{
+
+				Try 
+				{
+			
+					$ApplianceConnection[$c] = Test-HPOVAuth $ApplianceConnection[$c]
+
+				}
+
+				Catch [HPOneview.Appliance.AuthSessionException] 
+				{
+
+					$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError $ApplianceConnection[$c].Name -Message $_.Exception.Message -InnerException $_.Exception
+					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+				}
+
+				Catch 
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+			}
+
+		}
+
+		else
+		{
+
+			Try 
+			{
+			
+				$ApplianceConnection = Test-HPOVAuth $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.Appliance.AuthSessionException] 
+			{
+
+				$ErrorRecord = New-ErrorRecord HPOneview.Appliance.AuthSessionException NoApplianceConnections AuthenticationError 'ApplianceConnection' -Message $_.Exception.Message -InnerException $_.Exception
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+			Catch 
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+		}
+
+	}
+
+	Process 
+	{
+
+		ForEach ($_appliance in $ApplianceConnection)
+		{
+
+			"[{0}] Processing Appliance Connection '{1}' (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance, $ApplianceConnection.count | Write-Verbose
+
+			$_HypervisorManagerUris = New-Object System.Collections.ArrayList
+
+			# Get all hypervisor managers on the appliance
+			try
+			{
+
+				$_HypervisorManagers = Send-HPOVRequest -Uri $HypervisorManagersUri -Hostname $_appliance
+
+			}
+
+			catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
+			ForEach ($_manager in $_HypervisorManagers)
+			{
+
+				$_uri = "hypervisorManagerUri='{0}'" -f $_manager.uri
+
+				[void]$_HypervisorManagerUris.Add($_uri)
+
+			}
+
+			$_Filter = New-Object System.Collections.ArrayList
+
+			if ($Name)
+			{
+
+				"[{0}] Filtering for Name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Name | Write-Verbose
+
+				if ($Name.Contains('*'))
+				{
+
+					"[{0}] Filtering for Name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Name | Write-Verbose
+
+					[Void]$_Filter.Add(("name%3A{0}" -f $Name.Replace("*", "%2A").Replace(',','%2C').Replace(" ", "?")))
+
+				}
+
+				else
+				{
+
+					[Void]$_Filter.Add(("name:'{0}'" -f $Name))
+
+				}
+
+			}
+
+			# Build the final URI
+			$_uri = '{0}?filter="{1}{2}{3}"' -f $HypervisorClustersUri, [String]::Join(' OR ', $_HypervisorManagerUris.ToArray()), [String]::Join(' AND ', $_Filter.ToArray()), " AND state = 'Unmanaged'"
+
+			
+
+			# Build URI to look for all managers containing unmanaged clusters.  include cluster name if provided.
+			# $HypervisorClustersUri
+			# /rest/hypervisor-clusters
+
+			# Return custom object
+			New-Object HPOneView.Cluster.HypervisorCluster
+
+		}
+
+	}
+	
 }
 
 
@@ -94230,12 +94967,10 @@ function New-HPOVClusterProfile
 	(
 
 		[Parameter (Mandatory, ParameterSetName = 'Default')]
-		[Alias('Name')]
 		[String]$Name,
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[Parameter (Mandatory = $false, ParameterSetName = 'OverrideHypervisorManager')]
-		[Alias('Name')]
 		[String]$Description,
 
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
@@ -94304,7 +95039,7 @@ function New-HPOVClusterProfile
 		[Parameter (Mandatory = $false, ParameterSetName = 'OverrideHypervisorManager')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -94699,7 +95434,7 @@ function Import-HPOVClusterProfile
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -94960,6 +95695,11 @@ function Import-HPOVClusterProfile
 
 }
 
+function Add-HPOVClusterNodeToCluster
+{
+
+
+}
 
 
 #######################################################
@@ -95020,7 +95760,6 @@ function Search-HPOVIndex
 		elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 		{
 
-
 			For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
 			{
 
@@ -95045,7 +95784,6 @@ function Search-HPOVIndex
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
 
 			}
 
@@ -95423,7 +96161,7 @@ function Get-HPOVTask
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[Parameter (Mandatory = $false, ParameterSetName = "ResourceCategory")]
 		[ValidateNotNullorEmpty()]
-		[ValidateSet ("Unknown","New","Running","SuspEnded","Terminated","Killed","Completed","Error","Warning")]
+		[ValidateSet ("Unknown","New","Running","Pending","Stopping","Suspended","Terminated","Killed","Completed","Error","Warning")]
 		[string]$State,
 
 		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
@@ -106682,7 +107420,7 @@ function Get-HPOVApplianceAvailableSecurityMode
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -106831,7 +107569,7 @@ function Get-HPOVApplianceCurrentSecurityMode
 		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -106973,7 +107711,7 @@ function Set-HPOVApplianceCurrentSecurityMode
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -107150,7 +107888,7 @@ function Get-HPOVApplianceSecurityProtocol
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -107382,7 +108120,7 @@ function Get-HPOVApplianceSecurityProtocol
 	end
 	{
 
-		$_ApplianceProtocolsCollection | Sort Mode		
+		$_ApplianceProtocolsCollection | Sort-Object Mode		
 
 		"[{0}] Done." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
@@ -107407,7 +108145,7 @@ function Set-HPOVApplianceSecurityProtocol
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -107496,7 +108234,7 @@ function Set-HPOVApplianceSecurityProtocol
 
 			"[{0}] Will enable '{1}' security protocol." -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Protocol | Write-Verbose
 
-			($_SecurityProtocolsToSet | ? protocolName -eq $_Protocol).enabled = $true
+			($_SecurityProtocolsToSet | Where-Object protocolName -eq $_Protocol).enabled = $true
 
 		}
 
@@ -107610,7 +108348,7 @@ function Show-HPOVApplianceSecurityModeCompatibilityReport
 		[Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
 		[ValidateNotNullOrEmpty()]
 		[Alias ('Appliance')]
-		[Object]$ApplianceConnection = ($ConnectedSessions | ? Default)
+		[Object]$ApplianceConnection = ($ConnectedSessions | Where-Object Default)
 
 	)
 
@@ -107882,7 +108620,7 @@ function Show-HPOVApplianceSecurityModeCompatibilityReport
 
 				$_externalServers = New-Object "System.Collections.Generic.List[HPOneView.Appliance.SecurityModeCompatibilityReport+ExternalServer]"
 
-				ForEach ($_ExternalCert in ($_Report.members | ? { $_.reportSection.sectionKey -eq 'EXTERNALCERTIFICATE'}))
+				ForEach ($_ExternalCert in ($_Report.members | Where-Object { $_.reportSection.sectionKey -eq 'EXTERNALCERTIFICATE'}))
 				{
 
 					$_ExternalCompatbilityDetails = New-Object "System.Collections.Generic.List[HPOneView.Appliance.SecurityModeCompatibilityReport+CompapatibilityDetail]"
@@ -107907,7 +108645,7 @@ function Show-HPOVApplianceSecurityModeCompatibilityReport
 
 				$_managedDevices = New-Object "System.Collections.Generic.List[HPOneView.Appliance.SecurityModeCompatibilityReport+ManagedDevice]"
 
-				ForEach ($_managedDevice in ($_Report.members | ? { $_.reportSection.sectionKey -eq 'MANAGEDDEVICE'}))
+				ForEach ($_managedDevice in ($_Report.members | Where-Object { $_.reportSection.sectionKey -eq 'MANAGEDDEVICE'}))
 				{
 
 					$_ManagedDeviceCompatbilityDetails = New-Object "System.Collections.Generic.List[HPOneView.Appliance.SecurityModeCompatibilityReport+CompapatibilityDetail]"
@@ -107932,7 +108670,7 @@ function Show-HPOVApplianceSecurityModeCompatibilityReport
 
 				$_applianceCerificates = New-Object "System.Collections.Generic.List[HPOneView.Appliance.SecurityModeCompatibilityReport+ApplianceCerificate]"
 
-				ForEach ($_ApplianceCert in ($_Report.members | ? { $_.reportSection.sectionKey -eq 'APPLIANCECERTIFICATE'}))
+				ForEach ($_ApplianceCert in ($_Report.members | Where-Object { $_.reportSection.sectionKey -eq 'APPLIANCECERTIFICATE'}))
 				{
 
 					$_ApplianceCertCompatbilityDetails = New-Object "System.Collections.Generic.List[HPOneView.Appliance.SecurityModeCompatibilityReport+CompapatibilityDetail]"
@@ -114094,6 +114832,8 @@ Export-ModuleMember -function New-HPOVAddressPoolSubnet
 Export-ModuleMember -function Set-HPOVAddressPoolSubnet
 Export-ModuleMember -function Remove-HPOVAddressPoolSubnet
 Export-ModuleMember -function Remove-HPOVAddressPoolRange
+Export-ModuleMember -function Get-HPOVReservedVlanRange
+Export-ModuleMember -function Set-HPOVReservedVlanRange
 Export-ModuleMember -function New-HPOVSnmpTrapDestination
 Export-ModuleMember -function New-HPOVSnmpConfiguration
 Export-ModuleMember -function Get-HPOVSwitchType
@@ -114150,7 +114890,14 @@ Export-ModuleMember -function Get-HPOVHypervisorManager
 Export-ModuleMember -function Add-HPOVHypervisorManager
 Export-ModuleMember -function Set-HPOVHypervisorManager
 Export-ModuleMember -function Remove-HPOVHypervisorManager
-# Export-ModuleMember -function Get-HPOVCluster
+Export-ModuleMember -function Get-HPOVClusterProfile
+Export-ModuleMember -function Get-HPOVClusterNode
+Export-ModuleMember -function New-HPOVClusterProfile
+Export-ModuleMember -function Import-HPOVCluster
+Export-ModuleMember -function Add-HPOVClusterNodeToCluster
+Export-ModuleMember -function Show-HPOVHypervisorCluster
+Export-ModuleMember -function Remove-HPOVCluster
+Export-ModuleMember -function Update-HPOVCluster
 
 # Facilities
 Export-ModuleMember -function Get-HPOVRack
