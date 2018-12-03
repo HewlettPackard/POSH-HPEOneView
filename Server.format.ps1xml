@@ -823,7 +823,7 @@
     <View>
       <Name>Enclosure</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Enclosure</TypeName>
+        <TypeName>HPOneView.Servers.Enclosure</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>

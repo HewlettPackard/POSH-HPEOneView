@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.410.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.10.1865.3905'
+    ModuleVersion = '4.10.1889.2173'
     
     # ID used to uniquely identify this module
     GUID = '2c99a71e-361b-4ec0-b168-060eac70561d'
@@ -123,7 +123,7 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.10.1865.3905
+            ReleaseNotes = 'Release 4.10.1889.2173
 
 * Updated New-HPOVServerProfile and New-HPOVServerProfileTemplate with -PassThru parameter, which will return the object back to the caller to modify it before creating it with Save-HPOVServerProfile or Save-HPOVServerProfileTemplate Cmdlets.
 * [#372] Updated HostOSType parameters for New-HPOVServerProfile, New-HPOVServerProfileTemplate, and New-HPOVServerProfileAttachVolume Cmdlets.
@@ -135,8 +135,9 @@ THE SOFTWARE.
 * Fixed Get-HPOVInterconnect where SAS Interconnects were not part of the API call to index.
 * Fixed Copy-HPOVServerProfile where server hardware validation was incorrectly being handled.
 * Fixed New-HPOVServerProfile where server hardware validation was incorrectly being handled.
-* Fixed New-HPOVServerProfileConnection where -VirtualFunctions parameter was not being honored correctly.
+* Fixed New-HPOVServerProfileConnection where -VirtualFunctions parameter was not being honored correctly, and iSCSI connection type regression.
 * Fixed New-HPOVSnmpConfiguration which was missing SNMPv3 configuration parameters.
+* Fixed Get-HPOVIloSso to return correct iLO REST API root URI based on iLO4 or iLO5.
 * [#382] Fixed New-HPOVServerProfileTemplate where -BootMode $false would not set the appropriate values to unmanage settings.
 * Updated New-HPOVServerProfile to make -AssignmentType a non-mandatory parameter, which now defaults to "Server".
 * Added Cmdlets to get and set HPE Synergy Reserved VLAN Range; Get-HPOVReservedVlanRange, Set-HPOVReservedVlanRange'

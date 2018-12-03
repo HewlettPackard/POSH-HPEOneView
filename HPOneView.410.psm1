@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.10.1865.3905'
+[Version]$ModuleVersion = '4.10.1889.2173'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -958,6 +958,7 @@ function NewObject
 		[switch]$ServerProfileBootMode,
 		[switch]$ServerProfileBootModeLegacyBios,
 		[switch]$ServerProfileEthernetConnection,
+		[switch]$ServerProfileIscsiConnection,
 		[switch]$ServerProfileFCConnection,
 		[switch]$ServerProfileEthBootableConnection,
 		[switch]$ServerProfileEthBootableConnectionWithTargets,
@@ -2521,11 +2522,12 @@ function NewObject
 					}; 
 					firmware                 = [PSCustomObject]@{
 
-						manageFirmware         = $false;
-						firmwareBaselineUri    = $null;
-						forceInstallFirmware   = $false;
-						firmwareInstallType    = 'FirmwareAndOSDrivers';
-						firmwareActivationType = 'Immediate'
+						manageFirmware           = $false;
+						firmwareBaselineUri      = $null;
+						forceInstallFirmware     = $false;
+						firmwareInstallType      = 'FirmwareAndOSDrivers';
+						firmwareActivationType   = 'Immediate';
+						firmwareScheduleDateTime = $null
 							
 					};
 					boot           = [PSCustomObject]@{
@@ -2901,6 +2903,28 @@ function NewObject
 					macType             = 'Virtual';
 					mac		            = $null;
 					requestedVFs        = '0';
+					lagName             = $null;
+					ApplianceConnection = $null
+
+				}
+
+			}
+
+			'ServerProfileIscsiConnection'
+			{
+
+				Return [PSCustomObject]@{
+			
+					id                  = 1;
+					functionType        = 'Ethernet';
+					name                = $null;
+					portId              = $null; 
+					networkUri          = $null; 
+					requestedMbps       = 2000; 
+					boot                = $null;
+					macType             = 'Virtual';
+					mac		            = $null;
+					ipv4                = $null;
 					lagName             = $null;
 					ApplianceConnection = $null
 
@@ -31666,6 +31690,21 @@ function Get-HPOVIloSso
 			"[{0}] Server Profile was provided." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 			$_uri = $InputObject.serverHardwareUri
 
+			# get server hardware from resource
+			try
+			{
+
+				$_Server = Send-HPOVRequest -Uri $_uri -Hostname $InputObject.ApplianceConnection
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
+
 		}
 
 		else
@@ -31673,6 +31712,8 @@ function Get-HPOVIloSso
 
 			"[{0}] Server Hardware was provided." -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
 			$_uri = $InputObject.uri
+
+			$_Server = $InputObject
 
 		}
 
@@ -31719,8 +31760,6 @@ function Get-HPOVIloSso
 		else
 		{
 
-			# Get-HPOVServer | Select -First 1 | Get-HPOVIloSso -IloRestSession -OutVariable IloUrl
-
 			"[{0}] Generating and returning iLO REST/RedFish SSO Session object" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			Try
@@ -31752,8 +31791,28 @@ function Get-HPOVIloSso
 			}
 
 			"[{0}] Building iLO Session Object." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+			switch ($_Server.mpModel)
+			{
+
+				'iLO5'
+				{
+
+					$_RootUri = "https://{0}/redfish/v1" -f ([URI]$_ssoresp.iloSsoUrl).Host
+
+				}
+
+				'iLO4'
+				{
+
+					$_RootUri = "https://{0}/rest/v1" -f ([URI]$_ssoresp.iloSsoUrl).Host
+
+				}
+
+			}
+
 			$IloSession                = NewObject -IloRestSession
-			$IloSession.RootUri        = "https://{0}/rest/v1" -f ([URI]$_ssoresp.iloSsoUrl).Host
+			$IloSession.RootUri        = $_RootUri
 			$IloSession.'X-Auth-Token' = $SessionID.Replace('sessionKey=',$null)
 
 			$IloSession
@@ -66128,7 +66187,7 @@ function Get-HPOVReservedVlanRange
 
 }
 
-# // TODO: DOC UNITTEST
+# // TODO: UNITTEST
 function Set-HPOVReservedVlanRange
 {
 
@@ -87367,14 +87426,7 @@ function New-HPOVServerProfileTemplate
 
 							}
 
-							if ("UEFI" -eq $BootMode -and $ServerHardwareType.model -match "Gen9" -and -not $PSBoundParameters['SecureBoot'])
-							{
-
-								$_spt.bootMode.secureBoot = 'Disabled'
-
-							}
-							
-							elseif ("UEFIOptimized" -eq $BootMode -and $ServerHardwareType.model -match "Gen9" -and -not $PSBoundParameters['SecureBoot'])
+							if ($ServerHardwareType.model -match "Gen9" -and -not $PSBoundParameters['SecureBoot'])
 							{
 
 								$_spt.bootMode.secureBoot = 'Unmanaged'
@@ -89970,7 +90022,19 @@ function New-HPOVServerProfileConnection
 						{"ethernet-networks", "network-sets" -contains $_}
 						{
 
-							$_conn = NewObject -ServerProfileEthernetConnection
+							if ($ConnectionType -eq 'iSCSI' -or ('IscsiPrimary', 'IscsiSecondary' -contains $Priority) -or $PSCmdlet.ParameterSetName -eq "ISCSI")
+							{
+
+								$_conn = NewObject -ServerProfileIscsiConnection
+
+							}
+
+							else
+							{
+
+								$_conn = NewObject -ServerProfileEthernetConnection
+
+							}
 
 						}
 
@@ -90136,7 +90200,8 @@ function New-HPOVServerProfileConnection
 					}
 
 					$_conn.boot.iscsi = NewObject -IscsiBootEntry
-					$_conn | Add-Member -NotePropertyName ipv4 -NotePropertyValue (NewObject -IscsiIPv4Configuration)
+					# $_conn.ipv4 | Add-Member -NotePropertyName ipv4 -NotePropertyValue (NewObject -IscsiIPv4Configuration)
+					$_conn.ipv4 = NewObject -IscsiIPv4Configuration
 
 					if ($PSBoundParameters['BootVolumeSource'])
 					{
@@ -90354,6 +90419,12 @@ function New-HPOVServerProfileConnection
 			$_conn.requestedVFs = $Virtualfunctions
 
 		}
+
+		# elseif (-not $PSboundParameters['Virtualfunctions'] -and $_conn.functionType -eq 'Ethernet' -and $PSCmdlet.ParameterSetName -ne 'ISCSI') 
+		# {
+
+
+		# }
 
 		if ($PSboundParameters['UserDefined'])
 		{
