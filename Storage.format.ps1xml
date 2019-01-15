@@ -876,11 +876,11 @@
         </ListEntries>
       </ListControl>
     </View>
-    <!--Storage.System.Pool FT-->
+    <!--Storage.StoragePool FT-->
     <View>
       <Name>StorageSystemPool</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Storage.System.Pool</TypeName>
+        <TypeName>HPOneView.Storage.StoragePool</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
@@ -964,11 +964,11 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--Storage.System.Pool FL-->
+    <!--Storage.StoragePool FL-->
     <View>
       <Name>StorageSystemPool</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Storage.System.Pool</TypeName>
+        <TypeName>HPOneView.Storage.StoragePool</TypeName>
       </ViewSelectedBy>
       <ListControl>
         <ListEntries>

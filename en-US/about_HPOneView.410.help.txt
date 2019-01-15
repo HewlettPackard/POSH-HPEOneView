@@ -32,6 +32,20 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.10.1928.2181
+
+     -- Added ConvertTo-HPOVPowerShellScript to take supported resources created by other means, and generate
+        PowerShell script code.
+     -- Updated internal enum object to add missing Scope resource category support for logical enclosure
+        and enclosure group.
+     -- Updated New-HPOVAddressPoolSubnet to make -Domain an optional parameter.
+     -- Updated Add-HPOVSmtpAlertEmailFilter to support adding Remote Support filter.
+     -- Removed HPE Synergy Composer restriction from Get-HPOVAddressPoolSubnet and New-HPOVAddressPoolSubnet
+        Cmdlets.
+     -- Refactored New-HPOVServerProfileAttachVolume Cmdlet parameters to avoid "unable to resolve ParameterSet"
+        errors.
+     -- Added missing parameters to New-HPOVServerProfileAttachVolume supporting 3Par dynamic private volume creation.
+
     Release 4.10.1889.2173
 
      -- Updated New-HPOVServerProfile and New-HPOVServerProfileTemplate with -PassThru parameter, which

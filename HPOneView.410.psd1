@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.410.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.10.1889.2173'
+    ModuleVersion = '4.10.1928.2181'
     
     # ID used to uniquely identify this module
     GUID = '2c99a71e-361b-4ec0-b168-060eac70561d'
@@ -123,24 +123,15 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.10.1889.2173
+            ReleaseNotes = 'Release 4.10.1928.2181
 
-* Updated New-HPOVServerProfile and New-HPOVServerProfileTemplate with -PassThru parameter, which will return the object back to the caller to modify it before creating it with Save-HPOVServerProfile or Save-HPOVServerProfileTemplate Cmdlets.
-* [#372] Updated HostOSType parameters for New-HPOVServerProfile, New-HPOVServerProfileTemplate, and New-HPOVServerProfileAttachVolume Cmdlets.
-* [#373] Fixed New-HPOVServerProfile where certain parameters were not mapped to the "SPT" ParameterSet.
-* [#374] Fixed Show-HPOVFirmwareReport for server hardware where baseline firmware compliance was not being used correctly.
-* [#375] Fixed incorrect call to generate error for unsupported remote support server hardware.
-* [#361] Fixed Invoke-HPOVVcmMigration parameter regression that was supposed to be fixed in 4.10.1821.1567.
-* Fixed Show-HPOVFirmwareReport where SAS interconnects were not reported.
-* Fixed Get-HPOVInterconnect where SAS Interconnects were not part of the API call to index.
-* Fixed Copy-HPOVServerProfile where server hardware validation was incorrectly being handled.
-* Fixed New-HPOVServerProfile where server hardware validation was incorrectly being handled.
-* Fixed New-HPOVServerProfileConnection where -VirtualFunctions parameter was not being honored correctly, and iSCSI connection type regression.
-* Fixed New-HPOVSnmpConfiguration which was missing SNMPv3 configuration parameters.
-* Fixed Get-HPOVIloSso to return correct iLO REST API root URI based on iLO4 or iLO5.
-* [#382] Fixed New-HPOVServerProfileTemplate where -BootMode $false would not set the appropriate values to unmanage settings.
-* Updated New-HPOVServerProfile to make -AssignmentType a non-mandatory parameter, which now defaults to "Server".
-* Added Cmdlets to get and set HPE Synergy Reserved VLAN Range; Get-HPOVReservedVlanRange, Set-HPOVReservedVlanRange'
+* Added ConvertTo-HPOVPowerShellScript to take supported resources created by other means, and generate PowerShell script code.
+* Updated internal enum object to add missing Scope resource category support for logical enclosure and enclosure group.
+* Updated New-HPOVAddressPoolSubnet to make -Domain an optional parameter.
+* Updated Add-HPOVSmtpAlertEmailFilter to support adding Remote Support filter.
+* Removed HPE Synergy Composer restriction from Get-HPOVAddressPoolSubnet and New-HPOVAddressPoolSubnet Cmdlets
+* Refactored New-HPOVServerProfileAttachVolume Cmdlet parameters to avoid "unable to resolve ParameterSet" errors.
+* Added missing parameters to New-HPOVServerProfileAttachVolume supporting 3Par dynamic private volume creation.'
 
 		}
 
