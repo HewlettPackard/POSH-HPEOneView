@@ -45,6 +45,8 @@ WHAT'S NEW
      -- Refactored New-HPOVServerProfileAttachVolume Cmdlet parameters to avoid "unable to resolve ParameterSet"
         errors.
      -- Added missing parameters to New-HPOVServerProfileAttachVolume supporting 3Par dynamic private volume creation.
+     -- Fixed regression in New-HPOVApplianceCsr.
+     -- Fixed regressions in Get-HPOVApplianceDateTime and Set-HPOVApplianceDateTime.
 
     Release 4.10.1889.2173
 

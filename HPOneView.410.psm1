@@ -2294,7 +2294,7 @@ function NewObject
 			
 				Return [PSCustomObject]@{
 
-					type               = "CertificateDtoV2";
+					type               = "CertificateDtoV3";
 					country            =  $null;
 					state              =  $null;
 					locality           =  $null;
@@ -2318,22 +2318,23 @@ function NewObject
 
 				Return [PSCustomObject]@{
 
-					type               = "CertificateDtoV2";
-					country            =  $null;
-					state              =  $null;
-					locality           =  $null;
-					organization       =  $null;
-					commonName         =  $null;
-					organizationalUnit =  $null;
-					alternativeName    =  $null;
-					contactPerson      =  $null;
-					email              =  $null;
-					surname            =  $null;
-					givenName          =  $null;
-					initials           =  $null;
-					dnQualifier        =  $null;
-					unstructuredName   =  $null;
-					challengePassword  =  $null
+					type               = "CertificateSigningRequest";
+					country            = $null;
+					state              = $null;
+					locality           = $null;
+					organization       = $null;
+					commonName         = $null;
+					organizationalUnit = $null;
+					alternativeName    = $null;
+					contactPerson      = $null;
+					email              = $null;
+					surname            = $null;
+					givenName          = $null;
+					initials           = $null;
+					dnQualifier        = $null;
+					unstructuredName   = $null;
+					challengePassword  = $null;
+					cnsaCertRequested  = $false
 
 				}	
 
@@ -15056,9 +15057,9 @@ function New-HPOVApplianceSelfSignedCertificate
 			if ($PSCmdlet.ShouldProcess($ApplianceConnection.Name,"generate new self-signed certificate"))
 			{    
 
-				"[{0}] Processing: $($_SelfSignedCertObject | Format-List *)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+				"[{0}] Generating new self-signed certificate." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				$_resp = Send-HPOVRequest $applianceCsr POST $_SelfSignedCertObject -HostName $ApplianceConnection
+				$_resp = Send-HPOVRequest -Uri $applianceSslCert -Method POST -Body $_SelfSignedCertObject -HostName $ApplianceConnection
 		
 			}
 
@@ -15078,7 +15079,6 @@ function New-HPOVApplianceSelfSignedCertificate
 				{
 
 					# If here, user chose "No", End Processing
-
 					$_resp = $Null
 
 				}
@@ -15187,6 +15187,9 @@ function New-HPOVApplianceCsr
 		[ValidateNotNullOrEmpty()]
 		[string]$UnstructuredName,
 
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[Bool]$CnsaCompliantRequest = $false,
+
 		[Parameter (Mandatory = $False, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
 		[Alias ('Appliance')]
@@ -15241,8 +15244,6 @@ function New-HPOVApplianceCsr
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-
-				
 
 			}
 
@@ -15337,7 +15338,7 @@ function New-HPOVApplianceCsr
 		$_CsrObject.organization       =  $Organization
 		$_CsrObject.commonName         =  $CommonName
 		$_CsrObject.organizationalUnit =  $OrganizationalUnit
-		$_CsrObject.alternativeName    =  $AlternativeName
+		$_CsrObject.alternativeName    =  $AlternativeName.Replace(" ", $null) # Remove spaces?
 		$_CsrObject.contactPerson      =  $ContactName
 		$_CsrObject.email              =  $Email
 		$_CsrObject.surname            =  $Surname
@@ -15350,9 +15351,9 @@ function New-HPOVApplianceCsr
 		Try
 		{
 
-			"[{0}] Processing: $($_CsrObject | Format-List * )" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			"[{0}] Sending CSR request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			$_resp = Send-HPOVRequest $applianceCsr POST $_CsrObject -HostName $ApplianceConnection
+			$_resp = Send-HPOVRequest -Uri $applianceCsr -Method POST -Body $_CsrObject -HostName $ApplianceConnection
 				
 			[void]$_TaskStatus.Add($_resp)
 
@@ -15670,7 +15671,7 @@ function Install-HPOVApplianceCertificate
 		Try
 		{
 
-			"[{0}] Processing: $($_CertificateObject | Format-List * )" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			"[{0}] Installing appliance CA signed certificate" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			$_resp = Send-HPOVRequest -Uri $applianceCsr -Method PUT -BOdy $_CertificateObject -HostName $ApplianceConnection
 
@@ -18201,7 +18202,8 @@ function Set-HPOVApplianceDateTime
 			New-Object HPOneView.Appliance.ApplianceLocaleDateTime($_appliancedatetime.locale,
 																   $_appliancedatetime.timezone,
 																   $_appliancedatetime.dateTime,
-																   $_appliancedatetime.ntpServers,
+																   [String[]]$_appliancedatetime.ntpServers,
+																   $_appliancedatetime.pollingInterval,
 																   $SyncWithHost,
 																   $_appliancedatetime.LocaleDisplayName,
 																   $_appliancedatetime.ApplianceConnection)

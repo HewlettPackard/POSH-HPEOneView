@@ -131,7 +131,9 @@ THE SOFTWARE.
 * Updated Add-HPOVSmtpAlertEmailFilter to support adding Remote Support filter.
 * Removed HPE Synergy Composer restriction from Get-HPOVAddressPoolSubnet and New-HPOVAddressPoolSubnet Cmdlets
 * Refactored New-HPOVServerProfileAttachVolume Cmdlet parameters to avoid "unable to resolve ParameterSet" errors.
-* Added missing parameters to New-HPOVServerProfileAttachVolume supporting 3Par dynamic private volume creation.'
+* Added missing parameters to New-HPOVServerProfileAttachVolume supporting 3Par dynamic private volume creation.
+* Fixed regression in New-HPOVApplianceCsr.
+* Fixed regressions in Get-HPOVApplianceDateTime and Set-HPOVApplianceDateTime'
 
 		}
 
