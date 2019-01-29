@@ -13,7 +13,7 @@ skip_commits:
     - '*.yml'
     - .github/*.md
 
-build_cloud: doc-hyp-04
+build_cloud: doc-hyp-cluster1
 image: win10-ent-worker
 clone_folder: C:\projects\HPOneView.410
 init:
