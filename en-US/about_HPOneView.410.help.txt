@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2019 Hewlett Packard Enterprise Development LP 
 
 LICENSE
 
@@ -31,6 +31,23 @@ SHORT DESCRIPTION
     PowerShell library for HP OneView 4.10
 	
 WHAT'S NEW
+
+    Release 4.10.1954.1523
+
+     -- Fixed incorrect error handling within Connect-HPOVMgmt when authentication directory specified does
+        not exist.
+     -- Fixed New-HPOVApplianceCsr with updated API DTO version.
+     -- Fixed ConvertTo-HPOVPowerShellScript generating error with generating server profile and server profile 
+        template logical disk code.
+     -- [#390] Fixed ConvertTo-HPOVPowerShellScript incorrect handling of generated code to text output stream.
+     -- [#389] Fixed incorrect handling of HPE Synergy D3940 Logical JBOD disk configuration with
+        New-HPOVServerProfileLogicalDisk, New-HPOVServerProfileTemplate and New-HPOVServerProfile.
+     -- Fixed ConvertTo-HPOVPowerShellScript incorrect hanlding of HPE Synergy D3940 Logical JBOD script code.
+     -- [#388] Fixed Add-HPOVEnclosure where -EnclosureGroup was mapped to an incorrect parameter set for
+        monitored enclosures.
+     -- Fixed regression in Update-HPOVLogicalEnclosureFirmware.
+     -- Updated ConvertTo-HPOVPowerShellScript to export code to specified text file.
+     -- Updated New-HPOVAddressPoolSubnet to make -Gateawy an optional paramter.
 
     Release 4.10.1928.2181
 

@@ -1,5 +1,5 @@
 ﻿##############################################################################9
-## (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
+## (C) Copyright 2013-2019 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -39,7 +39,7 @@ THE SOFTWARE.
     CompanyName = 'Hewlett-Packard Enterprise'
     
     # Copyright statement for this module
-    Copyright = '(C) Copyright 2013-2018 Hewlett-Packard Development Company, L.P.'
+    Copyright = '(C) Copyright 2013-2019 Hewlett-Packard Development Company, L.P.'
     
     # Description of the functionality provided by this module
     Description = 'HPE OneView PowerShell Library'
@@ -123,17 +123,18 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.10.1928.2181
+            ReleaseNotes = 'Release 4.10.1954.1523
 
-* Added ConvertTo-HPOVPowerShellScript to take supported resources created by other means, and generate PowerShell script code.
-* Updated internal enum object to add missing Scope resource category support for logical enclosure and enclosure group.
-* Updated New-HPOVAddressPoolSubnet to make -Domain an optional parameter.
-* Updated Add-HPOVSmtpAlertEmailFilter to support adding Remote Support filter.
-* Removed HPE Synergy Composer restriction from Get-HPOVAddressPoolSubnet and New-HPOVAddressPoolSubnet Cmdlets
-* Refactored New-HPOVServerProfileAttachVolume Cmdlet parameters to avoid "unable to resolve ParameterSet" errors.
-* Added missing parameters to New-HPOVServerProfileAttachVolume supporting 3Par dynamic private volume creation.
-* Fixed regression in New-HPOVApplianceCsr.
-* Fixed regressions in Get-HPOVApplianceDateTime and Set-HPOVApplianceDateTime'
+* Fixed incorrect error handling within Connect-HPOVMgmt when authentication directory specified does not exist.
+* Fixed New-HPOVApplianceCsr with updated API DTO version.
+* Fixed ConvertTo-HPOVPowerShellScript generating error with generating server profile and server profile template logical disk code.
+* [#390] Fixed ConvertTo-HPOVPowerShellScript incorrect handling of generated code to text output stream.
+* [#389] Fixed incorrect handling of HPE Synergy D3940 Logical JBOD disk configuration with New-HPOVServerProfileLogicalDisk, New-HPOVServerProfileTemplate and New-HPOVServerProfile.
+* Fixed ConvertTo-HPOVPowerShellScript incorrect hanlding of HPE Synergy D3940 Logical JBOD script code.
+* [#388] Fixed Add-HPOVEnclosure where -EnclosureGroup was mapped to an incorrect parameter set for monitored enclosures.
+* Fixed regression in Update-HPOVLogicalEnclosureFirmware.
+* Updated ConvertTo-HPOVPowerShellScript to export code to specified text file.
+* Updated New-HPOVAddressPoolSubnet to make -Gateawy an optional paramter.'
 
 		}
 

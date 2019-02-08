@@ -1691,11 +1691,23 @@
         <AutoSize/>
         <TableHeaders>
           <TableColumnHeader>
-            <Label>Appliance</Label>
+            <Label>Model</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Name</Label>
+            <Label>Location</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Partnumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serialnumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Firmware</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -1706,44 +1718,30 @@
             <Label>Status</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>SerialNumber</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>DriveBays</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
-          <TableColumnHeader>
-            <Label>I/OAdapters</Label>
-            <Alignment>Left</Alignment>
-          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
             <TableColumnItems>
               <TableColumnItem>
-                <ScriptBlock>$_.ApplianceConnection.Name</ScriptBlock>
+                <PropertyName>model</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>name</PropertyName>
+                <ScriptBlock>"{0}{1}" -f $_.ioAdapterLocation.locationEntries.type, $_.ioAdapterLocation.locationEntries.value</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>powerState</PropertyName>
-              </TableColumnItem>
-              <TableColumnItem>
-                <PropertyName>status</PropertyName>
+                <PropertyName>partNumber</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>serialNumber</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>
-                  '{0}/{1}' -f ($_.driveBays | ? drive).count, $_.driveBayCount
-                </ScriptBlock>
+                <PropertyName>firmwareVersion</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>ioAdapterCount</PropertyName>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -1751,7 +1749,7 @@
       </TableControl>
     </View>
     <!--Storage.DriveEnclosure.IoAdapter FL-->
-    <View>
+    <!-- <View>
       <Name>DriveEnclosureIoAdapter</Name>
       <ViewSelectedBy>
         <TypeName>HPOneView.Storage.DriveEnclosure.IoAdapter</TypeName>
@@ -1798,7 +1796,7 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View>
+    </View> -->
     <!--Storage.DriveEnclosure.DriveBay FT-->
     <View>
       <Name>DriveBay</Name>

@@ -2,7 +2,7 @@
 # HPE OneView PowerShell Library
 ##############################################################################
 ##############################################################################
-## (C) Copyright 2013-2018 Hewlett Packard Enterprise Development LP 
+## (C) Copyright 2013-2019 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 
@@ -33,14 +33,14 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.10.1928.2181'
+[Version]$ModuleVersion = '4.10.1954.1523'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
 [Reflection.Assembly]::LoadWithPartialName("System.Web") | Out-Null
 
 # Check to see if another module is loaded in the console, but allow Import-Module to Process normally if user specifies the same module name
-if ((get-module -name HPOneView*) -and (-not (get-module -name HPOneView* | ForEach-Object name -eq "HPOneView.400"))) 
+if ((get-module -name HPOneView*) -and (-not (get-module -name HPOneView* | ForEach-Object name -eq "HPOneView.410"))) 
 {
 
 	write-Host "CRITICAL:  Another HP OneView module is already loaded:  "  -ForegroundColor Yellow -BackgroundColor Black 
@@ -50,7 +50,7 @@ if ((get-module -name HPOneView*) -and (-not (get-module -name HPOneView* | ForE
 
 	[System.String]$Exception                                  = 'InvalidOperationException'
 	[System.String]$ErrorId                                    = 'CannotLoadMultipleLibraries'
-	[System.Object]$TargetObject                               = 'Import-Module HPOneView.400'
+	[System.Object]$TargetObject                               = 'Import-Module HPOneView.410'
 	[System.Management.Automation.ErrorCategory]$ErrorCategory = 'ResourceExists'
 	[System.String]$Message                                    = 'Another HPE OneView module is already loaded.  The HPE OneView PowerShell library does not support loading multiple versions of libraries within the same console.'
 	
@@ -6210,7 +6210,7 @@ function Ping-HPOVAddress
 				$_resp = Wait-HPOVTaskComplete $_resp
 
 				Write-Host " "
-				$_resp.progressUpdates.statusUpdate | Out-Host
+				$_resp.progressUpdates.statusUpdate | Write-Host
 				Write-Host " "
 
 			}
@@ -6826,10 +6826,25 @@ function Connect-HPOVMgmt
 		catch [HPOneview.ResourceNotFoundException]
 		{
 
-            [void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
+			[void] $ConnectedSessions.RemoveConnection($ApplianceConnection)
+			
+			if ($PSCmdlet.ParameterSetName -eq 'Certificate')
+			{
 
-			$ExceptionMessage = "The appliance is not configured for 2-Factor authentication.  Please provide a valid username and password in order to authenticate to the appliance."
-			$ErrorRecord = New-ErrorRecord HPOneview.ResourceNotFoundException TwoFactorAuthenticationNotEnabled PermissionDenied 'Certificate' -Message $ExceptionMessage
+				$ExceptionMessage = "The appliance is not configured for 2-Factor authentication.  Please provide a valid username and password in order to authenticate to the appliance."
+				$ErrorRecord = New-ErrorRecord HPOneview.ResourceNotFoundException TwoFactorAuthenticationNotEnabled PermissionDenied 'Certificate' -Message $ExceptionMessage
+
+			}
+
+			else
+			{
+
+				$ExceptionMessage = "The provided '{0}' authentication directory is not configured on the appliance '{1}'." -f $AuthLoginDomain, $Hostname
+				$ErrorRecord = New-ErrorRecord HPOneview.ResourceNotFoundException AuthenticationDirectoryNotFound ObjectNotFound 'AuthLoginDomain' -Message $ExceptionMessage
+
+			}
+
+			
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 		}
@@ -8773,7 +8788,7 @@ function Get-HPOVCommandTrace
 		if ($null -ne $CaptureError)
 		{
 
-			$CapturedError | Out-Host
+			$CapturedError | Write-Host
 
 		}
 
@@ -9160,7 +9175,15 @@ function ConvertTo-HPOVPowerShellScript
 		
 		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = 'Default')]
 		[ValidateNotNullorEmpty()]
-		[Object]$InputObject
+		[Object]$InputObject,
+
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
+		[System.IO.FileInfo]$Export,
+
+		[Parameter (Mandatory = $false, ParameterSetName = 'Default')]
+		[ValidateNotNullorEmpty()]
+		[Switch]$Append
 
     )
     
@@ -9185,19 +9208,33 @@ function ConvertTo-HPOVPowerShellScript
         $Dot            = '.'
         $Underscore     = '_'
         $Space          = ' '
-        $Syn12K         = 'SY12000' # Synergy enclosure type
+
+        $Syn12K                   = 'SY12000' # Synergy enclosure type
+        [Hashtable]$LogicalDiskCmdletTypeEnum = @{
+
+            SasHdd  = 'SAS';
+            SataHdd = 'SATA';
+			Sas     = 'SASSSD';
+			SasSsd  = 'SASSSD';
+            SataSsd = 'SATASSD';
+            NVMeSsd = 'NVMeSas';
+            NVMeHdd = 'NVMeSata'
+
+        }
 
     }
 
     Process
     {
 
+		$ExportToFile = $PSBoundParameters['Export']
+
         $ApplianceConnection = $InputObject.ApplianceConnection
 
         function Insert-BlankLine
         {
 
-            "" | Out-Host
+            ""
 
         }
 
@@ -9258,7 +9295,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-CustomVarCode ([String]$Prefix, [String]$Suffix, [String]$Value)
         {
 
-            if (-not $Prefix.StartsWith("$"))
+            if (-not $Prefix.StartsWith("$") -and -not $Prefix.StartsWith("#"))
             {
 
                 $Prefix = '${0}' -f $Prefix
@@ -9322,7 +9359,40 @@ function ConvertTo-HPOVPowerShellScript
 
             return $newStr
             
-        }
+		}
+		
+		Function DisplayOutput ([System.Collections.ArrayList]$code)
+		{
+
+			if ($ExportToFile)
+			{
+
+				if (-not $Append)
+				{
+
+					[System.IO.File]::WriteAllLines($Export, $code, [System.Text.Encoding]::UTF8)
+
+				}
+
+				else
+				{
+
+					[System.IO.File]::AppendAllLines([String]$Export, [string[]]$code.ToArray(), [System.Text.Encoding]::UTF8)
+
+				}
+
+			}
+
+			else
+			{
+
+				$code.ToArray()
+
+				Insert-BlankLine
+
+			}
+
+		}
 
         Function Generate-fwBaseline-Script ($InputObject)
         {
@@ -9335,14 +9405,13 @@ function ConvertTo-HPOVPowerShellScript
                 # - OV strips the dot from the ISOfilename, so we have to re-construct it
                 $filename   = rebuild-fwISO -BaselineObj $fwBase
 
-                [void]$scriptCode.Add(('$filename  = "{0}"' -f $filename))
-                [void]$scriptCode.Add(('$isofolder = read-host "Provide the folder location for {0}"' -f $filename))
-                [void]$scriptCode.Add('$isofile   = Join-Path $isofolder $filename')
-                [void]$scriptCode.Add('Add-HPOVBaseline -file $isofile')
-
-                $scriptCode.ToArray() | Out-Host
-
-                Insert-BlankLine
+				[void]$scriptCode.Add(('## ------ Upload baseline "{0}"' -f $filename))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'filename' -Value ('"{0}"' -f $filename)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'isofolder' -Value ('read-host "Provide the folder location for "{0}"' -f $filename)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'isofile' -Value 'Join-Path $isofolder $filename'))
+				[void]$scriptCode.Add('Add-HPOVBaseline -file $isofile')
+				
+				DisplayOutput -Code $scriptCode
 
             }
 
@@ -9364,36 +9433,32 @@ function ConvertTo-HPOVPowerShellScript
                 $username       = $proxy.username 
                 $server         = $server 
 
-                $serverParam    = " -server `$server"
-                $portParam      = " -port `$port"
+				[void]$scriptCode.Add('## ------ Configure appliance proxy to "{0}"' -f $server)
+                $serverParam    = ' -server $server'
+                $portParam      = ' -port $port'
                 $credParam      = $null
                 $userParam      = $null
+                $isHttps        = if ($protocol -eq 'Https') {$true} else {$false}
+                $protocolParam  = ' -Https:$isHttps'
 
-                if (-not [string]::IsNullOrEmpty($username))
+
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'server' -Value ('"{0}"' -f $server)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'port' -Value ('{0}' -f $port)))
+				
+				if (-not [string]::IsNullOrEmpty($username))
                 {
 
-                    $credCode   = '$username               = {0}{1}' -f $username, "`r`n"
-                    $credCode   += '$password               = read-host -prompt " Enter password for user `{0} for proxy server " -AsSecureString{1}' -f $username, "`r`n"
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'username' -Value ('"{0}"' -f $username)))
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'password' -Value ('Read-Host -prompt "Enter password for user {0} for proxy server" -AsSecureString' -f $username)))
 
                     $userParam = ' -Username {0} -Password $password' -f $username
 
                 }
 
-                $isHttps        = if ($protocol -eq 'Https') {$true} else {$false}
-                $protocolParam  = " -Https:`$isHttps"
-
-
-                [void]$scriptCode.Add(('$server                 = {0}' -f $server))
-                [void]$scriptCode.Add(('$port                   = {0}' -f $port))
-
-                if ($credCode) { [void]$scriptCode.Add(('{0}' -f $credCode)) }
-                
-                [void]$scriptCode.Add(('$isHttps                = ${0}' -f $isHttps.ToString()))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'isHttps' -Value ('${0}' -f $isHttps.ToString())))
                 [void]$scriptCode.Add(('Set-HPOVApplianceProxy -hostname $server{0}{1}{2}' -f $userParam, $portParam, $protocolParam))
 
-                $scriptCode.ToArray() | Out-Host
-
-                Insert-BlankLine
+                DisplayOutput -Code $scriptCode
 
             }   
 
@@ -9413,33 +9478,32 @@ function ConvertTo-HPOVPowerShellScript
             $descParam = $null
             $descCode  = $null
 
-            [void]$scriptCode.Add(('## ------ Create scope {0}' -f $name))
-            [void]$scriptCode.Add(('$name                   = "{0}"' -f $name))
+            [void]$scriptCode.Add('## ------ Create scope {0}' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
 
             if ($desc)
             {
 
                 $descParam  =  ' -description $description'
  
-                [void]$scriptCode.Add('$description           = "{0}"' -f $desc)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'description' -Value ('"{0}"' -f $desc)))
 
             }
 
             if ($s.Members.Count -gt 0)
             {
 
-                [void]$scriptCode.Add(('$thisScope              = New-HPOVScope -Name $name {0}' -f $descParam))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'thisScope' -Value ('New-HPOVScope -Name $name {0}' -f $descParam)))
 
                 [void]$scriptCode.Add(('{0}## ------ Create resources to be included in scope {1}' -f $CR, $name))
-                [void]$scriptCode.Add('$resources             = New-Object System.Collections.ArrayList')
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'resources' -Value 'New-Object System.Collections.ArrayList'))
 
                 foreach ($m in $members)
                 {
 
                     $scopeMemberCode = $scopeMemberType = $null
                     
-                    $m_name = "`'" + $m.name + "`'"
-                    # [void]$scriptCode.Add(('$m_name                = {0}' -f $m_name))
+                    # $m_name = "`'" + $m.name + "`'"
 
                     $m_type = $m.type
 
@@ -9546,13 +9610,11 @@ function ConvertTo-HPOVPowerShellScript
             else
             {
             
-                [void]$scriptCode.Add(('New-HPOVScope -Name $name {0}' -f $descParam))
+                [void]$scriptCode.Add('New-HPOVScope -Name $name {0}' -f $descParam)
             
             }
 
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -9577,14 +9639,14 @@ function ConvertTo-HPOVPowerShellScript
             $fullNameParam = $permissionsParam = $emailAddressParam = $officePhoneParam = $mobilePhoneParam = $descParam = $null
             $roleParam     = $scopeParam       = $null
 
-            [void]$scriptCode.Add(('# ------ Create user {0}' -f $userName))
-            [void]$scriptCode.Add(('$userName                   = "{0}"' -f $userName))
-            [void]$scriptCode.Add(('$password                   = Read-Host -Message "Provide the password for {0}"' -f $userName))
+            [void]$scriptCode.Add('# ------ Create user {0}' -f $userName)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'userName' -Value ('"{0}"' -f $userName)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'password' -Value ('Read-Host -Message "Provide the password for {0}"' -f $userName)))
 
             if ($userName -ne $fullName)
             {
 
-                [void]$scriptCode.Add(('$fullName                   = "{0}"' -f $fullName))
+                [void]$scriptCode.Add('$fullName                   = "{0}"' -f $fullName)
                 $fullNameParam = ' -Fullname $fullname'
 
             }
@@ -9592,7 +9654,7 @@ function ConvertTo-HPOVPowerShellScript
             if (-not [String]::IsNullOrWhiteSpace($emailAddress))
             {
 
-                [void]$scriptCode.Add(('$emailAddress               = "{0}"' -f $emailAddress))
+                [void]$scriptCode.Add('$emailAddress               = "{0}"' -f $emailAddress)
                 $emailAddressParam = ' -EmailAddress $emailAddress'
 
             }
@@ -9600,7 +9662,7 @@ function ConvertTo-HPOVPowerShellScript
             if (-not [String]::IsNullOrWhiteSpace($officePhone))
             {
 
-                [void]$scriptCode.Add(('$officePhone                = "{0}"' -f $officePhone))
+                [void]$scriptCode.Add('$officePhone                = "{0}"' -f $officePhone)
                 $officePhoneParam = ' -OfficePhone $officePhone'
 
             }
@@ -9608,7 +9670,7 @@ function ConvertTo-HPOVPowerShellScript
             if (-not [String]::IsNullOrWhiteSpace($mobilePhone))
             {
 
-                [void]$scriptCode.Add(('$mobilePhone                = "{0}"' -f $mobilePhone))
+                [void]$scriptCode.Add('$mobilePhone                = "{0}"' -f $mobilePhone)
                 $mobilePhoneParam = ' -MobilePhone $mobilePhone'
 
             }
@@ -9632,7 +9694,7 @@ function ConvertTo-HPOVPowerShellScript
 
                     $ScopeRoleVarCode = Generate-CustomVarCode -Prefix "Scope" -Suffix $n -Value ('Get-HPOVScope -Name "{0}"' -f $ScopeName)
 
-                    [void]$scriptCode.Add(('{0}' -f $ScopeRoleVarCode))
+                    [void]$scriptCode.Add('{0}' -f $ScopeRoleVarCode)
 
                     $n++
                 
@@ -9642,7 +9704,7 @@ function ConvertTo-HPOVPowerShellScript
 
             }
 
-            [void]$scriptCode.Add('$permissions                = @(')
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'permissions' -Value '@('))
 
             $c = 1
 
@@ -9670,9 +9732,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVUser -Username $userName -Password $password{0}{1}{2}{3}' -f $fullNameParam, $descParam, $emailAddressParam, $officePhoneParam, $mobilePhoneParam, $permissionsParam))
 
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -9689,12 +9749,12 @@ function ConvertTo-HPOVPowerShellScript
             $dirName     = $Group.loginDomain
             $permissions = $Group.permissions
         
-            [void]$scriptCode.Add(('# ------ Create authentication directory group {0}' -f $groupName))
-            [void]$scriptCode.Add(('$groupName                  = "{0}"' -f $groupName))
-            [void]$scriptCode.Add(('$dirName                    = "{0}"' -f $dirName))
-            [void]$scriptCode.Add(('$credentials                = Get-Credential -Message "Provide {0} authentication directory username and password"' -f $dirName))
-            [void]$scriptCode.Add(('$directory                  = Get-HPOVLdapDirectory -Name $dirName'))
-            [void]$scriptCode.Add(('$thisGroup                  = Show-HPOVLdapGroups -Directory $directory -GroupName $groupName -Credential $credentials'))
+            [void]$scriptCode.Add('# ------ Create authentication directory group {0}' -f $groupName)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'groupName' -Value ('"{0}"' -f $groupName)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dirName' -Value ('"{0}"' -f $dirName)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'credentials' -Value ('Get-Credential -Message "Provide {0} authentication directory username and password"' -f $dirName)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'directory' -Value ('Get-HPOVLdapDirectory -Name $dirName')))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'thisGroup' -Value ('Show-HPOVLdapGroups -Directory $directory -GroupName $groupName -Credential $credentials')))
 
             $n = 1
 
@@ -9725,7 +9785,7 @@ function ConvertTo-HPOVPowerShellScript
 
             }
 
-            [void]$scriptCode.Add('$permissions                = @(')
+			[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'permissions' -Value '@('))
 
             $c = 1
 
@@ -9751,9 +9811,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add('New-HPOVLdapGroup -Directory $directory -Credential $credentials -Roles $permissions')
 
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -9777,8 +9835,8 @@ function ConvertTo-HPOVPowerShellScript
             $Servers       = $Directory.directoryServers
 
             [void]$scriptCode.Add(('# ------ Create authentication directory {0} ({1})' -f $Name, $BaseDN))
-            [void]$scriptCode.Add(('$dirName                    = "{0}"' -f $Name))
-            [void]$scriptCode.Add(('$baseDN                     = "{0}"' -f $BaseDN))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dirName' -Value ('"{0}"' -f $Name)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'baseDN' -Value ('"{0}"' -f $BaseDN)))
 
             if ($DirBindType -eq 'SERVICE_ACCOUNT')
             {
@@ -9786,14 +9844,14 @@ function ConvertTo-HPOVPowerShellScript
                 $serviceAccountParam = ' -ServiceAccount'
                 $Username = $DirUsername
 
-                [void]$scriptCode.Add(('$credential                 = Get-Credential -Message "Provide authentication credentials for {0} authentication directory." -Username "{0}"' -f $Username))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'credential' -Value ('Get-Credential -Message "Provide authentication credentials for {0} authentication directory." -Username "{0}"' -f $Username)))
 
             }
 
             else
             {
             
-                [void]$scriptCode.Add( '$credential                 = Get-Credential -Message "Provide authentication credentials for {0} authentication directory."' -f $Name)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'credential' -Value ('Get-Credential -Message "Provide authentication credentials for {0} authentication directory."' -f $Name)))
             
             }
 
@@ -9805,8 +9863,8 @@ function ConvertTo-HPOVPowerShellScript
                 $UsrNameAttribParam = ' -UserNamingAttribute $usrNameAttrib'
 
 
-                [void]$scriptCode.Add(('$ldapOrgUnits               = "{0}"' -f $OrgUnits))
-                [void]$scriptCode.Add(('$usrNameAttrib              = "{0}"' -f $UsrNameAttrib))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ldapOrgUnits' -Value ('"{0}"' -f $OrgUnits)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'usrNameAttrib' -Value ('"{0}"' -f $UsrNameAttrib)))
 
             }
 
@@ -9831,9 +9889,9 @@ function ConvertTo-HPOVPowerShellScript
                 {
 
                     [void]$scriptCode.Add('# -------- If you wish to provide the certificate in Base64 format from a file, uncomment the following line')
-                    [void]$scriptCode.Add('#$certificate               = Get-ChildItem -Path "C:\Path\to\cert.cer"')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '#$certificate' -Value 'Get-ChildItem -Path "C:\Path\to\cert.cer"'))
                     [void]$scriptCode.Add('# -------- Comment out the following line to use the existing certificate value.')
-                    [void]$scriptCode.Add(('$certificate               = "{0}"' -f $BaseDN))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'certificate' -Value ('"{0}"' -f $BaseDN)))
 
                     $ServerCertCode = ' -Certificate $certificate -TrustLeafCertificate'
 
@@ -9875,9 +9933,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVLdapDirectory -Name $dirName{0}{1}{2} -BaseDN $baseDN -Servers $servers -Credential $credentials' -f $AuthProtocolParam, $LdapOUsParam, $UsrNameAttribParam))
 
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -9903,7 +9959,7 @@ function ConvertTo-HPOVPowerShellScript
             $snmp            = $InputObject
             $readCommunity   = $snmp.CommunityString 
 
-            [void]$scriptCode.Add(('$readCommunity         = "{0}"' -f $readCommunity))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'readCommunity' -Value ('"{0}"' -f $readCommunity)))
             [void]$scriptCode.Add('Set-HPOVSnmpReadCommunity -Name $readCommunity')
 
             #Trap destinations
@@ -9939,9 +9995,9 @@ function ConvertTo-HPOVPowerShellScript
                     $portParam      = ' -port $Port'
                     $formatParam    = ' -SnmpFormat $type'
                     
-                    [void]$scriptCode.Add(("#-- `tGenerating {0} Trap destination object for {1} " -f $type, $destinationAddress))
-                    [void]$scriptCode.Add(('$destination           = "{0}" ' -f $destinationAddress))
-                    [void]$scriptCode.Add(('$port                  = {0} ' -f $port))
+                    [void]$scriptCode.Add(("#-- `tGenerating {0} Trap destination object for {1}" -f $type, $destinationAddress))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'destination' -Value ('"{0}"' -f $destinationAddress)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'port' -Value ('{0}' -f $port)))
 
                     Switch ($t.GetType().Fullname)
                     {
@@ -9949,7 +10005,7 @@ function ConvertTo-HPOVPowerShellScript
                         'HPOneView.Appliance.SnmpV1TrapDestination'
                         {
 
-                            [void]$scriptCode.Add(('$communitystring       = "{0}"' -f $communitystr))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'communitystring' -Value ('"{0}"' -f $communitystr)))
 
                             $communityParam = ' -Community $communitystring'
                             $type           = "SNMPv1"
@@ -9974,7 +10030,7 @@ function ConvertTo-HPOVPowerShellScript
                             
                             }
 
-                            [void]$scriptCode.Add(('$snmpV3User            = Get-HPOVSnmpV3user -Name "{0}"' -f $t.SnmpV3User))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpV3User' -Value ('Get-HPOVSnmpV3user -Name "{0}"' -f $t.SnmpV3User)))
                             $snmpV3UserParam = ' -SnmpV3User $snmpV3User'
                             $type            = "SNMPv3"
 
@@ -9982,16 +10038,14 @@ function ConvertTo-HPOVPowerShellScript
 
                     } 
 
-                    [void]$scriptCode.Add(('$type                  = "{0}"' -f $type))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'type' -Value ('"{0}"' -f $type)))
                     [void]$scriptCode.Add(('New-HPOVSnmpTrapDestination {0}{1}{2}{3}{4}' -f $destParam, $portParam, $formatParam, $communityParam, $snmpV3UserParam))
 
                 }
 
             }
 
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10008,10 +10062,10 @@ function ConvertTo-HPOVPowerShellScript
 
             $securityLevelName = ($Snmpv3UserAuthLevelEnum.GetEnumerator() | ? Value -eq $user.securityLevel).Name
 
-            [void]$scriptCode.Add(('$userName             = "{0}"' -f $userName))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'userName' -Value ('"{0}"' -f $userName)))
             $userNameParam      = ' -Username $userName'
 
-            [void]$scriptCode.Add(('$securityLevel        = "{0}"' -f $securityLevelName))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'securityLevel' -Value ('"{0}"' -f $securityLevelName)))
             $securityLevelParam = ' -SecurityLevel $securityLevel'
 
             switch ($user.securityLevel)
@@ -10022,14 +10076,14 @@ function ConvertTo-HPOVPowerShellScript
 
                     $authProtocolName = ($SnmpAuthProtocolEnum.GetEnumerator() | ? Value -eq $user.authenticationProtocol).Name
 
-                    [void]$scriptCode.Add(('$authProtocol         = "{0}"' -f $authProtocolName))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'authProtocol' -Value ('"{0}"' -f $authProtocolName)))
 
                     $snmpv3UserAuthProtocolParam = ' -AuthProtocol $authProtocol'
 
                     if ($authProtocolName -ne 'none')
                     {
 
-                        [void]$scriptCode.Add(('$AuthPassword         = read-host -prompt "Enter authentication password for SNMPv3 user {0}" -AsSecureString' -f $username))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'AuthPassword' -Value ('Read-Host -prompt "Enter authentication password for SNMPv3 user {0}" -AsSecureString' -f $username)))
                         $snmpv3UserAuthProtocolParam += ' -AuthPassword $authPassword'
 
                     }
@@ -10041,28 +10095,28 @@ function ConvertTo-HPOVPowerShellScript
 
                     $authProtocolName = ($SnmpAuthProtocolEnum.GetEnumerator() | ? Value -eq $user.authenticationProtocol).Name
 
-                    [void]$scriptCode.Add(('$authProtocol         = "{0}"' -f $authProtocolName))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'authProtocol' -Value ('"{0}"' -f $authProtocolName)))
 
                     $snmpv3UserAuthProtocolParam = ' -AuthProtocol $authProtocol'
 
                     if ($authProtocolName -ne 'none')
                     {
 
-                        [void]$scriptCode.Add(('$AuthPassword         = read-host -prompt "Enter authentication password for SNMPv3 user {0}" -AsSecureString' -f $username))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'AuthPassword' -Value ('Read-Host -prompt "Enter authentication password for SNMPv3 user {0}" -AsSecureString' -f $username)))
                         $snmpv3UserAuthProtocolParam += ' -AuthPassword $authPassword'
 
                     }
 
                     $privProtocolName = ($ApplianceSnmpV3PrivProtocolEnum.GetEnumerator() | ? Value -eq $user.privacyProtocol).Name
 
-                    [void]$scriptCode.Add(('$privProtocol         = "{0}"' -f $privProtocolName))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'privProtocol' -Value ('"{0}"' -f $privProtocolName)))
 
                     $snmpv3UserPrivProtocolParam = ' -PrivProtocol $privProtocol'
 
                     if ($authProtoprivProtocolNamecolName -ne 'none')
                     {
 
-                        [void]$scriptCode.Add(('$PrivPassword         = read-host -prompt "Enter privacy password for SNMPv3 user {0}" -AsSecureString' -f $username))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'PrivPassword' -Value ('Read-Host -prompt "Enter privacy password for SNMPv3 user {0}" -AsSecureString' -f $username)))
                         $snmpv3UserPrivProtocolParam += ' -PrivPassword $PrivPassword'
 
                     }
@@ -10073,9 +10127,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVSnmpV3User -ApplianceSnmpUser{0}{1}{2}{3}' -f $userNameParam, $securityLevelParam, $snmpv3UserAuthProtocolParam, $snmpv3UserPrivProtocolParam))
             
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10096,13 +10148,13 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 [void]$scriptCode.Add('# -------------- Attributes for SMTP alerting')       
-                [void]$scriptCode.Add('$AlertEmailDisabled         = $False')
-                [void]$scriptCode.Add(('$Email                      = "{0}"' -f $Email))
-                [void]$scriptCode.Add(('$Server                     = "{0}"' -f $Server))
-                [void]$scriptCode.Add(('$Port                       = {0}' -f $Port))
-                [void]$scriptCode.Add(('$ConnectionSecurity         = {0}' -f $ConnectionSecurity))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'AlertEmailDisabled' -Value '$False'))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'Email' -Value ('"{0}"' -f $Email)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'Server' -Value ('"{0}"' -f $Server)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'Port' -Value ('{0}' -f $Port)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ConnectionSecurity' -Value ('{0}' -f $ConnectionSecurity)))
                 [void]$scriptCode.Add('# Omit the following line to if your SMTP server does not require a password.')
-                [void]$scriptCode.Add('$Password                   = read-host "Please enter a password to connect to smtp Server " -AsSecureString')
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'Password' -Value 'Read-Host "Please enter a password to connect to smtp Server " -AsSecureString'))
                 [void]$scriptCode.Add('Set-HPOVSmtpConfig -SenderEmailAddress $Email -password $Password -Server $Server -Port $Port')
                 [void]$scriptCode.Add("")
 
@@ -10117,16 +10169,16 @@ function ConvertTo-HPOVPowerShellScript
                         $ScopeMatchPreferenceParam = $smtpAlertNameParam = $smtpAlertEmailsParam = $null
                         
                         [void]$scriptCode.Add(('# -------------- Attributes for SMTP Filter "{0}"' -f $filter.filterName)) 
-                        [void]$scriptCode.Add(('$name                       = "{0}"' -f $filter.filterName)) 
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $filter.filterName)) )
                         $smtpAlertNameParam = '-Name $name'
 
                         # Emails
                         $Emails = '"{0}"' -f [String]::Join('", "', $filter.emails)
-                        [void]$scriptCode.Add(('$emails                     = {0}' -f $Emails))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'emails' -Value ('{0}' -f $Emails)))
                         $smtpAlertEmailsParam = ' -Emails $emails'
 
                         # FilterQuery
-                        [void]$scriptCode.Add(('$filter                     = "{0}"' -f $filter.filter))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'filter' -Value ('"{0}"' -f $filter.filter)))
                         $filterParam = ' -Filter $filter'
 
                         # ScopeQuery
@@ -10138,7 +10190,7 @@ function ConvertTo-HPOVPowerShellScript
 
                                 $ScopeMatchPreference = "AND"
 
-                                [void]$scriptCode.Add(('$ScopeMatchPreference       = "{0}"' -f $ScopeMatchPreference))
+                                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ScopeMatchPreference' -Value ('"{0}"' -f $ScopeMatchPreference)))
                                 $ScopeMatchPreferenceParam = ' -ScopeMatchPreference $ScopeMatchPreference'
 
                             }
@@ -10161,7 +10213,7 @@ function ConvertTo-HPOVPowerShellScript
 
                             }
 
-                            [void]$scriptCode.Add(('$scope                      = {0}' -f [String]::Join(', ', $ScopeNames.ToArray())))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'scope' -Value ('{0}' -f [String]::Join(', ', $ScopeNames.ToArray()))))
                             $smtpAlertEmailsParam = ' -Scope $scope'
 
                         }
@@ -10175,9 +10227,7 @@ function ConvertTo-HPOVPowerShellScript
 
             }
         
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10204,7 +10254,7 @@ function ConvertTo-HPOVPowerShellScript
             if ($locale -ne 'en_US')
             {
 
-                [void]$scriptCode.Add('$locale                     = ' -f $locale)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'locale' -Value ('"{0}"' -f $locale)))
                 $localeParm = ' -Locale $locale'
 
             }
@@ -10218,14 +10268,14 @@ function ConvertTo-HPOVPowerShellScript
 
                     $ntpServers = [String]::Join('", "', $ntpServers)
                     $ntpParam = ' -NtpServers $ntpServers'
-                    [void]$scriptCode.Add('$ntpServers                = "{0}"' -f $ntpServers)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ntpServers' -Value ('"{0}"' -f $ntpServers)))
 
                 }
 
                 if ($pollingInterval)
                 {
 
-                    [void]$scriptCode.Add('$pollingInterval           = {0}' -f $pollingInterval)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'pollingInterval' -Value ('{0}' -f $pollingInterval)))
                     $pollingParam = " -PollingInterval `$pollingInterval "
 
                 }
@@ -10241,7 +10291,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('Set-HPOVApplianceDateTime{0}{1}{2}{3}' -f $localeParm, $syncWithHostParam, $ntpParam, $pollingParam))
 
-            $scriptCode.ToArray() | Out-Host
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10259,10 +10309,10 @@ function ConvertTo-HPOVPowerShellScript
             $dns            = $subnet.dnsservers
             $rangeUris      = $subnet.rangeUris
 
-            [void]$scriptCode.Add('# -------------- Attributes for subnet {0}' -f $networkID)
-            [void]$scriptCode.Add('$networkID                  = $networkID')
-            [void]$scriptCode.Add('$subnetmask                 = $subnetmask')
-            [void]$scriptCode.Add('$gateway                    = $gateway')
+            [void]$scriptCode.Add('# -------------- Attributes for subnet "{0}"' -f $networkID)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'networkID' -Value '$networkID'))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'subnetmask' -Value '$subnetmask'))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'networkgatewayID' -Value '$gateway'))
 
             $networkIdParam     = ' -NetworkID '
             $subnetMaskParam    = ' -Subnetmask $subnetmask'
@@ -10276,7 +10326,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 $dnsServers     = [String]::Join('", "', $dns)
 
-                [void]$scriptCode.Add('$dnsServers                = "{0}"' -f $dnsServers)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dnsServers' -Value ('"{0}"' -f $dnsServers)))
                 $dnsParam       = ' -DnsServers $dnsServers'
             
             }
@@ -10287,11 +10337,11 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $domainParam    =  ' -Domain $domain'
-                [void]$scriptCode.Add('$domain                    = "{0}"' -f $domain)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'domain' -Value ('"{0}"' -f $domain)))
 
             }
            
-            [void]$scriptCode.Add(('$thisSubnet                 = New-HPOVAddressPoolSubnet{0}{1}{2}{3}{4}' -f $networkIdParam, $subnetMaskParam, $gatewayParam, $dnsParam, $domainParam))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'thisSubnet' -Value ('New-HPOVAddressPoolSubnet{0}{1}{2}{3}{4}' -f $networkIdParam, $subnetMaskParam, $gatewayParam, $dnsParam, $domainParam)))
 
             foreach ($rangeUri in $rangeUris)
             {
@@ -10303,16 +10353,14 @@ function ConvertTo-HPOVPowerShellScript
 
                 [void]$scriptCode.Add('')
                 [void]$scriptCode.Add('# --- Attributes for Address Pool range associated with subnet {0}' -f $networkID)
-                [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
-                [void]$scriptCode.Add('$startAddress               = "{0}"' -f $startAddress)
-                [void]$scriptCode.Add('$endAddress                 = "{0}"' -f $endAddress)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value '"{0}"' -f $name))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'startAddress' -Value '"{0}"' -f $startAddress))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'endAddress' -Value '"{0}"' -f $endAddress))
                 [void]$scriptCode.Add('New-HPOVAddressPoolRange -IPV4Subnet $thisSubnet -Name $name -start $startAddress -end $endAddress')
 
             }
 
-            $scriptCode.ToArray() | Out-Host
-            
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10339,10 +10387,10 @@ function ConvertTo-HPOVPowerShellScript
             if ($poolType -ne 'IPv4' -and $rangeType -eq 'Custom')
             {  
 
-                [void]$scriptCode.Add('$poolType                   = "{0}"' -f $poolType)
-                [void]$scriptCode.Add('$rangeType                  = "{0}"' -f $rangeType)
-                [void]$scriptCode.Add('$startAddress               = "{0}"' -f $startAddress)
-                [void]$scriptCode.Add('$endAddress                 = "{0}"' -f $endAddress)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'poolType' -Value ('"{0}"' -f $poolType)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'rangeType' -Value ('"{0}"' -f $rangeType)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'startAddress' -Value ('"{0}"' -f $startAddress)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'endAddress' -Value ('"{0}"' -f $endAddress)))
                 
                 $rangeTypeParam = ' -rangeType $rangeType'
                 $poolTypeParam  = ' -poolType $poolType'
@@ -10354,7 +10402,7 @@ function ConvertTo-HPOVPowerShellScript
             elseif ($poolType -ne 'IPv4' -and $rangeType -eq 'Generated')
             {
 
-                [void]$scriptCode.Add('$poolType                   = "{0}"' -f $poolType)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'poolType' -Value ('"{0}"' -f $poolType)))
                 $poolTypeParam  = ' -poolType $poolType'
 
             }
@@ -10377,9 +10425,9 @@ function ConvertTo-HPOVPowerShellScript
                 
                 }
 
-                [void]$scriptCode.Add('$subnet                     = Get-HPOVAddressPoolSubnet -NetworkID {0}' -f $AddressPoolSubnetId)
-                [void]$scriptCode.Add('$startAddress               = "{0}"' -f $startAddress)
-                [void]$scriptCode.Add('$endAddress                 = "{0}"' -f $endAddress)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'subnet' -Value ('Get-HPOVAddressPoolSubnet -NetworkID {0}' -f $AddressPoolSubnetId)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'startAddress' -Value ('"{0}"' -f $startAddress)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'endAddress' -Value ('"{0}"' -f $endAddress)))
                 
                 $startEndParam  = ' -IPv4Subnet $subnet -Start $startAddress -End $endAddress'
             
@@ -10387,9 +10435,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVAddressPoolRange{0}{1}{2}' -f $poolTypeParam, $rangeTypeParam, $startEndParam))
 
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10414,9 +10460,9 @@ function ConvertTo-HPOVPowerShellScript
             $purpose     = $net.purpose
 
             [void]$scriptCode.Add('# -------------- Attributes for Ethernet network "{0}"' -f $name)
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
-            [void]$scriptCode.Add('$type                       = "{0}"' -f $type)
-            [void]$scriptCode.Add('$vLANType                   = "{0}"' -f $vLANType)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'type' -Value ('"{0}"' -f $type)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'vLANType' -Value ('"{0}"' -f $vLANType)))
 
             $vLANIDparam = $vLANIDcode = $null
 
@@ -10426,8 +10472,8 @@ function ConvertTo-HPOVPowerShellScript
                 if (($vLANID) -and ($vLANID -gt 0)) 
                 {
 
-                    $vLANIDparam =   " -vLanID `$VLANID "  
-                    [void]$scriptCode.Add('$vLANid                     = {0}' -f $vLANID)
+                    $vLANIDparam = ' -VlanID $VLANID'
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'vLANid' -Value ('{0}' -f $vLANID)))
 
                 }
 
@@ -10440,7 +10486,7 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $pBWparam = ' -TypicalBandwidth $pBandwidth'
-                [void]$scriptCode.Add('$pBandwidth                 = {0}' -f $pBandwidth)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'pBandwidth' -Value ('{0}' -f $pBandwidth)))
 
             }
     
@@ -10448,7 +10494,7 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $mBWparam = ' -MaximumBandwidth $mBandwidth'
-                [void]$scriptCode.Add('$mBandwidth                 = {0}' -f $mBandwidth)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'mBandwidth' -Value ('{0}' -f $mBandwidth)))
 
             }
 
@@ -10478,18 +10524,18 @@ function ConvertTo-HPOVPowerShellScript
 
                 $subnetIDparam  = ' -Subnet $ThisSubnet'
 
-                [void]$scriptCode.Add('$networkID                  = "{0}"' -f $ThisSubnetID)
-                [void]$scriptCode.Add('$ThisSubnet                 = Get-HPOVAddressPoolSubnet -NetworkID $networkID')                
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'networkID' -Value ('"{0}"' -f $ThisSubnetID)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ThisSubnet' -Value ('Get-HPOVAddressPoolSubnet -NetworkID $networkID')))
 
             }
             
-            [void]$scriptCode.Add('$PLAN                       = ${0}' -f $Private)
-            [void]$scriptCode.Add('$smartLink                  = ${0}' -f $smartLink)
-            [void]$scriptCode.Add('$purpose                    = "{0}"' -f $purpose)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'PLAN' -Value ('${0}' -f $Private)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'smartLink' -Value ('${0}' -f $smartLink)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'purpose' -Value ('"{0}"' -f $purpose)))
 
             [void]$scriptCode.Add(('New-HPOVNetwork -Name $name -Type $Type -PrivateNetwork $PLAN -SmartLink $smartLink -VLANType $VLANType{0}{1}{2}{3} -purpose $purpose' -f $vLANIDparam, $pBWparam, $mBWparam, $subnetIDparam))
 
-            $scriptCode.ToArray() | Out-Host
+            DisplayOutput -Code $scriptCode
    
         }
 
@@ -10508,7 +10554,7 @@ function ConvertTo-HPOVPowerShellScript
             $networkURIs        = $ns.networkUris
 
             [void]$scriptCode.Add('# -------------- Attributes for Network Set "{0}"' -f $name)
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
                 
             $pBWparam = $pbWCode = $null
             $mBWparam = $mBWCode = $null
@@ -10517,7 +10563,7 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $pBWparam = ' -TypicalBandwidth $pBandwidth'
-                [void]$scriptCode.Add('$pBandwidth                 = {0}' -f $pBandwidth)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'pBandwidth' -Value ('{0}' -f $pBandwidth)))
 
             }
             
@@ -10525,7 +10571,7 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $mBWparam = ' -MaximumBandwidth $mBandwidth'
-                [void]$scriptCode.Add('$mBandwidth                 = {0}' -f $mBandwidth)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'mBandwidth' -Value ('{0}' -f $mBandwidth)))
 
             }
                 
@@ -10536,8 +10582,8 @@ function ConvertTo-HPOVPowerShellScript
 
                 $untaggedParam          =  ' -UntaggedNetwork $untaggednetwork'
                 $untaggednetworkname    = Get-NamefromUri -Uri $untaggednetworkURI
-                [void]$scriptCode.Add('$untaggednetworkname        = "{0}"' -f $untaggednetworkname)
-                [void]$scriptCode.Add('$untaggednetwork            = Get-HPOVNetwork -Name $untaggednetworkname')
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'untaggednetworkname' -Value ('"{0}"' -f $untaggednetworkname)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'untaggednetwork' -Value 'Get-HPOVNetwork -Name $untaggednetworkname'))
                 
             }
                 
@@ -10558,15 +10604,13 @@ function ConvertTo-HPOVPowerShellScript
                         
                 }   # Add quote to string
 
-                [void]$scriptCode.Add('$networks                   = {0} | Get-HPOVNetwork' -f [String]::Join(', ', $arr))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'networks' -Value ('{0} | Get-HPOVNetwork' -f [String]::Join(', ', $arr))))
 
             }
 
             [void]$scriptCode.Add(('New-HPOVNetwork -Name $nsName{0}{1}{2}{3}' -f $pBWparam, $mBWparam, $netParam, $untaggedParam))
 
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10587,9 +10631,9 @@ function ConvertTo-HPOVPowerShellScript
             $linkStabilityTime       = if ($net.linkStabilityTime) { $net.linkStabilityTime} else {30}
             $autologinredistribution = if ($net.autologinredistribution) { $true } else { $false }
 
-            [void]$scriptCode.Add('# -------------- Attributes for FibreChannel networks  $name')
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
-            [void]$scriptCode.Add('$type                       = "{0}"' -f $type)
+			[void]$scriptCode.Add('# -------------- Attributes for FibreChannel network "{0}"' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'type' -Value ('"{0}"' -f $type)))
 
             # fcoe network
             $VLANID                  = $net.VLANID
@@ -10602,7 +10646,7 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $pBWparam = ' -typicalBandwidth $pBandwidth'
-                [void]$scriptCode.Add('$pBandwidth                 = {0}' -f $pBandwidth)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'pBandwidth' -Value ('{0}' -f $pBandwidth)))
 
             }
     
@@ -10610,7 +10654,7 @@ function ConvertTo-HPOVPowerShellScript
             {
 
                 $mBWparam = ' -maximumBandwidth $mBandwidth'
-                [void]$scriptCode.Add('$mBandwidth                 = {0}' -f $mBandwidth)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'mBandwidth' -Value ('{0}' -f $mBandwidth)))
 
             }
 
@@ -10626,7 +10670,7 @@ function ConvertTo-HPOVPowerShellScript
                 {
 
                     $vLANIDparam =   ' -vLanID $VLANID'
-                    [void]$scriptCode.Add('$vLANid                     = {0}' -f $vLANID)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'vLANid' -Value ('{0}' -f $vLANID)))
                 
                 }
                         
@@ -10636,7 +10680,7 @@ function ConvertTo-HPOVPowerShellScript
             {
                 
                 $FCparam          = ' -FabricType $fabricType'
-                [void]$scriptCode.Add('$fabricType                 = "{0}"' -f $fabricType)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'fabricType' -Value ('"{0}"' -f $fabricType)))
         
                 if ($fabrictype -eq 'FabricAttach')
                 {
@@ -10644,7 +10688,7 @@ function ConvertTo-HPOVPowerShellScript
                     if ($autologinredistribution)
                     {
 
-                        [void]$scriptCode.Add('$autologinredistribution    = ${0}' -f $autologinredistribution)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'autologinredistribution' -Value ('${0}' -f $autologinredistribution)))
                         $autologinParam     = ' -AutoLoginRedistribution $autologinredistribution'
 
                     }
@@ -10652,8 +10696,8 @@ function ConvertTo-HPOVPowerShellScript
                     if ($linkStabilityTime) 
                     {
 
-                        [void]$scriptCode.Add('$LinkStabilityTime          = ${0}' -f $LinkStabilityTime)
-                        $linkParam  = " -LinkStabilityTime `$LinkStabilityTime "
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'LinkStabilityTime' -Value ('{0}' -f $LinkStabilityTime)))
+                        $linkParam  = ' -LinkStabilityTime $LinkStabilityTime'
 
                     }
 
@@ -10687,18 +10731,16 @@ function ConvertTo-HPOVPowerShellScript
                 $SANmanagerName     = $ManagedSAN.devicemanagerName
         
 
-                $SANparam   = " -ManagedSAN `$managedSAN"
+                $SANparam   = ' -ManagedSAN $managedSAN'
 
-                [void]$scriptCode.Add('$SANname                    = "{0}"' -f $SANname)
-                [void]$scriptCode.Add('$managedSAN                 = Get-HPOVManagedSAN -Name $SANname')
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'SANname' -Value ('"{0}"' -f $SANname)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'managedSAN' -Value ('Get-HPOVManagedSAN -Name $SANname')))
 
             }
 
             [void]$scriptCode.Add(('New-HPOVNetwork -Name $name -Type $Type{0}{1}{2}{3}{4}' -f $pBWparam, $mBWparam, $FCparam, $vLANIDparam, $SANparam))
 
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -10834,18 +10876,18 @@ function ConvertTo-HPOVPowerShellScript
                 $privProtocolParam = $privProtocolCode = $null
 
                 [void]$scriptCode.Add('# -------------- Attributes for  San Manager $name')
-                [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
-                [void]$scriptCode.Add('$type                       = "{0}"' -f $displayName)
-                [void]$scriptCode.Add('$port                       = {0}' -f $port)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'type' -Value ('"{0}"' -f $displayName)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'port' -Value ('{0}' -f $port)))
 
                 if ($displayName -eq 'Brocade Network Advisor')
                 {
 
                     $credParam = ' -username $username -password password  -useSSL:$useSSL'
                     
-                    [void]$scriptCode.Add('$username                   = "{0}"' -f $username)
-                    [void]$scriptCode.Add('$password                   = read-host "Provide password for user "$username" to connect to SANManager" -asSecureString')
-                    [void]$scriptCode.Add('$useSSL                     = ${0}' -f $useSSL)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'username' -Value ('"{0}"' -f $username)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'password' -Value ('Read-Host "Provide password for user "$username" to connect to SANManager" -asSecureString')))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'useSSL' -Value ('${0}' -f $useSSL)))
 
                 }
 
@@ -10854,18 +10896,18 @@ function ConvertTo-HPOVPowerShellScript
 
                     $authProtocolParam = ' -SnmpAuthLevel $snmpAuthLevel -Snmpusername $snmpUsername -SnmpAuthPassword $snmpAuthPassword -SnmpAuthProtocol $snmpAuthProtocol'
 
-                    [void]$scriptCode.Add('$snmpUsername               = "{0}"' -f $snmpUsername)
-                    [void]$scriptCode.Add('$snmpAuthLevel              = "{0}"' -f $authLevel)
-                    [void]$scriptCode.Add('$snmpAuthProtocol           = "{0}"' -f $AuthProtocol)
-                    [void]$scriptCode.Add('$snmpAuthPassword           = read-host "Provide authentication password for user $snmpUsername" -asSecureString')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpUsername' -Value ('"{0}"' -f $snmpUsername)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpAuthLevel' -Value ('"{0}"' -f $authLevel)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpAuthProtocol' -Value ('"{0}"' -f $AuthProtocol)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpAuthPassword' -Value ('Read-Host "Provide authentication password for user $snmpUsername" -asSecureString')))
 
                     if ($authLevel -eq 'AuthAndPriv')
                     {
 
                         $privProtocolParam = ' -SnmpPrivPassword $snmpPrivPassword -snmpPrivProtocol $snmpPrivProtocol'
 
-                        [void]$scriptCode.Add('$snmpPrivProtocol           = "{0}"' -f $privProtocol)
-                        [void]$scriptCode.Add('$snmpPrivPassword           = read-host "Provide privacy password" -asSecureString')
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpPrivProtocol' -Value ('"{0}"' -f $privProtocol)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpPrivPassword' -Value ('Read-hHst "Provide privacy password" -asSecureString')))
 
                     }
 
@@ -10875,9 +10917,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 [void]$scriptCode.Add('Add-HPOVSanManager -Hostname $name -Type $type -Port $port{0}' -f $credParam)
 
-                $scriptCode.ToArray() | Out-Host
-
-                Insert-BlankLine
+                DisplayOutput -Code $scriptCode
             
             }           
 
@@ -10900,9 +10940,9 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add('# -------------- Attributes for StorageSystem "{0}"' -f $hostname)
 
-            [void]$scriptCode.Add('$hostname                   = "{0}"' -f $hostname)
-            [void]$scriptCode.Add('$family                     = "{0}"' -f $family)
-            [void]$scriptCode.Add('$cred                       = Get-HPOVCredential -Message "Provide the password for {0}" -Username {0}' -f $Username)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'hostname' -Value ('"{0}"' -f $hostname)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'family' -Value ('"{0}"' -f $family)))
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'cred' -Value ('Get-HPOVCredential -Message "Provide the password for {0}" -Username {0}' -f $Username)))
 
             $portList            = $Sts.Ports | where status -eq 'OK' | sort Name
 
@@ -10973,7 +11013,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 $domainParam     = ' -Domain $domainName'
 
-                [void]$scriptCode.Add('$domainName                 = "{0}"' -f $domainName)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'domainName' -Value ('"{0}"' -f $domainName)))
 
             }
 
@@ -10982,14 +11022,14 @@ function ConvertTo-HPOVPowerShellScript
 
                 $storagePortsParam  = ' -Ports $storageSystemPorts'
 
-                [void]$scriptCode.Add(('$storageSystemPorts         = {0}{1}{2}' -f '@{', [String]::Join("; ", $StoragePorts), '}'))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'storageSystemPorts' -Value ('{0}{1}{2}' -f '@{', [String]::Join("; ", $StoragePorts), '}')))
 
                 if ($PortGroupPorts.Count -gt 0)
                 {
 
                     $PortGroupParam = ' -PortGroups $portGroupPorts'
 
-                    [void]$scriptCode.Add(('$portGroupPorts         = {0}{1}{2}' -f '@{', [String]::Join("; ", $PortGroupPorts), '}'))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'portGroupPorts' -Value ('{0}{1}{2}' -f '@{', [String]::Join("; ", $PortGroupPorts), '}')))
 
                 }
                 
@@ -11000,17 +11040,15 @@ function ConvertTo-HPOVPowerShellScript
 
                 $storagePortsParam  = ' -VIPS $vips'
 
-                [void]$scriptCode.Add('$ThisiSCSINetwork           = Get-HPOVNetwork -Type Ethernet -Name "{0}"' -f $StoragePorts.NetworkName)
-                [void]$scriptCode.Add(('$vips                       = {0}"{1}" = $ThisiSCSINetwork{2}' -f "@{", $StoragePorts.PortName, "}"))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ThisiSCSINetwork' -Value ('Get-HPOVNetwork -Type Ethernet -Name "{0}"' -f $StoragePorts.NetworkName)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'vips' -Value ('{0}"{1}" = $ThisiSCSINetwork{2}' -f "@{", $StoragePorts.PortName, "}")))
 
             }
 
             [void]$scriptCode.Add(('Add-HPOVStorageSystem -Hostname $hostName -Credential $cred -Family $family{0}{1}{2}' -f $domainParam, $storagePortsParam, $PortGroupParam))
   
     
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -11044,9 +11082,7 @@ function ConvertTo-HPOVPowerShellScript
                 [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$pool' -Value (' Get-HPOVStoragePool -Name "{0}" -StorageSystem $storageSystem' -f $pool.name)))
                 [void]$scriptCode.Add('Set-HPOVStoragePool -Pool $pool -Managed $True')
 
-                $scriptCode.ToArray() | Out-Host
-
-                Insert-BlankLine
+                DisplayOutput -Code $scriptCode
             
             }
 
@@ -11083,17 +11119,17 @@ function ConvertTo-HPOVPowerShellScript
 
             # Common attributes to set
             [void]$scriptCode.Add(('#------ Attributes for storage volume template "{0}" (Family: {1})' -f $name, $family))
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
 
             if ($description)
             {
 
                 $descParam      = ' -Description $description'
-                [void]$scriptCode.Add('$description                = "{0}"' -f $description)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'description' -Value ('"{0}"' -f $description)))
 
             }
 
-            [void]$scriptCode.Add('$poolName                   = "{0}"' -f $poolName)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'poolName' -Value ('"{0}"' -f $poolName)))
 
             Switch ($family)
             {
@@ -11101,15 +11137,15 @@ function ConvertTo-HPOVPowerShellScript
                 'StoreServ'
                 {
 
-                    [void]$scriptCode.Add('$stsName                    = "{0}"' -f $stsName)
-                    [void]$scriptCode.Add('$storagePool                = Get-HPOVStoragePool -Name $poolName -StorageSystem $stsName')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'stsName' -Value ('"{0}"' -f $stsName)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'storagePool' -Value ('Get-HPOVStoragePool -Name $poolName -StorageSystem $stsName')))
 
                 }
 
                 'StoreVirtual'
                 {
 
-                    [void]$scriptCode.Add('$storagePool                = Get-HPOVStoragePool -Name $poolName')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'storagePool' -Value ('Get-HPOVStoragePool -Name $poolName')))
 
                 }                
 
@@ -11124,7 +11160,7 @@ function ConvertTo-HPOVPowerShellScript
 
             }
 
-            [void]$scriptCode.Add('$capacity                   = {0}' -f $size)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'capacity' -Value ('{0}' -f $size)))
 
             $CapacityParam = ' -Capacity $capacity'
 
@@ -11168,8 +11204,8 @@ function ConvertTo-HPOVPowerShellScript
 
                         $snapshotPoolName = Get-NamefromUri -Uri $snapshotUri
 
-                        [void]$scriptCode.Add('$snapShotPoolName           = "{0}"' -f $snapshotPoolName)
-                        [void]$scriptCode.Add('$snapShotPool               = Get-HPOVStoragePool -Name $snapShotPoolName -StorageSystem $stsName')
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snapShotPoolName' -Value ('"{0}"' -f $snapshotPoolName)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snapShotPool' -Value ('Get-HPOVStoragePool -Name $snapShotPoolName -StorageSystem $stsName')))
 
                         $SnapshotPoolParam = ' -SnapshotStoragePool $snapShotPool'
 
@@ -11189,7 +11225,7 @@ function ConvertTo-HPOVPowerShellScript
                     
                     }
 
-                    [void]$scriptCode.Add('$enableDeduplication        = ${0}' -f $isDeduplicated)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'enableDeduplication' -Value ('${0}' -f $isDeduplicated)))
 
                     $DeduplicateParam = ' -EnableDeduplication $enableDeduplication'
                     
@@ -11203,7 +11239,7 @@ function ConvertTo-HPOVPowerShellScript
                     if (-not [String]::IsNullOrWhiteSpace($enableCompression))
                     {
 
-                        [void]$scriptCode.Add('$enableCompression        = ${0}' -f $enableCompression)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'enableCompression' -Value ('${0}' -f $enableCompression)))
 
                         $CompressionParam = ' -EnableCompression $enableCompression'
 
@@ -11226,7 +11262,7 @@ function ConvertTo-HPOVPowerShellScript
                     $isAdaptiveOptimizationEnabled = $p.isAdaptiveOptimizationEnabled.default
                     $isAdaptiveOptimizationLocked  = $p.isAdaptiveOptimizationEnabled.meta.locked
 
-                    [void]$scriptCode.Add('$dataProtectionLevel        = "{0}"' -f $dataProtectionLevel)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dataProtectionLevel' -Value ('"{0}"' -f $dataProtectionLevel)))
 
                     $DataProtectionLevelParam = ' -DataProtectionLevel $dataProtectionLevel'
 
@@ -11295,9 +11331,7 @@ function ConvertTo-HPOVPowerShellScript
             
             [void]$scriptCode.Add(('New-HPOVStorageVolumeTemplate -Name $name{0}{1}{2}{3}{4}{5}{6}{7}{8}' -f $descParam, $PoolParam, $CapacityParam, $ProvisionTypeParam, $SnapshotPoolParam, $CompressionParam, $DataProtectionLevelParam, $AdaptiveOptimizationParam, $ScopeParam))
                 
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -11324,13 +11358,13 @@ function ConvertTo-HPOVPowerShellScript
             $DataProtectionLevelParam = $AdaptiveOptimizationParam = $null
 
             [void]$scriptCode.Add('#------ Attributes for storage volume "{0}"' -f $name)
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
 
             if ($description)
             {
 
                 $descParam      = " -Description `$description "
-                [void]$scriptCode.Add('$description                = "{0}"' -f $description)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'description' -Value ('"{0}"' -f $description)))
 
             }
 
@@ -11342,8 +11376,8 @@ function ConvertTo-HPOVPowerShellScript
                 $volumeParam     = ' -VolumeTemplate $volumeTemplate'
                 $volTemplateName = Get-NamefromUri -Uri $volTemplateUri  
 
-                [void]$scriptCode.Add('$volumeTemplateName         = "{0}"' -f $volTemplateName)
-                [void]$scriptCode.Add('$volumeTemplate             = Get-HPOVStorageVolumeTemplate -Name $volTemplateName')
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'volumeTemplateName' -Value ('"{0}"' -f $volTemplateName)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'volumeTemplate' -Value ('Get-HPOVStorageVolumeTemplate -Name $volTemplateName')))
 
             }
 
@@ -11370,7 +11404,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 $volumeParam        = '-StoragePool $storagePool -capacity $size -ProvisioningType $provisioningType'
 
-                [void]$scriptCode.Add('$capacity                   = {0}' -f $size)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'capacity' -Value ('{0}' -f $size)))
 
                 $CapacityParam = ' -Capacity $capacity'
 
@@ -11381,10 +11415,10 @@ function ConvertTo-HPOVPowerShellScript
 
                 } 
 
-                [void]$scriptCode.Add('$provisioningType           = "{0}"' -f $provisionType)
-                [void]$scriptCode.Add('$poolName                   = "{0}"' -f $poolName)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'provisioningType' -Value ('"{0}"' -f $provisionType)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'poolName' -Value ('"{0}"' -f $poolName)))
 
-                $storagePoolCode = '$storagePool                = Get-HPOVStoragePool -Name $poolName'
+                $storagePoolCode = Generate-CustomVarCode -Prefix 'storagePool' -Value 'Get-HPOVStoragePool -Name $poolName'
 
                 Switch ($family)
                 {
@@ -11392,7 +11426,7 @@ function ConvertTo-HPOVPowerShellScript
                     'StoreServ'
                     {
 
-                        [void]$scriptCode.Add('$stsName                    = "{0}"' -f $sts.name)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'stsName' -Value ('"{0}"' -f $sts.name)))
                         $storagePoolCode += ' -StorageSystem $stsName'
 
                         [void]$scriptCode.Add($storagePoolCode)
@@ -11402,8 +11436,8 @@ function ConvertTo-HPOVPowerShellScript
 
                             $snapshotPoolName = Get-NamefromUri -Uri $snapshotUri
 
-                            [void]$scriptCode.Add('$snapShotPoolName           = "{0}"' -f $snapshotPoolName)
-                            [void]$scriptCode.Add('$snapShotPool               = Get-HPOVStoragePool -Name $snapShotPoolName -StorageSystem $stsName')
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snapShotPoolName' -Value ('"{0}"' -f $snapshotPoolName)))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snapShotPool' -Value 'Get-HPOVStoragePool -Name $snapShotPoolName -StorageSystem $stsName'))
 
                             $SnapshotPoolParam = ' -SnapshotStoragePool $snapShotPool'
 
@@ -11415,7 +11449,7 @@ function ConvertTo-HPOVPowerShellScript
                         if ($isDeduplicated)
                         {
 
-                            [void]$scriptCode.Add('$enableDeduplication        = ${0}' -f $isDeduplicated)
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'enableDeduplication' -Value ('${0}' -f $isDeduplicated)))
 
                             $DeduplicateParam = ' -EnableDeduplication $enableDeduplication'
 
@@ -11424,7 +11458,7 @@ function ConvertTo-HPOVPowerShellScript
                         if ($enableCompression)
                         {
 
-                            [void]$scriptCode.Add('$enableCompression        = ${0}' -f $enableCompression)
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'enableCompression' -Value ('${0}' -f $enableCompression)))
 
                             $CompressionParam = ' -EnableCompression $enableCompression'
 
@@ -11440,7 +11474,7 @@ function ConvertTo-HPOVPowerShellScript
                         $dataProtectionLevel = $p.dataProtectionLevel
                         $isAdaptiveOptimizationEnabled = $p.isAdaptiveOptimizationEnabled
 
-                        [void]$scriptCode.Add('$dataProtectionLevel        = "{0}"' -f $dataProtectionLevel)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dataProtectionLevel' -Value ('"{0}"' -f $dataProtectionLevel)))
 
                         $DataProtectionLevelParam = ' -DataProtectionLevel $dataProtectionLevel'
 
@@ -11497,9 +11531,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVStorageVolume -Name $name{0}{1}{2}{3}{4}{5}{6}{7}{8}' -f $volumeParam, $descParam, $CapacityParam, $ProvisionTypeParam, $DeduplicateParam, $CompressionParam, $DataProtectionLevelParam, $AdaptiveOptimizationParam, $ScopeParam))
 
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -11586,7 +11618,7 @@ function ConvertTo-HPOVPowerShellScript
             }
 
             [void]$scriptCode.Add('# -------------- Attributes for Logical Interconnect Group "{0}"' -f $name)
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
             
             $FrameCount = $InterconnectBaySet = $frameCountParam = $null
             $intnetParam = $null
@@ -11671,7 +11703,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 $FrameCount = $lig.EnclosureIndexes.Count
 
-                [void]$scriptCode.Add('$frameCount                 = {0}' -f $FrameCount)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'frameCount' -Value ('{0}' -f $FrameCount)))
 
                 $frameCountParam = ' -FrameCount $frameCount'
 
@@ -11712,7 +11744,7 @@ function ConvertTo-HPOVPowerShellScript
 
             $BayConfig    = New-Object System.Collections.ArrayList
 
-            [void]$scriptCode.Add('$bayConfig                  = @{')
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bayConfig' -Value '@{'))
 
             if ($enclosureType -eq $Syn12K)  # Synergy
             {
@@ -11774,15 +11806,15 @@ function ConvertTo-HPOVPowerShellScript
 
                     $redundancyParam = ' -fabricredundancy $redundancyType'
 
-                    [void]$scriptCode.Add('$redundancyType             = "{0}"' -f $redundancyType)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'redundancyType' -Value ('"{0}"' -f $redundancyType)))
 
                 }
 
                 $FabricModuleTypeParam  = ' -FabricModuleType $fabricModuleType'
                 $ICBaySetParam          = ' -InterConnectBaySet $InterconnectBaySet'
 
-                [void]$scriptCode.Add('$fabricModuleType           = "{0}"' -f $fabricModuleType)
-                [void]$scriptCode.Add('$InterconnectBaySet         = {0}' -f $InterconnectBaySet)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'fabricModuleType' -Value ('"{0}"' -f $fabricModuleType)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'InterconnectBaySet' -Value ('{0}' -f $InterconnectBaySet)))
 
                 # Clear out parameters used for Synergy
                 $PauseFloodProtectionParam = $macRefreshIntervalParam = $fastMacCacheParam = $null
@@ -11828,7 +11860,7 @@ function ConvertTo-HPOVPowerShellScript
 
                             $macRefreshIntervalParam = " -macRefreshInterval `$macReFreshInterval "
 
-                            $scriptCode.Add('$macRefreshInterval     = $macRefreshInterval')
+                            $scriptCode.Add((Generate-CustomVarCode -Prefix 'macRefreshInterval' -Value ('$macRefreshInterval')))
 
                         }
 
@@ -11861,13 +11893,13 @@ function ConvertTo-HPOVPowerShellScript
                 if ($igmpSnooping)
                 {
 
-                    [void]$scriptCode.Add('$igmpSnooping           = ${0}' -f $igmpSnooping)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'igmpSnooping' -Value ('${0}' -f $igmpSnooping)))
 
                     if ($igmpIdletimeOut)
                     { 
 
                         $igmpIdleTimeoutParam = ' -IgmpIdleTimeOutInterval $igmpIdleTimeout'
-                        [void]$scriptCode.Add('$igmpIdletimeOut        = {0}' -f $igmpIdletimeOut)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'igmpIdletimeOut' -Value ('{0}' -f $igmpIdletimeOut)))
 
                     }
 
@@ -11878,7 +11910,7 @@ function ConvertTo-HPOVPowerShellScript
                 if ($networkLoopProtection)
                 {
 
-                    [void]$scriptCode.Add('$networkLoopProtection      = ${0}' -f $networkLoopProtection)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'networkLoopProtection' -Value ('${0}' -f $networkLoopProtection)))
                     $networkLoopProtectionParam = ' -enablenetworkLoopProtection:$networkLoopProtection'
 
                 }
@@ -11886,7 +11918,7 @@ function ConvertTo-HPOVPowerShellScript
                 if ($LDPTagging)
                 {
 
-                    [void]$scriptCode.Add('$LDPtagging                 = ${0}' -f $LDPtagging)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'LDPtagging' -Value ('${0}' -f $LDPtagging)))
                     $LDPtaggingParam            = ' -EnableLLDPTagging:$LDPtagging'
 
                 }
@@ -11894,7 +11926,7 @@ function ConvertTo-HPOVPowerShellScript
                 if ($EnableRichTLV)
                 {
 
-                    [void]$scriptCode.Add('$EnableRichTLV          = ${0}' -f $EnableRichTLV)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'EnableRichTLV' -Value ('${0}' -f $EnableRichTLV)))
                     $EnhancedLLDPTLVParam       = ' -enableEnhancedLLDPTLV:$EnableRichTLV'
 
                 }
@@ -11904,7 +11936,7 @@ function ConvertTo-HPOVPowerShellScript
 
                     $intNetParam            = ' -InternalNetworks $intNetnames'
                     
-                    [void]$scriptCode.Add('$intNetnames                = {0} | Get-HPOVNetwork ' -f [String]::Join($Comma, $intNetworkNames.ToArray()))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'intNetnames' -Value ('{0} | Get-HPOVNetwork ' -f [String]::Join($Comma, $intNetworkNames.ToArray()))))
 
                 }  
 
@@ -11928,7 +11960,7 @@ function ConvertTo-HPOVPowerShellScript
                         $trapdestinations = $snmp.trapDestinations
 
                         [void]$scriptCode.Add('#-- Generating snmp object for LIG')
-                        [void]$scriptCode.Add('$readCommunity              = "{0}"' -f $readCommunity)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'readCommunity' -Value ('"{0}"' -f $readCommunity)))
                         $readCommunityParam = ' -ReadCommunity $readCommunity'                        
 
                         if ($isV1Snmp)
@@ -11948,7 +11980,7 @@ function ConvertTo-HPOVPowerShellScript
                         if ($Contact)
                         {
 
-                            [void]$scriptCode.Add('$contact                = "{0}"' -f $contact)
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'contact' -Value ('"{0}"' -f $contact)))
                             $contactParam = ' -Contact $contact'
 
                         }
@@ -11975,9 +12007,9 @@ function ConvertTo-HPOVPowerShellScript
                             $inform             = $t.inform
 
                             [void]$scriptCode.Add('#--   Generating Trap destination object for "{0}" ' -f $destination)
-                            [void]$scriptCode.Add('$destination                = "{0}"' -f $destination)
-                            [void]$scriptCode.Add('$trapFormat                 = "{0}"' -f $trapFormat)
-                            [void]$scriptCode.Add('$port                       = {0}' -f $port)
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'destination' -Value ('"{0}"' -f $destination)))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'trapFormat' -Value ('"{0}"' -f $trapFormat)))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'port' -Value ('{0}' -f $port)))
 
                             $destParam       = ' -destination $destination'
                             $trapFormatParam = ' -SnmpFormat $trapformat'
@@ -12000,15 +12032,15 @@ function ConvertTo-HPOVPowerShellScript
                                     $snmpv3PrivacyProtocol = $snmpv3UserDetails.v3PrivacyProtocol
 
                                     [void]$scriptCode.Add('#--   Generating SNMPv3 user "{0}"' -f $snmpUserName)
-                                    [void]$scriptCode.Add('$userName                   = "{0}"' -f $snmpUserName)
+                                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'userName' -Value ('"{0}"' -f $snmpUserName)))
 
                                     $snmpUserNameParam = ' -Username $userName'
 
                                     if ($snmpV3AuthProtocol -ne 'NA')
                                     {
 
-                                        [void]$scriptCode.Add('$authProtocol               = "{0}"' -f $snmpV3AuthProtocol)
-                                        [void]$scriptCode.Add('$authPassword               = Read-Host -AsSecureString -Message "Provide password for Authentication Protocol."' -f $destination)
+                                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'authProtocol' -Value ('"{0}"' -f $snmpV3AuthProtocol)))
+                                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'authPassword' -Value ('Read-Host -AsSecureString -Message "Provide password for Authentication Protocol."' -f $destination)))
 
                                         $authProtParam = ' -AuthProtocol $authProtocol -AuthPassword $authPassword'
 
@@ -12017,8 +12049,8 @@ function ConvertTo-HPOVPowerShellScript
                                         if ($snmpv3PrivacyProtocol -ne 'NA')
                                         {
 
-                                            [void]$scriptCode.Add('$privProtocol               = "{0}"' -f $snmpv3PrivacyProtocol)
-                                            [void]$scriptCode.Add('$privPassword               = Read-Host -AsSecureString -Message "Provide password for Privacy Protocol."' -f $destination)
+                                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'privProtocol' -Value ('"{0}"' -f $snmpv3PrivacyProtocol)))
+                                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'privPassword' -Value ('Read-Host -AsSecureString -Message "Provide password for Privacy Protocol."' -f $destination)))
 
                                             $privProtParam = ' -PrivProtocol $privProtocol -PrivPassword $privPassword'
                                             
@@ -12028,7 +12060,7 @@ function ConvertTo-HPOVPowerShellScript
 
                                     }
 
-                                    [void]$scriptCode.Add('$securityLevel              = "{0}"' -f $securitylevel)
+                                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'securityLevel' -Value ('"{0}"' -f $securitylevel)))
                                     $securityLevelParam = ' -SecurityLevel $securityLevel'
 
                                     $VarName = 'snmpv3User'
@@ -12058,12 +12090,12 @@ function ConvertTo-HPOVPowerShellScript
                             if ($inform)
                             {
                             
-                                [void]$scriptCode.Add('$inform                     = "{0}"' -f 'Inform')
+                                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'inform' -Value ('"{0}"' -f 'Inform')))
 
                                 if ($trapFormat -match 'SNMPv3')
                                 {
 
-                                    [void]$scriptCode.Add('$engineId                   = "{0}"' -f $snmpUserEngineId)
+                                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'engineId' -Value ('"{0}"' -f $snmpUserEngineId)))
                                     $engineIdParam = ' -EngineID $engineId'
 
                                 }
@@ -12073,7 +12105,7 @@ function ConvertTo-HPOVPowerShellScript
                             else
                             {
                             
-                                [void]$scriptCode.Add('$inform                     = "{0}"' -f 'Trap')
+                                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'inform' -Value ('"{0}"' -f 'Trap')))
                             
                             }
 
@@ -12086,7 +12118,7 @@ function ConvertTo-HPOVPowerShellScript
                         if ($SnmpV3UsersProcessed.Count -gt 0)
                         {
 
-                            [void]$scriptCode.Add('$snmpv3Users                = @(${0})' -f [string]::Join(', $', $SnmpV3UsersProcessed.varName))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'snmpv3Users' -Value ('@(${0})' -f [string]::Join(', $', $SnmpV3UsersProcessed.varName))))
 
                              $snmpV3UsersParam = ' -Snmp3Users $snmpv3Users'
 
@@ -12095,7 +12127,7 @@ function ConvertTo-HPOVPowerShellScript
                         if ($accessList)
                         {
 
-                            [void]$scriptCode.Add('$accessList                 = @("{0}")' -f [String]::Join('", "', $accessList))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'accessList' -Value ('@("{0}")' -f [String]::Join('", "', $accessList))))
 
                             $accessListParam = ' -AccessList $accessList'
 
@@ -12115,9 +12147,9 @@ function ConvertTo-HPOVPowerShellScript
                     $dClassType    = $qos.downlinkClassificationType
 
                     [void]$scriptCode.Add('#--   Generating QoS Configuration "{0}" ' -f $qosConfigType)
-                    [void]$scriptCode.Add('$qosConfigType              = "{0}"' -f $qosConfigType)
-                    [void]$scriptCode.Add('$uClassType                 = "{0}"' -f $uClassType)
-                    [void]$scriptCode.Add('$dClassType                 = "{0}"' -f $dClassType)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'qosConfigType' -Value ('"{0}"' -f $qosConfigType)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'uClassType' -Value ('"{0}"' -f $uClassType)))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dClassType' -Value ('"{0}"' -f $dClassType)))
 
                     $q = 1
 
@@ -12136,16 +12168,16 @@ function ConvertTo-HPOVPowerShellScript
                         $ingressDscpClassMapping  = $trafficClass.qosClassificationMapping.dscpClassMapping
 
                         [void]$scriptCode.Add('#---- Generating QoS Traffic Class Mapping "{0}" ' -f $className)
-                        [void]$scriptCode.Add('$name                       = "{0}"' -f $className)
-                        [void]$scriptCode.Add('$realTime                   = ${0}' -f $realTime)
-                        [void]$scriptCode.Add('$bandwidthShare             = {0}' -f $bandwidthShare)
-                        [void]$scriptCode.Add('$maxBandwidth               = {0}' -f $maxBandwidth)
-                        [void]$scriptCode.Add('$egressDot1pValue           = {0}' -f $egressDot1pValue)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dClanamessType' -Value ('"{0}"' -f $className)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'realTime' -Value ('${0}' -f $realTime)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bandwidthShare' -Value ('{0}' -f $bandwidthShare)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'maxBandwidth' -Value ('{0}' -f $maxBandwidth)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'egressDot1pValue' -Value ('{0}' -f $egressDot1pValue)))
 
                         if ($null -ne $ingressDot1pClassMapping)
                         {
 
-                            [void]$scriptCode.Add('$ingressDot1pClassMapping   = {0}' -f [String]::Join(', ', $ingressDot1pClassMapping))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ingressDot1pClassMapping' -Value ('{0}' -f [String]::Join(', ', $ingressDot1pClassMapping))))
 
                             $ingressDot1pClassMappingParam = ' -IngressDot1pClassMapping $ingressDot1pClassMapping'
 
@@ -12154,13 +12186,13 @@ function ConvertTo-HPOVPowerShellScript
                         if ($null -ne $ingressDscpClassMapping)
                         {
 
-                            [void]$scriptCode.Add('$ingressDscpClassMapping    = "{0}"' -f [String]::Join('", "', $ingressDscpClassMapping))
+                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ingressDscpClassMapping' -Value ('"{0}"' -f [String]::Join('", "', $ingressDscpClassMapping))))
 
                             $ingressDscpClassMappingParam = ' -IngressDscpClassMapping $ingressDscpClassMapping'
 
                         }
                         
-                        [void]$scriptCode.Add('$isEnabled                  = ${0}' -f $isEnabled)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'isEnabled' -Value ('${0}' -f $isEnabled)))
 
                         $VarName = 'trafficClass'
                         $Value = 'New-HPOVQosTrafficClass -Name $name -MaxBandwidth $maxBandwidth -BandwidthShare -RealTime:$realTime -EgressDot1pValue $egressDot1pValue{0}{1} -Enabled:$isEnabled' -f $ingressDot1pClassMappingParam, $ingressDscpClassMappingParam
@@ -12171,7 +12203,7 @@ function ConvertTo-HPOVPowerShellScript
 
                     }
 
-                    [void]$scriptCode.Add(('$QosConfig          = New-HPOVQosConfig -ConfigType {0} -UplinkClassificationType {1} -UplinkClassificationType {2} -TrafficClassifiers {3}' -f $qosConfigType, $uClassType, $dClassType, ([String]::Join(', ', (1..($q - 1) | % { '$trafficClass{0}' -f $_})))))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'QosConfig' -Value ('New-HPOVQosConfig -ConfigType {0} -UplinkClassificationType {1} -UplinkClassificationType {2} -TrafficClassifiers {3}' -f $qosConfigType, $uClassType, $dClassType, ([String]::Join(', ', (1..($q - 1) | % { '$trafficClass{0}' -f $_}))))))
                     $QosParam = ' -QosConfiguration $QosConfig'
 
                 }
@@ -12218,7 +12250,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('{0}New-HPOVLogicalInterconnectGroup -Name $name -Bays $bayConfig{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}' -f $LigVariable, $FabricModuleTypeParam, $FrameCountParam, $ICBaySetParam, $igmpParam, $intNetParam, $networkLoopProtectionParam, $EnhancedLLDPTLVParam, $LDPtaggingParam, $QosParam, $ScopeParam))
 
-            $scriptCode.ToArray() | Out-Host
+            DisplayOutput -Code $scriptCode
             
             # Process Uplink Sets
             Generate-uplinkSet-Script -InputObject $lig
@@ -12300,10 +12332,10 @@ function ConvertTo-HPOVPowerShellScript
                 $networkURIs        = $upl.networkUris
 
                 [void]$scriptCode.Add(('# -------------- Attributes for Uplink Set "{0}" associated to {1} "{2}"' -f $uplName, $parentType, $parentName))
-                [void]$scriptCode.Add('$name                      = "{0}"' -f $uplName)
-                [void]$scriptCode.Add('$uplinkType                = "{0}"' -f $uplinkType)
-                [void]$scriptCode.Add('$parentName                = "{0}"' -f $parentName)
-                [void]$scriptCode.Add('$parent                    = Get-HPOV{0} -Name $parentName' -f $parentType)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $uplName)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'uplinkType' -Value ('"{0}"' -f $uplinkType)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'parentName' -Value ('"{0}"' -f $parentName)))
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'parent' -Value ('Get-HPOV{0} -Name $parentName' -f $parentType)))
 
                 switch ($parentType)
                 {
@@ -12498,7 +12530,7 @@ function ConvertTo-HPOVPowerShellScript
                 {
 
                     $uplinkPortParam    = ' -UplinkPorts $uplinkPorts'
-                    [void]$scriptCode.Add('$uplinkPorts               = "{0}"' -f [String]::Join('", "', $UpLinkArray.ToArray()))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'uplinkPorts' -Value ('"{0}"' -f [String]::Join('", "', $UpLinkArray.ToArray()))))
 
                 }
                     
@@ -12508,7 +12540,7 @@ function ConvertTo-HPOVPowerShellScript
                 { 
 
                     $uplNetworkParam    = ' -Networks $networks'
-                    [void]$scriptCode.Add('$networks                  = "{0}" | Get-HPOVNetwork' -f [String]::Join('", "', $netNamesArray.ToArray()))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'networks' -Value ('"{0}" | Get-HPOVNetwork' -f [String]::Join('", "', $netNamesArray.ToArray()))))
 
                 }
                 
@@ -12519,7 +12551,7 @@ function ConvertTo-HPOVPowerShellScript
                 {
 
                     $netAttributesParam     = ' -fcUplinkSpeed $FCSpeed'
-                    [void]$scriptCode.Add('$fcSpeed                   = "{0}"' -f $fcSpeed)
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'fcSpeed' -Value ('"{0}"' -f $fcSpeed)))
 
                 }
 
@@ -12530,7 +12562,7 @@ function ConvertTo-HPOVPowerShellScript
                     {
 
                         $uplNativeNetParam = " -nativeEthnetwork $nativenetwork"
-                        [void]$scriptCode.Add('$nativeNetwork             = Get-HPOVNetwork -Name "{0}"' -f $nativeNetname)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'nativeNetwork' -Value ('Get-HPOVNetwork -Name "{0}"' -f $nativeNetname)))
 
                     }
 
@@ -12538,7 +12570,7 @@ function ConvertTo-HPOVPowerShellScript
                     {
 
                         $netAttributesParam += ' -EthMode $ethMode'
-                        [void]$scriptCode.Add('$ethMode                   = "{0}"' -f $ethMode)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ethMode' -Value ('"{0}"' -f $ethMode)))
                         
                     }
 
@@ -12546,7 +12578,7 @@ function ConvertTo-HPOVPowerShellScript
                     {
 
                         $netAttributesParam += ' -lacptimer $lacpTimer'                        
-                        [void]$scriptCode.Add('$lacpTimer                 = "{0}"' -f $lacpTimer)
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'lacpTimer' -Value ('"{0}"' -f $lacpTimer)))
 
                     }
 
@@ -12556,9 +12588,7 @@ function ConvertTo-HPOVPowerShellScript
 
             }
 
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -12586,7 +12616,7 @@ function ConvertTo-HPOVPowerShellScript
             $enclosuretype          = $EG.enclosureTypeUri.Split('/')[-1]
 
             [void]$scriptCode.Add('# -------------- Attributes for enclosure group "{0}"' -f $name)
-            [void]$scriptCode.Add('$name                       = "{0}"' -f $name)
+            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
 
             # --- Find Enclosure Bay Mapping
             ###
@@ -12664,7 +12694,7 @@ function ConvertTo-HPOVPowerShellScript
 
                     $ligMappingParam        =  ' -LogicalInterconnectGroupMapping $LigMapping'
 
-                    [void]$scriptCode.Add('$LigMapping                 = @{')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'LigMapping' -Value '@{'))
 
                     $c = 1
 
@@ -12709,11 +12739,11 @@ function ConvertTo-HPOVPowerShellScript
             if ($enclosuretype -eq $SYN12K)
             {
 
-                [void]$scriptCode.Add('$enclosureCount             = {0}' -f $enclosureCount)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'enclosureCount' -Value ('{0}' -f $enclosureCount)))
                 $enclosureCountParam    = ' -EnclosureCount $enclosureCount'
 
                 #---- IP Address Pool
-                [void]$scriptCode.Add('$ipV4AddressType            = "{0}"' -f $ipV4AddressType)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ipV4AddressType' -Value ('"{0}"' -f $ipV4AddressType)))
                 $addressPoolParam = ' -IPv4AddressType $ipV4AddressType'
 
                 if($ipV4AddressType -eq 'IpPool')
@@ -12730,8 +12760,8 @@ function ConvertTo-HPOVPowerShellScript
                     }
 
                     $addressPoolParam += ' -addressPool $addressPool'
-                    [void]$scriptCode.Add('$addressPoolNames           = "{0}"' -f [String]::Join('", "', $RangeNames.ToArray()))
-                    [void]$scriptCode.Add('$addressPool                = $addressPoolNames | % { Get-HPOVAddressPoolRange | ? name -eq $_ }')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'addressPoolNames' -Value ('"{0}"' -f [String]::Join('", "', $RangeNames.ToArray()))))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'addressPool' -Value ('$addressPoolNames | % { Get-HPOVAddressPoolRange | ? name -eq $_ }')))
                     
                 }
 
@@ -12745,7 +12775,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 $OSdeploymentParam      = ' -DeploymentNetworkType $deploymentMode'
 
-                [void]$scriptCode.Add('$deploymentMode             = "{0}"' -f $deploymentMode)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'deploymentMode' -Value ('"{0}"' -f $deploymentMode)))
 
                 if ($deploymentMode -eq 'External')
                 {
@@ -12753,8 +12783,8 @@ function ConvertTo-HPOVPowerShellScript
                     $deploynetworkname      = Get-NamefromUri -Uri $deploySettings.deploymentNetworkUri
                     $OSdeploymentParam     += ' -deploymentnetwork $deploymentnetwork'
 
-                    [void]$scriptCode.Add('$deploynetworkname          = "{0}"' -f $deploynetworkname )
-                    [void]$scriptCode.Add('$deploymentnetwork          = Get-HPOVnetwork -Name $deploynetworkname')
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'deploynetworkname' -Value ('"{0}"' -f $deploynetworkname )))
+                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'deploymentnetwork' -Value ('Get-HPOVnetwork -Name $deploynetworkname')))
 
                 }
 
@@ -12765,7 +12795,7 @@ function ConvertTo-HPOVPowerShellScript
             if ($null -ne $powerMode)
             {
 
-                [void]$scriptCode.Add('$powerMode                  = "{0}"' -f $powerMode)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'powerMode' -Value ('"{0}"' -f $powerMode)))
                 $powerModeParam         = ' -PowerRedundantMode $powerMode'
 
             }
@@ -12791,7 +12821,7 @@ function ConvertTo-HPOVPowerShellScript
             if ($null -ne $egScript)
             {
 
-                [void]$scriptCode.Add("`$confScript                 = '{0}'" -f $egScript)
+                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'confScript' -Value ("'{0}'" -f $egScript)))
                 $ConfigScriptParam = ' -ConfigurationScript $confScript'
 
             }
@@ -12838,9 +12868,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVEnclosureGroup -Name $name{0}{1}{2}{3}{4}{5}{6}' -f $enclosureCountParam, $liGMappingParam, $addressPoolParam, $OSdeploymentParam, $powerModeParam, $ConfigScriptParam, $ScopeParam))
 
-            $scriptCode.ToArray()
-
-           Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -12927,9 +12955,7 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOVLogicalEnclosure -Name $name{0}{1}{2}{3}' -f $enclParam, $egParam, $fwParam, $ScopeParam))
         
-            $scriptCode.ToArray() | Out-Host
-
-            Insert-BlankLine
+            DisplayOutput -Code $scriptCode
 
         }
 
@@ -12958,7 +12984,7 @@ function ConvertTo-HPOVPowerShellScript
             $osdeploysetting    = $InputObject.osDeploymentSettings
             $scopesUri          = $InputObject.scopesUri
 
-            [void]$scriptCode.Add('# -------------- Attributes for server profile template "{0}"' -f $name)
+            [void]$scriptCode.Add(('# -------------- Attributes for {0} "{1}"' -f $Type, $name))
             [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$name' -Value ('"{0}"' -f $name)))
 
             # Param and code
@@ -13486,11 +13512,64 @@ function ConvertTo-HPOVPowerShellScript
 
             [void]$scriptCode.Add(('New-HPOV{0} -Name $name{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}' -f $Type, $descriptionParam, $spdescriptionParam, $serverAssignParam, $shtParam, $egParam, $affinityParam, $osDeploymentParam, $fwParam, $ConnectionsParam, $LOCALStorageParam, $SANStorageParam, $bootManageParam, $biosParam, $AdvancedSettingsParam, $ScopeParam))
         
-            $scriptCode.ToArray() | Out-Host
+            DisplayOutput -Code $scriptCode
 
-            Insert-BlankLine
+		}
+		
+		Function Generate-osDeploymentServer-Script ($InputObject)
+		{
 
-        }
+			$scriptCode =  New-Object System.Collections.ArrayList   
+
+			foreach ($osds in $InputObject)
+			{
+
+				$name                       = $osds.name
+				$description                = $osds.description
+				$mgmtNetworkUri             = $osds.mgmtNetworkUri
+				$primaryActiveApplianceUri  = $osds.primaryActiveAppliance
+
+				Try
+				{
+
+					$i3sAppliance               = Send-HPOVRequest -uri $primaryActiveApplianceUri
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+				
+				$i3sApplianceName           = $i3sAppliance.cimEnclosureName
+
+				$mgmtNetworkName            = Get-NameFromUri -uri $mgmtNetworkUri
+				
+				[void]$scriptCode.Add(('# -------------- Attributes for OS Deployment Server {0}' -f $name))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'name' -Value ('"{0}"' -f $name)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ManagementNetwork' -Value ('Get-HPOVNetwork -Name "{0}" -Type Ethernet' -f $mgmtNetworkName)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ImageStreamerApplianceName' -Value ('"{0}"' -f $i3sApplianceName)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'ImageStreamerAppliance' -Value ('Get-HPOVImageStreamerAppliance | where cimEnclosurename -eq $ImageStreamerApplianceName')))
+				
+				$descriptionParam = ""
+
+				if (-not [String]::IsNullOrWhiteSpace($description))
+				{
+
+					[void]$scriptCode.Add((enerate-CustomVarCode -Prefix 'description' -Value ('"{0}"' -f $description)))
+					$descriptionParam       = ' -description $description'
+
+				}
+
+				[void]$scriptCode.Add(('New-HPOVOSDeploymentServer -Name $name -ManagementNetwork $ManagementNetwork -InputObject $ImageStreamerAppliance{0} ' -f $descriptionParam))
+				
+				DisplayOutput -Code $scriptCode
+
+			}
+			
+		}
 
         # Internal helper
         Function Generate-ManageFirmware-Script
@@ -13944,32 +14023,11 @@ function ConvertTo-HPOVPowerShellScript
                 $initialize    = $controller.initialize
                 $writeCache    = $controller.driveWriteCache
                 $importCfg     = $controller.importConfiguration
-                $logicalDrives = $controller.logicalDrives
+				$logicalDrives = $controller.logicalDrives
 
                 $ControllerVarName = '$controller{0}' -f $c
 
                 [void]$ControllerVarNames.Add($ControllerVarName)
-
-                [void]$ScriptController.Add(('# -------------- Attributes for controller "{0}({1})"' -f $deviceSlot, $mode))
-                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "deviceSlot" -Value ('"{0}"' -f $deviceSlot)))
-                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "controllerMode" -Value ('"{0}"' -f $mode)))
-
-                $writeCacheParam = $initializeParam = $importCfgParam = $LogicalDisksParam = $null
-
-                if ($writeCache -ne 'Unmanaged' -and -not [String]::IsNullOrEmpty($writeCache))
-                {
-
-                    [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "writeCache" -Value ('"{0}"' -f $writeCache)))
-                    $writeCacheParam = ' -WriteCache $writeCache'
-
-                }
-
-                if ($initialize)
-                {
-
-                    $initializeParam = ' -Initialize'
-
-                }
 
                 if ($importCfg)
                 {
@@ -13984,7 +14042,7 @@ function ConvertTo-HPOVPowerShellScript
                     ForEach ($ld in $logicalDrives)
                     {
 
-                        $LogicalDiskParams = $null
+						$writeCacheParam = $initializeParam = $importCfgParam = $LogicalDisksParam = $null
 
                         $LogicalDiskVarName = '$LogicalDisk{0}' -f $l
 
@@ -14046,7 +14104,7 @@ function ConvertTo-HPOVPowerShellScript
 
                         }
 
-                        # Synergy D3940 disks (need to look for both HBA and RAID)
+                        # Synergy D3940 RAID disks
                         else
                         {
 
@@ -14057,33 +14115,15 @@ function ConvertTo-HPOVPowerShellScript
                             $sasLJBODdriveTech     = if ([String]::IsNullOrWhiteSpace($sasLogicalJbod.driveTechnology)) { 'Auto' } else { $LogicalDiskCmdletTypeEnum[$sasLogicalJbod.driveTechnology] }
                             $sasLJBODeraseData     = $sasLogicalJbod.eraseData
                     
-                            [void]$ScriptController.Add(('# -------------- Attributes for logical JBOD "{0}({1})"' -f $sasLJBODName, $deviceSlot))
-                            [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "name" -Value ('"{0}"' -f $sasLJBODName)))
+                            [void]$ScriptController.Add(('# -------------- Attributes for RAID logical JBOD "{0}" ({1})' -f $sasLJBODName, $deviceSlot))
+                            [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "ldname" -Value ('"{0}"' -f $sasLJBODName)))
                             [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "numPhysDrives" -Value ('{0}' -f $sasLJBODNumPhysDrives)))
 
-
-                            # If logicalJBOD MIN and MAX are same value
-                            if ($sasLJBODMinDriveSize -eq $sasLJBODMaxDriveSize)
-                            {
-
-                                [void]$ScriptController.Add('# A filter will need to be implemented to provide the specific Enclosure/Frame location if multiple drive enclosure resources are found.')
-                                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "availableDisks" -Value ('Get-HPOVDriveEnclosure | Get-HPOVAvailableDriveType | ? {0} $_.Capacity -eq {1} -and $_.NumberAvailable -ge {2} {3}' -f $OpenDelim, $sasLJBODMinDriveSize, $sasLJBODNumPhysDrives, $CloseDelim)))
-                                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "availableDriveType" -Value '$availableDisks'))
-
-                                $LogicalDiskParams += ' -DriveSelectionBy DriveType -AvailableDriveType $availableDriveType'                            
-
-                            }
-
-                            else
-                            {
-                        
-                                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "minDriveSize" -Value ('{0}' -f $sasLJBODMinDriveSize)))
-                                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "maxDriveSize" -Value ('{0}' -f $sasLJBODMaxDriveSize)))
-                                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "driveTech" -Value ('{0}' -f $sasLJBODdriveTech)))
-                            
-                                $LogicalDiskParams += ' -MinDriveSize $minDriveSize -MaxDriveSize $maxDriveSize -DriveType $driveTech'
-
-                            }
+							[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "minDriveSize" -Value ('{0}' -f $sasLJBODMinDriveSize)))
+							[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "maxDriveSize" -Value ('{0}' -f $sasLJBODMaxDriveSize)))
+							[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "driveTech" -Value ('"{0}"' -f $sasLJBODdriveTech)))
+						
+							$LogicalDiskParams += ' -MinDriveSize $minDriveSize -MaxDriveSize $maxDriveSize -DriveType $driveTech'
 
                             if ($sasLJBODeraseData)
                             {
@@ -14103,13 +14143,78 @@ function ConvertTo-HPOVPowerShellScript
 
                         $l++
 
-                    }
+					}
+					
+					# Exclusively for D3940 Logical JBOD within the controller
+					ForEach ($sasJBOD in ($SasLogicalJBODs | Where deviceSlot -eq $deviceSlot))
+					{
 
-                    [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "LogicalDisks" -Value ('{0}' -f [String]::Join(', ', $LogicalDiskVarNames.ToArray()))))
+						$LogicalDiskParams = $null
 
-                    $LogicalDisksParam = ' -LogicalDisk $LogicalDisks'
-                
+						$LogicalDiskVarName = '$LogicalDisk{0}' -f $l
+
+                        [void]$LogicalDiskVarNames.Add($LogicalDiskVarName)
+
+						$sasLJBODName          = $sasJBOD.name
+						$sasLJBODNumPhysDrives = $sasJBOD.numPhysicalDrives
+						$sasLJBODMinDriveSize  = $sasJBOD.driveMinSizeGB
+						$sasLJBODMaxDriveSize  = $sasJBOD.driveMaxSizeGB
+						$sasLJBODdriveTech     = $LogicalDiskCmdletTypeEnum[$sasJBOD.driveTechnology]
+						$sasLJBODeraseData     = $sasJBOD.eraseData
+
+						[void]$ScriptController.Add(('# -------------- Attributes for logical JBOD "{0}" ({1})' -f $sasLJBODName, $deviceSlot))
+						[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "ldname" -Value ('"{0}"' -f $sasLJBODName)))
+						[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "numPhysDrives" -Value ('{0}' -f $sasLJBODNumPhysDrives)))
+
+						[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "minDriveSize" -Value ('{0}' -f $sasLJBODMinDriveSize)))
+						[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "maxDriveSize" -Value ('{0}' -f $sasLJBODMaxDriveSize)))
+						[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "driveTech" -Value ('"{0}"' -f $sasLJBODdriveTech)))
+						
+						$LogicalDiskParams += ' -MinDriveSize $minDriveSize -MaxDriveSize $maxDriveSize -DriveType $driveTech'
+
+						if ($sasLJBODeraseData)
+						{
+
+							[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "eraseDataOnDelete" -Value ('${0}' -f $sasLJBODeraseData)))
+
+							$LogicalDiskParams += ' -EraseDataOnDelete $eraseDataOnDelete' 
+
+						}
+
+						$Value = 'New-HPOVServerProfileLogicalDisk -Name $ldName{0}' -f $LogicalDiskParams
+                        $Cmd = Generate-CustomVarCode -Prefix $LogicalDiskVarName -Value $Value
+    
+                        [void]$ScriptController.Add($Cmd)
+
+                        $l++
+
+					}
+                    
+				}
+				
+				[void]$ScriptController.Add(('# -------------- Attributes for controller "{0}" ({1})' -f $deviceSlot, $mode))
+                [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "deviceSlot" -Value ('"{0}"' -f $deviceSlot)))
+				[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "controllerMode" -Value ('"{0}"' -f $mode)))
+				
+				[void]$ScriptController.Add((Generate-CustomVarCode -Prefix "LogicalDisks" -Value ('{0}' -f [String]::Join(', ', $LogicalDiskVarNames.ToArray()))))
+
+				$LogicalDisksParam = ' -LogicalDisk $LogicalDisks'
+
+                if ($writeCache -ne 'Unmanaged' -and -not [String]::IsNullOrEmpty($writeCache))
+                {
+
+                    [void]$ScriptController.Add((Generate-CustomVarCode -Prefix "writeCache" -Value ('"{0}"' -f $writeCache)))
+                    $writeCacheParam = ' -WriteCache $writeCache'
+
                 }
+
+                if ($initialize)
+                {
+
+                    $initializeParam = ' -Initialize'
+
+                }
+
 
                 $Value = 'New-HPOVServerProfileLogicalDiskController -ControllerID $deviceSlot -Mode $controllerMode{0}{1}{2}{3}' -f $writeCacheParam, $initializeParam, $importCfgParam, $LogicalDisksParam
                 $Cmd = Generate-CustomVarCode -Prefix $ControllerVarName -Value $Value
@@ -14118,8 +14223,8 @@ function ConvertTo-HPOVPowerShellScript
 
                 $c++                
 
-            }
-
+			}
+			
             Return $ScriptController, $ControllerVarNames
 
         }
@@ -14679,9 +14784,16 @@ function ConvertTo-HPOVPowerShellScript
 
                             }
 
-                        }
+						}
+						
+					}
+					
+					'DeploymentManager'
+					{
 
-                    }
+						Generate-osDeploymentServer-Script -InputObject $InputObject
+
+					}
 
                     default
                     {
@@ -42247,7 +42359,6 @@ function Add-HPOVEnclosure
 		[string]$Hostname,
 		 
 		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Managed")]
-		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "MonitoredCredential")]
 		[Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "ManagedCredential")]
 		[ValidateNotNullOrEmpty()]
 		[Alias ("eg",'EnclGroupName')]
@@ -44294,7 +44405,7 @@ function Set-HPOVLogicalEnclosure
 				{
 
 					# Throw error, wrong resource
-					$ExceptionMessage = "The provided input object is not a Synergy Frame resource object.  Only Synergy Frames and associated Logical Enclousres are supported with this Cmdlet."
+					$ExceptionMessage = "The provided input object is not a Synergy Frame resource object.  Only Synergy Frames and associated Logical Enclosures are supported with this Cmdlet."
 					$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException UnsupportedEnclosureType InvalidArgument -TargetType 'PSObject' -Message $ExceptionMessage
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
@@ -44343,7 +44454,7 @@ function Set-HPOVLogicalEnclosure
 				{
 
 					# Throw error, wrong resource
-					$ExceptionMessage = "The provided input object is not a Synergy Frame resource object.  Only Synergy Frames and associated Logical Enclousres are supported with this Cmdlet."
+					$ExceptionMessage = "The provided input object is not a Synergy Frame resource object.  Only Synergy Frames and associated Logical Enclosures are supported with this Cmdlet."
 					$ErrorRecord = New-ErrorRecord HPOneView.EnclosureResourceException UnsupportedEnclosureType InvalidArgument -TargetType 'PSObject' -Message $ExceptionMessage
 					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
@@ -44959,7 +45070,7 @@ function Update-HPOVLogicalEnclosureFirmware
 
 			}
 
-			if (-not $baseline.ApplianceConnection.Equals($LE.ApplianceConnection))
+			if (-not $baseline.ApplianceConnection.Equals($_InputObject.ApplianceConnection))
 			{
 
 				$ExceptionMessage = "The provided LogicalEnclosure object {0} and baseline object {1} are not from the same HPE OneViwe appliance." -f $_InputObject.name, $Baseline.name
@@ -44977,11 +45088,11 @@ function Update-HPOVLogicalEnclosureFirmware
 			$_FirmwareUpdate.forceInstallFirmware          = $ForceInstallation.IsPresent
 			$_FirmwareUpdate.logicalInterconnectUpdateMode = $LogicalInterconnectUpdateModeEnum[$InterconnectActivationMode]
 
-			$_PatchOpertaion = NewObject -PatchOperation
+			$_PatchOperation = NewObject -PatchOperation
 
-			$_PatchOpertaion.op = "replace"
-			$_PatchOpertaion.path = "/firmware"
-			$_PatchOpertaion.value = $_FirmwareUpdate
+			$_PatchOperation.op = "replace"
+			$_PatchOperation.path = "/firmware"
+			$_PatchOperation.value = $_FirmwareUpdate
 
 			Switch ($LogicalEnclosureFirmwareUpdateMethodEnum[$FirmwareUpdateProcess])
 			{
@@ -45038,7 +45149,7 @@ function Update-HPOVLogicalEnclosureFirmware
 				Try
 				{
 
-					$_task = Send-HPOVRequest -Uri $_InputObject.uri -Method PATCH -Body $_PatchOpertaion -Hostname $_leObject.ApplianceConnection.Name
+					$_task = Send-HPOVRequest -Uri $_InputObject.uri -Method PATCH -Body $_PatchOperation -AddHeader @{'If-Match' = $_InputObject.eTag} -Hostname $_InputObject.ApplianceConnection
 
 				}
 
@@ -50160,6 +50271,9 @@ function Get-EnclosureFirmware
 		# Keep track of the number of OAs
 		$_o = 0
 
+		# Keep track of the number of composable infrastructure appliances
+		$_cia = 0
+
 		# See if EnclosureObject was passed via Pipeline
 		if (-not $PSBoundParameters['Enclosure']) 
 		{ 
@@ -50387,7 +50501,7 @@ function Get-EnclosureFirmware
 			'SY12000'
 			{
 
-				# Process OAs first
+				# Process FLMs first
 				ForEach ($_em in $Enclosure.managerbays)
 				{
 
@@ -50450,6 +50564,175 @@ function Get-EnclosureFirmware
 																					  $Enclosure.ApplianceConnection)
 
 					[void]$_EnclosureReport.Add($_EnclosureDeviceReport)
+
+				}
+
+				ForEach ($_appliance in ($Enclosure.applianceBays | Where devicePresence -ne 'Absent'))
+				{
+
+					$_cia ++
+
+					$_ProgressParams = @{
+
+						id               = (3 + $ProgressID);
+						ParentId         = 1;
+						activity         = "Collecting Composable Infrastructure appliance firmware information";
+						CurrentOperation = ("[{0}/{1}] Processing '{2}'" -f $_cia, $Enclosure.applianceBays.count, $_appliance.model);
+						percentComplete  = (($_cia / $Enclosure.applianceBays.count) * 100) 
+
+					}
+
+					# Handle the call from -Verbose so Write-Progress does not get borked on display.
+					if ($PSBoundParameters['Verbose'] -or $VerbosePreference -eq 'Continue') 
+					{ 
+						
+						"[{0}] Collecting Enclosure Manager Firmware Information - Skipping Write-Progress display: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_ProgressParams | Out-String) | Write-Verbose
+					
+					}
+					
+					else 
+					{ 
+						
+						Write-Progress @_ProgressParams
+					
+					}
+
+					# Get installed firmware
+					switch ($_appliance.Model)
+					{
+
+						# need to figure out how to support both DCS and real hardware.  
+						{$_ -match 'Composer'}
+						{
+
+							# if ($null -ne $_appliance.serialNumber)
+							# {
+
+							# 	$uri = '{0}/{1}' -f $ApplianceHANodesUri, $_appliance.serialNumber
+
+							# 	Try
+							# 	{
+
+							# 		$_applianceDetails = Send-HPOVRequest -Uri $uri -Hostname $Enclosure.ApplianceConnection
+							# 		$_applianeFirmareVersion = $_applianceDetails.version
+
+							# 	}
+
+							# 	Catch
+							# 	{
+
+							# 		$PSCmdlet.ThrowTerminatingError($_)
+
+							# 	}
+
+							# }
+							
+							# # This is for DCS
+							# else
+							# {
+
+								$_applianeFirmareVersion = $PSLibraryVersion.($Enclosure.ApplianceConnection.Name).ApplianceVersion
+
+							# }
+							
+						}
+
+						{$_ -match 'Image Streamer'}
+						{
+
+							Try
+							{
+
+								$uri = "{0}?filter=applianceSerialNumber eq '{1}'" -f $AvailableDeploymentServersUri, $_appliance.serialNumber
+								$_applianceDetails = Send-HPOVRequest -Uri $uri -Hostname $Enclosure.ApplianceConnection
+								$_applianeFirmareVersion = $_applianceDetails.members.imageStreamerVersion
+
+							}
+
+							Catch
+							{
+
+								$PSCmdlet.ThrowTerminatingError($_)
+
+							}
+
+						}
+
+					}
+
+					$_EnclosureDeviceReport = New-Object HPOneView.Servers.Enclosure+Firmware(("{0} (Bay {1})" -f $_appliance.Model, $_appliance.bayNumber),
+																					  'ApplianceDevice',
+																					  'Firmware',
+																					  $_applianeFirmareVersion,
+																					  'N/A',
+																					  'N/A',
+																					  $null,
+																					  $Enclosure.name,
+																					  $Enclosure.uri,
+																					  $Enclosure.ApplianceConnection)
+
+					[void]$_EnclosureReport.Add($_EnclosureDeviceReport)
+
+				}
+
+				# Locate drive enclosure relative to the frame
+				Try
+				{
+
+					$uri = "{0}?filter=enclosureUri EQ '{1}'" -f $DriveEnclosureUri, $Enclosure.uri
+					$_driveEnclosures = Send-HPOVRequest -Uri $uri -Hostname $Enclosure.ApplianceConnection
+
+				}
+
+				Catch
+				{
+
+					$PSCmdlet.ThrowTerminatingError($_)
+
+				}
+
+				ForEach ($_driveEnclosure in $_driveEnclosures.members)
+				{
+
+					# Report drive enclosure IO Adapter(s)
+					ForEach ($_IOAdatper in $_driveEnclosure.ioAdapters)
+					{
+
+						$_EnclosureDeviceReport = New-Object HPOneView.Servers.Enclosure+Firmware(("{0} {1}{2}" -f $_IOAdatper.Model, $_IOAdatper.ioAdapterLocation.locationEntries.type, $_IOAdatper.ioAdapterLocation.locationEntries.value),
+																					  'DriveEnclosureIOAdapter',
+																					  'Firmware',
+																					  $_IOAdatper.firmwareVersion,
+																					  'N/A',
+																					  'N/A',
+																					  $null,
+																					  $_driveEnclosure.name,
+																					  $_driveEnclosure.uri,
+																					  $Enclosure.ApplianceConnection)
+
+						[void]$_EnclosureReport.Add($_EnclosureDeviceReport)
+						
+					}
+
+					# Report drive device
+					ForEach ($_driveBay in $_driveEnclosure.driveBays)
+					{
+
+						$_diskDrive = $_driveBay.drive
+
+						$_EnclosureDeviceReport = New-Object HPOneView.Servers.Enclosure+Firmware(("{0} {1}" -f $_diskDrive.name, $_diskDrive.model),
+																					  'DiskDrive',
+																					  'Firmware',
+																					  $_driveBay.drive.firmwareVersion,
+																					  'N/A',
+																					  'N/A',
+																					  $null,
+																					  $_driveEnclosure.name,
+																					  $_driveEnclosure.uri,
+																					  $Enclosure.ApplianceConnection)
+
+						[void]$_EnclosureReport.Add($_EnclosureDeviceReport)
+
+					}
 
 				}
 
@@ -50640,7 +50923,7 @@ function Get-EnclosureFirmware
 	End 
 	{
 
-		Return $_EnclosureReport | Sort-Object Name
+		Return $_EnclosureReport | Sort-Object Name, Component
 
 	}
 
@@ -50960,7 +51243,7 @@ function Get-ServerFirmware
 						ForEach ($_Component in $_ServerHardwareFirmwareCompliance.components)
 						{
 
-							if ($_Component.componentName.Contains('.sys') -or $_Component.componentName.Contains('.ko'))
+							if ($_Component.componentName.Contains('.sys') -or $_Component.componentName.Contains('.ko') -or $_Component.componentName.Contains('driver'))
 							{
 
 								$_ComponentType = 'Software'
@@ -70297,7 +70580,7 @@ function New-HPOVAddressPoolSubnet
 		[ValidateNotNullorEmpty()]
 		[String]$SubnetMask,
 
-		[Parameter (Mandatory, ParameterSetName = "Default")]
+		[Parameter (Mandatory = $false, ParameterSetName = "Default")]
 		[ValidateNotNullorEmpty()]
 		[Net.IPAddress]$Gateway,
 
@@ -70453,75 +70736,66 @@ function New-HPOVAddressPoolSubnet
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 
-			# if ($_appliance.ApplianceType -ne 'Composer')
-			# {
+			if (($_NetworIdDecBin -eq $_ExcludedIPSubnetIDBin) -or (($_NetworIdDecBin -ge $_ExcludedIPSubnetIDBin) -and ($_NetworIdDecBin -le $_ExcludedIPSubnetEndBin)))
+			{
 
-			# 	$ErrorRecord = New-ErrorRecord HPOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message ('The ApplianceConnection {0} is not a Synergy Composer.  This Cmdlet is only supported with Synergy Composers.' -f $_appliance.Name)
-			# 	$PSCmdlet.WriteError($ErrorRecord)
+				"[{0}] The calculated SubnetID overlaps with the reserved IP Address range, 172.30.254.0/24." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			# }
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AddressPoolResourceException InvalidIPv4AddressPoolResource InvalidArgument 'NetworkId' -TargetType 'System.Net.IPAddress' -Message ("The provided SubnetID {0} overlaps with the reserved {1} subnet.  Please choose a different IPv4 SubnetID." -f $NetworkId, $ExcludedIPSubnetID.IPAddressToString)
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-			# else
-			# {
+			}
 
-				# If ($_connection.ApplianceType -eq 'Composer' -and (($_NetworkIdBin -eq $_ExcludedIPSubnetIDBin) -or (($_NetworkIdBin -ge $_ExcludedIPSubnetIDBin) -and ($_NetworkIdBin -le $_ExcludedIPSubnetEndBin))))
-				if (($_NetworIdDecBin -eq $_ExcludedIPSubnetIDBin) -or (($_NetworIdDecBin -ge $_ExcludedIPSubnetIDBin) -and ($_NetworIdDecBin -le $_ExcludedIPSubnetEndBin)))
-				{
+			$_NewSubnet = NewObject -IPv4Subnet
 
-					"[{0}] The calculated SubnetID overlaps with the reserved IP Address range, 172.30.254.0/24." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-					$ErrorRecord = New-ErrorRecord HPOneView.Appliance.AddressPoolResourceException InvalidIPv4AddressPoolResource InvalidArgument 'NetworkId' -TargetType 'System.Net.IPAddress' -Message ("The provided SubnetID {0} overlaps with the reserved {1} subnet.  Please choose a different IPv4 SubnetID." -f $NetworkId, $ExcludedIPSubnetID.IPAddressToString)
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-				}
-
-				$_NewSubnet = NewObject -IPv4Subnet
-
-				$_NewSubnet.networkId  = $NetworkId.IPAddressToString
-				$_NewSubnet.subnetmask = $SubnetMask
-				$_NewSubnet.gateway    = $Gateway.IPAddressToString
-
-				if ($Domain)
-				{
-
-					$_NewSubnet.domain = $Domain
-
-				}				
+			$_NewSubnet.networkId  = $NetworkId.IPAddressToString
+			$_NewSubnet.subnetmask = $SubnetMask
 			
-				if ($PSBoundParameters['DnsServers'])
-				{
+			if ($PSBoundParameters['Gateway'])
+			{
 
-					$DnsServers | ForEach-Object { 
+				$_NewSubnet.gateway = $Gateway.IPAddressToString
 
-						[void]$_NewSubnet.dnsServers.Add($_)
+			}
 
-					}
+			if ($Domain)
+			{
 
-				}
+				$_NewSubnet.domain = $Domain
 
-				# "[{0}] Defining new IPv4 Subnet object: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($_NewSubnet ) | Write-Verbose 
+			}				
+		
+			if ($PSBoundParameters['DnsServers'])
+			{
 
-				"[{0}] Sending request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 			
+				ForEach ($_dnsServer in $DnsServers)
+				{ 
 
-				Try
-				{
-
-					$_resp = Send-HPOVRequest $ApplianceIPv4SubnetsUri POST $_NewSubnet -Hostname $_appliance.Name
-
-					$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.IPv4AddressSubnet")
-
-					[void]$_SubnetCollection.Add($_resp)
+					[void]$_NewSubnet.dnsServers.Add($_dnsServer)
 
 				}
 
-				Catch
-				{
+			}
 
-					$PSCmdlet.ThrowTerminatingError($_)
+			"[{0}] Sending request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 			
 
-				}
+			Try
+			{
 
-			# }
+				$_resp = Send-HPOVRequest $ApplianceIPv4SubnetsUri POST $_NewSubnet -Hostname $_appliance.Name
+
+				$_resp.PSObject.TypeNames.Insert(0,"HPOneView.Appliance.IPv4AddressSubnet")
+
+				[void]$_SubnetCollection.Add($_resp)
+
+			}
+
+			Catch
+			{
+
+				$PSCmdlet.ThrowTerminatingError($_)
+
+			}
 
 		}
 	
@@ -89466,29 +89740,44 @@ function New-HPOVServerProfile
 
 							[void]$serverProfile.localStorage.sasLogicalJBODs.Add($_ld.SasLogicalJBOD)
 
+							# Needed for D3940 RAID drive attachment
+							if (-not [String]::IsNullOrEmpty($_ld.raidLevel))
+							{
+
+								$_ld = $_ld | Select-Object * -ExcludeProperty SasLogicalJBOD
+
+								[Void]$_NewLogicalDisksCollection.Add($_ld)
+
+							}
+
 						}
 
-						if ($ServerHardwareType.storageCapabilities.raidLevels -notcontains $_ld.raidLevel)
+						else
 						{
 
-							$_ExceptionMessage = "Unsupported LogicalDisk RAID Level {0} policy with {1} logical disk.  The Server Hardware Type only supports '{2}' RAID level(s). " -f $_ld.raidLevel, $_ld.name, [System.String]::Join("', '", $ServerHardwareType.storageCapabilities.raidLevels) 
-							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedLogicalDriveRaidLevel InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+							if ($ServerHardwareType.storageCapabilities.raidLevels -notcontains $_ld.raidLevel)
+							{
+
+								$_ExceptionMessage = "Unsupported LogicalDisk RAID Level {0} policy with {1} logical disk.  The Server Hardware Type only supports '{2}' RAID level(s). " -f $_ld.raidLevel, $_ld.name, [System.String]::Join("', '", $ServerHardwareType.storageCapabilities.raidLevels) 
+								$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedLogicalDriveRaidLevel InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+								$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+							}
+
+							if ($_ld.numPhysicalDrives -gt $ServerHardwareType.storageCapabilities.maximumDrives)
+							{
+
+								$_ExceptionMessage = "Invalid number of drives requested {0}.  The Server Hardware Type only supports a maximum of '{1}'." -f $_ld.numPhysicalDrives, $ServerHardwareType.storageCapabilities.maximumDrives 
+								$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedNumberofDrives InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+								$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+							}
+
+							$_ld = $_ld | Select-Object * -ExcludeProperty SasLogicalJBOD
+
+							[Void]$_NewLogicalDisksCollection.Add($_ld)
 
 						}
-
-						if ($_ld.numPhysicalDrives -gt $ServerHardwareType.storageCapabilities.maximumDrives)
-						{
-
-							$_ExceptionMessage = "Invalid number of drives requested {0}.  The Server Hardware Type only supports a maximum of '{1}'." -f $_ld.numPhysicalDrives, $ServerHardwareType.storageCapabilities.maximumDrives 
-							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedNumberofDrives InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-						}
-
-						$_ld = $_ld | Select-Object * -ExcludeProperty SasLogicalJBOD
-
-						[Void]$_NewLogicalDisksCollection.Add($_ld)
 
 						$_l++
 
@@ -93376,52 +93665,39 @@ function New-HPOVServerProfileTemplate
 		if ($PSBoundParameters['Bios']) 
 		{
 
-			# if (-not($BiosSettings | Measure-Object).count) 
-			# {
-				
-			# 	$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsIsNull InvalidArgument 'biosSettings' -TargetType 'Array' -Message "BIOS Parameter was set to TRUE, but no biosSettings were provided.  Either change -bios to `$False or provide valid bioSettings to set within the Server Profile."
-			# 	$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-			
-			# }
-
-			# else 
-			# {
-			
-				if ($serverHardwareType.capabilities -match "ManageBIOS" ) 
+			if ($serverHardwareType.capabilities -match "ManageBIOS" ) 
+			{
+					
+				if ($BiosSettings.GetEnumerator().Cout -gt 0)
 				{
-						
-					if ($BiosSettings.GetEnumerator().Cout -gt 0)
+
+					# Check for any duplicate keys
+					$biosFlag = $false
+					$hash = @{}
+					$BiosSettings.id | ForEach-Object { $hash[$_] = $hash[$_] + 1 }
+
+					foreach ($biosItem in ($hash.GetEnumerator() | Where-Object {$_.value -gt 1} | ForEach-Object {$_.key} )) 
 					{
-
-						# Check for any duplicate keys
-						$biosFlag = $false
-						$hash = @{}
-						$BiosSettings.id | ForEach-Object { $hash[$_] = $hash[$_] + 1 }
-
-						foreach ($biosItem in ($hash.GetEnumerator() | Where-Object {$_.value -gt 1} | ForEach-Object {$_.key} )) 
-						{
-								
-							$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsNotUnique InvalidOperation 'BiosSettings' -TargetType 'Array' -Message "'$(($serverHardwareType.biosSettings | where { $_.id -eq $biosItem }).name)' is being set more than once. Please check your BIOS Settings are unique.  This setting might be a depEndency of another BIOS setting/option."
-							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-						}
+							
+						$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException BiosSettingsNotUnique InvalidOperation 'BiosSettings' -TargetType 'Array' -Message "'$(($serverHardwareType.biosSettings | where { $_.id -eq $biosItem }).name)' is being set more than once. Please check your BIOS Settings are unique.  This setting might be a depEndency of another BIOS setting/option."
+						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
 					}
-					
-					$_spt.bios.manageBios = $True
-					$_spt.bios.overriddenSettings = $BiosSettings
 
 				}
-
-				else 
-				{ 
-
-					$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support BIOS Management."
-					$PSCmdlet.ThrowTerminatingError($ErrorRecord)                
 				
-				}
-				
-			# }
+				$_spt.bios.manageBios = $True
+				$_spt.bios.overriddenSettings = $BiosSettings
+
+			}
+
+			else 
+			{ 
+
+				$ErrorRecord = New-ErrorRecord HPOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-HPOVServerProfile' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support BIOS Management."
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)                
+			
+			}
 
 		}
 
@@ -93532,30 +93808,45 @@ function New-HPOVServerProfileTemplate
 
 						[void]$_spt.localStorage.sasLogicalJBODs.Add($_ld.SasLogicalJBOD)
 
+						# Needed for D3940 RAID drive attachment
+						if (-not [String]::IsNullOrEmpty($_ld.raidLevel))
+						{
+
+							$_ld = $_ld | Select-Object * -ExcludeProperty SasLogicalJBOD
+
+							[Void]$_NewLogicalDisksCollection.Add($_ld)
+
+						}
+
 					}
 
-					if ($ServerHardwareType.storageCapabilities.raidLevels -notcontains $_ld.raidLevel)
+					else
 					{
 
-						$_ExceptionMessage = "Unsupported LogicalDisk RAID Level '{0}' policy with '{1}' logical disk.  The Server Hardware Type only supports '{2}' RAID level(s). " -f $_ld.raidLevel, $_ld.name, [System.String]::Join("', '", $ServerHardwareType.storageCapabilities.raidLevels) 
-						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedLogicalDriveRaidLevel InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+						if ($ServerHardwareType.storageCapabilities.raidLevels -notcontains $_ld.raidLevel)
+						{
+
+							$_ExceptionMessage = "Unsupported LogicalDisk RAID Level '{0}' policy with '{1}' logical disk.  The Server Hardware Type only supports '{2}' RAID level(s). " -f $_ld.raidLevel, $_ld.name, [System.String]::Join("', '", $ServerHardwareType.storageCapabilities.raidLevels) 
+							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedLogicalDriveRaidLevel InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
+
+						if ($_ld.numPhysicalDrives -gt $ServerHardwareType.storageCapabilities.maximumDrives)
+						{
+
+							$_ExceptionMessage = "Invalid number of drives requested '{0}'.  The Server Hardware Type only supports a maximum of '{1}'." -f $_ld.numPhysicalDrives, $ServerHardwareType.storageCapabilities.maximumDrives 
+							$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedNumberofDrives InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
+
+						$_ld = $_ld | Select-Object * -ExcludeProperty SasLogicalJBOD
+
+						[Void]$_NewLogicalDisksCollection.Add($_ld)
 
 					}
-
-					if ($_ld.numPhysicalDrives -gt $ServerHardwareType.storageCapabilities.maximumDrives)
-					{
-
-						$_ExceptionMessage = "Invalid number of drives requested '{0}'.  The Server Hardware Type only supports a maximum of '{1}'." -f $_ld.numPhysicalDrives, $ServerHardwareType.storageCapabilities.maximumDrives 
-						$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedNumberofDrives InvalidOperation "StorageController" -TargetType 'PSObject' -Message $_ExceptionMessage
-						$PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-					}
-
-					$_ld = $_ld | Select-Object * -ExcludeProperty SasLogicalJBOD
-
-					[Void]$_NewLogicalDisksCollection.Add($_ld)
-
+					
 					$_l++
 
 				}
@@ -96869,14 +97160,15 @@ function New-HPOVServerProfileLogicalDiskController
 	Process
 	{	
 
-		# Generate terminating error
-		if ($PSBoundParameters['Mode'] -eq 'HBA' -and $PSBoundParameters['LogicalDisk'])
-		{
+		# THIS IS NOT CORRECT.  HBA MODE SUPPORTS LOGICALDISK
+		# # Generate terminating error
+		# if ($PSBoundParameters['Mode'] -eq 'HBA' -and $PSBoundParameters['LogicalDisk'])
+		# {
 
-			$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedControllerMode InvalidArgument "Mode" -Message "The provide 'HBA' mode does not support assigning of Logical Disks."
-			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+		# 	$ErrorRecord = New-ErrorRecord HPOneview.ServerProfile.LogicalDiskException UnsupportedControllerMode InvalidArgument "Mode" -Message "The provide 'HBA' mode does not support assigning of Logical Disks."
+		# 	$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-		}
+		# }
 
 		if ($PSBoundParameters['ImportExistingConfiguration'] -and $PSBoundParameters['LogicalDisk'])
 		{
@@ -98116,6 +98408,7 @@ function New-HPOVServerProfileAttachVolume
 							}
 
 							[void]$_volumeAttachments.Remove($_)
+							
 							$ExceptionMessage = 'Storage Volume {0} is already attached at ID {1}.' -f $_ExistingVolume.name, $_.id
 							$ErrorRecord = New-ErrorRecord HPOneView.StorageVolumeResourceException StorageVolumeAlreadyAttached ResourceExists 'Volume' -Targettype 'PSObject' -Message $ExceptionMessage
 							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
