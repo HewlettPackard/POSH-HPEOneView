@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.410.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.10.1928.2181'
+    ModuleVersion = '4.10.1954.1523'
     
     # ID used to uniquely identify this module
     GUID = '2c99a71e-361b-4ec0-b168-060eac70561d'
@@ -134,7 +134,8 @@ THE SOFTWARE.
 * [#388] Fixed Add-HPOVEnclosure where -EnclosureGroup was mapped to an incorrect parameter set for monitored enclosures.
 * Fixed regression in Update-HPOVLogicalEnclosureFirmware.
 * Updated ConvertTo-HPOVPowerShellScript to export code to specified text file.
-* Updated New-HPOVAddressPoolSubnet to make -Gateawy an optional paramter.'
+* Updated New-HPOVAddressPoolSubnet to make -Gateawy an optional paramter.
+* Fixed Add-HPOVEnclosure mishandling parameter set validation.'
 
 		}
 

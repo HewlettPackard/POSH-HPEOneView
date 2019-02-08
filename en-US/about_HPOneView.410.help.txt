@@ -48,6 +48,7 @@ WHAT'S NEW
      -- Fixed regression in Update-HPOVLogicalEnclosureFirmware.
      -- Updated ConvertTo-HPOVPowerShellScript to export code to specified text file.
      -- Updated New-HPOVAddressPoolSubnet to make -Gateawy an optional paramter.
+     -- Fixed Add-HPOVEnclosure mishandling parameter set validation.
 
     Release 4.10.1928.2181
 

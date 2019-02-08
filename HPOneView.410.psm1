@@ -42557,7 +42557,7 @@ function Add-HPOVEnclosure
 
 		}
 
-		If ($PSCmdlet.ParameterSetName -eq 'Monitored')
+		If ('MonitoredCredential', 'Monitored' -contains $PSCmdlet.ParameterSetName)
 		{
 
 			"[{0}] - Building Monitored Enclosure request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -42570,7 +42570,7 @@ function Add-HPOVEnclosure
 		else
 		{
 
-			"[{0}] - Building Managed Enclosure request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+			"[{0}] - Building managed enclosure request" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
 			switch ($EnclosureGroup.GetType().Name)
 			{
