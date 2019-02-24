@@ -24,7 +24,8 @@ environment:
 build: off
 test_script:
 - ps: >-
-    Import-Module "C:\Tests\appveyor.tests.ps1";
+    Import-Module "C:\Tests\appveyor.tests.ps1"
+    
     Start-PoshTest
 notifications:
 - provider: Webhook
