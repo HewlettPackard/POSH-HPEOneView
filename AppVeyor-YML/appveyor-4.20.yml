@@ -1,4 +1,4 @@
-﻿version: 4.20.{build}
+version: 4.20.{build}
 branches:
   only:
   - 4.20
@@ -24,7 +24,7 @@ environment:
 build: off
 test_script:
 - ps: >-
-    Import-Module "C:\Tests\appveyor.tests.ps1"
+    Import-Module "C:\Tests\appveyor.tests.ps1";
     Start-PoshTest
 notifications:
 - provider: Webhook
