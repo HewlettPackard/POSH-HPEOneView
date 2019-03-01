@@ -1,6 +1,6 @@
-AppVeyor 3.10 Branch | AppVeyor 4.00 Branch | AppVeyor 4.10 Branch
+AppVeyor 4.00 Branch | AppVeyor 4.10 Branch | AppVeyor 4.20 Branch
 -------------------- | -------------------- | ---------------------
-[![Build status](https://ci.appveyor.com/api/projects/status/7aeeipw70yo0gbcm/branch/3.10?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-34esg/branch/3.10) | [![Build status](https://ci.appveyor.com/api/projects/status/n4btdae2oaua0bra/branch/4.00?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-cskif/branch/4.00) | [![Build status](https://ci.appveyor.com/api/projects/status/ubd52rrmholhuuwa/branch/4.10?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-0fpb0/branch/4.10)
+[![Build status](https://ci.appveyor.com/api/projects/status/n4btdae2oaua0bra?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-cskif) | [![![Build status](https://ci.appveyor.com/api/projects/status/ubd52rrmholhuuwa?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-0fpb0) | [![Build status](https://ci.appveyor.com/api/projects/status/fxl9dobgborusp1r?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-vhpsr)
 
 
 POSH-HPOneView
