@@ -32,6 +32,24 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+
+    Release 4.10.2059.3121
+
+     -- Extended HPOneView.Servers.Enclosure+Firmware and HPOneView.Servers.ServerHardware+Firmware class objects
+        to include resource serial number and part number.
+     -- Updated Show-HPOVFirmwareReport to include resource serial and part number in generated report.
+     -- [#394] Updated Set-HPOVNetworkSet to support adding and removing networks from existing Network Set resources.
+     -- Updated New-HPOVNetwork to support adding a new network to one or more existing network sets.
+     -- [#396] Fixed ConvertTo-HPOVPowerShellScript that incorrectly handles D3940 Logical JBOD disk ID and does not
+        include needed manage boot and BIOS settings parameters.
+     -- [#39] Added HTTP proxy detection to support IE proxy settings.
+     -- Added Get-HPOVApplianceSshAccess and Get-HPOVApplianceServiceAccess Cmdlets to return their configuration.
+     -- Fixed internal Download-MacTable helper function where an endless loop would cause Show-HPOVLogicalInterconnectMacTable
+        to "hang".
+     -- [#400] Fixed issue with New-HPOVServerProfile not supporting multiple appliance connections during enclosure group lookup
+        and validation.
+     -- Changed HPOVHypervisorManager noun to HPOVClusterManager.  Cmdlet aliases exist for backwards compatibility.
+
     Release 4.10.1954.1523
 
      -- Fixed incorrect error handling within Connect-HPOVMgmt when authentication directory specified does

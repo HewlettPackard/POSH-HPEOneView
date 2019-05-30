@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.410.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.10.1954.1523'
+    ModuleVersion = '4.10.2059.3121'
     
     # ID used to uniquely identify this module
     GUID = '2c99a71e-361b-4ec0-b168-060eac70561d'
@@ -48,10 +48,10 @@ THE SOFTWARE.
     PowerShellVersion = '4.0'
 
     # Minimum version of the .NET Framework required by this module
-	DotNetFrameworkVersion = '4.0'
+    DotNetFrameworkVersion = '4.6'
     
     # Minimum version of the common language runtime (CLR) required by this module
-    CLRVersion = '4.0'
+    CLRVersion = '4.0.30319.42000'
     
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules = @(@{ModuleName = 'FormatPX'; ModuleVersion = '1.1.3.15'},
@@ -123,19 +123,18 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.10.1954.1523
+            ReleaseNotes = 'Release 4.10.2059.3121
 
-* Fixed incorrect error handling within Connect-HPOVMgmt when authentication directory specified does not exist.
-* Fixed New-HPOVApplianceCsr with updated API DTO version.
-* Fixed ConvertTo-HPOVPowerShellScript generating error with generating server profile and server profile template logical disk code.
-* [#390] Fixed ConvertTo-HPOVPowerShellScript incorrect handling of generated code to text output stream.
-* [#389] Fixed incorrect handling of HPE Synergy D3940 Logical JBOD disk configuration with New-HPOVServerProfileLogicalDisk, New-HPOVServerProfileTemplate and New-HPOVServerProfile.
-* Fixed ConvertTo-HPOVPowerShellScript incorrect hanlding of HPE Synergy D3940 Logical JBOD script code.
-* [#388] Fixed Add-HPOVEnclosure where -EnclosureGroup was mapped to an incorrect parameter set for monitored enclosures.
-* Fixed regression in Update-HPOVLogicalEnclosureFirmware.
-* Updated ConvertTo-HPOVPowerShellScript to export code to specified text file.
-* Updated New-HPOVAddressPoolSubnet to make -Gateawy an optional paramter.
-* Fixed Add-HPOVEnclosure mishandling parameter set validation.'
+* Extended HPOneView.Servers.Enclosure+Firmware and HPOneView.Servers.ServerHardware+Firmware class objects to include resource serial number and part number.
+* Updated Show-HPOVFirmwareReport to include resource serial and part number in generated report.
+* [#394] Updated Set-HPOVNetworkSet to support adding and removing networks from existing Network Set resources.
+* Updated New-HPOVNetwork to support adding a new network to one or more existing network sets.
+* [#396] Fixed ConvertTo-HPOVPowerShellScript that incorrectly handles D3940 Logical JBOD disk ID and does not include needed manage boot and BIOS settings parameters.
+* [#39] Added HTTP proxy detection to support IE proxy settings.
+* Added Get-HPOVApplianceSshAccess and Get-HPOVApplianceServiceAccess Cmdlets to return their configuration.
+* Fixed internal Download-MacTable helper function where an endless loop would cause Show-HPOVLogicalInterconnectMacTable to "hang".
+* [#400] Fixed issue with New-HPOVServerProfile not supporting multiple appliance connections during enclosure group lookup and validation.
+* Changed HPOVHypervisorManager noun to HPOVClusterManager.  Cmdlet aliases exist for backwards compatibility.'
 
 		}
 
