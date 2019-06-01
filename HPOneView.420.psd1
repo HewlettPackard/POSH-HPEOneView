@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.420.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.20.1971.1960'
+    ModuleVersion = '4.20.2068.2204'
     
     # ID used to uniquely identify this module
     GUID = '7af7a89b-043c-42c3-bdbd-6eb0154fc5ab'
@@ -48,10 +48,10 @@ THE SOFTWARE.
     PowerShellVersion = '4.0'
 
     # Minimum version of the .NET Framework required by this module
-	DotNetFrameworkVersion = '4.0'
+    DotNetFrameworkVersion = '4.6'
     
     # Minimum version of the common language runtime (CLR) required by this module
-    CLRVersion = '4.0'
+    CLRVersion = '4.0.30319.42000'
     
     # Modules that must be imported into the global environment prior to importing this module
     RequiredModules = @(@{ModuleName = 'FormatPX'; ModuleVersion = '1.1.3.15'},
@@ -123,9 +123,14 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.20.1971.1960
+            ReleaseNotes = 'Release 4.20.2068.2204
 			
-* Initial 4.20 release.'
+* [#396] Fixed ConvertTo-HPOVPowerShellScript that incorrectly handles D3940 Logical JBOD disk ID and does not include needed manage boot and BIOS settings parameters.
+* Updated ConvertTo-HPOVPowerShellScript to support correct EnableTrunking parameter for Uplink Sets.
+* [#399] Added HTTP proxy detection to support IE proxy settings.
+* Added Get-HPOVApplianceSshAccess and Get-HPOVApplianceServiceAccess Cmdlets to return their configuration.
+* [#400] Fixed issue with New-HPOVServerProfile not supporting multiple appliance connections during enclosure group lookup and validation.
+* Changed HPOVHypervisorManager noun to HPOVClusterManager.  Cmdlet aliases exist for backwards compatibility.'
 
 		}
 

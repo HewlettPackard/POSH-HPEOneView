@@ -28,9 +28,20 @@ LICENSE
 
 SHORT DESCRIPTION
 
-    PowerShell library for HP OneView 4.10
+    PowerShell library for HP OneView 4.20
 	
 WHAT'S NEW
+
+    Release 4.20.2068.2204
+
+     -- [#396] Fixed ConvertTo-HPOVPowerShellScript that incorrectly handles D3940 Logical JBOD disk ID and does not
+        include needed manage boot and BIOS settings parameters.
+     -- Updated ConvertTo-HPOVPowerShellScript to support correct EnableTrunking parameter for Uplink Sets.
+     -- [#399] Added HTTP proxy detection to support IE proxy settings.
+     -- Added Get-HPOVApplianceSshAccess and Get-HPOVApplianceServiceAccess Cmdlets to return their configuration.
+     -- [#400] Fixed issue with New-HPOVServerProfile not supporting multiple appliance connections during enclosure group lookup
+        and validation.
+     -- Changed HPOVHypervisorManager noun to HPOVClusterManager.  Cmdlet aliases exist for backwards compatibility.
 
     Release 4.20.1971.1960
 
