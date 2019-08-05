@@ -641,7 +641,7 @@
     <View>
       <Name>RemoteSupportConfig</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Appliance.RemoteSupportConfig</TypeName>
+        <TypeName>HPOneView.Appliance.RemoteSupport.Configuration</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <AutoSize/>
@@ -651,7 +651,15 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
+            <Label>Regisered</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
             <Label>Enabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connected</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
@@ -678,16 +686,22 @@
                 <PropertyName>ApplianceConnection</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>enableRemoteSupport</PropertyName>
+                <PropertyName>Registered</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>companyName</PropertyName>
+                <PropertyName>Enabled</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>autoEnableDevices</PropertyName>
+                <PropertyName>Connected</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>marketingOptIn</PropertyName>
+                <PropertyName>CompanyName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AutoEnableDevices</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>MarketingOptIn</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
                 <PropertyName>InsightOnlineEnabled</PropertyName>

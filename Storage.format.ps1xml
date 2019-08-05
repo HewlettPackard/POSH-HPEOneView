@@ -1320,11 +1320,11 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>WWN</Label>
+            <Label>Firmware</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Firmware</Label>
+            <Label>Address</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
          </TableHeaders>
@@ -1344,19 +1344,35 @@
                 <PropertyName>status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.deviceSpecificAttributes.serialNumber</ScriptBlock>
+                <ScriptBlock>
+                  if (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.serialNumber)) { $_.deviceSpecificAttributes.serialNumber }
+                  else { "N/A" }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.deviceSpecificAttributes.model</ScriptBlock>
+                <ScriptBlock>
+                  if (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.model)) { $_.deviceSpecificAttributes.model }
+                  else { "N/A" }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.deviceSpecificAttributes.managedDomain</ScriptBlock>
+                <ScriptBlock>
+                  if (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.managedDomain)) { $_.deviceSpecificAttributes.managedDomain }
+                  else { "N/A" }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.deviceSpecificAttributes.wwn</ScriptBlock>
+                <ScriptBlock>
+                  if (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.firmware)) { $_.deviceSpecificAttributes.firmware }
+                  elseif (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.softwareVersion)) {$_.deviceSpecificAttributes.softwareVersion }
+                </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$_.deviceSpecificAttributes.firmware</ScriptBlock>
+                <ScriptBlock>
+                  if (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.wwn)) { $_.deviceSpecificAttributes.wwn }
+                  elseif (-not [String]::IsNullOrEmpty($_.deviceSpecificAttributes.groupTargetName)) {$_.deviceSpecificAttributes.groupTargetName }
+                  else { "N/A" }
+                </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -1425,6 +1441,95 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
+    </View>
+    <!--Storage.PerformancePolicy FT-->
+    <View>
+      <Name>PerformancePolicy</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.PerformancePolicy</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ApplicationCategory</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CachingEnabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AssociatedStorageSystem</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+         </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ApplicationCategory</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsCached</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AssociatedStorageSystem</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Storage.VolumeSet FT-->
+    <View>
+      <Name>VolumeSet</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Storage.VolumeSet</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Volumes</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AssociatedStorageSystem</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+         </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $_.Volumes.name
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $_.AssociatedStorageSystem.displayName
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
     <!--Storage.System.Port FT-->
     <View>
@@ -1680,7 +1785,6 @@
         </ListEntries>
       </ListControl>
     </View>
-
     <!--Storage.DriveEnclosure.IoAdapter FT-->
     <View>
       <Name>DriveEnclosureIoAdapter</Name>
