@@ -1,6 +1,9 @@
 ---
-name: Bug report
-about: Create a report to help us improve
+name: Bug report 🐛
+about: Report errors or unexpected behavior 🤔
+title: "My bug report"
+labels: Bug
+assignees: ''
 ---
 
 <!-- Please search existing issues to avoid creating duplicates. -->

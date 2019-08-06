@@ -1,7 +1,9 @@
 ---
-name: Question
-about: The issue tracker can be used for questions.  However, questions really should be asked over at gitter.im and the discussion forum here:  https://gitter.im/POSH-HPOneView/Lobby
-
+name: Support Question ❓
+about: The issue tracker can be used for questions. However, questions really should be asked over at the [HPE OneView gitter.im discussion forum](https://gitter.im/POSH-HPOneView/Lobb)
+title: "Support Question"
+labels: Question
+assignees: ''
 ---
 
-If you have a question, please ask it on https://gitter.im/POSH-HPOneView/Lobby as to not clutter the issue tracker.
+<!-- Please provide in detail your question. -->
