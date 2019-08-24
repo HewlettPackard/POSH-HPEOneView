@@ -17,7 +17,9 @@ build_cloud: doc-hyp-cluster1
 image: win10-ent-worker
 clone_folder: C:\projects\HPOneView.500
 init:
-- pwsh: $env:PSModulePath += ";C:\Projects"
+- pwsh: >-
+    Write-Host "STARTING"
+    $env:PSModulePath += ";C:\Projects"
 environment:
   ACCESS_TOKEN:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
