@@ -37,7 +37,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Locations</Label>
+            <Label>Username</Label>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
         </TableHeaders>
@@ -64,7 +64,7 @@
                 <PropertyName>Status</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>Locations</PropertyName>
+                <PropertyName>Username</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
