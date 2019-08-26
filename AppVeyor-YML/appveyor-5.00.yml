@@ -25,6 +25,7 @@ environment:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
 build: off
 test_script:
+- appveyor version
 - pwsh: >-
     Import-Module "C:\Tests\appveyor.tests.ps1"
     
