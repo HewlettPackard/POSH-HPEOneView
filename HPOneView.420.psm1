@@ -33,7 +33,7 @@ THE SOFTWARE.
 #>
 
 # Set HPOneView POSH Library Version
-[Version]$ModuleVersion = '4.20.2133.3186'
+[Version]$ModuleVersion = '4.20.2163.2381'
 New-Variable -Name PSLibraryVersion -Scope Global -Value (New-Object HPOneView.Library.Version($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -62,7 +62,7 @@ if (Get-Module -Name HPOneView* | Where-Object Name -ne "HPOneView.420")
 
 # Region URIs and Enums
 ${Global:ConnectedSessions}         = New-Object HPOneView.Library.ConnectedSessionsList
-${Global:ResponseErrorObject}       = New-Object System.Collections.ArrayList
+${Global:ResponseErrorObject}       = [System.Collections.ArrayList]::new()
 New-Variable -Name DefaultTimeout -Value (New-Timespan -Minutes 20) -Option Constant
 $script:FSOpenMode                  = [System.IO.FileMode]::Open
 $script:FSRead                      = [System.IO.FileAccess]::Read
@@ -123,6 +123,7 @@ $ResourceCategoryEnum = @{
 	[string]$ApplianceDateTimeUri               = '/rest/appliance/configuration/time-locale'
 	[String]$ApplianceGlobalSettingsUri         = '/rest/global-settings?sort:name'
 	[String]$ApplianceBaselineRepoUri           = '/rest/firmware-drivers'
+	[String]$ApplianceBaselineCompSigUri        = '/rest/firmware-drivers/addCompSig'
 	[String]$ApplianceRepositoriesUri           = '/rest/repositories'
 	[String]$ApplianceBaselineRepositoriesUri   = '/rest/firmware-repositories/defaultOneViewRepo'
 	[Hashtable]$RepositoryType                  = @{
@@ -294,7 +295,8 @@ $ResourceCategoryEnum = @{
 	[String]$script:EnclosureGroupsUri              = "/rest/enclosure-groups"
 	[String]$script:EnclosurePreviewUri             = "/rest/enclosure-preview"
 	[String]$VCMigratorUri                          = "/rest/migratable-vc-domains"
-	[String]$script:FwUploadUri                     = "/rest/firmware-bundles"
+	[String]$ApplianceFwBundlesUri                  = "/rest/firmware-bundles"
+	[String]$ApplianceFwCompSigUri                  = "/rest/firmware-bundles/addCompsig?uploadfilename={0}"
 	[String]$ApplianceFwDriversUri                  = "/rest/firmware-drivers"
 	[String]$RackManagerUri                         = '/rest/rack-managers'
 	[String]$PowerDevicesUri                        = "/rest/power-devices"
@@ -499,8 +501,8 @@ $ResourceCategoryEnum = @{
 	[String]$ApplianceVwwnGenerateUri          = '/rest/id-pools/vwwn/generate'
 	[String]$ApplianceVsnPoolGenerateUri       = '/rest/id-pools/vsn/generate'
 	[Regex]$MacAddressPattern                  = '^(?:[A-Fa-f0-9]{2}[:-]){5}(?:[A-Fa-f0-9]{2})$'
-	[Regex]$WwnAddressPattern                  = '^([0-9a-f]{2}:){7}([0-9a-f]{2})$'
-	[Regex]$WwnLongAddressPattern              = '^([0-9a-f]{2}:){15}([0-9a-f]{2})$'
+	[Regex]$WwnAddressPattern                  = '^([0-9a-fA-F]{2}:){7}([0-9a-fA-F]{2})$'
+	[Regex]$WwnLongAddressPattern              = '^([0-9a-fA-F]{2}:){15}([0-9a-fA-F]{2})$'
 	[RegEx]$IPv4AddressPattern                 = "^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$"
 	[RegEx]$SnmpV3EngineIdPattern              = "^10x([A-Fa-f0-9]{2}){5,32}"
 	[HashTable]$Global:FCNetworkFabricTypeEnum = @{
@@ -1129,7 +1131,7 @@ function NewObject
 								
 					hostOSType        = $null;
 					manageSanStorage  = $false;
-					volumeAttachments = New-Object System.Collections.ArrayList
+					volumeAttachments = [System.Collections.ArrayList]::new()
 				
 				}
 				
@@ -1448,7 +1450,7 @@ function NewObject
 					username         = $null
 					password         = $null;
 					port             = "443"
-					initialScopeUris = New-Object System.Collections.ArrayList;
+					initialScopeUris = [System.Collections.ArrayList]::new();
 					type             = "HypervisorManagerV2"
 				
 				}
@@ -1486,7 +1488,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					sessionID = $null;
-					permissionsToActivate = New-Object System.Collections.ArrayList
+					permissionsToActivate = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -1613,7 +1615,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					osDeploymentPlanUri = $null;
-					osCustomAttributes  = New-Object System.Collections.ArrayList
+					osCustomAttributes  = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -1634,7 +1636,7 @@ function NewObject
 					coolingMultiplier       = 1.5;
 					width                   = 0;
 					depth                   = 0;
-					contents                = New-Object System.Collections.ArrayList						
+					contents                = [System.Collections.ArrayList]::new()						
 
 				}
 
@@ -1654,7 +1656,7 @@ function NewObject
 					depth        = 0;
 					height       = 0;
 					width        = 0;
-					rackMounts   = New-Object System.Collections.ArrayList
+					rackMounts   = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -1796,10 +1798,10 @@ function NewObject
 						name = $null;
 						managementLevel = $null
 						logicalSwitchGroupUri = $null;
-						switchCredentialConfiguration = New-Object System.Collections.ArrayList
+						switchCredentialConfiguration = [System.Collections.ArrayList]::new()
 					
 					};
-					logicalSwitchCredentials = New-Object System.Collections.ArrayList
+					logicalSwitchCredentials = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -1836,7 +1838,7 @@ function NewObject
 			'LogialSwitchConnectionProperties'
 			{
 
-				Return [PSCustomObject] @{ connectionProperties = New-Object System.Collections.ArrayList }
+				Return [PSCustomObject] @{ connectionProperties = [System.Collections.ArrayList]::new() }
 				
 			}
 
@@ -1864,7 +1866,7 @@ function NewObject
 					state             = "Active"
 					switchMapTemplate = [PSCustomObject]@{
 
-						switchMapEntryTemplates = New-Object System.Collections.ArrayList
+						switchMapEntryTemplates = [System.Collections.ArrayList]::new()
 
 					}
 
@@ -1879,7 +1881,7 @@ function NewObject
 
 					logicalLocation = [PSCustomObject]@{
 
-						locationEntries = New-Object System.Collections.ArrayList
+						locationEntries = [System.Collections.ArrayList]::new()
 						
 					};
 					permittedSwitchTypeUri = $null
@@ -1893,8 +1895,8 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					type                = "ScopeV2";
-					addedResourceUris   = New-Object System.Collections.ArrayList;
-					removedResourceUris = New-Object System.Collections.ArrayList
+					addedResourceUris   = [System.Collections.ArrayList]::new();
+					removedResourceUris = [System.Collections.ArrayList]::new()
 								
 				}
 
@@ -1936,7 +1938,7 @@ function NewObject
 					State = $null;
 					Status = $null;
 					ManagedSan = $null;
-					Members = New-Object System.Collections.ArrayList;
+					Members = [System.Collections.ArrayList]::new();
 					Created = $null;
 					Modified = $null;
 					ApplianceConnection = $null	
@@ -1979,7 +1981,7 @@ function NewObject
 					issueCount           = [int]$null;
 					migrationState       = [String]$Null;
 					VcemManaged          = [Bool]$False;
-					outReport            = New-Object System.Collections.ArrayList
+					outReport            = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -2022,7 +2024,7 @@ function NewObject
 					enabled               = $true;
 					protocol              = 'SCP';
 					scheduleInterval      = 'NONE';
-					scheduleDays          = New-Object System.Collections.ArrayList
+					scheduleDays          = [System.Collections.ArrayList]::new()
 					scheduleTime          = $null;
 					eTag                  = $null
 
@@ -2050,7 +2052,7 @@ function NewObject
 					type            = 'TimeAndLocale';
 					locale          = $null;
 					timezone        = 'UTC';
-					ntpServers      = New-Object System.Collections.ArrayList
+					ntpServers      = [System.Collections.ArrayList]::new()
 					pollingInterval = $null;
 
 				}
@@ -2121,9 +2123,9 @@ function NewObject
 					enabled           = $true;
 					systemContact     = $null;
 					v3Enabled         = $false;
-					snmpUsers         = New-Object System.Collections.ArrayList;
-					snmpAccess        = New-Object System.Collections.ArrayList;
-					trapDestinations  = New-Object System.Collections.ArrayList
+					snmpUsers         = [System.Collections.ArrayList]::new();
+					snmpAccess        = [System.Collections.ArrayList]::new();
+					trapDestinations  = [System.Collections.ArrayList]::new()
 
 				}
 			
@@ -2137,10 +2139,10 @@ function NewObject
 					trapDestination    = $null;
 					communityString    = $null;
 					trapFormat         = $null;
-					trapSeverities     = New-Object System.Collections.ArrayList;
-					vcmTrapCategories  = New-Object System.Collections.ArrayList;
-					enetTrapCategories = New-Object System.Collections.ArrayList;
-					fcTrapCategories   = New-Object System.Collections.ArrayList;
+					trapSeverities     = [System.Collections.ArrayList]::new();
+					vcmTrapCategories  = [System.Collections.ArrayList]::new();
+					enetTrapCategories = [System.Collections.ArrayList]::new();
+					fcTrapCategories   = [System.Collections.ArrayList]::new();
 					userName           = $null;
 					inform             = $true;
 					engineId           = $null;
@@ -2175,7 +2177,7 @@ function NewObject
 					subnetmask     = $null;
 					gateway        = $null;
 					domain         = $null;
-					dnsServers     = New-Object System.Collections.ArrayList;
+					dnsServers     = [System.Collections.ArrayList]::new();
 
 				}
 
@@ -2187,11 +2189,11 @@ function NewObject
 				Return [PSCustomObject] @{ 
 					
 					name                 = $null;
-					enclosureUris        = New-Object System.Collections.ArrayList;
+					enclosureUris        = [System.Collections.ArrayList]::new();
 					enclosureGroupUri    = $null;
 					firmwareBaselineUri  = $null;
 					forceInstallFirmware = $false;
-					initialScopeUris     = New-Object System.Collections.ArrayList
+					initialScopeUris     = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -2207,7 +2209,7 @@ function NewObject
 					enclosureIndex               = $null;
 					logicalLocation = [PSCustomObject]@{
 
-						locationEntries = New-Object System.Collections.ArrayList
+						locationEntries = [System.Collections.ArrayList]::new()
 
 					}
 
@@ -2225,7 +2227,7 @@ function NewObject
 					enclosureIndex               = $null;
 					logicalLocation = [PSCustomObject]@{
 
-						locationEntries = New-Object System.Collections.ArrayList
+						locationEntries = [System.Collections.ArrayList]::new()
 
 					}
 
@@ -2316,7 +2318,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					targetSelector = "Auto";
-					targets        = New-Object System.Collections.ArrayList;
+					targets        = [System.Collections.ArrayList]::new();
 					connectionId   = 1;
 					isEnabled      = $true
 
@@ -2412,7 +2414,7 @@ function NewObject
 					name             = $null;
 					description      = $null;
 					rootTemplateUri  = $null;
-					initialScopeUris = New-Object System.Collections.ArrayList;
+					initialScopeUris = [System.Collections.ArrayList]::new();
 					properties       = @{}
 
 				}
@@ -2425,7 +2427,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					baselineUri        = $null;
-					hotfixUris         = New-Object System.Collections.ArrayList;
+					hotfixUris         = [System.Collections.ArrayList]::new();
 					customBaselineName = $null
 
 				}
@@ -2444,7 +2446,7 @@ function NewObject
 					smtpPort           = 25;
 					smtpProtocol       = 'TLS';
 					alertEmailDisabled = $false;
-					alertEmailFilters  = New-Object System.Collections.ArrayList
+					alertEmailFilters  = [System.Collections.ArrayList]::new()
 				
 				}
 
@@ -2459,7 +2461,7 @@ function NewObject
 					subject         = $null;
 					htmlMessageBody = $null;
 					textMessageBody = $null;
-					toAddress       = New-Object System.Collections.ArrayList
+					toAddress       = [System.Collections.ArrayList]::new()
 				
 				}
 
@@ -2540,7 +2542,7 @@ function NewObject
 					authnType            = "CREDENTIAL";
 					authProtocol         = 'AD';
 					baseDN               = $null;
-					orgUnits             = New-Object System.Collections.ArrayList
+					orgUnits             = [System.Collections.ArrayList]::new()
 					userNamingAttribute  = 'UID';
 					name                 = $null;
 					credential           = [PSCustomObject]@{
@@ -2549,7 +2551,7 @@ function NewObject
 						password = $null
 					
 					};
-					directoryServers    = New-Object System.Collections.ArrayList;
+					directoryServers    = [System.Collections.ArrayList]::new();
 
 				}
 
@@ -2566,7 +2568,7 @@ function NewObject
 						type        = 'LoginDomainGroupPermission';
 						loginDomain = $null;
 						egroup      = $null;
-						permissions = New-Object System.Collections.ArrayList;
+						permissions = [System.Collections.ArrayList]::new();
 
 					}
 					credentials = NewObject -DirectoryGroupCredentials
@@ -2649,7 +2651,7 @@ function NewObject
 					officePhone  = $null; 
 					mobilePhone  = $null; 
 					enabled      = $True;
-					permissions  = New-Object System.Collections.ArrayList
+					permissions  = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -2709,7 +2711,7 @@ function NewObject
 					description           = $null; 
 					affinity              = $null;
 					hideUnusedFlexNics    = $true;
-					initialScopeUris      = New-Object System.Collections.ArrayList;
+					initialScopeUris      = [System.Collections.ArrayList]::new();
 					bios                  = [PSCustomObject]@{
 
 						manageBios         = $false;
@@ -2729,21 +2731,21 @@ function NewObject
 					boot           = [PSCustomObject]@{
 					   
 						manageBoot = $false; 
-						order      = New-Object System.Collections.ArrayList
+						order      = [System.Collections.ArrayList]::new()
 						   
 					};
 					bootMode                 = $null;
 					localStorage             = [PSCustomObject]@{
 
-						sasLogicalJBODs = New-Object System.Collections.ArrayList; 
-						controllers     = New-Object System.Collections.ArrayList
+						sasLogicalJBODs = [System.Collections.ArrayList]::new(); 
+						controllers     = [System.Collections.ArrayList]::new()
 
 					}
 					serialNumberType         = 'Virtual'; 
 					macType                  = 'Virtual';
 					wwnType                  = 'Virtual';
 					connectionSettings       = [PSCustomObject]@{
-						connections              = New-Object System.Collections.ArrayList;
+						connections              = [System.Collections.ArrayList]::new();
 					}
 					serialNumber             = $null;
 					iscsiInitiatorNameType   = 'AutoGenerated'
@@ -2774,10 +2776,10 @@ function NewObject
 					name                     = $null; 
 					description              = $null; 
 					affinity                 = $null;
-					initialScopeUris         = New-Object System.Collections.ArrayList;
+					initialScopeUris         = [System.Collections.ArrayList]::new();
 					connectionSettings       = @{
 
-						connections              = New-Object System.Collections.ArrayList;
+						connections              = [System.Collections.ArrayList]::new();
 						manageConnections        = $true
 
 					}
@@ -2786,7 +2788,7 @@ function NewObject
 						
 						complianceControl = $ConsistencyCheckingEnum.Exact;
 						manageBoot        = $true; 
-						order             = New-Object System.Collections.ArrayList
+						order             = [System.Collections.ArrayList]::new()
 								   
 					};
 					bootMode                 = $null;
@@ -2804,7 +2806,7 @@ function NewObject
 
 						complianceControl  = $ConsistencyCheckingEnum.Exact;
 						manageBios         = $false;
-						overriddenSettings = New-Object System.Collections.ArrayList
+						overriddenSettings = [System.Collections.ArrayList]::new()
 
 					}; 
 					hideUnusedFlexNics       = $true;
@@ -2812,8 +2814,8 @@ function NewObject
 					localStorage             = [PSCustomObject]@{
 
 						complianceControl = $ConsistencyCheckingEnum.Exact;
-						sasLogicalJBODs = New-Object System.Collections.ArrayList; 
-						controllers     = New-Object System.Collections.ArrayList
+						sasLogicalJBODs = [System.Collections.ArrayList]::new(); 
+						controllers     = [System.Collections.ArrayList]::new()
 
 					}
 					sanStorage               = $null;
@@ -2831,7 +2833,7 @@ function NewObject
 					managed             = $true;
 					mode                = 'RAID'
 					initialize          = $false;
-					logicalDrives       = New-Object System.Collections.ArrayList
+					logicalDrives       = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -2847,7 +2849,7 @@ function NewObject
 					mode                = 'RAID'
 					initialize          = $false;
 					driveWriteCache     = "Unmanaged";
-					logicalDrives       = New-Object System.Collections.ArrayList
+					logicalDrives       = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -2903,7 +2905,7 @@ function NewObject
 					forceInstallFirmware = $false;
 					updateFirmwareOn     = $null;
 					state                = $null;
-					initialScopeUris     = New-Object System.Collections.ArrayList
+					initialScopeUris     = [System.Collections.ArrayList]::new()
 				
 				}
 
@@ -2920,7 +2922,7 @@ function NewObject
 					force                = $false;
 					licensingIntent      = 'OneView';
 					configurationState   = $null;
-					initialScopeUris     = New-Object System.Collections.ArrayList
+					initialScopeUris     = [System.Collections.ArrayList]::new()
 				
 				}
 
@@ -2969,7 +2971,7 @@ function NewObject
 					properties = @{};
 					templateUri = $null;
 					isPermanent = $true;
-					initialScopeUris = New-Object System.Collections.ArrayList
+					initialScopeUris = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -2992,7 +2994,7 @@ function NewObject
 					};
                     templateUri = $null; ;
                     isPermanent = $true;
-					initialScopeUris = New-Object System.Collections.ArrayList
+					initialScopeUris = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -3009,7 +3011,7 @@ function NewObject
 					volumeStoragePoolUri   = $null;
 					volumeStorageSystemUri = $null;
 					lunType                = 'Auto';
-					storagePaths           = New-Object System.Collections.ArrayList;
+					storagePaths           = [System.Collections.ArrayList]::new();
 					bootVolumePriority     = 'NotBootable';
 					ApplianceConnection    = $null;
 
@@ -3027,7 +3029,7 @@ function NewObject
 					isShareable      = $false;
 					name             = $null;
 					storageSystemUri = $null;
-					initialScopeUris = New-Object System.Collections.ArrayList
+					initialScopeUris = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -3051,7 +3053,7 @@ function NewObject
 					lunType                = 'Auto';
 					lun                    = $null;
 					ApplianceConnection    = $null;
-					storagePaths           = New-Object System.Collections.ArrayList
+					storagePaths           = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -3199,7 +3201,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					priority         = 'NotBootable';
-					targets          = New-Object System.Collections.ArrayList;
+					targets          = [System.Collections.ArrayList]::new();
 					bootVolumeSource = 'AdapterBIOS';
 					ethernetBootType = "PXE";
 					iscsi            = $null
@@ -3214,7 +3216,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					priority         = 'NotBootable';
-					targets          = New-Object System.Collections.ArrayList;
+					targets          = [System.Collections.ArrayList]::new();
 					bootVolumeSource = 'AdapterBIOS';
 					iscsi            = $null
 
@@ -3228,7 +3230,7 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					priority         = 'NotBootable';
-					targets          = New-Object System.Collections.ArrayList;
+					targets          = [System.Collections.ArrayList]::new();
 					bootVolumeSource = 'AdapterBIOS'
 
 				}
@@ -3289,7 +3291,7 @@ function NewObject
 
 				Return [PSCustomObject]@{
 			
-					"connectionInfo" = New-Object System.Collections.ArrayList
+					"connectionInfo" = [System.Collections.ArrayList]::new()
 					
 				}
 
@@ -3320,7 +3322,7 @@ function NewObject
 					smartLink           = $false;
 					privateNetwork      = $false;
 					subnetUri           = $null;
-					initialScopeUris    = New-Object System.Collections.ArrayList
+					initialScopeUris    = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -3343,7 +3345,7 @@ function NewObject
 						maximumBandwidth = 10000
 									
 					};
-					initialScopeUris    = New-Object System.Collections.ArrayList
+					initialScopeUris    = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -3361,7 +3363,7 @@ function NewObject
 					fabricType              = 'FabricAttach'; 
 					connectionTemplateUri   = $null;
 					managedSanUri           = $null;
-					initialScopeUris        = New-Object System.Collections.ArrayList
+					initialScopeUris        = [System.Collections.ArrayList]::new()
 						
 				}
 
@@ -3377,7 +3379,7 @@ function NewObject
 					vlanId                = 1; 
 					connectionTemplateUri = $null;
 					managedSanUri         = $null;
-					initialScopeUris      = New-Object System.Collections.ArrayList
+					initialScopeUris      = [System.Collections.ArrayList]::new()
 
 				}
 				
@@ -3390,9 +3392,9 @@ function NewObject
 
 					type             = $NetworkSetType; 
 					name             = $null; 
-					networkUris      = New-Object System.Collections.ArrayList; 
+					networkUris      = [System.Collections.ArrayList]::new(); 
 					nativeNetworkUri = $null;
-					initialScopeUris = New-Object System.Collections.ArrayList
+					initialScopeUris = [System.Collections.ArrayList]::new()
 				
 				}
 
@@ -3404,14 +3406,14 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					name                        = $null;
-					interconnectBayMappings     = New-Object System.Collections.ArrayList;
+					interconnectBayMappings     = [System.Collections.ArrayList]::new();
 					configurationScript         = $null;
 					powerMode                   = 'RedundantPowerFeed';
 					ipAddressingMode            = $null;
-					ipRangeUris                 = New-Object System.Collections.ArrayList;
+					ipRangeUris                 = [System.Collections.ArrayList]::new();
 					enclosureCount              = 1;
 					osDeploymentSettings        = $null;
-					initialScopeUris            = New-Object System.Collections.ArrayList;
+					initialScopeUris            = [System.Collections.ArrayList]::new();
 
 				}
 
@@ -3423,11 +3425,11 @@ function NewObject
 				Return [PSCustomObject]@{
 
 					name                        = $null;
-					interconnectBayMappings     = New-Object System.Collections.ArrayList;
+					interconnectBayMappings     = [System.Collections.ArrayList]::new();
 					configurationScript         = $null;
 					powerMode                   = 'RedundantPowerFeed';
 					enclosureCount              = 1;
-					initialScopeUris            = New-Object System.Collections.ArrayList;
+					initialScopeUris            = [System.Collections.ArrayList]::new();
 					ambientTemperatureMode      = 'Standard'
 
 				}
@@ -3498,7 +3500,7 @@ function NewObject
 					prevPageUri = [string]$null;
 					total       = [int]0;
 					count       = [int]0;
-					members     = New-Object System.Collections.ArrayList;
+					members     = [System.Collections.ArrayList]::new();
 					eTag        = [string]$null;
 					created     = [string]$null;
 					modified    = [string]$null;
@@ -3515,12 +3517,12 @@ function NewObject
 			
 				Return [PSCustomObject]@{
 					name                    = $Null;
-					uplinkSets              = New-Object System.Collections.ArrayList; 
+					uplinkSets              = [System.Collections.ArrayList]::new(); 
 					interconnectMapTemplate = [PSCustomObject]@{
 						
-						interconnectMapEntryTemplates = New-Object System.Collections.ArrayList};
+						interconnectMapEntryTemplates = [System.Collections.ArrayList]::new()};
 
-					internalNetworkUris     = New-Object System.Collections.ArrayList; 
+					internalNetworkUris     = [System.Collections.ArrayList]::new(); 
 					ethernetSettings = [PSCustomObject]@{
 
 						type                        = "EthernetInterconnectSettingsV5";
@@ -3558,11 +3560,11 @@ function NewObject
 				Return [PSCustomObject]@{
 					type                    = $LogicalInterconnectGroupType
 					name                    = $Null;
-					uplinkSets              = New-Object System.Collections.ArrayList; 
+					uplinkSets              = [System.Collections.ArrayList]::new(); 
 					interconnectMapTemplate = [PSCustomObject]@{
-						interconnectMapEntryTemplates = New-Object System.Collections.ArrayList
+						interconnectMapEntryTemplates = [System.Collections.ArrayList]::new()
 					};
-					internalNetworkUris     = New-Object System.Collections.ArrayList; 
+					internalNetworkUris     = [System.Collections.ArrayList]::new(); 
 					ethernetSettings = [PSCustomObject]@{
 
 						type                        = "EthernetInterconnectSettingsV5";
@@ -3587,7 +3589,7 @@ function NewObject
 							
 					};
 					enclosureType      = 'SY12000';
-					enclosureIndexes   = New-Object System.Collections.ArrayList;
+					enclosureIndexes   = [System.Collections.ArrayList]::new();
 					interconnectBaySet = 1;
 					redundancyType     = 'Redundant'
 					
@@ -3603,7 +3605,7 @@ function NewObject
 					name                    = $Null;
 					interconnectMapTemplate = [PSCustomObject]@{
 						
-						interconnectMapEntryTemplates = New-Object System.Collections.ArrayList};
+						interconnectMapEntryTemplates = [System.Collections.ArrayList]::new()};
 
 					enclosureType      = 'SY12000';
 					enclosureIndexes   = @(1);
@@ -3634,8 +3636,8 @@ function NewObject
 
 				Return [PSCustomObject]@{
 						
-					dot1pClassMapping = New-Object System.Collections.ArrayList;
-					dscpClassMapping  = New-Object System.Collections.ArrayList
+					dot1pClassMapping = [System.Collections.ArrayList]::new();
+					dscpClassMapping  = [System.Collections.ArrayList]::new()
 							
 				}
 
@@ -4084,7 +4086,7 @@ function NewObject
 					qosClassificationMapping = [PSCustomObject]@{
 				
 						dot1pClassMapping = [System.Collections.ArrayList]@(3);
-						dscpClassMapping  = New-Object System.Collections.ArrayList
+						dscpClassMapping  = [System.Collections.ArrayList]::new()
 				
 					}
 				
@@ -4111,8 +4113,8 @@ function NewObject
 									
 					qosClassificationMapping = [PSCustomObject]@{
 							
-						dot1pClassMapping = New-Object System.Collections.ArrayList;
-						dscpClassMapping  = New-Object System.Collections.ArrayList
+						dot1pClassMapping = [System.Collections.ArrayList]::new();
+						dscpClassMapping  = [System.Collections.ArrayList]::new()
 							
 					}
 
@@ -4140,12 +4142,12 @@ function NewObject
 
 					type                           = "uplink-setV5";
 					name                           = $Name; 
-					networkUris                    = New-Object System.Collections.ArrayList;
-					portConfigInfos                = New-Object System.Collections.ArrayList;
+					networkUris                    = [System.Collections.ArrayList]::new();
+					portConfigInfos                = [System.Collections.ArrayList]::new();
 					networkType                    = $null; 
 					primaryPortLocation            = $null;
-					fcNetworkUris                  = New-Object System.Collections.ArrayList;
-					fcoeNetworkUris                = New-Object System.Collections.ArrayList;				
+					fcNetworkUris                  = [System.Collections.ArrayList]::new();
+					fcoeNetworkUris                = [System.Collections.ArrayList]::new();				
 					connectionMode                 = $null; 
 					ethernetNetworkType            = $null; 
 					lacpTimer                      = 'Short';
@@ -4162,8 +4164,8 @@ function NewObject
 
 				Return [PSCustomObject]@{
 
-					logicalPortConfigInfos = New-Object System.Collections.ArrayList;
-					networkUris            = New-Object System.Collections.ArrayList;
+					logicalPortConfigInfos = [System.Collections.ArrayList]::new();
+					networkUris            = [System.Collections.ArrayList]::new();
 					name                   = $null; 
 					mode                   = 'Auto'; 
 					networkType            = "Ethernet";
@@ -4184,7 +4186,7 @@ function NewObject
 					desiredSpeed    = $null;
 					logicalLocation = [PSCustomObject]@{
 										
-						locationEntries =  New-Object System.Collections.ArrayList
+						locationEntries = [System.Collections.ArrayList]::new()
 					
 					}
 					
@@ -4200,7 +4202,7 @@ function NewObject
 					desiredSpeed = $null;
 					location     = [PSCustomObject]@{
 										
-						locationEntries = New-Object System.Collections.ArrayList
+						locationEntries = [System.Collections.ArrayList]::new()
 
 					}
 					
@@ -4916,7 +4918,7 @@ function Send-HPOVRequest
 		}
 
 		# Collection to return all responses from all specified appliance connections
-		$AllResponses = New-Object System.Collections.ArrayList
+		$AllResponses = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -4993,7 +4995,7 @@ function Send-HPOVRequest
 			}
 	
 			# Pagination handling:
-			$AllMembers = New-Object System.Collections.ArrayList
+			$AllMembers = [System.Collections.ArrayList]::new()
 
 			# See if the caller specified a count, either in the URI or as a Param
 			# (if so, we will let them handle pagination manually)
@@ -6147,7 +6149,7 @@ function Remove-ApplianceConnection
 
 			Write-Verbose 'InputObject is IEnumerable'
 
-			$Collection = New-Object System.Collections.ArrayList
+			$Collection = [System.Collections.ArrayList]::new()
 
 			foreach ($object in $InputObject) 
 			{ 
@@ -6177,7 +6179,7 @@ function Remove-ApplianceConnection
 
 					Write-Verbose 'Property is IEnumerable'
 
-					$_SubCollection = New-Object System.Collections.ArrayList
+					$_SubCollection = [System.Collections.ArrayList]::new()
 
 					foreach ($_subobject in $InputObject.($property.Name)) 
 					{ 
@@ -6248,7 +6250,7 @@ function ConvertTo-Object
 	Begin
 	{
 
-		$NewObjects = New-Object System.Collections.ArrayList
+		$NewObjects = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -6354,7 +6356,7 @@ function Get-AllIndexResources
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		$_ResourcesFromIndexCol = New-Object System.Collections.ArrayList
+		$_ResourcesFromIndexCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -6418,6 +6420,13 @@ function Get-AllIndexResources
 			{
 
 				$_FullIndexEntry = Send-HPOVRequest -Uri $_Uri -Hostname $ApplianceConnection
+
+			}
+
+			Catch [HPOneview.ResourceNotFoundException]
+			{
+
+				"[{0}] Unable to get full object '{1}' ({2}).  Resource URI was not found.  Possible Index out of sync?" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_IndexEntry.name, $_IndexEntry.uri | Write-Verbose
 
 			}
 
@@ -6559,7 +6568,7 @@ function Ping-HPOVAddress
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -7515,7 +7524,7 @@ function Connect-HPOVMgmt
 
 				$_UserDefaultSession = Send-HPOVRequest -Uri $UserLoginSessionUri -Hostname $Hostname -AddHeader @{'Session-ID' = $resp.sessionId}
 
-				$_UserDefaultSessionPermissions = New-Object System.Collections.ArrayList
+				$_UserDefaultSessionPermissions = [System.Collections.ArrayList]::new()
 
 				ForEach ($_Permission in $_UserDefaultSession.permissions)
 				{
@@ -7968,7 +7977,7 @@ function Disconnect-HPOVMgmt
 			
 		}
 
-		$_ConnectionsToProcess = New-Object System.Collections.ArrayList
+		$_ConnectionsToProcess = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -8237,7 +8246,7 @@ function Test-HPOVAuth
 
 		}
 
-		$_ApplianceConnections = New-Object System.Collections.ArrayList
+		$_ApplianceConnections = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -8558,7 +8567,7 @@ function New-HPOVResource
 
 		}
 
-		$_NewResourceCollection = New-Object System.Collections.ArrayList
+		$_NewResourceCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -8839,7 +8848,7 @@ function Remove-HPOVResource
 
 		}
 
-		$_RemoveResourceCollection = New-Object System.Collections.ArrayList
+		$_RemoveResourceCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -9368,7 +9377,7 @@ function Invoke-HPOVWebBrowser
 
 		}
 
-		$_ApplianceStatus = New-Object System.Collections.ArrayList
+		$_ApplianceStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -9717,7 +9726,7 @@ function ConvertTo-HPOVPowerShellScript
                 'HPOneView.Appliance.Baseline'
                 {
 
-                    $arrList = New-Object System.Collections.ArrayList
+                    $arrList = [System.Collections.ArrayList]::new()
 
                     $StrArray = $BaselineObj.ResourceId.Split($Underscore)
 
@@ -9791,7 +9800,7 @@ function ConvertTo-HPOVPowerShellScript
             foreach ($fwBase in $InputObject)
             {
 
-                $scriptCode =  New-Object System.Collections.ArrayList
+                $scriptCode = [System.Collections.ArrayList]::new()
 
                 # - OV strips the dot from the ISOfilename, so we have to re-construct it
                 $filename   = rebuild-fwISO -BaselineObj $fwBase
@@ -9811,7 +9820,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-proxy-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $proxy          = $InputObject
             $server         = $proxy.Server
@@ -9858,7 +9867,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-scope-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $s = $InputObject
 
@@ -10011,9 +10020,9 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-User-Script ($InputObject)
         {
 
-            $scriptCode       = New-Object System.Collections.ArrayList
-            $scopePermissions = New-Object System.Collections.ArrayList
-            $permissionsCode  = New-Object System.Collections.ArrayList
+            $scriptCode       = [System.Collections.ArrayList]::new()
+            $scopePermissions = [System.Collections.ArrayList]::new()
+            $permissionsCode  = [System.Collections.ArrayList]::new()
 
             $User = $InputObject
 
@@ -10129,8 +10138,8 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-RBAC-Script ($InputObject)
         {
 
-            $scriptCode       = New-Object System.Collections.ArrayList
-            $scopePermissions = New-Object System.Collections.ArrayList
+            $scriptCode       = [System.Collections.ArrayList]::new()
+            $scopePermissions = [System.Collections.ArrayList]::new()
 
             $Group = $InputObject
 
@@ -10208,7 +10217,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-DirectoryAuthentication-Script ($InputObject)
         {
 
-            $scriptCode       = New-Object System.Collections.ArrayList
+            $scriptCode       = [System.Collections.ArrayList]::new()
 
             $Username           = $serviceAccountParam = $AuthProtocolParam = $null
             $UsrNameAttribParam = $LdapOUsParam        = $null
@@ -10329,7 +10338,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-RemoteSupport-Script ($InputObject)
         {
 
-            $scriptCode           = New-Object System.Collections.ArrayList
+            $scriptCode           = [System.Collections.ArrayList]::new()
 
             $RS                   = $InputObject 
             $companyName          = $RS.companyName
@@ -10342,7 +10351,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-snmp-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $snmp            = $InputObject
             $readCommunity   = $snmp.CommunityString 
@@ -10440,7 +10449,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-snmpV3User-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $user     = $InputObject
             $userName = $user.userName
@@ -10522,7 +10531,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-smtp-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
         
             $smtp               = $InputObject
 
@@ -10590,7 +10599,7 @@ function ConvertTo-HPOVPowerShellScript
                             
                             }
 
-                            $ScopeNames = New-Object System.Collections.ArrayList
+                            $ScopeNames = [System.Collections.ArrayList]::new()
 
                             ForEach ($scope in $filter.scopeQuery.Split(" $ScopeMatchPreference ", [StringSplitOptions]::RemoveEmptyEntries))
                             {
@@ -10622,7 +10631,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-TimeLocale-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $timeLocale      = $InputObject
  
@@ -10686,7 +10695,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-AddressPoolSubnet-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $subnet = $InputObject
 
@@ -10755,7 +10764,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-AddressPoolRange-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $range  = $InputObject
 
@@ -10830,7 +10839,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-EthernetNetwork-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $net = $InputObject
 
@@ -10930,7 +10939,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-NetworkSet-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $ns = $InputObject
 
@@ -11005,7 +11014,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-FCNetwork-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $net = $InputObject
 
@@ -11135,7 +11144,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-SanManager-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $SM  = $InputObject
 
@@ -11314,7 +11323,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-StorageSystem-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $StS = $InputObject
 
@@ -11443,7 +11452,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-StoragePool-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $pool = $InputObject
 
@@ -11479,7 +11488,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-StorageVolumeTemplate-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $Template = $InputObject
 
@@ -11726,7 +11735,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-StorageVolume-Script ($InputObject)
         {
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $SV   = $InputObject
 
@@ -11926,7 +11935,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-LogicalInterConnectGroup-Script ($InputObject) 
         {
             
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $ICModuleTypes               = @{
                 "VirtualConnectSE40GbF8ModuleforSynergy" =  "SEVC40f8" ;
@@ -12028,9 +12037,9 @@ function ConvertTo-HPOVPowerShellScript
 
             # ----------------------------
             #     Find Interconnect devices
-            $Bays         = New-Object System.Collections.ArrayList
-            $UpLinkPorts  = New-Object System.Collections.ArrayList
-            $Frames       = New-Object System.Collections.ArrayList
+            $Bays         = [System.Collections.ArrayList]::new()
+            $UpLinkPorts  = [System.Collections.ArrayList]::new()
+            $Frames       = [System.Collections.ArrayList]::new()
 
             $LigInterconnects = $lig.interconnectMapTemplate.interconnectMapEntryTemplates | Where-Object { -not [String]::IsNullOrWhiteSpace($_.permittedInterconnectTypeUri) }
 
@@ -12114,8 +12123,8 @@ function ConvertTo-HPOVPowerShellScript
 
             # ----------------------------
             #     Find Internal networks
-            $intNetworks = New-Object System.Collections.ArrayList
-            $intNetworkNames = New-Object System.Collections.ArrayList
+            $intNetworks = [System.Collections.ArrayList]::new()
+            $intNetworkNames = [System.Collections.ArrayList]::new()
             
             foreach ($uri in $internalNetworkUris)
             {
@@ -12142,15 +12151,15 @@ function ConvertTo-HPOVPowerShellScript
             }
 
             #Code and parameters
-            $BayConfig    = New-Object System.Collections.ArrayList
+            $BayConfig    = [System.Collections.ArrayList]::new()
 
             [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bayConfig' -Value '@{'))
 
             if ($enclosureType -eq $Syn12K)  # Synergy
             {
 
-                # $BayConfigperFrame = New-Object System.Collections.ArrayList
-                $SynergyCode       = New-Object System.Collections.ArrayList
+                # $BayConfigperFrame = [System.Collections.ArrayList]::new()
+                $SynergyCode       = [System.Collections.ArrayList]::new()
                 $CurrentFrame      = $null
 
                 $InterconnectBaySet = $lig.interconnectBaySet
@@ -12395,7 +12404,7 @@ function ConvertTo-HPOVPowerShellScript
 
                         }
 
-			$SnmpV3UsersProcessed = New-Object System.Collections.ArrayList
+			$SnmpV3UsersProcessed = [System.Collections.ArrayList]::new()
 						
 			if ($trapdestinations.count -gt 0)
 			{
@@ -12682,7 +12691,7 @@ function ConvertTo-HPOVPowerShellScript
         {
 
             $uplinkSets = $parentType = $RootLocationInfos = $subLocationInfo = $parentName = $enclosureType = $null
-            $scriptCode = New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             switch ($InputObject.type)
             {
@@ -12781,7 +12790,7 @@ function ConvertTo-HPOVPowerShellScript
 
                 # ----------------------------
                 # Find networks
-                $netNamesArray = New-Object System.Collections.ArrayList
+                $netNamesArray = [System.Collections.ArrayList]::new()
 				$networkNames  = $fcTrunkingParam = $null
 
                 switch ($upl.networkType)
@@ -12850,7 +12859,7 @@ function ConvertTo-HPOVPowerShellScript
                     
                 # ----------------------------
                 #     Find uplink ports
-                $UpLinkArray = New-Object System.Collections.ArrayList
+                $UpLinkArray = [System.Collections.ArrayList]::new()
 
                 foreach ($logicalPort in $uplLogicalPorts)
                 {
@@ -13023,7 +13032,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-EnclosureGroup-Script ($InputObject)
         {
             
-            $scriptCode = New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $EG     = $InputObject
 
@@ -13177,7 +13186,7 @@ function ConvertTo-HPOVPowerShellScript
                 if($ipV4AddressType -eq 'IpPool')
                 {
 
-                    $RangeNames = New-Object System.Collections.ArrayList
+                    $RangeNames = [System.Collections.ArrayList]::new()
 
                     foreach ($uri in $ipRangeUris)
                     {
@@ -13303,7 +13312,7 @@ function ConvertTo-HPOVPowerShellScript
         Function Generate-LogicalEnclosure-Script ($InputObject)
         {
         
-            $scriptCode =  New-Object System.Collections.ArrayList
+            $scriptCode = [System.Collections.ArrayList]::new()
 
             $LE     = $InputObject
 
@@ -13388,79 +13397,86 @@ function ConvertTo-HPOVPowerShellScript
         }
 
         Function Generate-ProfileTemplate-Script ($InputObject)
-        {
+		{
 
-            $scriptCode =  New-Object System.Collections.ArrayList
+			$scriptCode =  [System.Collections.ArrayList]::new()
 
-            $Type = ($ResourceCategoryEnum.GetEnumerator() | Where-Object value -eq $InputObject.category).Name
+			$Type = ($ResourceCategoryEnum.GetEnumerator() | Where-Object value -eq $InputObject.category).Name
 
-            $name               = $InputObject.Name   
-            $description        = $InputObject.Description 
-            $spDescription      = $InputObject.serverprofileDescription
-            $shtUri             = $InputObject.serverHardwareTypeUri
-            $egUri              = $InputObject.enclosureGroupUri
-            $sptUri             = $InputObject.serverProfileTemplateUri
-            $serverUri          = $InputObject.serverHardwareUri
-            $enclosureUri       = $InputObject.enclosureUri
-            $enclosureBay       = $InputObject.enclosureBay
-            $affinity           = $InputObject.affinity 
-            $hideFlexNics       = $InputObject.hideUnusedFlexNics
-            $macType            = $InputObject.macType
-            $wwnType            = $InputObject.wwnType
-            $snType             = $InputObject.serialNumberType       
-            $iscsiType          = $InputObject.iscsiInitiatorNameType 
-            $osdeploysetting    = $InputObject.osDeploymentSettings
-            $scopesUri          = $InputObject.scopesUri
+			$name               = $InputObject.Name   
+			$description        = $InputObject.Description 
+			$spDescription      = $InputObject.serverprofileDescription
+			$shtUri             = $InputObject.serverHardwareTypeUri
+			$egUri              = $InputObject.enclosureGroupUri
+			$sptUri             = $InputObject.serverProfileTemplateUri
+			$serverUri          = $InputObject.serverHardwareUri
+			$enclosureUri       = $InputObject.enclosureUri
+			$enclosureBay       = $InputObject.enclosureBay
+			$affinity           = $InputObject.affinity 
+			$hideFlexNics       = $InputObject.hideUnusedFlexNics
+			$macType            = $InputObject.macType
+			$wwnType            = $InputObject.wwnType
+			$snType             = $InputObject.serialNumberType       
+			$iscsiType          = $InputObject.iscsiInitiatorNameType 
+			$osdeploysetting    = $InputObject.osDeploymentSettings
+			$scopesUri          = $InputObject.scopesUri
 
-            [void]$scriptCode.Add(('# -------------- Attributes for {0} "{1}"' -f $Type, $name))
-            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$name' -Value ('"{0}"' -f $name)))
+			[void]$scriptCode.Add(('# -------------- Attributes for {0} "{1}"' -f $Type, $name))
+			[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$name' -Value ('"{0}"' -f $name)))
 
-            # Param and code
-            Try
-            {
-            
-                $sht     = Send-HPOVRequest -Uri $shtUri -Hostname $ApplianceConnection
-                $shtName = $sht.name
-            
-            }
-            
-            Catch
-            {
-            
-                $PSCmdlet.ThrowTerminatingError($_)
-            
-            }
-            
-            # ------- Descriptions
-            $descriptionParam   = $spdescriptionParam = $null
-            
-            if ($description)
-            {
+			$descriptionParam   = $spdescriptionParam = $null
+			$serverAssignParam = $null
+			$shtParam = $egParam = $null
+			$ConnectionsParam   = $null
+			$osDeploymentParam = $null
+			$LOCALStorageParam = $null
+			$SANStorageParam = $null
+			$bootManageParam = ''
+			$biosParam = $null
+			$ScopeParam = $null
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$description' -Value ('"{0}"' -f $description)))
-                $descriptionParam = ' -Description $description'
+			# Get SHT
+			Try
+			{
+			
+				$sht     = Send-HPOVRequest -Uri $shtUri -Hostname $ApplianceConnection
+				$shtName = $sht.name
+			
+			}
+			
+			Catch
+			{
+			
+				$PSCmdlet.ThrowTerminatingError($_)
+			
+			}
+			
+			# ------- Descriptions
+			if ($description)
+			{
 
-            }
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$description' -Value ('"{0}"' -f $description)))
+				$descriptionParam = ' -Description $description'
 
-            if ($spdescription)
-            {
+			}
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$spdescription' -Value ('"{0}"' -f $spdescription)))
-                $spdescriptionParam = ' -ServerProfileDescription $spdescription '
-                
-            }
+			if ($spdescription)
+			{
 
-            # ------- Server hardware assigned
-            $serverAssignParam = $null
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$spdescription' -Value ('"{0}"' -f $spdescription)))
+				$spdescriptionParam = ' -ServerProfileDescription $spdescription '
+				
+			}
 
-            if (-not [String]::IsNullOrWhiteSpace($serverUri))
-            {
+			# ------- Server hardware assigned
+			if (-not [String]::IsNullOrWhiteSpace($serverUri))
+			{
 
-                $serverName = Get-NamefromUri -uri $serverUri
+				$serverName = Get-NamefromUri -uri $serverUri
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$server' -Value ('Get-HPOVServer -Name "{0}"' -f $serverName)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$server' -Value ('Get-HPOVServer -Name "{0}"' -f $serverName)))
 
-                $serverAssignParam += ' -AssignmentType Server -Server $server'
+				$serverAssignParam += ' -AssignmentType Server -Server $server'
 
 			}
 			
@@ -13481,27 +13497,24 @@ function ConvertTo-HPOVPowerShellScript
 					$PSCmdlet.ThrowTerminatingError($_)
 
 				}
-				
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'sptName' -Value ('"{0}"' -f $sptName)))
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'spt' -Value ('Get-HPOVServerProfileTemplate -Name "{0}"' -f $sptName)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'sptName' -Value ('"{0}"' -f $sptName)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'spt' -Value ('Get-HPOVServerProfileTemplate -Name "{0}"' -f $sptName)))
 
 				$serverAssignParam += ' -ServerProfileTemplate $spt'
 				
 			}
 
 			# -------- SHT and EG
-			$shtParam = $egParam = $null
+			if ([String]::IsNullOrWhiteSpace($serverUri))
+			{
 
-            if ([String]::IsNullOrWhiteSpace($serverUri))
-            {
-
-                if ($Type -eq 'ServerProfile' -and [String]::IsNullOrWhiteSpace($enclosureUri))
-                {
+				if ($Type -eq 'ServerProfile' -and [String]::IsNullOrWhiteSpace($enclosureUri))
+				{
 
 					$serverAssignParam += ' -AssignmentType Unassigned'
 
-                }
+				}
 
 				elseif ($Type -eq 'ServerProfile' -and -not [String]::IsNullOrWhiteSpace($enclosureUri) -and -not [String]::IsNullOrWhiteSpace($egUri))
 				{
@@ -13512,420 +13525,369 @@ function ConvertTo-HPOVPowerShellScript
 					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bay' -Value $enclosureBay))
 					$serverAssignParam += ' -AssignmentType Bay -Enclosure $enclosure -Bay $bay' 
 
-                }
+				}
 
 				if ([String]::IsNullOrWhiteSpace($sptUri))
 				{
-                # ------- SHT
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$shtName' -Value ('"{0}"' -f $shtName)))
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$sht' -Value 'Get-HPOVServerHardwareType -Name $shtName'))
 
-                $shtParam = ' -ServerHardwareType $sht'
+					# ------- SHT
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$shtName' -Value ('"{0}"' -f $shtName)))
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$sht' -Value 'Get-HPOVServerHardwareType -Name $shtName'))
 
-                # ------- EG, if BL or SY, and only needed if SPT or unassigned server profile
-                if (-not [String]::IsNullOrWhiteSpace($egUri))
-                {
-            
-                    Try
-                    {
-                
-                        $eg = Send-HPOVRequest -Uri $egUri -Hostname $ApplianceConnection
-                        $egName = $eg.name
-                
-                    }
-                
-                    Catch
-                    {
-                
-                        $PSCmdlet.ThrowTerminatingError($_)
-                
-                    }
+					$shtParam = ' -ServerHardwareType $sht'
 
-                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$egName' -Value ('"{0}"' -f $egName)))
-                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$eg' -Value 'Get-HPOVEnclosureGroup -Name $egName'))
+					# ------- EG, if BL or SY, and only needed if SPT or unassigned server profile
+					if (-not [String]::IsNullOrWhiteSpace($egUri))
+					{
+				
+						Try
+						{
+					
+							$eg = Send-HPOVRequest -Uri $egUri -Hostname $ApplianceConnection
+							$egName = $eg.name
+					
+						}
+					
+						Catch
+						{
+					
+							$PSCmdlet.ThrowTerminatingError($_)
+					
+						}
 
-                    $egParam = ' -EnclosureGroup $eg'
+						[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$egName' -Value ('"{0}"' -f $egName)))
+						[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$eg' -Value 'Get-HPOVEnclosureGroup -Name $egName'))
+
+						$egParam = ' -EnclosureGroup $eg'
 					}
-            
-                }
+				
+				}
 
-            }
+			}
+
 			# Need to not display specific settings of profile if SHT is assigned
 			if ([String]::IsNullOrWhiteSpace($sptUri))
 			{
 
-            # ------- Affinity
-            $affinityParam = $null
+				# ------- Affinity
+				$affinityParam = $null
 
-            if (-not [String]::IsNullOrWhiteSpace($affinity))
-            {
+				if (-not [String]::IsNullOrWhiteSpace($affinity))
+				{
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$affinity' -Value ('"{0}"' -f $affinity)))
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$affinity' -Value ('"{0}"' -f $affinity)))
 
-                $affinityParam = ' -Affinity $affinity'
+					$affinityParam = ' -Affinity $affinity'
 
-            }
+				}
+				
+			}
 
-            # ------- Firmware
-            $fwParam = $fwCode = $null
+			# ------- Firmware
+			$fwParam = $fwCode = $null
 
-            $fw          = $InputObject.firmware
-            $isFwManaged = $fw.manageFirmware
+			$fw          = $InputObject.firmware
+			$isFwManaged = $fw.manageFirmware
 
-            if ($isFWmanaged)
-            {
+			if ($isFWmanaged)
+			{
 
-                $FwCode, $fwParam = Generate-ManageFirmware-Script -Fw $fw
+				$FwCode, $fwParam = Generate-ManageFirmware-Script -Fw $fw
 
-                ForEach ($line in $FwCode.ToArray())
-                {
+				ForEach ($line in $FwCode.ToArray())
+				{
 
-                    [void]$scriptCode.Add($line)
-                    }
+					[void]$scriptCode.Add($line)
+					
+				}
 
-                }
-                
-            }
+			}
 
-            # ------- Network Connections
-            $ConnectionsParam   = $null
-            $ConnectionSettings = $InputObject.connectionSettings
-            $ListofConnections  = $ConnectionSettings.connections
-            $ConnectionVarNames = New-Object System.Collections.ArrayList
+			# Process server profile template or server profile without a server profile template 
+			if ($Type -eq 'ServerProfileTemplate' -or [String]::IsNullOrWhiteSpace($sptUri))
+			{
 
-            if ($ConnectionSettings.manageConnections -and $ListofConnections.Count -gt 0)
-            {
+				# ------- Network Connections
+				$ConnectionSettings = $InputObject.connectionSettings
+				$ListofConnections  = $ConnectionSettings.connections
+				$ConnectionVarNames = [System.Collections.ArrayList]::new()
 
-                ForEach ($c in $ListofConnections)
-                {
+				if ($ConnectionSettings.manageConnections -or $ListofConnections.Count -gt 0)
+				{
 
-                    $conCode, $varstr = Generate-NetConnection-Script -Conn $c -MacAssignType $InputObject.macType -WwnAssignType $InputObject.wwnType
+					ForEach ($c in $ListofConnections)
+					{
 
-                    ForEach ($line in $conCode.ToArray())
-                    {
+						$conCode, $varstr = Generate-NetConnection-Script -Conn $c -MacAssignType $InputObject.macType -WwnAssignType $InputObject.wwnType
 
-                        [void]$scriptCode.Add($line)
+						ForEach ($line in $conCode.ToArray())
+						{
 
-                    }
+							[void]$scriptCode.Add($line)
 
-                    [void]$ConnectionVarNames.Add($varstr)
+						}
 
-                }
+						[void]$ConnectionVarNames.Add($varstr)
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$connections' -Value ([String]::Join(', ', $ConnectionVarNames.ToArray()))))
-                
-                $ConnectionsParam = ' -Connections $connections'
-            
-            }
+					}
 
-            elseif (-not $ConnectionSettings.manageConnections)
-            {
-            
-                $ConnectionsParam = ' -ManageConnections $False'
-            
-            }
-
-            # ---------- OS Deployment Settings
-            $osDeploymentParam = $null
-
-            if (-not [String]::IsNullOrWhiteSpace($osdeploysetting.osDeploymentPlanUri))
-            {
-
-                [void]$scriptCode.Add('# -------------- Attributes for OS deployment settings')
-
-                $osDeploymentParam = ' -OSDeploymentPlan $osDeploymentPlan -OSDeploymentPlanAttributes $CustomAttribs'
-
-                $osDeployPlanUri = $osdeploysetting.osDeploymentPlanUri
-                $planAttributes = $osdeploysetting.osCustomAttributes | Sort-Object Name
-
-                $deployPlanName = Get-NamefromUri -Uri $osDeployPlanUri
-
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'planName' -Value ('"{0}"' -f $deployPlanName)))
-				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'osDeploymentPlan' -Value 'Get-HPOVOsDeploymentPlan -Name $planName'))   
-				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'planAttribs' -Value 'Get-HPOVOsDeploymentPlanAttribute -InputObject $osDeploymentPlan'))
-				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'CustomAttribs' -Value '@()'))
-                
-                ForEach ($attrib in $planAttributes)
-                {
-
-                    # Set value
-                    if ($attrib.Name -match 'Password')
-                    {
-
-                        $value = 'Read-Host -AsSecureString -Prompt "Provide required password"'
-
-                    }
-
-                    else
-                    {
-
-                        $value = '"{0}"' -f $attrib.Value
-
-                    }
-
-                    [void]$scriptCode.Add(('($planAttribs | Where-Object name -eq "{0}").value = {1}' -f $attrib.Name, $value))
-
-                    # Save into new array
-                    [void]$scriptCode.Add(('$CustomAttribs     += $planAttribs | Where-Object name -eq "{0}"' -f $attrib.Name))
-
-                }
-
-            }
-
-			# ------- Local Storage
-            $LOCALStorageParam = $null
-            $ListofControllers                  = $InputObject.localStorage
-
-            if ($ListofControllers.controllers.Count -gt 0)
-            {
-
-                $LOCALStorageCode, $vars      = Generate-LocalStorageController-Script -LocalStorageConfig $ListofControllers
-
-                ForEach ($line in $LOCALStorageCode.ToArray())
-                {
-
-                    [void]$scriptCode.Add($line)
-
-                }
-
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'controllers' -Value ('{0}' -f [String]::Join(', ', $vars.ToArray()))))
-                
-                $LOCALStorageParam              = ' -LocalStorage -StorageController $controllers'
-                
-            }
-
-			# ---------- SAN storage
-            $SANStorageParam = $null
-
-            $SANStorageCfg  = $InputObject.SanStorage
-            $ManagedStorage = $InputObject.SanStorage.manageSanStorage
-
-            if ($ManagedStorage)
-            {
-
-                $hostOSType       = $ServerProfileSanManageOSType[$SANStorageCfg.hostOSType]
-                $IsManagedSAN     = $SANStorageCfg.manageSanStorage
-                $volumeAttachment = $SANStorageCfg.volumeAttachments
-
-                [void]$scriptCode.Add('# -------------- Attributes for SAN Storage')
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'osType' -Value ('"{0}"' -f $hostOSType)))
-
-                $SANStorageCode, $vars      = Generate-SANStorage-Script -SANStorageConfig $SANStorageCfg
-
-                ForEach ($line in $SANStorageCode.ToArray())
-                {
-
-                    [void]$scriptCode.Add($line)
-
-                }
-
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'volumeAttachments' -Value ('{0}' -f [String]::Join(', ', $vars.ToArray()))))
-                
-                $SANStorageParam              = ' -SanStorage -HostOsType $osType -StorageVolume $volumeAttachments'
-
-            }
-
-            # ---------- Boot Settings
-            $bootManageParam = $null
-
-            $bo                 = $InputObject.boot
-            $isManageBoot       = $bo.manageBoot
-
-            $bm                 = $InputObject.bootMode
-			$isbootOrderManaged = $bm.manageMode
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix '$connections' -Value ([String]::Join(', ', $ConnectionVarNames.ToArray()))))
+				
+					$ConnectionsParam = ' -Connections $connections'
 			
-			$bootManageParam = ''
+				}
 
-            if ($isManageBoot)
-            {
+				elseif (-not $ConnectionSettings.manageConnections)
+				{
+			
+					$ConnectionsParam = ' -ManageConnections $False'
+			
+				}
 
-                [void]$scriptCode.Add('# -------------- Attributes for BIOS Boot Mode settings')
+				# ------- Local Storage
+				$ListofControllers                  = $InputObject.localStorage
 
-                $bootMode       = $bm.mode
-                $pxeBootPolicy  = $bm.pxeBootPolicy
-                $secureBoot     = $bm.secureBoot
+				if ($ListofControllers.controllers.Count -gt 0)
+				{
 
-                # Set BIOS Boot Mode, PXE boot policy and secure boot
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'manageboot' -Value ('${0}' -f $isManageBoot)))
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'biosBootMode' -Value ('"{0}"' -f $bootMode)))
+					$LOCALStorageCode, $vars      = Generate-LocalStorageController-Script -LocalStorageConfig $ListofControllers
+
+					ForEach ($line in $LOCALStorageCode.ToArray())
+					{
+
+						[void]$scriptCode.Add($line)
+
+					}
+
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'controllers' -Value ('{0}' -f [String]::Join(', ', $vars.ToArray()))))
+				
+					$LOCALStorageParam              = ' -LocalStorage -StorageController $controllers'
+				
+				}
+
+				# ---------- SAN storage
+				$SANStorageCfg  = $InputObject.SanStorage
+				$ManagedStorage = $InputObject.SanStorage.manageSanStorage
+
+				if ($ManagedStorage)
+				{
+
+					$hostOSType       = $ServerProfileSanManageOSType[$SANStorageCfg.hostOSType]
+					$IsManagedSAN     = $SANStorageCfg.manageSanStorage
+					$volumeAttachment = $SANStorageCfg.volumeAttachments
+
+					[void]$scriptCode.Add('# -------------- Attributes for SAN Storage')
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'osType' -Value ('"{0}"' -f $hostOSType)))
+
+					$SANStorageCode, $vars      = Generate-SANStorage-Script -SANStorageConfig $SANStorageCfg
+
+					ForEach ($line in $SANStorageCode.ToArray())
+					{
+
+						[void]$scriptCode.Add($line)
+
+					}
+
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'volumeAttachments' -Value ('{0}' -f [String]::Join(', ', $vars.ToArray()))))
+				
+					$SANStorageParam              = ' -SanStorage -HostOsType $osType -StorageVolume $volumeAttachments'
+
+				}
+
+				# ---------- Boot Settings
+				$bo                 = $InputObject.boot
+				$isManageBoot       = $bo.manageBoot
+				$bm                 = $InputObject.bootMode
+				$isbootOrderManaged = $bm.manageMode
+
+				if ($isManageBoot)
+				{
+
+					[void]$scriptCode.Add('# -------------- Attributes for BIOS Boot Mode settings')
+
+					$bootMode       = $bm.mode
+					$pxeBootPolicy  = $bm.pxeBootPolicy
+					$secureBoot     = $bm.secureBoot
+
+					# Set BIOS Boot Mode, PXE boot policy and secure boot
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'manageboot' -Value ('${0}' -f $isManageBoot)))
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'biosBootMode' -Value ('"{0}"' -f $bootMode)))
 
 					$bootManageParam += ' -ManageBoot:$manageboot -BootMode $biosBootMode'
 
-                if (-not [String]::IsNullOrWhiteSpace($bootPXE))
-                {
+					if (-not [String]::IsNullOrWhiteSpace($bootPXE))
+					{
 
-                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'pxeBootPolicy' -Value ('"{0}"' -f $pxeBootPolicy)))
+						[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'pxeBootPolicy' -Value ('"{0}"' -f $pxeBootPolicy)))
 
-                    $bootManageParam += ' -PxeBootPolicy $pxeBootPolicy'
+						$bootManageParam += ' -PxeBootPolicy $pxeBootPolicy'
 
-                }
+					}
 
-                if ($secureBoot -ne 'Unmanaged')
-                {
+					if ($secureBoot -ne 'Unmanaged')
+					{
 
-                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'secureBoot' -Value ('"{0}"' -f $secureBoot)))
+						[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'secureBoot' -Value ('"{0}"' -f $secureBoot)))
 
-                    $bootManageParam += ' -SecureBoot $secureBoot'
+						$bootManageParam += ' -SecureBoot $secureBoot'
 
-                }
+					}
 
-            }
+				}
 
-            if ($isbootOrderManaged)
-            {
+				if ($isbootOrderManaged)
+				{
 
-                [void]$scriptCode.Add('# -------------- Attributes for BIOS order settings')
+					[void]$scriptCode.Add('# -------------- Attributes for BIOS order settings')
 
-                $bootOrder = '"{0}"' -f [String]::Join('", "', $bo.order)
+					$bootOrder = '"{0}"' -f [String]::Join('", "', $bo.order)
 
-                [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bootOrder' -Value ('{0}' -f $bootOrder)))
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bootOrder' -Value ('{0}' -f $bootOrder)))
 
-                $bootManageParam += ' -BootOrder $bootOrder'
+					$bootManageParam += ' -BootOrder $bootOrder'
 
-            }
+				}
 
-            # ---------- BIOS Settings
-            $biosParam = $null
+				# ---------- BIOS Settings
+				$bios = $InputObject.bios
 
-            $bios = $InputObject.bios
+				$isBiosManaged      = $bios.manageBios
 
-            $isBiosManaged      = $bios.manageBios
+				if ($isBiosManaged)
+				{
 
-            if ($isBiosManaged)
-            {
+					$biosParam = ' -Bios'
 
-                $biosParam = ' -Bios'
+					$biosSettings   = $bios.overriddenSettings
 
-                $biosSettings   = $bios.overriddenSettings
+					if ($biosSettings.Count -gt 0)
+					{
+						[void]$scriptCode.Add('# -------------- Attributes for BIOS settings')
 
-                if ($biosSettings.Count -gt 0)
-                {
-                    [void]$scriptCode.Add('# -------------- Attributes for BIOS settings')
+						[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'biosSettings' -Value ('@{0}' -f $OpenArray)))
 
-                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'biosSettings' -Value ('@{0}' -f $OpenArray)))
+						$_b = 1
 
-                    $_b = 1
+						ForEach ($b in $biosSettings)
+						{
 
-                    ForEach ($b in $biosSettings)
-                    {
+							$endDelimiter = $Comma
 
-                        $endDelimiter = $Comma
+							if ($_b -eq $biosSettings.Count)
+							{
 
-                        if ($_b -eq $biosSettings.Count)
-                        {
+								$endDelimiter = $null
 
-                            $endDelimiter = $null
+							}
 
-                        }
+							[void]$scriptCode.Add(("`t@{0}id = '{1}'; value = '{2}'{3}{4}" -f $OpenDelim, $b.id, $b.value, $CloseDelim, $endDelimiter))
 
-                        [void]$scriptCode.Add(("`t@{0}id = '{1}'; value = '{2}'{3}{4}" -f $OpenDelim, $b.id, $b.value, $CloseDelim, $endDelimiter))
+							$_b++
 
-                        $_b++
+						}
 
-                    }
-
-                    [void]$scriptCode.Add($CloseArray)
-                
+						[void]$scriptCode.Add($CloseArray)
+				
 						$biosParam += ' -BiosSettings $biosSettings'
 
-                }
+					}
 
-            }
+				}
 
-            # ---------- Advanced Settings 
-            $AdvancedSettingsParam    = $null
-            $hideUnusedFlexNics       = $InputObject.hideUnusedFlexNics
-            $macType                  = $InputObject.macType
-            $wwnType                  = $InputObject.wwnType
-            $serialNumberType         = $InputObject.serialNumberType
-            $iscsiInitiatorNameType   = $InputObject.iscsiInitiatorNameType
+				# ---------- Advanced Settings 
+				$AdvancedSettingsParam    = $null
+				$hideUnusedFlexNics       = $InputObject.hideUnusedFlexNics
+				$macType                  = $InputObject.macType
+				$wwnType                  = $InputObject.wwnType
+				$serialNumberType         = $InputObject.serialNumberType
+				$iscsiInitiatorNameType   = $InputObject.iscsiInitiatorNameType
 
-            $AdvancedSettings = New-Object System.Collections.ArrayList
+				$AdvancedSettings = [System.Collections.ArrayList]::new()
 
-            if ($hideFlexNics -and $sht.capabilities -contains 'VCConnections')
-            {
+				if ($hideFlexNics -and $sht.capabilities -contains 'VCConnections')
+				{
 
-                [void]$AdvancedSettings.Add('hideFlexNics')
-                
-            }
+					[void]$AdvancedSettings.Add('hideFlexNics')
+				
+				}
 
-            if ($macType -ne 'Virtual' -and $sht.capabilities -contains 'VirtualMAC')
-            {
+				if ($macType -ne 'Virtual' -and $sht.capabilities -contains 'VirtualMAC')
+				{
 
-                [void]$AdvancedSettings.Add('macType')
+					[void]$AdvancedSettings.Add('macType')
 
-            }
+				}
 
-            if ($wwnType -ne 'Virtual' -and $sht.capabilities -contains 'VirtualWWN')
-            {
+				if ($wwnType -ne 'Virtual' -and $sht.capabilities -contains 'VirtualWWN')
+				{
 
-                [void]$AdvancedSettings.Add('wwnType')
+					[void]$AdvancedSettings.Add('wwnType')
 
-            }
+				}
 
-            if ($serialNumberType -ne 'Virtual' -and $sht.capabilities -contains 'VirtualUUID')
-            {
+				if ($serialNumberType -ne 'Virtual' -and $sht.capabilities -contains 'VirtualUUID')
+				{
 
-                [void]$AdvancedSettings.Add('serialNumberType')
+					[void]$AdvancedSettings.Add('serialNumberType')
 
-            }
+				}
 
-            if ($iscsiInitiatorNameType -ne 'AutoGenerated' -and $sht.capabilities -contains 'VCConnections')
-            {
+				if ($iscsiInitiatorNameType -ne 'AutoGenerated' -and $sht.capabilities -contains 'VCConnections')
+				{
 
-                [void]$AdvancedSettings.Add('iscsiInitiatorNameType')
+					[void]$AdvancedSettings.Add('iscsiInitiatorNameType')
 
-            }
+				}
 
-            if ($AdvancedSettings.Count -gt 0)
-            {
+				if ($AdvancedSettings.Count -gt 0)
+				{
 
-                [void]$scriptCode.Add('# -------------- Attributes for advanced settings')
+					[void]$scriptCode.Add('# -------------- Attributes for advanced settings')
 
-                ForEach ($advSetting in $AdvancedSettings)
-                {
+					ForEach ($advSetting in $AdvancedSettings)
+					{
 
-                    switch ($advSetting)
-                    {
+						switch ($advSetting)
+						{
 
-                        'hideFlexNics'
-                        {
+							'hideFlexNics'
+							{
 
-                            $AdvancedSettingsParam += ' -HideUnusedFlexNics $true'
+								$AdvancedSettingsParam += ' -HideUnusedFlexNics $true'
 
-                        }
+							}
 
-                        'macType'
-                        {
+							'macType'
+							{
 
-                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'macType' -Value ('"{0}"' -f $macType)))                            
-                            $AdvancedSettingsParam += ' -MacAssignment $macType'
+								[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'macType' -Value ('"{0}"' -f $macType)))                            
+								$AdvancedSettingsParam += ' -MacAssignment $macType'
 
-                        }
+							}
 
-                        'wwnType'
-                        {
+							'wwnType'
+							{
 
-                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'wwnType' -Value ('"{0}"' -f $wwnType)))   
-                            $AdvancedSettingsParam += ' -WwnAssignment $wwnType'
+								[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'wwnType' -Value ('"{0}"' -f $wwnType)))   
+								$AdvancedSettingsParam += ' -WwnAssignment $wwnType'
 
-                        }
+							}
 
-                        'serialNumberType'
-                        {
+							'serialNumberType'
+							{
 
-                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'serialNumberType' -Value ('"{0}"' -f $serialNumberType)))  
-                            $AdvancedSettingsParam += ' -SnAssignment $serialNumberType'
-                            
-                        }
+								[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'serialNumberType' -Value ('"{0}"' -f $serialNumberType)))  
+								$AdvancedSettingsParam += ' -SnAssignment $serialNumberType'
+							
+							}
 
-                        'iscsiInitiatorNameType'
-                        {
+							'iscsiInitiatorNameType'
+							{
 
-                            [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'iscsiInitiatorType' -Value ('"{0}"' -f $iscsiInitiatorNameType)))  
-                            $AdvancedSettingsParam += ' -IscsiInitiatorNameAssignmet $iscsiInitiatorType'
+								[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'iscsiInitiatorType' -Value ('"{0}"' -f $iscsiInitiatorNameType)))  
+								$AdvancedSettingsParam += ' -IscsiInitiatorNameAssignmet $iscsiInitiatorType'
 
-                        }
+							}
 
 						}
 
@@ -13933,57 +13895,102 @@ function ConvertTo-HPOVPowerShellScript
 
 				}
 
-            
-            # Scopes
-            $ScopeParam = $null
+			}
+			
 
-            Try
-            {
-            
-                $ResourceScope = Send-HPOVRequest -Uri $scopesUri -Hostname $ApplianceConnection
-            
-            }
-            
-            Catch
-            {
-            
-                $PSCmdlet.ThrowTerminatingError($_)
-            
-            }
+			# ---------- OS Deployment Settings
+			if (-not [String]::IsNullOrWhiteSpace($osdeploysetting.osDeploymentPlanUri))
+			{
 
-            $n = 1
+				[void]$scriptCode.Add('# -------------- Attributes for OS deployment settings')
 
-            if (-not [String]::IsNullOrEmpty($ResourceScope.scopeUris))
-            {
+				$osDeploymentParam = ' -OSDeploymentPlan $osDeploymentPlan -OSDeploymentPlanAttributes $CustomAttribs'
 
-                ForEach ($scopeUri in $ResourceScope.scopeUris)
-                {
+				$osDeployPlanUri = $osdeploysetting.osDeploymentPlanUri
+				$planAttributes = $osdeploysetting.osCustomAttributes | Sort-Object Name
 
-                    $scopeName = Get-NamefromUri -Uri $scopeUri
+				$deployPlanName = Get-NamefromUri -Uri $osDeployPlanUri
 
-                    $ScopeVarName = 'Scope'
-                    $Value = 'Get-HPOVScope -Name "{0}"' -f $scopeName
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'planName' -Value ('"{0}"' -f $deployPlanName)))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'osDeploymentPlan' -Value 'Get-HPOVOsDeploymentPlan -Name $planName'))   
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'planAttribs' -Value 'Get-HPOVOsDeploymentPlanAttribute -InputObject $osDeploymentPlan'))
+				[void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'CustomAttribs' -Value '@()'))
+				
+				ForEach ($attrib in $planAttributes)
+				{
 
-                    [void]$scriptCode.Add((Generate-CustomVarCode -Prefix $ScopeVarName -Suffix $n -Value $Value))
+					# Set value
+					if ($attrib.Name -match 'Password')
+					{
 
-                    $n++
+						$value = 'Read-Host -AsSecureString -Prompt "Provide required password"'
 
-                }
+					}
 
-                $ScopeParam = ' -Scope {0}' -f ([String]::Join(', ', (1..($n - 1) | ForEach-Object { '$Scope{0}' -f $_}))) 
+					else
+					{
 
-            }
+						$value = '"{0}"' -f $attrib.Value
 
-            [void]$scriptCode.Add(('New-HPOV{0} -Name $name{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}' -f $Type, $descriptionParam, $spdescriptionParam, $serverAssignParam, $shtParam, $egParam, $affinityParam, $osDeploymentParam, $fwParam, $ConnectionsParam, $LOCALStorageParam, $SANStorageParam, $bootManageParam, $biosParam, $AdvancedSettingsParam, $ScopeParam))
-        
-            DisplayOutput -Code $scriptCode
+					}
+
+					[void]$scriptCode.Add(('($planAttribs | Where-Object name -eq "{0}").value = {1}' -f $attrib.Name, $value))
+
+					# Save into new array
+					[void]$scriptCode.Add(('$CustomAttribs     += $planAttribs | Where-Object name -eq "{0}"' -f $attrib.Name))
+
+				}
+
+			}
+
+			# Scopes
+			Try
+			{
+			
+				$ResourceScope = Send-HPOVRequest -Uri $scopesUri -Hostname $ApplianceConnection
+			
+			}
+			
+			Catch
+			{
+			
+				$PSCmdlet.ThrowTerminatingError($_)
+			
+			}
+
+			$n = 1
+
+			if (-not [String]::IsNullOrEmpty($ResourceScope.scopeUris))
+			{
+
+				ForEach ($scopeUri in $ResourceScope.scopeUris)
+				{
+
+					$scopeName = Get-NamefromUri -Uri $scopeUri
+
+					$ScopeVarName = 'Scope'
+					$Value = 'Get-HPOVScope -Name "{0}"' -f $scopeName
+
+					[void]$scriptCode.Add((Generate-CustomVarCode -Prefix $ScopeVarName -Suffix $n -Value $Value))
+
+					$n++
+
+				}
+
+				$ScopeParam = ' -Scope {0}' -f ([String]::Join(', ', (1..($n - 1) | ForEach-Object { '$Scope{0}' -f $_}))) 
+
+			}
+
+			[void]$scriptCode.Add(('New-HPOV{0} -Name $name{1}{2}{3}{4}{5}{6}{7}{8}{9}{10}{11}{12}{13}{14}{15}' -f $Type, $descriptionParam, $spdescriptionParam, $serverAssignParam, $shtParam, $egParam, $affinityParam, $osDeploymentParam, $fwParam, $ConnectionsParam, $LOCALStorageParam, $SANStorageParam, $bootManageParam, $biosParam, $AdvancedSettingsParam, $ScopeParam))
+
+			DisplayOutput -Code $scriptCode
 
 		}
 		
 		Function Generate-osDeploymentServer-Script ($InputObject)
 		{
 
-			$scriptCode =  New-Object System.Collections.ArrayList   
+			$scriptCode = [System.Collections.ArrayList]::new()   
 
 			foreach ($osds in $InputObject)
 			{
@@ -14046,7 +14053,7 @@ function ConvertTo-HPOVPowerShellScript
 
             )
 
-            $FwManagedCode = New-Object System.Collections.ArrayList
+            $FwManagedCode = [System.Collections.ArrayList]::new()
             $FwParam       = $null
 
             $fwInstallType  = $fw.firmwareInstallType
@@ -14100,7 +14107,7 @@ function ConvertTo-HPOVPowerShellScript
 
             }
             
-            $ScriptConnection   = New-Object System.Collections.ArrayList
+            $ScriptConnection   = [System.Collections.ArrayList]::new()
 
             $connID             = $Conn.id
             $connName           = $Conn.name
@@ -14469,8 +14476,8 @@ function ConvertTo-HPOVPowerShellScript
 
             }
 
-            $ScriptController        = New-Object System.Collections.ArrayList
-            $ControllerVarNames      = New-Object System.Collections.ArrayList
+            $ScriptController        = [System.Collections.ArrayList]::new()
+            $ControllerVarNames      = [System.Collections.ArrayList]::new()
 
             $SasLogicalJBODs = $LocalStorageConfig.sasLogicalJBODs
 
@@ -14480,7 +14487,7 @@ function ConvertTo-HPOVPowerShellScript
             ForEach ($controller in $LocalStorageConfig.controllers)
             {
 
-                $LogicalDiskVarNames = New-Object System.Collections.ArrayList
+                $LogicalDiskVarNames = [System.Collections.ArrayList]::new()
 
                 $deviceSlot    = $controller.deviceSlot
                 $mode          = $controller.mode
@@ -14704,8 +14711,8 @@ function ConvertTo-HPOVPowerShellScript
 
             )
 
-            $SanStorageCode    = New-Object System.Collections.ArrayList
-            $VolAttachVarNames = New-Object System.Collections.ArrayList
+            $SanStorageCode    = [System.Collections.ArrayList]::new()
+            $VolAttachVarNames = [System.Collections.ArrayList]::new()
 
             $IsManagedSAN       = $SANStorageConfig.manageSanStorage
             $volumeAttachment   = $SANStorageConfig.volumeAttachments
@@ -15385,7 +15392,7 @@ function Get-HPOVApplianceAuditLogForwarding
 
 		}
 
-		$_ApplianceStatus = New-Object System.Collections.ArrayList
+		$_ApplianceStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -15553,7 +15560,7 @@ function Set-HPOVApplianceAuditLogForwarding
 
 		}
 
-		$_ApplianceStatus = New-Object System.Collections.ArrayList
+		$_ApplianceStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -15603,7 +15610,7 @@ function Set-HPOVApplianceAuditLogForwarding
 
 				# Rebuild remoteDestinations as an ArrayList
 				$_OriginalDestinations = $_CurrentConfig.remoteDestinations.Clone()
-				$_CurrentConfig.remoteDestinations = New-Object System.Collections.ArrayList
+				$_CurrentConfig.remoteDestinations = [System.Collections.ArrayList]::new()
 
 				ForEach ($_Dest in $_OriginalDestinations)
 				{
@@ -15799,7 +15806,7 @@ function Test-HPOVApplianceAuditLogForwarding
 
 		}
 
-		$_ApplianceStatus = New-Object System.Collections.ArrayList
+		$_ApplianceStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -15930,7 +15937,7 @@ function Get-HPOVApplianceCertificateStatus
 
 		}
 
-		$_ApplianceStatus = New-Object System.Collections.ArrayList
+		$_ApplianceStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -16130,7 +16137,7 @@ function New-HPOVApplianceSelfSignedCertificate
 
 		}
 
-		$_TaskStatus = New-Object System.Collections.ArrayList
+		$_TaskStatus = [System.Collections.ArrayList]::new()
 
 		if ($Country.length -gt 2)
 		{
@@ -16397,7 +16404,7 @@ function New-HPOVApplianceCsr
 
 		}
 
-		$_TaskStatus = New-Object System.Collections.ArrayList
+		$_TaskStatus = [System.Collections.ArrayList]::new()
 
 		# Handle runtime, none-script use
 		if ($PSBoundParameters['ChallengePassword'] -and $ChallengePassword -eq '*'  ) 
@@ -16736,7 +16743,7 @@ function Install-HPOVApplianceCertificate
 
 		}
 
-		$_TaskStatus = New-Object System.Collections.ArrayList
+		$_TaskStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -17117,7 +17124,7 @@ function Install-HPOVUpdate
 
 		}		
 
-		$_StatusCollection = New-Object System.Collections.ArrayList
+		$_StatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -17828,7 +17835,7 @@ function Remove-HPOVPendingUpdate
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -18031,7 +18038,7 @@ function Get-HPOVVersion
 
 		}
 
-		$_ApplianceVersionCollection = New-Object System.Collections.ArrayList
+		$_ApplianceVersionCollection = [System.Collections.ArrayList]::new()
 	
 	}
 	
@@ -18291,7 +18298,7 @@ function Get-HPOVHealthStatus
 
 		}
 
-		$_HealthStatusCollection = New-Object System.Collections.ArrayList
+		$_HealthStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -18394,7 +18401,7 @@ function Get-HPOVXApiVersion
 
 		}
 
-		$_XAPICollection = New-Object System.Collections.ArrayList
+		$_XAPICollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -18874,7 +18881,7 @@ function Get-HPOVApplianceNetworkConfig
 
 		}
 
-		$_ApplianceNetworkConfiguration = New-Object System.Collections.ArrayList
+		$_ApplianceNetworkConfiguration = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -19045,7 +19052,7 @@ function Get-HPOVApplianceDateTime
 
 		}
 
-		$_ApplianceDateTimeCol = New-Object System.Collections.ArrayList
+		$_ApplianceDateTimeCol = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -19576,7 +19583,7 @@ function Set-HPOVApplianceNetworkConfig
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -20315,7 +20322,7 @@ function Get-HPOVSnmpReadCommunity
 
 		}
 
-		$_ApplianceSnmpConfigCollection = New-Object System.Collections.ArrayList
+		$_ApplianceSnmpConfigCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -20457,7 +20464,7 @@ function Set-HPOVSnmpReadCommunity
 
 		}
 
-		$_ApplianceSnmpConfigCollection = New-Object System.Collections.ArrayList
+		$_ApplianceSnmpConfigCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -20640,7 +20647,7 @@ function New-HPOVSnmpV3User
 
 		}
 
-		$_CredentialsCol = New-Object System.Collections.ArrayList
+		$_CredentialsCol = [System.Collections.ArrayList]::new()
 
 		if ($SecurityLevel -eq "AuthOnly" -and 
 			($AuthPassword)) 
@@ -21087,7 +21094,7 @@ function Remove-HPOVSnmpV3User
 
 		}		
 
-		$_ResourceCol = New-Object System.Collections.ArrayList
+		$_ResourceCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -21567,7 +21574,7 @@ function Get-HPOVApplianceTrapDestination
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 
-			$SnmpTrapDestinationCol = New-Object System.Collections.ArrayList
+			$SnmpTrapDestinationCol = [System.Collections.ArrayList]::new()
 
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
@@ -22120,7 +22127,7 @@ function Remove-HPOVApplianceTrapDestination
 
 		}		
 
-		$_ResourceCol = New-Object System.Collections.ArrayList
+		$_ResourceCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -22312,7 +22319,7 @@ function Get-HPOVApplianceGlobalSetting
 
 		}
 
-		$_ApplianceGlobalSettingCol = New-Object System.Collections.ArrayList
+		$_ApplianceGlobalSettingCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -22495,7 +22502,7 @@ function Set-HPOVApplianceGlobalSetting
 
 		}
 
-		$_ApplianceGlobalSettingCol = New-Object System.Collections.ArrayList
+		$_ApplianceGlobalSettingCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -23206,7 +23213,7 @@ function Get-HPOVRemoteSupport
 
 		}
 
-		$_ApplianceRemoteSupportCol = New-Object System.Collections.ArrayList
+		$_ApplianceRemoteSupportCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -23435,7 +23442,7 @@ function Set-HPOVRemoteSupport
 
 		}
 
-		$_ApplianceRemoteSupportCol = New-Object System.Collections.ArrayList
+		$_ApplianceRemoteSupportCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -23711,8 +23718,8 @@ function Enable-HPOVRemoteSupport
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_Collection     = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_Collection     = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -23918,8 +23925,8 @@ function Disable-HPOVRemoteSupport
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_Collection     = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_Collection     = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -24153,7 +24160,7 @@ function Get-HPOVRemoteSupportContact
 
 		}
 
-		$_RemoteSupportContactsCol = New-Object System.Collections.ArrayList
+		$_RemoteSupportContactsCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -24344,7 +24351,7 @@ function New-HPOVRemoteSupportContact
 
 		}
 
-		$_RemoteSupportContactCol = New-Object System.Collections.ArrayList
+		$_RemoteSupportContactCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -24411,7 +24418,7 @@ function New-HPOVRemoteSupportContact
 
 					$_NewContact = $_PatchOp.PSObject.Copy()
 
-					$_PatchOp = New-Object System.Collections.ArrayList
+					$_PatchOp = [System.Collections.ArrayList]::new()
 					[void]$_PatchOp.Add($_NewContact)
 					[void]$_PatchOp.Add($_UpdatePatchOp)
 
@@ -24775,8 +24782,8 @@ function Remove-HPOVRemoteSupportContact
 
 		}		
 
-		$_RemoteSupportContactsCol = New-Object System.Collections.ArrayList
-		$_TaskCollection           = New-Object System.Collections.ArrayList
+		$_RemoteSupportContactsCol = [System.Collections.ArrayList]::new()
+		$_TaskCollection           = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -25352,8 +25359,8 @@ function Remove-HPOVRemoteSupportPartner
 
 		}		
 
-		$_RemoteSupportPartnerCol = New-Object System.Collections.ArrayList
-		$_TaskCollection          = New-Object System.Collections.ArrayList
+		$_RemoteSupportPartnerCol = [System.Collections.ArrayList]::new()
+		$_TaskCollection          = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -25843,7 +25850,7 @@ function Set-HPOVRemoteSupportSetting
 	Process 
 	{
 
-		$_RemoteSupportSettingsToSet = New-Object System.Collections.ArrayList
+		$_RemoteSupportSettingsToSet = [System.Collections.ArrayList]::new()
 
 		switch ($InputObject.category)
 		{
@@ -26173,7 +26180,7 @@ function Set-HPOVRemoteSupportDataCollectionSchedule
 
 		}
 
-		$_SchedulesToUpdate = New-Object System.Collections.ArrayList
+		$_SchedulesToUpdate = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -26589,7 +26596,7 @@ function Start-HPOVRemoteSupportCollection
 
 		}
 
-		$_SchedulesToUpdate = New-Object System.Collections.ArrayList
+		$_SchedulesToUpdate = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -26816,7 +26823,7 @@ function Get-HPOVRemoteSupportEntitlementStatus
 	Process
 	{
 
-		$_ResourcesToProcess = New-Object System.Collections.ArrayList
+		$_ResourcesToProcess = [System.Collections.ArrayList]::new()
 
 		switch ($InputObject.category)
 		{
@@ -27426,7 +27433,7 @@ function Get-HPOVRemoteSupportDefaultSite
 
 		}
 
-		$defaultSiteCollection = New-Object System.Collections.ArrayList
+		$defaultSiteCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -27592,7 +27599,7 @@ function Set-HPOVRemoteSupportDefaultSite
 
 		}
 
-		$defaultSiteCollection = New-Object System.Collections.ArrayList
+		$defaultSiteCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -27801,7 +27808,7 @@ function Get-HPOVBaseline
 
 		}
 
-		$BaselineCollection = New-Object System.Collections.ArrayList
+		$BaselineCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -27811,7 +27818,7 @@ function Get-HPOVBaseline
 		ForEach($_Connection in $ApplianceConnection)
 		{
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -27931,7 +27938,7 @@ function Get-HPOVBaseline
 					if ($File) 
 					{ 
 
-						if ($File.EndsWith('.exe') -or $File.EndsWith('.scexe') -or $File.EndsWith('.rpm'))
+						if ($File.EndsWith('.exe') -or $File.EndsWith('.scexe') -or $File.EndsWith('.rpm') -or $File.EndsWith('.zip'))
 						{
 
 							"[{0}] Looking for hotfix file" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -28054,8 +28061,8 @@ function Get-HPOVBaseline
 			{
 			
 				# Inject repository location as a property, should not cause issues with other API calls with the resource
-				# $_Locations = New-Object System.Collections.Arraylist
-				$_Locations = New-Object "System.Collections.Generic.List[String]"
+				# $_Locations = [System.Collections.ArrayList]::new()
+				$_Locations = [System.Collections.Generic.List[String]]::new()
 
 				ForEach ($_Location in ($_baseline.locations.PSObject.Members | Where-Object { $_.MemberType -eq 'NoteProperty'}))
 				{
@@ -28066,7 +28073,7 @@ function Get-HPOVBaseline
 
 				# $_baseline.locations = [String]::Join(', ', $_Locations.ToArray())
 
-				$_FwComponentsList = New-Object "System.Collections.Generic.List[HPOneView.Appliance.Baseline+FwComponent]"
+				$_FwComponentsList = [System.Collections.Generic.List[HPOneView.Appliance.Baseline+FwComponent]]::new()
 
 				ForEach ($_Component in $_baseline.fwComponents)
 				{
@@ -28099,7 +28106,7 @@ function Get-HPOVBaseline
 
 				}
 
-				$_SupportedOsList = New-Object "System.Collections.Generic.List[String]"
+				$_SupportedOsList = [System.Collections.Generic.List[String]]::new()
 
 				ForEach ($_SupportedOS in $_baseline.supportedOSList)
 				{
@@ -28114,7 +28121,7 @@ function Get-HPOVBaseline
 					{'Custom', 'SPP' -contains $_}
 					{
 
-						New-Object HPOneView.Appliance.Baseline($_baseline.name,
+						[HPOneView.Appliance.Baseline]::new($_baseline.name,
 																$_baseline.description,
 																$_baseline.status,
 																$_baseline.version,
@@ -28148,7 +28155,7 @@ function Get-HPOVBaseline
 					'Hotfix'
 					{
 
-						New-Object HPOneView.Appliance.BaselineHotfix($_baseline.name,
+						[HPOneView.Appliance.BaselineHotfix]::new($_baseline.name,
 																	  $_baseline.description,
 																	  $_baseline.status,
 																	  $_baseline.version,
@@ -28175,7 +28182,8 @@ function Get-HPOVBaseline
 																	  $_baseline.modified,
 																	  $_baseline.resourceState,
 																	  $_baseline.scopesUri,
-																	  $_baseline.applianceConnection)
+																	  $_baseline.applianceConnection,
+																	  $_baseline.signatureFileName)
 
 					}
 
@@ -28196,6 +28204,7 @@ function Get-HPOVBaseline
 
 }
 
+
 function Add-HPOVBaseline 
 {
 
@@ -28211,11 +28220,15 @@ function Add-HPOVBaseline
 		[Object]$File,
 
 		[Parameter (Mandatory = $false)]
+		[ValidateScript({Test-Path $_})]
+		[Object]$CompSigFile,
+
+		[Parameter (Mandatory = $false)]
 		[ValidateNotNullOrEmpty()]
 		[HPOneView.Appliance.ScopeCollection]$Scope,
 
 		[Parameter (Mandatory = $false)]
-		[switch]$Async,
+		[Switch]$Async,
 
 		[Parameter (Mandatory = $false)]
 		[ValidateNotNullOrEmpty()]
@@ -28256,7 +28269,7 @@ function Add-HPOVBaseline
 			elseif ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
 			{
 
-				For ([int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
+				For ([Int]$c = 0; $c -lt $ApplianceConnection.Count; $c++) 
 				{
 
 					Try 
@@ -28314,7 +28327,7 @@ function Add-HPOVBaseline
 
 		}
 
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -28324,7 +28337,8 @@ function Add-HPOVBaseline
 		if (-not(Test-Path $File -PathType Leaf))
 		{
 
-			$ErrorRecord = New-ErrorRecord HPOneView.Appliance.BaselineResourceException BaselineFileNotFound ObjectNotFound 'File' -Message ("The baseline file '{0}' was not found.  Please check the path and filename." -f $File.Name)
+			$ExceptionMessage = "The baseline file '{0}' was not found.  Please check the path and filename." -f $File.Name
+			$ErrorRecord = New-ErrorRecord HPOneView.Appliance.BaselineResourceException BaselineFileNotFound ObjectNotFound 'File' -Message $ExceptionMessage
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)				
 
 		}
@@ -28336,10 +28350,31 @@ function Add-HPOVBaseline
 			
 		}
 
+		if ($PSBoundParameters['CompSigFile'])
+		{
+
+			if ($CompSigFile -isnot [System.IO.FileInfo])
+			{
+
+				$CompSigFile = Get-ChildItem -Path $CompSigFile
+
+			}
+
+			if ($CompSigFile.Length -le 0)
+			{
+			
+				$ExceptionMessage = "The CompSigFile resource '{0}' file size is 0." -f $CompSigFile.Name
+				$ErrorRecord = New-ErrorRecord HPOneView.Appliance.BaselineResourceException ResourceCannotBeZero InvalidArgument 'CompSigFile' -TargetType 'System.IO.FileInfo' -Message $ExceptionMessage
+				$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+			}
+
+		}
+
 		if ($File.Length -le 0)
 		{
 		
-			$ExceptionMessage = ("The File resource '{0}' file size is 0." -f $File.Name)
+			$ExceptionMessage = "The File resource '{0}' file size is 0." -f $File.Name
 			$ErrorRecord = New-ErrorRecord HPOneView.Appliance.BaselineResourceException ResourceCannotBeZero InvalidArgument 'File' -TargetType 'System.IO.FileInfo' -Message $ExceptionMessage
 			$PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
@@ -28377,7 +28412,7 @@ function Add-HPOVBaseline
 				{
 
 					$_Params = @{
-						URI                 = $fwUploadUri;
+						URI                 = $ApplianceFwBundlesUri;
 						File                = $File.FullName;
 						ApplianceConnection = $_appliance
 					}
@@ -28385,7 +28420,7 @@ function Add-HPOVBaseline
 					if ($PSBoundParameters['Scope'])
 					{
 
-						$_sb = New-Object System.Collections.Arraylist
+						$_sb = [System.Collections.ArrayList]::new()
 
 						ForEach ($_Scope in $Scope)
 						{
@@ -28402,18 +28437,37 @@ function Add-HPOVBaseline
 
 					}
 
-					$task = Upload-File @_Params
+					$AddTask = Upload-File @_Params
 
-					if (-not($PSBoundParameters['Async']))
+					if ((-not $PSBoundParameters['Async'] -and $PSBoundParameters['CompSigFile']) -or (-not $PSBoundParameters['Async']))
 					{
 
 						"[{0}] Response is a task resource, calling Wait-HPOVTaskComplete" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-						$task = $task | Wait-HPOVTaskComplete
+						$AddTask = $AddTask | Wait-HPOVTaskComplete
+
+					}
+
+					# Upload CompSigFile first
+					if ($PSBoundParameters['CompSigFile'])
+					{
+
+						"[{0}] Adding CompSig file to appliance: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $CompSigFile.Name | Write-Verbose
+
+						$uploadCompSigTask = Upload-File -Uri ($ApplianceFwCompSigUri -f $CompSigFile.Name) -File $CompSigFile.FullName -ApplianceConnection $_appliance
+
+						if ($uploadCompSigTask.tastState -eq 'Error')
+						{
+
+							$ExceptionMessage = "{0}" -f $uploadCompSigTask.taskErrors.message
+							$ErrorRecord = New-ErrorRecord HPOneView.Appliance.BaselineResourceException InvalidComSigFileUploadOperation InvalidOperation 'ComSigFile' -TargetType 'System.IO.FileInfo' -Message $ExceptionMessage
+							$PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+						}
 
 					}
 				
-					$Task
+					$AddTask
 
 				}
 
@@ -28568,7 +28622,7 @@ function Save-HPOVBaseline
 
 		}
 
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -28639,7 +28693,7 @@ function Save-HPOVBaseline
 					if ($PSBoundParameters['Scope'])
 					{
 
-						$_sb = New-Object System.Collections.Arraylist
+						$_sb = [System.Collections.ArrayList]::new()
 
 						ForEach ($_Scope in $Scope)
 						{
@@ -28824,7 +28878,7 @@ function New-HPOVCustomBaseline
 
 		}
 
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -28963,7 +29017,7 @@ function New-HPOVCustomBaseline
 		if ($PSBoundParameters['Scope'])
 		{
 
-			$_sb = New-Object System.Collections.Arraylist
+			$_sb = [System.Collections.ArrayList]::new()
 
 			ForEach ($_Scope in $Scope)
 			{
@@ -29115,8 +29169,8 @@ function Restore-HPOVCustomBaseline
 
 		}
 
-		$_TaskCollection     = New-Object System.Collections.ArrayList
-		$_BaselineCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection     = [System.Collections.ArrayList]::new()
+		$_BaselineCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -30965,7 +31019,7 @@ function Get-HPOVAutomaticBackupConfig
 
 		}
 
-		$_AutoBackupStatusCollection = New-Object System.Collections.ArrayList
+		$_AutoBackupStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -31147,7 +31201,7 @@ function Set-HPOVAutomaticBackupConfig
 
 		}
 
-		$_AutoBackupStatusCollection = New-Object System.Collections.ArrayList
+		$_AutoBackupStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -31466,7 +31520,7 @@ function Get-HPOVBackup
 
 		}
 
-		$_BackupFileStatusCollection = New-Object System.Collections.ArrayList
+		$_BackupFileStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -31871,7 +31925,7 @@ function New-HPOVBackup
 
 		}
 
-		$_BackupFileStatusCollection = New-Object System.Collections.ArrayList
+		$_BackupFileStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -32101,7 +32155,7 @@ function New-HPOVRestore
 
 		}
 
-		$_ApplianceStatus = New-Object System.Collections.ArrayList
+		$_ApplianceStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -33196,7 +33250,7 @@ function Get-HPOVScmbCertificates
 
 		}
 		
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 		
 		# Validate the path exists.  If not, create it.
 		if (-not(Test-Path $Location))
@@ -34068,7 +34122,7 @@ function Restart-HPOVAppliance
 
 		}
 		
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -34248,7 +34302,7 @@ function Stop-HPOVAppliance
 
 		}
 				
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -34416,7 +34470,7 @@ function Get-HPOVRack
 
 		}
 
-		$_RackCol = New-Object System.Collections.ArrayList
+		$_RackCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -34622,7 +34676,7 @@ function New-HPOVRack
 
 		}
 
-		$_RackCol = New-Object System.Collections.ArrayList
+		$_RackCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -34783,7 +34837,7 @@ Function Add-HPOVResourceToRack
 
 		}
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -34869,7 +34923,7 @@ Function Add-HPOVResourceToRack
 		$_RackItem.uHeight       = $_UHeight
 
 		$_OriginalRackContents = [Array]$Rack.rackMounts.Clone()
-		$Rack.rackMounts = New-Object System.Collections.ArrayList
+		$Rack.rackMounts = [System.Collections.ArrayList]::new()
 
 		$_OriginalRackContents | ForEach-Object { [void]$Rack.rackMounts.Add($_) }
 		[void]$Rack.rackMounts.Add($_RackItem)
@@ -35013,8 +35067,8 @@ function Get-HPOVRackMember
 
 		}		
 
-		$_RackCol        = New-Object System.Collections.ArrayList
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_RackCol        = [System.Collections.ArrayList]::new()
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -35296,8 +35350,8 @@ function Set-HPOVRackMemberLocation
 
 		}		
 
-		$_RackCol        = New-Object System.Collections.ArrayList
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_RackCol        = [System.Collections.ArrayList]::new()
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -35468,8 +35522,8 @@ function Remove-HPOVRackMember
 
 		}		
 
-		$_RackCol        = New-Object System.Collections.ArrayList
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_RackCol        = [System.Collections.ArrayList]::new()
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -35639,8 +35693,8 @@ function Remove-HPOVRack
 
 		}		
 
-		$_RackCol        = New-Object System.Collections.ArrayList
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_RackCol        = [System.Collections.ArrayList]::new()
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -35864,7 +35918,7 @@ function Get-HPOVDataCenter
 
 		}
 
-		$_DCCol = New-Object System.Collections.ArrayList
+		$_DCCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -36179,7 +36233,7 @@ function New-HPOVDataCenter
 
 		}
 
-		$_ApplianceRemoteSupportCol = New-Object System.Collections.ArrayList
+		$_ApplianceRemoteSupportCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -36223,7 +36277,7 @@ function New-HPOVDataCenter
 
 				"[{0}] Remote Support is enabled and configured on the appliance. Will set Data Center RS location." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-				$_DataCenterAddressPatchOp = New-Object System.Collections.ArrayList
+				$_DataCenterAddressPatchOp = [System.Collections.ArrayList]::new()
 
 				switch ($PSBoundParameters.Keys)
 				{
@@ -36585,7 +36639,7 @@ function Add-HPOVRackToDataCenter
 
 		}
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -36629,7 +36683,7 @@ function Add-HPOVRackToDataCenter
 
 		$_UpdatedAssociations = $_DataCenterToUpdate.contents
 		
-		$_DataCenterToUpdate.contents = New-Object System.Collections.ArrayList
+		$_DataCenterToUpdate.contents = [System.Collections.ArrayList]::new()
 		$_UpdatedAssociations | ForEach-Object { [void]$_DataCenterToUpdate.contents.Add($_) }
 
 		if (-not $Millimeters.IsPresent)
@@ -36824,7 +36878,7 @@ function Set-HPOVDataCenterRemoteSupport
 
 		}	
 
-		$_ApplianceRemoteSupportCol = New-Object System.Collections.ArrayList
+		$_ApplianceRemoteSupportCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -36914,7 +36968,7 @@ function Set-HPOVDataCenterRemoteSupport
 
 			"[{0}] Remote Support is enabled and configured on the appliance. Will set Data Center RS location." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			$_DataCenterAddressPatchOp = New-Object System.Collections.ArrayList
+			$_DataCenterAddressPatchOp = [System.Collections.ArrayList]::new()
 
 			switch ($PSBoundParameters.Keys)
 			{
@@ -37268,7 +37322,7 @@ function Set-HPOVDataCenter
 
 		}	
 
-		$_ApplianceRemoteSupportCol = New-Object System.Collections.ArrayList
+		$_ApplianceRemoteSupportCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -37602,8 +37656,8 @@ function Remove-HPOVDataCenter
 
 		}		
 
-		$_DataCenterCol  = New-Object System.Collections.ArrayList
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_DataCenterCol  = [System.Collections.ArrayList]::new()
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -37871,7 +37925,7 @@ function Get-HPOVServer
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -38000,7 +38054,7 @@ function Get-HPOVServer
 			if ($Status)
 			{
 
-				$_StatusQuery = New-Object System.Collections.ArrayList
+				$_StatusQuery = [System.Collections.ArrayList]::new()
 
 				ForEach ($_status in $Status)
 				{
@@ -38257,7 +38311,7 @@ function Get-HPOVIloSso
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
     }
 
@@ -38975,8 +39029,8 @@ function Remove-HPOVServer
 
 		}
 		
-		$_ServersToRemoveCol = New-Object System.Collections.ArrayList
-		$_TaskCollection     = New-Object System.Collections.ArrayList
+		$_ServersToRemoveCol = [System.Collections.ArrayList]::new()
+		$_TaskCollection     = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -39210,7 +39264,7 @@ function Start-HPOVServer
 		$_PowerControl = 'MomentaryPress'
 		$_PowerState   = 'On'
 
-		$_ServerPowerControlCol = New-Object System.Collections.ArrayList
+		$_ServerPowerControlCol = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -39491,7 +39545,7 @@ function Stop-HPOVServer
 		
 		$_PowerState   = 'Off'
 
-		$_ServerPowerControlCol = New-Object System.Collections.ArrayList
+		$_ServerPowerControlCol = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -39793,7 +39847,7 @@ function Restart-HPOVServer
 		
 		$_PowerState   = 'On'
 
-		$_ServerPowerControlCol = New-Object System.Collections.ArrayList
+		$_ServerPowerControlCol = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -40285,7 +40339,7 @@ function Get-HPOVRackManager
 
 		}
 
-		$_CollectionName = New-Object System.Collections.ArrayList
+		$_CollectionName = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -40297,7 +40351,7 @@ function Get-HPOVRackManager
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
 			if ($Scope -eq 'AllResourcesInScope')
@@ -41699,7 +41753,7 @@ function Get-HPOVEnclosureGroup
 
 		}
 
-		$EGCollection = New-Object System.Collections.ArrayList
+		$EGCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -41993,7 +42047,7 @@ function New-HPOVEnclosureGroup
 
 		}
 
-		$_EnclosureGroupCreateResults = New-Object System.Collections.ArrayList
+		$_EnclosureGroupCreateResults = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -43102,8 +43156,8 @@ function Remove-HPOVEnclosureGroup
 
 		}
 
-		$_TaskCollection           = New-Object System.Collections.ArrayList
-		$_EnclosureGroupCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection           = [System.Collections.ArrayList]::new()
+		$_EnclosureGroupCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -43432,7 +43486,7 @@ function Add-HPOVEnclosure
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 		if ($PSBoundParameters['Credential'])
 		{
@@ -44207,9 +44261,9 @@ function Update-HPOVEnclosure
 
 		}
 
-		$_TaskCollection           = New-Object System.Collections.ArrayList
-		$_EnclosureCollection      = New-Object System.Collections.ArrayList
-		$_RefreshOptionsCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection           = [System.Collections.ArrayList]::new()
+		$_EnclosureCollection      = [System.Collections.ArrayList]::new()
+		$_RefreshOptionsCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -44566,7 +44620,7 @@ function Get-HPOVLogicalEnclosure
 
 		}
 
-		$_LogicalEnclosureCollection = New-Object System.Collections.ArrayList
+		$_LogicalEnclosureCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -44586,7 +44640,7 @@ function Get-HPOVLogicalEnclosure
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -44879,7 +44933,7 @@ function New-HPOVLogicalEnclosure
 
 		}
 
-		$_TaskResourceCollection = New-Object System.Collections.ArrayList
+		$_TaskResourceCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -45298,7 +45352,7 @@ function Set-HPOVLogicalEnclosure
 
 		}
 
-		$_TaskResources = New-Object System.Collections.ArrayList
+		$_TaskResources = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -45705,8 +45759,8 @@ function Update-HPOVLogicalEnclosure
 
 		}
 
-		$_TaskCollection             = New-Object System.Collections.ArrayList
-		$_LogicalEnclosureCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection             = [System.Collections.ArrayList]::new()
+		$_LogicalEnclosureCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -46045,8 +46099,8 @@ function Update-HPOVLogicalEnclosureFirmware
 
 		}
 
-		$_TaskCollection             = New-Object System.Collections.ArrayList
-		$_LogicalEnclosureCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection             = [System.Collections.ArrayList]::new()
+		$_LogicalEnclosureCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -46347,8 +46401,8 @@ function Remove-HPOVLogicalEnclosure
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_LECollection   = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_LECollection   = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -47904,7 +47958,7 @@ function Get-HPOVEnclosure
 
 		}
 
-		$_EnclosureCollection = New-Object System.Collections.ArrayList
+		$_EnclosureCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -47916,7 +47970,7 @@ function Get-HPOVEnclosure
 
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -48250,8 +48304,8 @@ function Reset-HPOVEnclosureDevice
 
 		}
 
-		$_TaskCollection      = New-Object System.Collections.ArrayList
-		$_EnclosureCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection      = [System.Collections.ArrayList]::new()
+		$_EnclosureCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -48435,7 +48489,7 @@ function Set-HPOVEnclosureActiveFLM
 		}
 
 
-		$_TaskCollection      = New-Object System.Collections.ArrayList
+		$_TaskCollection      = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -48642,8 +48696,8 @@ function Set-HPOVEnclosure
 
 		}
 
-		$_RequestCollection = New-Object System.Collections.ArrayList
-		$_TaskCollection    = New-Object System.Collections.ArrayList
+		$_RequestCollection = [System.Collections.ArrayList]::new()
+		$_TaskCollection    = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -48720,7 +48774,7 @@ function Set-HPOVEnclosure
 			
 			}
 
-			$_RequestCollection = New-Object System.Collections.ArrayList
+			$_RequestCollection = [System.Collections.ArrayList]::new()
 
 			$_PatchRequest = NewObject -PatchOperation
 
@@ -48885,7 +48939,7 @@ function Start-HPOVEnclosureAppliance
 
 		}
 		
-		$_TaskCollection  = New-Object System.Collections.ArrayList
+		$_TaskCollection  = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -49066,7 +49120,7 @@ function Get-HPOVComposerNode
 
 		}
 
-		$_ComposerNodeCollection = New-Object System.Collections.ArrayList
+		$_ComposerNodeCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -49225,7 +49279,7 @@ function Enable-HPOVComposerHANode
 
 		}
 
-		$_ComposerNodeTaskCollection = New-Object System.Collections.ArrayList
+		$_ComposerNodeTaskCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -49450,7 +49504,7 @@ function Remove-HPOVStandbyComposerNode
 
 		}
 
-		$_ComposerNodeTaskCollection = New-Object System.Collections.ArrayList
+		$_ComposerNodeTaskCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -49655,7 +49709,7 @@ function Enclosure-Report
 		
 	# DEVICE BAY REPORT DATA
 		# Looking for servers related to the requested enclosure
-		$serversCol = New-Object System.Collections.ArrayList
+		$serversCol = [System.Collections.ArrayList]::new()
 		
 		# Loop through populated device bays
 		ForEach ($_DeviceBay in ($Enclosure.deviceBays | Where-Object { $_.devicePresence -eq 'Present' -and $_.deviceUri } ))
@@ -49722,7 +49776,7 @@ function Enclosure-Report
 		
 	# INTERCONNECT BAY REPORT DATA
 		# Loop through interconnect bays
-		$interconnectsCol = New-Object System.Collections.ArrayList
+		$interconnectsCol = [System.Collections.ArrayList]::new()
 
 		foreach ($interconnect in $enclosure.interconnectBays)
 		{
@@ -49944,8 +49998,8 @@ function Remove-HPOVEnclosure
 
 		}
 
-		$_TaskCollection      = New-Object System.Collections.ArrayList
-		$_EnclosureCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection      = [System.Collections.ArrayList]::new()
+		$_EnclosureCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -50226,7 +50280,7 @@ function Get-HPOVServerHardwareType
 
 		}
 
-		$_SHTCollection = New-Object System.Collections.ArrayList
+		$_SHTCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -50631,8 +50685,8 @@ function Show-HPOVFirmwareReport
 
 		}
 
-		$_ResourceCollection       = New-Object System.Collections.ArrayList
-		$_FirmwareReportCollection = New-Object System.Collections.ArrayList
+		$_ResourceCollection       = [System.Collections.ArrayList]::new()
+		$_FirmwareReportCollection = [System.Collections.ArrayList]::new()
 
 		# Test for location
 		if ($Export) 
@@ -51286,7 +51340,7 @@ function Get-EnclosureFirmware
 
 		# Reset private variables
 		$_BaseLinePolicy  = $Null
-		$_EnclosureReport = New-Object System.Collections.ArrayList
+		$_EnclosureReport = [System.Collections.ArrayList]::new()
 
 		# Keep track of the number of Servers
 		$_s = 0
@@ -51787,7 +51841,7 @@ function Get-EnclosureFirmware
 		# Process Interconnects within Enclosure
 		"[{0}] Getting Interconnect resources from the enclosure." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-		$_Interconnects = New-Object System.Collections.ArrayList
+		$_Interconnects = [System.Collections.ArrayList]::new()
 
 		Try
 		{			
@@ -51992,7 +52046,7 @@ function Get-ServerFirmware
 	Begin 
 	{
 
-		$_ServerReport = New-Object System.Collections.ArrayList
+		$_ServerReport = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -52624,7 +52678,7 @@ function Get-InterconnectFirmware
 	Begin 
 	{
 
-		$_InterconnectReport = New-Object System.Collections.ArrayList
+		$_InterconnectReport = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -53137,14 +53191,14 @@ function Enable-HPOVDeviceUid
 
 		}
 
-		$_ResourceStatusCollection = New-Object System.Collections.ArrayList
+		$_ResourceStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
 	Process 
 	{
 
-		$_RequestCollection = New-Object System.Collections.ArrayList
+		$_RequestCollection = [System.Collections.ArrayList]::new()
 
 		if ($PiplineInput)
 		{
@@ -53284,7 +53338,7 @@ function Disable-HPOVDeviceUid
 
 		}
 
-		$_ResourceStatusCollection = New-Object System.Collections.ArrayList
+		$_ResourceStatusCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -53299,7 +53353,7 @@ function Disable-HPOVDeviceUid
 
 		}
 
-		$_RequestCollection = New-Object System.Collections.ArrayList
+		$_RequestCollection = [System.Collections.ArrayList]::new()
 
 		if ($PiplineInput)
 		{
@@ -53495,8 +53549,8 @@ function ConvertTo-HPOVImageStreamerConfiguration
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_Collection     = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_Collection     = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -53618,7 +53672,7 @@ function ConvertTo-HPOVImageStreamerConfiguration
 		if ($MultipleAssociatedEGs)
 		{
 
-			$InputObject = New-Object System.Collections.ArrayList
+			$InputObject = [System.Collections.ArrayList]::new()
 
 			"[{0}] Processing multiple Enclosure Group associations to Logical Interconnect Group" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose 
 
@@ -54199,7 +54253,7 @@ function Get-HPOVStorageSystem
 
 		}
 
-		$_StorageSystemCollection = New-Object System.Collections.ArrayList
+		$_StorageSystemCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -54476,7 +54530,7 @@ function Update-HPOVStorageSystem
 
 		}	
 
-		$_StorageSystemRefreshCollection = New-Object System.Collections.ArrayList
+		$_StorageSystemRefreshCollection = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -54717,7 +54771,7 @@ function Add-HPOVStorageSystem
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 		if ($Password -is [SecureString])
 		{
@@ -55520,8 +55574,8 @@ function Remove-HPOVStorageSystem
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_StorageSystemCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_StorageSystemCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -55859,7 +55913,7 @@ function Get-HPOVStoragePool
 
 		}
 
-		$colStoragePools = New-Object System.Collections.ArrayList
+		$colStoragePools = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -55881,7 +55935,7 @@ function Get-HPOVStoragePool
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -56301,7 +56355,7 @@ function Add-HPOVStoragePool
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 		Write-Warning "This Cmdlet will be deprecated in a future release.  Please update your scripts to use Set-HPOVStoragePool."
 
@@ -56940,8 +56994,8 @@ function Remove-HPOVStoragePool
 
 		}
 
-		$_TaskCollection        = New-Object System.Collections.ArrayList
-		$_StoragePoolCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection        = [System.Collections.ArrayList]::new()
+		$_StoragePoolCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -57187,7 +57241,7 @@ function Get-HPOVStorageVolumeSet
 
 		}
 
-		$colStoragePools = New-Object System.Collections.ArrayList
+		$colStoragePools = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -57199,7 +57253,7 @@ function Get-HPOVStorageVolumeSet
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -57355,7 +57409,7 @@ function Get-HPOVStorageVolumeSet
 
 					# Get associated Storage Systems to Volume Sets with "name EQ 'STORAGE_SYSTEM_TO_STORAGE_VOLUME_SET'" to then embed within the Storage Volume object
 					
-					$_StorageVolumeResources = New-Object System.Collections.ArrayList
+					$_StorageVolumeResources = [System.Collections.ArrayList]::new()
 
 					Try
 					{
@@ -57534,7 +57588,7 @@ function Get-HPOVStorageVolumeTemplate
 
 		}
 
-		$_StorageVolumeTemplateCollection = New-Object System.Collections.ArrayList
+		$_StorageVolumeTemplateCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -57546,7 +57600,7 @@ function Get-HPOVStorageVolumeTemplate
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -57983,7 +58037,7 @@ function New-HPOVStorageVolumeTemplate
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 		if ($PSBoundParameters['Thin'])
 		{
@@ -59564,8 +59618,8 @@ function Remove-HPOVStorageVolumeTemplate
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_SVTCollection  = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_SVTCollection  = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -59846,7 +59900,7 @@ function Get-HPOVStorageVolumeTemplatePolicy
 
 		}
 
-		# $_SVTPolicyCollection = New-Object System.Collections.ArrayList
+		# $_SVTPolicyCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -59998,7 +60052,7 @@ function Set-HPOVStorageVolumeTemplatePolicy
 
 		}
 
-		$_SVTPolicyCollection = New-Object System.Collections.ArrayList
+		$_SVTPolicyCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -60189,7 +60243,7 @@ function Get-HPOVStorageVolume
 
 		}
 		
-		#$volumeCollection = New-Object System.Collections.ArrayList
+		#$volumeCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -60359,7 +60413,7 @@ function Get-HPOVStorageVolume
 
 				"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-				$_Query = New-Object System.Collections.ArrayList
+				$_Query = [System.Collections.ArrayList]::new()
 
 				# Handle default cause of AllResourcesInScope
 				if ($Scope -eq 'AllResourcesInScope')
@@ -61151,8 +61205,8 @@ function Remove-HPOVStorageVolumeSnapshot
 
 		}
 		
-		$_VolumeSnapshotCollection = New-Object System.Collections.ArrayList
-		$_TaskCollection           = New-Object System.Collections.ArrayList
+		$_VolumeSnapshotCollection = [System.Collections.ArrayList]::new()
+		$_TaskCollection           = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -61361,7 +61415,7 @@ function ConvertTo-HPOVStorageVolume
 
 		}
 		
-		$_VolumeSnapshotTaskCollection = New-Object System.Collections.ArrayList
+		$_VolumeSnapshotTaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -63124,7 +63178,7 @@ function Set-HPOVStorageVolume
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -63540,8 +63594,8 @@ function Remove-HPOVStorageVolume
 
 		}
 		
-		$_TaskCollection    = New-Object System.Collections.ArrayList
-		$_VolumeCollection  = New-Object System.Collections.ArrayList
+		$_TaskCollection    = [System.Collections.ArrayList]::new()
+		$_VolumeCollection  = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -63898,7 +63952,7 @@ function Get-HPOVSanManager
 
 		}
 
-		$SanManagerCollection = New-Object System.Collections.ArrayList
+		$SanManagerCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -64135,7 +64189,7 @@ function Add-HPOVSanManager
 
 		}
 
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 
 		if ($SnmpAuthLevel -eq "AuthOnly" -and 
 			(-not $SnmpAuthProtocol -or 
@@ -64555,7 +64609,7 @@ function Set-HPOVSanManager
 
 		}
 
-		$_ResourceUpdateStatus = New-Object System.Collections.ArrayList
+		$_ResourceUpdateStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -64617,7 +64671,7 @@ function Set-HPOVSanManager
 		}
 
 		$_UpdatedSanManager = [PSCustomObject]@{
-			connectionInfo = New-Object System.Collections.ArrayList
+			connectionInfo = [System.Collections.ArrayList]::new()
 		}
 
 		switch ($PSBoundParameters.keys)
@@ -64871,7 +64925,7 @@ function Update-HPOVSanManager
 
 		}
 
-		$_SanManagerRefreshCollection = New-Object System.Collections.ArrayList
+		$_SanManagerRefreshCollection = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -65071,8 +65125,8 @@ function Remove-HPOVSanManager
 
 		}
 
-		$_TaskCollection       = New-Object System.Collections.ArrayList
-		$_SanManagerCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection       = [System.Collections.ArrayList]::new()
+		$_SanManagerCollection = [System.Collections.ArrayList]::new()
    
 	}
 
@@ -65308,7 +65362,7 @@ function Get-HPOVManagedSan
 
 		}
 
-		$ManagedSansCollection = New-Object System.Collections.ArrayList
+		$ManagedSansCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -65597,7 +65651,7 @@ function Set-HPOVManagedSan
 
 		}
 
-		$_ResourceUpdateStatus = New-Object System.Collections.ArrayList
+		$_ResourceUpdateStatus = [System.Collections.ArrayList]::new()
 
 		if ($PSBoundParameters.Keys -Contains 'EnableAutomatedZoning')
 		{
@@ -65871,7 +65925,7 @@ function Show-HPOVSanEndpoint
 
 		}
 
-		$_SANEndpointCol = New-Object System.Collections.ArrayList
+		$_SANEndpointCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -66109,7 +66163,7 @@ function Get-HPOVSanZone
 
 		}
 
-		$_FCZoneCollection = New-Object System.Collections.ArrayList
+		$_FCZoneCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -66396,7 +66450,7 @@ function Get-HPOVDriveEnclosure
 
 		}
 
-		$_DriveEnclosureCollection = New-Object System.Collections.ArrayList
+		$_DriveEnclosureCollection = [System.Collections.ArrayList]::new()
 			
 	}
 
@@ -66714,7 +66768,7 @@ function Get-HPOVAvailableDriveType
 				{
 
 					$_SasLogicalInterconnect = $InputObject.PSObject.Copy()
-					$InputObject = New-Object System.Collections.ArrayList
+					$InputObject = [System.Collections.ArrayList]::new()
 
 					"[{0}] SAS Logical Interconnect provided: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_SasLogicalInterconnect.name | Write-Verbose
 					"[{0}] Getting all associated drive enclosures: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_SasLogicalInterconnect.driveEnclosureUris.count | Write-Verbose				
@@ -66816,7 +66870,7 @@ function Get-HPOVAvailableDriveType
 
 				}
 
-				$_TempDriveCollection = New-Object System.Collections.ArrayList
+				$_TempDriveCollection = [System.Collections.ArrayList]::new()
 
 				ForEach ($_MemberDrive in $_AvailableDrives.members)
 				{
@@ -66984,7 +67038,7 @@ function Get-HPOVUnmanagedDevice
 
 		}
 
-		$_UnmanagedDevicesCollection = New-Object System.Collections.ArrayList
+		$_UnmanagedDevicesCollection = [System.Collections.ArrayList]::new()
 
 		$uri = $UnmanagedDevicesUri
 
@@ -67251,7 +67305,7 @@ function New-HPOVUnmanagedDevice
 
 		}
 
-		$_UnmanagedDeviceCreateResults = New-Object System.Collections.ArrayList
+		$_UnmanagedDeviceCreateResults = [System.Collections.ArrayList]::new()
 	}
 
 	Process 
@@ -67417,8 +67471,8 @@ function Remove-HPOVUnmanagedDevice
 
 		}
 
-		$_TaskCollection            = New-Object System.Collections.ArrayList
-		$_UnmanagedDeviceCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection            = [System.Collections.ArrayList]::new()
+		$_UnmanagedDeviceCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -67660,7 +67714,7 @@ function Get-HPOVPowerDevice
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Commented out until corect Index API call can be found
 			# if ($Type)
@@ -68027,7 +68081,7 @@ function Add-HPOVPowerDevice
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -68462,7 +68516,7 @@ function Remove-HPOVPowerDevice
 
 		}
 
-		$_PowerDeviceCollection = New-Object System.Collections.ArrayList
+		$_PowerDeviceCollection = [System.Collections.ArrayList]::new()
    
 	}
 
@@ -68717,7 +68771,7 @@ function Get-HPOVPowerPotentialDeviceConnection
 
 		}
 
-		$_PowerDeviceCollection = New-Object System.Collections.ArrayList
+		$_PowerDeviceCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -69037,7 +69091,7 @@ function New-HPOVNetwork
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -69765,7 +69819,7 @@ function Get-HPOVNetwork
 
 		}
 
-		$NetworkCollection = New-Object System.Collections.ArrayList
+		$NetworkCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -69782,7 +69836,7 @@ function Get-HPOVNetwork
 
 			}
 
-			$Found = New-Object System.Collections.ArrayList
+			$Found = [System.Collections.ArrayList]::new()
 
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
@@ -69815,7 +69869,7 @@ function Get-HPOVNetwork
 
 			}
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
 			if ($Scope -eq 'AllResourcesInScope')
@@ -70251,8 +70305,8 @@ function Set-HPOVNetwork
 
 		}
 
-		$_NetworksToUpdate = New-Object System.Collections.ArrayList
-		$NetCollection     = New-Object System.Collections.ArrayList
+		$_NetworksToUpdate = [System.Collections.ArrayList]::new()
+		$NetCollection     = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -70857,8 +70911,8 @@ function Remove-HPOVNetwork
 
 		}
 
-		$_TaskCollection    = New-Object System.Collections.ArrayList
-		$_NetworkCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection    = [System.Collections.ArrayList]::new()
+		$_NetworkCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -71145,7 +71199,7 @@ function New-HPOVNetworkSet
 
 		}
 
-		$_NetSetStatusCol = New-Object System.Collections.ArrayList	
+		$_NetSetStatusCol = [System.Collections.ArrayList]::new()	
 
 	}
 	
@@ -71638,7 +71692,7 @@ function Get-HPOVNetworkSet
 
 		}
 
-		$_NetworkSetCollection = New-Object System.Collections.ArrayList
+		$_NetworkSetCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -71650,7 +71704,7 @@ function Get-HPOVNetworkSet
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
 			if ($Scope -eq 'AllResourcesInScope')
@@ -72027,7 +72081,7 @@ function Set-HPOVNetworkSet
 
 		}
 		
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -72118,7 +72172,7 @@ function Set-HPOVNetworkSet
 
 		$_UpdatedNetSet = $InputObject.PSObject.Copy()
 
-		$_UpdatedNetSet.networkUris = New-Object System.Collections.ArrayList
+		$_UpdatedNetSet.networkUris = [System.Collections.ArrayList]::new()
 
 		# Rebuild the list of URIs
 		ForEach ($_OriginalNetUri in $InputObject.networkUris)
@@ -72147,7 +72201,7 @@ function Set-HPOVNetworkSet
 
 			"[{0}] Clearing out existing networkUris." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			$_UpdatedNetSet.networkUris = New-Object System.Collections.ArrayList
+			$_UpdatedNetSet.networkUris = [System.Collections.ArrayList]::new()
 
 			foreach ($_net in $Networks) 
 			{
@@ -72758,9 +72812,9 @@ function Remove-HPOVNetworkSet
 
 		}
 		
-		$_NetSetsToRemoveCol = New-Object System.Collections.ArrayList
+		$_NetSetsToRemoveCol = [System.Collections.ArrayList]::new()
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -72974,7 +73028,7 @@ function Get-HPOVAddressPool
 
 		if ($Type -ieq "all") { $Type = @("VMAC", "VWWN", "VSN", "IPv4") }
 
-		$_AddressPoolCollection = New-Object System.Collections.ArrayList
+		$_AddressPoolCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -73225,7 +73279,7 @@ function Get-HPOVAddressPoolRange
 
 		}
 
-		$_RangeList = New-Object System.Collections.ArrayList
+		$_RangeList = [System.Collections.ArrayList]::new()
 					
 	}
 
@@ -73443,7 +73497,7 @@ function Get-HPOVAddressPoolSubnet
 
 		}
 
-		$_SubnetCollection = New-Object System.Collections.ArrayList
+		$_SubnetCollection = [System.Collections.ArrayList]::new()
 					
 	}
 
@@ -73643,7 +73697,7 @@ function New-HPOVAddressPoolSubnet
 
 		}
 
-		$_SubnetCollection = New-Object System.Collections.ArrayList
+		$_SubnetCollection = [System.Collections.ArrayList]::new()
 					
 	}
 
@@ -73895,7 +73949,7 @@ function Set-HPOVAddressPoolSubnet
 
 		}
 
-		$_SubnetCollection = New-Object System.Collections.ArrayList
+		$_SubnetCollection = [System.Collections.ArrayList]::new()
 					
 	}
 
@@ -73940,7 +73994,7 @@ function Set-HPOVAddressPoolSubnet
 			'DNSServers'
 			{
 
-				$InputObject.DNSServers = New-Object System.Collections.ArrayList
+				$InputObject.DNSServers = [System.Collections.ArrayList]::new()
 
 				$DNSServers | ForEach-Object { [void]$InputObject.DNSServers.Add($_) }
 
@@ -74094,9 +74148,9 @@ function Remove-HPOVAddressPoolSubnet
 
 		}
 		
-		$_IPv4SubnetPoolsToRemoveCol = New-Object System.Collections.ArrayList
+		$_IPv4SubnetPoolsToRemoveCol = [System.Collections.ArrayList]::new()
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -74313,7 +74367,7 @@ function New-HPOVAddressPoolRange
 
 		}
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 
 		# Validate Parameter options here
 		if ($PSCmdlet.ParameterSetName -eq 'Custom' -and $RangeType -ne 'Custom')
@@ -74736,9 +74790,9 @@ function Remove-HPOVAddressPoolRange
 
 		}
 		
-		$_AddressPoolsToRemoveCol = New-Object System.Collections.ArrayList
+		$_AddressPoolsToRemoveCol = [System.Collections.ArrayList]::new()
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -74915,7 +74969,7 @@ function Get-HPOVReservedVlanRange
 
 		}
 
-		$_FabricManagerCol = New-Object System.Collections.ArrayList
+		$_FabricManagerCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -75086,7 +75140,7 @@ function Set-HPOVReservedVlanRange
 
 		}
 
-		$_FabricManagerCol = New-Object System.Collections.ArrayList
+		$_FabricManagerCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -75265,7 +75319,7 @@ function Get-HPOVFabricManager
 
 		}
 
-		$_FabricManagerCol = New-Object System.Collections.ArrayList
+		$_FabricManagerCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -75277,7 +75331,7 @@ function Get-HPOVFabricManager
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			if ($Name)
 			{
@@ -76002,8 +76056,8 @@ function Get-HPOVInterconnectType
 
 		}
 
-		$Collection = New-Object System.Collections.ArrayList
-		$NotFound   = New-Object System.Collections.ArrayList
+		$Collection = [System.Collections.ArrayList]::new()
+		$NotFound   = [System.Collections.ArrayList]::new()
 	
 	}
 	
@@ -76210,8 +76264,8 @@ function Get-HPOVSasInterconnectType
 
 		}
 
-		$Collection = New-Object System.Collections.ArrayList
-		$NotFound   = New-Object System.Collections.ArrayList
+		$Collection = [System.Collections.ArrayList]::new()
+		$NotFound   = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -76421,9 +76475,9 @@ function Get-HPOVInterconnect
 
 		}
 
-		$InterconnectCollection   = New-Object System.Collections.ArrayList
-		$ApplianceInterconnectCol = New-Object System.Collections.ArrayList
-		$NotFound                 = New-Object System.Collections.ArrayList
+		$InterconnectCollection   = [System.Collections.ArrayList]::new()
+		$ApplianceInterconnectCol = [System.Collections.ArrayList]::new()
+		$NotFound                 = [System.Collections.ArrayList]::new()
 		
 		$InterconnecUris = $SasInterconnectsUri, $InterconnectsUri
 		
@@ -76437,7 +76491,7 @@ function Get-HPOVInterconnect
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -76762,7 +76816,7 @@ function Get-HPOVLogicalInterconnect
 
 		}
 
-		$LiCollection = New-Object System.Collections.ArrayList
+		$LiCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -76774,7 +76828,7 @@ function Get-HPOVLogicalInterconnect
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -77861,8 +77915,8 @@ function Get-HPOVSasLogicalInterconnect
 
 		}
 
-		$LiCollection = New-Object System.Collections.ArrayList
-		$NotFound     = New-Object System.Collections.ArrayList
+		$LiCollection = [System.Collections.ArrayList]::new()
+		$NotFound     = [System.Collections.ArrayList]::new()
 
 		if (-not $PSBoundParameters['Type'])
 		{
@@ -78137,8 +78191,8 @@ function Update-HPOVLogicalInterconnect
 
 		}
 
-		$_returntasks = New-Object System.Collections.ArrayList
-		$_liobjects   = New-Object System.Collections.ArrayList
+		$_returntasks = [System.Collections.ArrayList]::new()
+		$_liobjects   = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -78488,10 +78542,10 @@ Function Compare-LogicalInterconnect
     {
 
 
-        $CompareObject            = New-Object System.Collections.ArrayList
-        $_LogicalInterconnects    = New-Object System.Collections.ArrayList   # Logical Interconnect Uris; not sure what this is used for yet.
-        $InterconnectMap          = New-Object System.Collections.ArrayList   # Collection of Interconnects?
-        $InterconnectMapTemplate  = New-Object System.Collections.ArrayList
+        $CompareObject            = [System.Collections.ArrayList]::new()
+        $_LogicalInterconnects    = [System.Collections.ArrayList]::new()   # Logical Interconnect Uris; not sure what this is used for yet.
+        $InterconnectMap          = [System.Collections.ArrayList]::new()   # Collection of Interconnects?
+        $InterconnectMapTemplate  = [System.Collections.ArrayList]::new()
         $SideIndicator            = @{ Parent = '<='; Child = '=>'; NotEqual = '<=>'}
 
 		function CompareInterconnects ($_LogicalInterconnect, $_LogicalInterconnectGroup) 
@@ -78516,7 +78570,7 @@ Function Compare-LogicalInterconnect
             }
 
             
-            #$InterconnectMap = New-Object System.Collections.ArrayList
+            #$InterconnectMap = [System.Collections.ArrayList]::new()
 			#Build array of actual Interconnects in LI
             foreach ($_InterconnectMapEntry in $_LogicalInterconnect.InterconnectMap.interconnectMapEntries) 
             {
@@ -78592,7 +78646,7 @@ Function Compare-LogicalInterconnect
 
             # Process Ethernet Settings
             $EthernetSettingsProperties = "enableIgmpSnooping", "igmpIdleTimeoutInterval", "enableFastMacCacheFailover", "macRefreshInterval", "enableNetworkLoopProtection", "enablePauseFloodProtection", "enableRichTLV", "enableTaggedLldp"
-            $EthernetSettingsDiff = New-Object System.Collections.Arraylist
+            $EthernetSettingsDiff = [System.Collections.ArrayList]::new()
 
             if ($_LogicalInterconnectGroup.category -ne 'sas-logical-interconnect-groups')
             {
@@ -78690,7 +78744,7 @@ Function Compare-LogicalInterconnect
 			
 			}
             
-			$myLUs = New-Object System.Collections.ArrayList
+			$myLUs = [System.Collections.ArrayList]::new()
 			
 			'Processing LIG policy for undefined Uplink Sets within LI.' -f $_LigUplinkSet.name | Write-Verbose #-Verbose
 			
@@ -78999,8 +79053,8 @@ Function Compare-LogicalInterconnect
             }
 
             #Build array of LU ports
-            $luPorts = New-Object System.Collections.ArrayList
-            $lutPorts = New-Object System.Collections.ArrayList
+            $luPorts = [System.Collections.ArrayList]::new()
+            $lutPorts = [System.Collections.ArrayList]::new()
 
             # Process LIG Uplink Set Uplink Ports
             foreach ($upPorts in $lut.logicalPortConfigInfos) 
@@ -79684,7 +79738,7 @@ function Show-HPOVLogicalInterconnectMacTable
 
 		}
 
-		$MacTables = New-Object System.Collections.ArrayList
+		$MacTables = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -80294,7 +80348,7 @@ function Install-HPOVLogicalInterconnectFirmware
 
 		}
 
-		$TaskCollection = New-Object System.Collections.ArrayList
+		$TaskCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -80794,7 +80848,7 @@ function Show-HPOVPortStatistics
 
 		}
 
-		$_PortStatsCol = New-Object System.Collections.ArrayList
+		$_PortStatsCol = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -81336,7 +81390,7 @@ function Get-HPOVLogicalInterconnectGroup
 
 		}
 
-		$LigCollection = New-Object System.Collections.ArrayList
+		$LigCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -81412,7 +81466,7 @@ function Get-HPOVLogicalInterconnectGroup
 
 				"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-				$_Query = New-Object System.Collections.ArrayList
+				$_Query = [System.Collections.ArrayList]::new()
 
 				# Handle default cause of AllResourcesInScope
 				if ($Scope -eq 'AllResourcesInScope')
@@ -81854,7 +81908,7 @@ function New-HPOVLogicalInterconnectGroup
 
 		}
 
-		$LigTasks = New-Object System.Collections.ArrayList
+		$LigTasks = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -82709,7 +82763,7 @@ function New-HPOVSnmpConfiguration
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		$_SnmpConfigrationCol = New-Object System.Collections.ArrayList
+		$_SnmpConfigrationCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -82876,7 +82930,7 @@ function New-HPOVSnmpTrapDestination
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		$_TrapDestinationCol = New-Object System.Collections.ArrayList
+		$_TrapDestinationCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -83112,7 +83166,7 @@ function New-HPOVQosConfig
 		if (($PSBoundParameters['UplinkClassificationType'] -or $PSBoundParameters['DownlinkClassificationType'] -or $PSBoundParameters['TrafficClassifiers']) -and $ConfigType -eq 'Passthrough')
 		{
 
-			$ParameterNames = New-Object System.Collections.ArrayList
+			$ParameterNames = [System.Collections.ArrayList]::new()
 		
 			switch ($PSBoundParameters.Keys)
 			{
@@ -83312,7 +83366,7 @@ function New-HPOVQosTrafficClass
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		$NoMatch = New-Object System.Collections.ArrayList
+		$NoMatch = [System.Collections.ArrayList]::new()
 		
 		# Validate the IngressDscpClassMapping values caller is providing
 		ForEach ($item in $IngressDscpClassMapping)
@@ -83548,8 +83602,8 @@ function Remove-HPOVLogicalInterconnectGroup
 
 		}
 
-		$_taskcollection = New-Object System.Collections.ArrayList
-		$_ligcollection = New-Object System.Collections.ArrayList
+		$_taskcollection = [System.Collections.ArrayList]::new()
+		$_ligcollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -83863,7 +83917,7 @@ function Get-HPOVUplinkSet
 
 		}
 
-		$_UplinkSetCollection = New-Object System.Collections.ArrayList
+		$_UplinkSetCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -84025,7 +84079,7 @@ function Get-HPOVUplinkSet
 				try 
 				{ 
 				
-					$_uplinksets = New-Object System.Collections.ArrayList
+					$_uplinksets = [System.Collections.ArrayList]::new()
 
 					"[{0}] Looking for associated Uplink Sets to Logical Interconnects via Index." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
@@ -84373,7 +84427,7 @@ function New-HPOVUplinkSet
 		else
 		{
 
-			$_NewUplinkSetCol = New-Object System.Collections.ArrayList
+			$_NewUplinkSetCol = [System.Collections.ArrayList]::new()
 
 			# If pipeline object is String and not PSCustomObject, fail the call
 			if ($InputObject -is [String] -or (-not($InputObject -is [PSCustomObject])))
@@ -84460,8 +84514,8 @@ function New-HPOVUplinkSet
 					"[{0}] Uplink Ports to Process: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), [System.String]::Join(', ', $UplinkPorts) | Write-Verbose
 
 					# Loop through requested Uplink Ports
-					$port              = New-Object System.Collections.ArrayList
-					$uslogicalLocation = New-Object System.Collections.ArrayList
+					$port              = [System.Collections.ArrayList]::new()
+					$uslogicalLocation = [System.Collections.ArrayList]::new()
 
 					foreach ($_p in $UplinkPorts)
 					{
@@ -84860,8 +84914,8 @@ function New-HPOVUplinkSet
 					}
 
 					# Loop through requested Uplink Ports
-					$port              = New-Object System.Collections.ArrayList
-					$uslogicalLocation = New-Object System.Collections.ArrayList
+					$port              = [System.Collections.ArrayList]::new()
+					$uslogicalLocation = [System.Collections.ArrayList]::new()
 
 					foreach ($_p in $UplinkPorts)
 					{
@@ -85405,7 +85459,7 @@ function Set-HPOVUplinkSet
 
 		}
 		
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -85457,7 +85511,7 @@ function Set-HPOVUplinkSet
 
 		$_UpdatedNetSet = $InputObject.PSObject.Copy()
 
-		$_UpdatedNetSet.networkUris = New-Object System.Collections.ArrayList
+		$_UpdatedNetSet.networkUris = [System.Collections.ArrayList]::new()
 
 		# Rebuild the list of URIs
 		ForEach ($_OriginalNetUri in $InputObject.networkUris)
@@ -85486,7 +85540,7 @@ function Set-HPOVUplinkSet
 
 			"[{0}] Clearing out existing networkUris." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-			$_UpdatedNetSet.networkUris = New-Object System.Collections.ArrayList
+			$_UpdatedNetSet.networkUris = [System.Collections.ArrayList]::new()
 
 			foreach ($_net in $Networks) 
 			{
@@ -85994,7 +86048,7 @@ function GetNetworkUris
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-		$_NetworkUris = New-Object System.Collections.ArrayList
+		$_NetworkUris = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -86266,8 +86320,8 @@ function Get-HPOVSwitchType
 
 		}
 
-		$Collection = New-Object System.Collections.ArrayList
-		$NotFound   = New-Object System.Collections.ArrayList
+		$Collection = [System.Collections.ArrayList]::new()
+		$NotFound   = [System.Collections.ArrayList]::new()
 	
 	}
 	
@@ -86488,7 +86542,7 @@ function Get-HPOVLogicalSwitchGroup
 
 		}
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -86562,7 +86616,7 @@ function Get-HPOVLogicalSwitchGroup
 
 				"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-				$_Query = New-Object System.Collections.ArrayList
+				$_Query = [System.Collections.ArrayList]::new()
 
 				# Handle default cause of AllResourcesInScope
 				if ($Scope -eq 'AllResourcesInScope')
@@ -87063,7 +87117,7 @@ function Remove-HPOVLogicalSwitchGroup
 
 		}
 
-		$_lsgcollection = New-Object System.Collections.ArrayList
+		$_lsgcollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -87322,7 +87376,7 @@ function Get-HPOVLogicalSwitch
 
 		}
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -87399,7 +87453,7 @@ function Get-HPOVLogicalSwitch
 
 				"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-				$_Query = New-Object System.Collections.ArrayList
+				$_Query = [System.Collections.ArrayList]::new()
 
 				# Handle default cause of AllResourcesInScope
 				if ($Scope -eq 'AllResourcesInScope')
@@ -88179,8 +88233,8 @@ function Remove-HPOVLogicalSwitch
 
 		}
 
-		$_taskcollection          = New-Object System.Collections.ArrayList
-		$_logicalswitchcollection = New-Object System.Collections.ArrayList
+		$_taskcollection          = [System.Collections.ArrayList]::new()
+		$_logicalswitchcollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -88492,8 +88546,8 @@ function Set-HPOVLogicalSwitch
 
 		}
 
-		$_NetworksToUpdate = New-Object System.Collections.ArrayList
-		$NetCollection     = New-Object System.Collections.ArrayList
+		$_NetworksToUpdate = [System.Collections.ArrayList]::new()
+		$NetCollection     = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -89035,7 +89089,7 @@ function Update-HPOVLogicalSwitch
 			
 		}		
 
-		$_lsobjects   = New-Object System.Collections.ArrayList
+		$_lsobjects   = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -89243,7 +89297,7 @@ function Get-HPOVSwitch
 
 		}
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -89255,7 +89309,7 @@ function Get-HPOVSwitch
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -89535,7 +89589,7 @@ function Get-HPOVImageStreamerAppliance
 
 		}
 
-		$_ImageStreamerCollection = New-Object System.Collections.ArrayList
+		$_ImageStreamerCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -90454,7 +90508,7 @@ function Get-HPOVOSDeploymentPlan
 
 		}
 
-		$_OSDeploymentPlanCollection = New-Object System.Collections.ArrayList
+		$_OSDeploymentPlanCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -90478,7 +90532,7 @@ function Get-HPOVOSDeploymentPlan
 			else
 			{
 
-				$_Query = New-Object System.Collections.ArrayList
+				$_Query = [System.Collections.ArrayList]::new()
 
 				# Handle default cause of AllResourcesInScope
 				if ($Scope -eq 'AllResourcesInScope')
@@ -90754,7 +90808,7 @@ function Get-HPOVOSDeploymentPlanAttribute
 
 		}
 
-		$_PlanAttributesCol = New-Object System.Collections.ArrayList
+		$_PlanAttributesCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -91012,7 +91066,7 @@ function Get-HPOVServerProfile
 
 		}
 
-		$ProfileCollection = New-Object System.Collections.ArrayList
+		$ProfileCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -91024,7 +91078,7 @@ function Get-HPOVServerProfile
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -91593,7 +91647,7 @@ function Get-HPOVServerProfile
 			ForEach ($pg in $ProfileGroupings)
 			{
 				
-				$outputProfiles = New-Object System.Collections.ArrayList
+				$outputProfiles = [System.Collections.ArrayList]::new()
 
 				$profiles = $ProfileCollection | Where-Object {$_.ApplianceConnection.Name -eq $pg}
 
@@ -92192,7 +92246,7 @@ function New-HPOVServerProfile
 		if ($PSBoundParameters['IscsiIPv4Address'])
 		{
 
-			$_TmpCollection = New-Object System.Collections.ArrayList
+			$_TmpCollection = [System.Collections.ArrayList]::new()
 
 			$IscsiIPv4Address | ForEach-Object { [void]$_TmpCollection.Add($_) }
 
@@ -92202,7 +92256,7 @@ function New-HPOVServerProfile
 
 		$uri = $ServerProfilesUri
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -92374,7 +92428,7 @@ function New-HPOVServerProfile
 					# Rebuild Connections into an ArrayList
 					$_TmpConnections = $ServerProfile.connectionSettings.connections.Clone()
 
-					$ServerProfile.connectionSettings.connections = New-Object System.Collections.ArrayList
+					$ServerProfile.connectionSettings.connections = [System.Collections.ArrayList]::new()
 
 					ForEach ($_con in $_TmpConnections)
 					{
@@ -92495,7 +92549,7 @@ function New-HPOVServerProfile
 				else
 				{
 
-					$ServerProfile.connectionSettings.connections = New-Object System.Collections.ArrayList
+					$ServerProfile.connectionSettings.connections = [System.Collections.ArrayList]::new()
 
 				}
 
@@ -93416,7 +93470,7 @@ function New-HPOVServerProfile
 			If ($PSBoundParameters['Connections'] -and $ServerHardwareType.model -notmatch "DL")
 			{
 
-				$BootableConnections = New-Object System.Collections.ArrayList
+				$BootableConnections = [System.Collections.ArrayList]::new()
 
 				"[{0}] Getting available Network resources based on SHT and EG." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
@@ -93656,7 +93710,7 @@ function New-HPOVServerProfile
 					# Loop through Controllers provided by user, which should have LogicalDisks attached.
 					$__controller = $_Controller.PSObject.Copy()
 
-					$_NewLogicalDisksCollection = New-Object System.Collections.ArrayList
+					$_NewLogicalDisksCollection = [System.Collections.ArrayList]::new()
 
 					"[{0}] Processing {1} Controller" -f $MyInvocation.InvocationName.ToString().ToUpper(), $__controller.deviceSlot | Write-Verbose
 					
@@ -93766,7 +93820,7 @@ function New-HPOVServerProfile
 				$ServerProfile.sanStorage.hostOSType        = $ServerProfileSanManageOSType[$HostOsType];
 				$ServerProfile.sanStorage.manageSanStorage  = [bool]$SANStorage;
 
-				$_AllNetworkUrisCollection  = New-Object System.Collections.ArrayList
+				$_AllNetworkUrisCollection  = [System.Collections.ArrayList]::new()
 
 				# Build list of network URI's from connections
 				ForEach ($_Connection in ($ServerProfile.connectionSettings.connections | Where-Object { -not $_.networkUri.StartsWith($NetworkSetsUri) })) 
@@ -93777,7 +93831,7 @@ function New-HPOVServerProfile
 				}
 
 				# Copy the Parameter array into a new object
-				$_VolumesToAttach = New-Object System.Collections.ArrayList
+				$_VolumesToAttach = [System.Collections.ArrayList]::new()
 
 				$StorageVolume | ForEach-Object { 
 
@@ -94236,14 +94290,14 @@ function Convert-HPOVServerProfile
 
 		}     
 
-		$_taskCollection = New-Object System.Collections.ArrayList
+		$_taskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
 	Process
 	{
 
-		$_TransformType = New-Object System.Collections.ArrayList
+		$_TransformType = [System.Collections.ArrayList]::new()
 
 		$_ServerHardwareTypeUri = $null
 		$_EnclosureGroupUri = $null
@@ -94533,8 +94587,8 @@ function Update-HPOVServerProfile
 
 		}
 
-		$_TaskCollection          = New-Object System.Collections.ArrayList
-		$_ServerProfileCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection          = [System.Collections.ArrayList]::new()
+		$_ServerProfileCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -94624,7 +94678,7 @@ function Update-HPOVServerProfile
 		"[{0}] Processing Server Profile: '{1} [{2}]'" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name, $InputObject.uri | Write-Verbose
 
 		$_NotCompliant = $true
-		$_PatchOperations = New-Object System.Collections.ArrayList
+		$_PatchOperations = [System.Collections.ArrayList]::new()
 
 		switch ($PSCmdlet.ParameterSetName)
 		{
@@ -94683,7 +94737,7 @@ function Update-HPOVServerProfile
 
 				}
 
-				$_ReapplyOperations = New-Object System.Collections.ArrayList
+				$_ReapplyOperations = [System.Collections.ArrayList]::new()
 
 				$_SpecificOperation = $false
 
@@ -95114,7 +95168,7 @@ function New-HPOVServerProfileAssign
 
 		}     
 
-		$_taskCollection = New-Object System.Collections.ArrayList
+		$_taskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -95488,7 +95542,7 @@ function Copy-HPOVServerProfile
 
 		}
 
-		$taskCollection = New-Object System.Collections.ArrayList
+		$taskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -95736,7 +95790,7 @@ function Copy-HPOVServerProfile
 		# Remove Profile Specifics:
 		$_Profile = $_Profile | select-object -Property * -excludeproperty uri,etag,created,modified,uuid,status,state,inprogress,serialNumber,enclosureUri,enclosureBay,serverHardwareUri,taskUri #,sanStorage
 
-		$newConnections = New-Object System.Collections.ArrayList
+		$newConnections = [System.Collections.ArrayList]::new()
 		# Create new connections with excluded properties and add to the newConnections array
 
 		'[{0}] Rebuilding fabric connections' -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -96407,7 +96461,7 @@ function Get-HPOVServerProfileTemplate
 
 		}
 
-		$TemplateCollection = New-Object System.Collections.ArrayList
+		$TemplateCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -96419,7 +96473,7 @@ function Get-HPOVServerProfileTemplate
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -96634,7 +96688,7 @@ function Get-HPOVServerProfileTemplate
 			ForEach ($pg in $ProfileGroupings)
 			{
 				
-				$outputProfiles = New-Object System.Collections.ArrayList
+				$outputProfiles = [System.Collections.ArrayList]::new()
 
 				$templates = $TemplateCollection | Where-Object { $_.ApplianceConnection.Name -eq $pg }
 
@@ -97037,7 +97091,7 @@ function New-HPOVServerProfileTemplate
 
 		$uri = $ServerProfileTemplatesUri
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -97446,7 +97500,7 @@ function New-HPOVServerProfileTemplate
 
 			$_c = 0
 
-			$BootableConnections = New-Object System.Collections.ArrayList
+			$BootableConnections = [System.Collections.ArrayList]::new()
 
 			ForEach ($c in $Connections)
 			{
@@ -97866,7 +97920,7 @@ function New-HPOVServerProfileTemplate
 
 				"[{0}] Server Hardware supports '{1}' drives." -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerHardwareType.storageCapabilities.maximumDrives | Write-Verbose
 
-				$_NewLogicalDisksCollection = New-Object System.Collections.ArrayList
+				$_NewLogicalDisksCollection = [System.Collections.ArrayList]::new()
 
 				# Validate the SHT.storageCapabilities .raidLevels -> logicalDrives.raidLevel and .maximumDrives -> numPhysicalDrives
 				ForEach ($_ld in $__controller.logicalDrives)
@@ -97961,7 +98015,7 @@ function New-HPOVServerProfileTemplate
 
 			}
 
-			$_AllNetworkUrisCollection  = New-Object System.Collections.ArrayList
+			$_AllNetworkUrisCollection  = [System.Collections.ArrayList]::new()
 
 			#Build list of network URI's from connections
 			ForEach ($_Connection in ($_spt.connectionSettings.connections | Where-Object { -not $_.networkUri.StartsWith($NetworkSetsUri)})) 
@@ -97972,7 +98026,7 @@ function New-HPOVServerProfileTemplate
 			}
 
 			# Copy the Parameter array into a new object
-			$_VolumesToAttach = New-Object System.Collections.ArrayList
+			$_VolumesToAttach = [System.Collections.ArrayList]::new()
 
 			$StorageVolume | ForEach-Object { 
 
@@ -98459,7 +98513,7 @@ function Join-HPOVServerProfileToTemplate
 
 		$uri = $ServerProfilesUri
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -98701,14 +98755,14 @@ function Convert-HPOVServerProfileTemplate
 
 		}     
 
-		$_taskCollection = New-Object System.Collections.ArrayList
+		$_taskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
 	Process
 	{
 
-		$_TransformType = New-Object System.Collections.ArrayList
+		$_TransformType = [System.Collections.ArrayList]::new()
 
 		$_ServerHardwareTypeUri = $null
 		$_EnclosureGroupUri = $null
@@ -99242,7 +99296,7 @@ function Remove-HPOVServerProfileTemplate
 
 		}
 
-		$taskCollection = New-Object System.Collections.ArrayList
+		$taskCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -99456,7 +99510,7 @@ function Get-HPOVServerProfileConnectionList
 
 		}
 
-		$allConnections = New-Object System.Collections.ArrayList
+		$allConnections = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -99466,7 +99520,7 @@ function Get-HPOVServerProfileConnectionList
 		ForEach($_Connection in $ApplianceConnection)
 		{
 
-			$profiles = New-Object System.Collections.ArrayList
+			$profiles = [System.Collections.ArrayList]::new()
 	
 			# Get profiles
 			if ($Name)
@@ -99549,7 +99603,7 @@ function Get-HPOVServerProfileConnectionList
 			}
 	
 			# Get connections
-			$conns = New-Object System.Collections.ArrayList
+			$conns = [System.Collections.ArrayList]::new()
 
 			foreach($p in $profiles)
 			{
@@ -99915,7 +99969,7 @@ function New-HPOVServerProfileConnection
 		}
 				
 		# Init object collection
-		$_Connections = New-Object System.Collections.ArrayList
+		$_Connections = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -100982,7 +101036,7 @@ function New-HPOVServerProfileLogicalDisk
 		"[{0}] Helper cmdlet does not require authentication." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 				
 		# Init object collection
-		$_LogicalDiskCol = New-Object System.Collections.ArrayList
+		$_LogicalDiskCol = [System.Collections.ArrayList]::new()
 		if ($PSCmdlet.ParameterSetName -eq 'Default' -and $StorageLocation -eq 'External')
 		{
 
@@ -101689,7 +101743,7 @@ function New-HPOVServerProfileAttachVolume
 		}
 
 		# Initialize collection to hold multiple volume attachments objects
-		$_volumeAttachments = New-Object System.Collections.ArrayList
+		$_volumeAttachments = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -102708,7 +102762,7 @@ function New-HPOVServerProfileAttachVolume
 						
 					hostOSType        = $ServerProfileSanManageOSType[$HostOsType];
 					manageSanStorage  = $true;
-					volumeAttachments = New-Object System.Collections.ArrayList
+					volumeAttachments = [System.Collections.ArrayList]::new()
 					
 				}
 
@@ -102725,7 +102779,7 @@ function New-HPOVServerProfileAttachVolume
 
 					$_ExistingVols = $_ServerProfile.sanStorage.volumeAttachments.Clone()					
 
-					$_ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
+					$_ServerProfile.sanStorage.volumeAttachments = [System.Collections.ArrayList]::new()
 
 					ForEach ($_vol in $_ExistingVols)
 					{
@@ -102764,13 +102818,13 @@ function New-HPOVServerProfileAttachVolume
 				else
 				{
 
-					$_ServerProfile.sanStorage.volumeAttachments = New-Object System.Collections.ArrayList
+					$_ServerProfile.sanStorage.volumeAttachments = [System.Collections.ArrayList]::new()
 
 				}
 
 			}
 
-			$_AllNetworkUrisCollection  = New-Object System.Collections.ArrayList
+			$_AllNetworkUrisCollection  = [System.Collections.ArrayList]::new()
 
 			# Build list of network URI's from connections
 			ForEach ($_Connection in ($_ServerProfile.connectionSettings.connections | Where-Object { -not $_.networkUri.StartsWith($NetworkSetsUri)})) 
@@ -103339,7 +103393,7 @@ function Get-HPOVClusterManager
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
             if ($Scope -eq 'AllResourcesInScope')
@@ -104494,7 +104548,7 @@ function Get-HPOVClusterProfile
 
 		}
 
-		$_ClustersCol = New-Object System.Collections.ArrayList
+		$_ClustersCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -104506,7 +104560,7 @@ function Get-HPOVClusterProfile
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			if ($Name)
 			{
@@ -104704,7 +104758,7 @@ function Get-HPOVClusterNode
 
 		}
 
-		$_ClusterNodeCol = New-Object System.Collections.ArrayList
+		$_ClusterNodeCol = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -104716,7 +104770,7 @@ function Get-HPOVClusterNode
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
 			if ($Scope -eq 'AllResourcesInScope')
@@ -104996,7 +105050,7 @@ function Show-HPOVHypervisorCluster
 
 			"[{0}] Processing Appliance Connection '{1}' (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance, $ApplianceConnection.count | Write-Verbose
 
-			$_HypervisorManagerUris = New-Object System.Collections.ArrayList
+			$_HypervisorManagerUris = [System.Collections.ArrayList]::new()
 
 			# Get all hypervisor managers on the appliance
 			try
@@ -105022,7 +105076,7 @@ function Show-HPOVHypervisorCluster
 
 			}
 
-			$_Filter = New-Object System.Collections.ArrayList
+			$_Filter = [System.Collections.ArrayList]::new()
 
 			if ($Name)
 			{
@@ -106100,7 +106154,7 @@ function Import-HPOVClusterProfile
 
 			"[{0}] Processing appliance {1} (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			# Handle default cause of AllResourcesInScope
 			if ($Scope -eq 'AllResourcesInScope')
@@ -107635,7 +107689,7 @@ function Search-HPOVIndex
 		}
 
 		# Initialize collection to hold multiple volume attachments objects
-		$_IndexSearchResults = New-Object System.Collections.ArrayList
+		$_IndexSearchResults = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -107864,7 +107918,7 @@ function Search-HPOVAssociations
 		}
 
 		# Initialize collection to hold multiple volume attachments objects
-		$_IndexSearchResults = New-Object System.Collections.ArrayList
+		$_IndexSearchResults = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -108073,7 +108127,7 @@ function Get-HPOVTask
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -108686,9 +108740,9 @@ function Wait-HPOVTaskComplete
 
 		}
 
-		$TaskCollection          = New-Object System.Collections.ArrayList
-		$FinishedTasksCollection = New-Object System.Collections.ArrayList
-		$_TaskIds                = New-Object System.Collections.ArrayList
+		$TaskCollection          = [System.Collections.ArrayList]::new()
+		$FinishedTasksCollection = [System.Collections.ArrayList]::new()
+		$_TaskIds                = [System.Collections.ArrayList]::new()
 
 		$i = 1
 
@@ -109135,7 +109189,7 @@ function Get-HPOVUser
 
 		}	
 		
-		$_UserCollection = New-Object System.Collections.ArrayList
+		$_UserCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -109147,7 +109201,7 @@ function Get-HPOVUser
 
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_Query = New-Object System.Collections.ArrayList
+			$_Query = [System.Collections.ArrayList]::new()
 
 			$_Category = "category=users&"
 
@@ -109388,7 +109442,7 @@ function New-HPOVUser
 
 		}
 		
-		$_UserStatus = New-Object System.Collections.ArrayList
+		$_UserStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -109402,8 +109456,8 @@ function New-HPOVUser
 
 			"[{0}] Validating requested role values" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 			
-			$_unsupportedRoles = New-Object System.Collections.ArrayList
-			$_NewUserRoles     = New-Object System.Collections.ArrayList
+			$_unsupportedRoles = [System.Collections.ArrayList]::new()
+			$_NewUserRoles     = [System.Collections.ArrayList]::new()
 
 			$_user = NewObject -UserAccount
 
@@ -109775,8 +109829,8 @@ function Set-HPOVUser
 						
 		}
 
-		$_UsersToUpdate = New-Object System.Collections.ArrayList
-		$_UserStatus    = New-Object System.Collections.ArrayList
+		$_UsersToUpdate = [System.Collections.ArrayList]::new()
+		$_UserStatus    = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -109852,7 +109906,7 @@ function Set-HPOVUser
 			if ($PSBoundParameters['Roles'] -or $PSBoundParameters['ScopePermissions'])
 			{
 
-				$_user.permissions = New-Object System.Collections.ArrayList
+				$_user.permissions = [System.Collections.ArrayList]::new()
 
 			}
 
@@ -109901,8 +109955,8 @@ function Set-HPOVUser
 						$_User | add-member -NotePropertyName replaceRoles -NotePropertyValue $True -force
 
 						# Validate roles provided are allowed.
-						$_unsupportedRoles = New-Object System.Collections.ArrayList
-						$_NewUserRoles     = New-Object System.Collections.ArrayList
+						$_unsupportedRoles = [System.Collections.ArrayList]::new()
+						$_NewUserRoles     = [System.Collections.ArrayList]::new()
 
 						# Validate roles provided are allowed.
 						foreach ($_role in $Roles) 
@@ -110317,7 +110371,7 @@ function Set-HPOVUserPassword
 
 		}
 
-		$_UserStatus = New-Object System.Collections.ArrayList
+		$_UserStatus = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -110497,8 +110551,8 @@ function Remove-HPOVUser
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
-		$_UserCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
+		$_UserCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -110946,7 +111000,7 @@ function Get-HPOVApplianceTrustedCertificate
 
 		}
 
-		$_CertCollection = New-Object System.Collections.ArrayList
+		$_CertCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -111302,7 +111356,7 @@ function Add-HPOVApplianceTrustedCertificate
 				$_CertToImportCollection = [PSCustomObject]@{
 
 					type = 'CertificateInfoV2';
-					certificateDetails = New-Object System.Collections.ArrayList
+					certificateDetails = [System.Collections.ArrayList]::new()
 					
 				}
 
@@ -111448,7 +111502,7 @@ function Add-HPOVApplianceTrustedCertificate
 				$_CertToImportCollection = [PSCustomObject]@{
 
 					type    = 'CertificateAuthorityInfoCollection';
-					members = New-Object System.Collections.ArrayList
+					members = [System.Collections.ArrayList]::new()
 					
 				}
 
@@ -111471,7 +111525,7 @@ function Add-HPOVApplianceTrustedCertificate
 				$_CertToImportCollection = [PSCustomObject]@{
 
 					type = 'CertificateInfoV2';
-					certificateDetails = New-Object System.Collections.ArrayList
+					certificateDetails = [System.Collections.ArrayList]::new()
 					
 				}
 
@@ -111659,7 +111713,7 @@ function Update-HPOVApplianceTrustedAuthorityCrl
 
 		}
 
-		$_GlobalAuthDirectorySettings = New-Object System.Collections.ArrayList
+		$_GlobalAuthDirectorySettings = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -112032,7 +112086,7 @@ function Get-HPOVLdap
 
 		}
 
-		$_GlobalAuthDirectorySettings = New-Object System.Collections.ArrayList
+		$_GlobalAuthDirectorySettings = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -112200,7 +112254,7 @@ function Get-HPOVLdapDirectory
 
 		}
 
-		$_AuthDirectorySettings = New-Object System.Collections.ArrayList
+		$_AuthDirectorySettings = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -112210,7 +112264,7 @@ function Get-HPOVLdapDirectory
 		ForEach ($_appliance in $ApplianceConnection)
 		{
 		
-			$Found = New-Object System.Collections.ArrayList
+			$Found = [System.Collections.ArrayList]::new()
 
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
@@ -112521,7 +112575,7 @@ function New-HPOVLdapDirectory
 
 		}
 
-		$_AuthDirectorySettings = New-Object System.Collections.ArrayList
+		$_AuthDirectorySettings = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -112573,7 +112627,7 @@ function New-HPOVLdapDirectory
 						$_CertToImportCollection = [PSCustomObject]@{
 
 							type = 'CertificateInfoV2';
-							certificateDetails = New-Object System.Collections.ArrayList
+							certificateDetails = [System.Collections.ArrayList]::new()
 
 						}
 
@@ -112822,8 +112876,8 @@ function Remove-HPOVLdapDirectory
 
 		}
 
-		$_TaskCollection    = New-Object System.Collections.ArrayList
-		$_DirectoryCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection    = [System.Collections.ArrayList]::new()
+		$_DirectoryCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -113073,8 +113127,8 @@ function Set-HPOVLdapDefaultDirectory
 
 		}
 
-		$_TaskCollection      = New-Object System.Collections.ArrayList
-		$_DirectoryCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection      = [System.Collections.ArrayList]::new()
+		$_DirectoryCollection = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -113329,7 +113383,7 @@ function Enable-HPOVLdapLocalLogin
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -113496,7 +113550,7 @@ function Disable-HPOVLdapLocalLogin
 
 		}
 
-		$_TaskCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection = [System.Collections.ArrayList]::new()
 	
 	}
 
@@ -113624,7 +113678,7 @@ function New-HPOVLdapServer
 
 		"[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 		
-		$_AuthDirectoryServer = New-Object System.Collections.ArrayList
+		$_AuthDirectoryServer = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -114059,7 +114113,7 @@ function Add-HPOVLdapServer
 		# Rebuild directoryServers property
 		$_DirectoryServers = $InputObject.directoryServers.Clone()
 
-		$InputObject.directoryServers = New-Object System.Collections.ArrayList
+		$InputObject.directoryServers = [System.Collections.ArrayList]::new()
 
 		[Void]$InputObject.directoryServers.Add($_ldapServer)
 
@@ -114798,7 +114852,7 @@ function Show-HPOVLdapGroups
 
 		}
 
-		$_DirectoryGroupsCollection = New-Object System.Collections.ArrayList
+		$_DirectoryGroupsCollection = [System.Collections.ArrayList]::new()
 		
 	}
 
@@ -114983,7 +115037,7 @@ function BuildGroupList
 
 		"[{0}] Processing Search: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Search | Write-Verbose
 
-		$_Collection = New-Object System.Collections.ArrayList
+		$_Collection = [System.Collections.ArrayList]::new()
 
 		$_body = @{
 			
@@ -115194,7 +115248,7 @@ function Get-HPOVLdapGroup
 
 		}
 
-		$_DirectoryGroupsCollection = New-Object System.Collections.ArrayList
+		$_DirectoryGroupsCollection = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -115430,7 +115484,7 @@ function New-HPOVLdapGroup
 
 		}
 
-		$_DirectroyGroupStatus = New-Object System.Collections.ArrayList
+		$_DirectroyGroupStatus = [System.Collections.ArrayList]::new()
 
 		if (-not($PSBoundParameters['Password']) -and $PSBoundParameters['Username'])
 		{
@@ -115493,8 +115547,8 @@ function New-HPOVLdapGroup
 
 			"[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
-			$_unsupportedRoles = New-Object System.Collections.ArrayList
-			$_PremissionsCol   = New-Object System.Collections.ArrayList
+			$_unsupportedRoles = [System.Collections.ArrayList]::new()
+			$_PremissionsCol   = [System.Collections.ArrayList]::new()
 
 			if ($PSBoundParameters['Roles'])
 			{
@@ -115910,8 +115964,8 @@ function Set-HPOVLdapGroupRole
 						
 		}
 
-		$_DirectoryGroupsToUpdate = New-Object System.Collections.ArrayList
-		$_DirectoryGroupStatus    = New-Object System.Collections.ArrayList
+		$_DirectoryGroupsToUpdate = [System.Collections.ArrayList]::new()
+		$_DirectoryGroupStatus    = [System.Collections.ArrayList]::new()
 
 		# Decrypt the password
 		if (-not($PSBoundParameters['Password']) -and $PSBoundParameters['Username'])
@@ -116007,8 +116061,8 @@ function Set-HPOVLdapGroupRole
 
 			}
 
-			$_unsupportedRoles = New-Object System.Collections.ArrayList
-			$_PremissionsCol   = New-Object System.Collections.ArrayList
+			$_unsupportedRoles = [System.Collections.ArrayList]::new()
+			$_PremissionsCol   = [System.Collections.ArrayList]::new()
 
 			if ($PSBoundParameters['Roles'])
 			{
@@ -116349,8 +116403,8 @@ function Remove-HPOVLdapGroup
 
 		}
 		
-		$_TaskCollection  = New-Object System.Collections.ArrayList
-		$_GroupCollection = New-Object System.Collections.ArrayList
+		$_TaskCollection  = [System.Collections.ArrayList]::new()
+		$_GroupCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -116598,7 +116652,7 @@ function Get-HPOVAuditLog
 
 		}
 
-		$_AllAuditLogs = New-Object System.Collections.ArrayList
+		$_AllAuditLogs = [System.Collections.ArrayList]::new()
 		
 	}
 	
@@ -116619,7 +116673,7 @@ function Get-HPOVAuditLog
 
 			}
 
-			$Filter = New-Object System.Collections.ArrayList
+			$Filter = [System.Collections.ArrayList]::new()
 
 			if ($TimeSpan)
 			{
@@ -119420,7 +119474,7 @@ function Set-HPOVApplianceTwoFactorAuthentication
 				'ValidationOids'
 				{
 
-					$_ValidationOids = New-Object System.Collections.ArrayList
+					$_ValidationOids = [System.Collections.ArrayList]::new()
 
 					ForEach ($e in $ValidationOids)
 					{
@@ -119738,7 +119792,7 @@ function Get-HPOVApplianceCurrentSecurityMode
 
 		}
 
-		$_CollectionName = New-Object System.Collections.ArrayList
+		$_CollectionName = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -119880,7 +119934,7 @@ function Set-HPOVApplianceCurrentSecurityMode
 
 		}
 
-		$_CollectionName = New-Object System.Collections.ArrayList
+		$_CollectionName = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -120959,7 +121013,7 @@ function Get-HPOVAlert
 
 		}
 		
-		$_AlertResources = New-Object System.Collections.ArrayList
+		$_AlertResources = [System.Collections.ArrayList]::new()
 
 		if (-not $Count)
 		{
@@ -120975,7 +121029,7 @@ function Get-HPOVAlert
 
 		$_uri = "{0}?sort:asc" -f $IndexUri
 
-		$_Query = New-Object System.Collections.ArrayList
+		$_Query = [System.Collections.ArrayList]::new()
 		[void]$_Query.Add("category:alerts")
 
 		If ($Pipelineinput -or $InputObject -is [PSCustomObject])
@@ -121246,7 +121300,7 @@ function Get-HPOVServiceAlert
 
 		}
 		
-		$_AlertResources = New-Object System.Collections.ArrayList
+		$_AlertResources = [System.Collections.ArrayList]::new()
 
 		if (-not $Count)
 		{
@@ -121262,7 +121316,7 @@ function Get-HPOVServiceAlert
 
 		$_uri = "{0}?sort:asc" -f $IndexUri
 
-		$_Query = New-Object System.Collections.ArrayList
+		$_Query = [System.Collections.ArrayList]::new()
 		[void]$_Query.Add("category:alerts AND healthCategory:RemoteSupport AND ServiceEventSource:True AND NOT description:'Service Test Event'")
 
 		If ($Pipelineinput -or $InputObject -is [PSCustomObject])
@@ -121653,7 +121707,7 @@ Function Get-HPOVServerProfileMessage
 
 		}
 		
-		$_AlertResources = New-Object System.Collections.ArrayList
+		$_AlertResources = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -121909,7 +121963,7 @@ function Set-HPOVAlert
 
 		}
 
-		$_AlertResources = New-Object System.Collections.ArrayList
+		$_AlertResources = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -122336,7 +122390,7 @@ function Get-HPOVLicense
 
 		}
 
-		$_LicenseResources = New-Object System.Collections.ArrayList
+		$_LicenseResources = [System.Collections.ArrayList]::new()
 
 		[string]$filter = $null
 		
@@ -122614,7 +122668,7 @@ function New-HPOVLicense
 
 		}
 
-		$_LicenseResponseCollection = New-Object System.Collections.ArrayList
+		$_LicenseResponseCollection = [System.Collections.ArrayList]::new()
 
 		if ($file)
 		{
@@ -122826,8 +122880,8 @@ function Remove-HPOVLicense
 
 		}
 
-		$_ResponseCollection = New-Object System.Collections.ArrayList
-		$_LicenseCollection = New-Object System.Collections.ArrayList
+		$_ResponseCollection = [System.Collections.ArrayList]::new()
+		$_LicenseCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -123063,7 +123117,7 @@ function Set-HPOVSmtpConfig
 		
 		}
 
-		$_ResponseCollection = New-Object System.Collections.ArrayList
+		$_ResponseCollection = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -123325,7 +123379,7 @@ function Test-HPOVEmailAlert
 
 		}
 
-		$_SMTPConfigCollection = New-Object System.Collections.ArrayList
+		$_SMTPConfigCollection = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -123505,7 +123559,7 @@ function Get-HPOVSMTPConfig
 
 		}
 
-		$_SMTPConfigCollection = New-Object System.Collections.ArrayList
+		$_SMTPConfigCollection = [System.Collections.ArrayList]::new()
 
 	}
 	
@@ -123676,7 +123730,7 @@ function Add-HPOVSmtpAlertEmailFilter
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 		if (-not($PSBoundParameters['Filter']))
 		{
@@ -123696,7 +123750,7 @@ function Add-HPOVSmtpAlertEmailFilter
 		else
 		{
 
-			$_ScopeEntries = New-Object System.Collections.ArrayList
+			$_ScopeEntries = [System.Collections.ArrayList]::new()
 
 			ForEach ($_entry in $Scope)
 			{
@@ -123799,7 +123853,7 @@ function Add-HPOVSmtpAlertEmailFilter
 				$_OriginalFilterConfig = $_smtpFilterConfiguration.alertEmailFilters
 
 				# Rebuild property as ArrayList
-				$_smtpFilterConfiguration.alertEmailFilters = New-Object System.Collections.ArrayList
+				$_smtpFilterConfiguration.alertEmailFilters = [System.Collections.ArrayList]::new()
 
 				$_OriginalFilterConfig | ForEach-Object {
 
@@ -123970,7 +124024,7 @@ function Get-HPOVLoginMessage
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -124115,7 +124169,7 @@ function Set-HPOVLoginMessage
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -124265,7 +124319,7 @@ function Get-HPOVRemoteSyslog
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -124418,7 +124472,7 @@ function Set-HPOVRemoteSyslog
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -124607,7 +124661,7 @@ function Enable-HPOVRemoteSyslog
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -124789,7 +124843,7 @@ function Disable-HPOVRemoteSyslog
 
 		}
 
-		$_ColStatus = New-Object System.Collections.ArrayList
+		$_ColStatus = [System.Collections.ArrayList]::new()
 
 	}
 	 
@@ -125385,7 +125439,7 @@ function Add-HPOVResourceToScope
 		$_UpdateScopeMembers = NewObject -PatchOperation
 		$_UpdateScopeMembers.op = 'add'
 		$_UpdateScopeMembers.path = '/addedResourceUris'
-		$_UpdateScopeMembers.value = New-Object System.Collections.ArrayList
+		$_UpdateScopeMembers.value = [System.Collections.ArrayList]::new()
 
 		ForEach ($_resource in $InputObject)
 		{
@@ -125583,7 +125637,7 @@ function Remove-HPOVResourceFromScope
 		$_UpdateScopeMembers = NewObject -PatchOperation
 		$_UpdateScopeMembers.op = 'replace'
 		$_UpdateScopeMembers.path = '/removedResourceUris'
-		$_UpdateScopeMembers.value = New-Object System.Collections.ArrayList
+		$_UpdateScopeMembers.value = [System.Collections.ArrayList]::new()
 
 		ForEach ($_resource in $InputObject)
 		{
@@ -125764,7 +125818,7 @@ function Remove-HPOVScope
 
 		}
 
-		$_ScopeCollection = New-Object System.Collections.ArrayList
+		$_ScopeCollection = [System.Collections.ArrayList]::new()
 
 	}
 
@@ -126492,7 +126546,7 @@ function Enable-HPOVDebug
 
 		}
 
-		$colStatus = New-Object System.Collections.ArrayList
+		$colStatus = [System.Collections.ArrayList]::new()
 
 	}
 

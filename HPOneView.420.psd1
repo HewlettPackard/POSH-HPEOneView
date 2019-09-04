@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.420.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.20.2133.3186'
+    ModuleVersion = '4.20.2163.2381'
     
     # ID used to uniquely identify this module
     GUID = '7af7a89b-043c-42c3-bdbd-6eb0154fc5ab'
@@ -123,22 +123,12 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.20.2133.3186
+            ReleaseNotes = 'Release 4.20.2163.2381
 
--- Added Audit Log Forwarding Cmdlet support: Get-HPOVApplianceAuditLogForwarding, Set-HPOVApplianceAuditLogForwarding, Test-HPOVApplianceAuditLogForwarding
--- Added Consistency Checking parameters to New-HPOVServerProfileTemplate.
--- Added Set-HPOVRemoteSupportPrimaryContact to change the Remote Support primary or default contact on the appliance.
--- Added HPE Numble storage support to Add-HPOVStorageSystem, New-HPOVStorageVolumeTemplate, New-HPOVStorageVolume, and New-HPOVServerProfileAttachVolume Cmdlets.
--- Added Set-HPOVApplianceSnmpV3EngineId to set the appliance SNMPv3 engine id.
--- Added Synergy VCFC 32Gb module support to New-HPOVLogicalInterconnectGroup.
--- Enhanced Set-HPOVRemoteSupportSetting to allow enable or disable remote support for the provided resource.
--- Enhanced Set-HPOVLogicalEnclosure to set a new configuration script for HPE BladeSystem c-Class.
--- Enahanced New-HPOVServerProfileTemplate with consistency checking overrides, new in HPE OneView 4.20.
--- [#395] Added Reset-HPOVInterconnectNetOpPassword to reset HPE Synergy Virtual Connect NetOp password.
--- [#405] Fixed Get-HPOVServerProfile -Name and -InputObject parameters to validate if null or empty.
--- Fixed New-HPOVServerProfileAttachVolume misandling target ports, and deprecated parameters.
--- Fixed Update-HPOVServerProfile where -Reapply and specific reapply operations were not processing correctly.
--- [#411] Fixed Connect-HPOVMgmt not displaying Login Message went set due to API schema change.'
+-- Fixed ConvertTo-HPOVPowerShellScript where server profile generated code was incorrectly handling associated server profile template.
+-- Fixed New-HPOVAddressPoolRange where WWN and MAC address validation would fail if address contained upper case.
+-- Added Gen10 CompSig support to Add-HPOVBaseline and Get-HPOVBaseline Cmdlets.
+-- [#415] Enhanced Get-AllIndexResources internal helper function to trap [HPOneview.ResourceNotFoundException] exceptions when attempting to get full resource.'
 
 		}
 

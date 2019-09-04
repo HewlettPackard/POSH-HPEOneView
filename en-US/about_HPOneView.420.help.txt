@@ -32,6 +32,16 @@ SHORT DESCRIPTION
 	
 WHAT'S NEW
 
+    Release 4.20.2163.2381
+
+     -- Fixed ConvertTo-HPOVPowerShellScript where server profile generated code was incorrectly handling
+        associated server profile template.
+     -- Fixed New-HPOVAddressPoolRange where WWN and MAC address validation would fail if address contained
+        upper case.
+     -- Added Gen10 CompSig support to Add-HPOVBaseline and Get-HPOVBaseline Cmdlets.
+     -- [#415] Enhanced Get-AllIndexResources internal helper function to trap [HPOneview.ResourceNotFoundException]
+        exceptions when attempting to get full resource.
+
     Release 4.20.2133.3186
 
      -- Added Audit Log Forwarding Cmdlet support: Get-HPOVApplianceAuditLogForwarding, Set-HPOVApplianceAuditLogForwarding,
