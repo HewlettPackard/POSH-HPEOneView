@@ -19,7 +19,7 @@ clone_folder: C:\projects\HPOneView.500
 init:
 - pwsh: >-
     Write-Host "STARTING"
-    
+
     $env:PSModulePath += ";C:\Projects"
 environment:
   ACCESS_TOKEN:
