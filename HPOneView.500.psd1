@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
     
     # Version number of this module.
-    ModuleVersion = '5.0.2152.1665'
+    ModuleVersion = '5.0.2226.2609'
     
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,20 +121,19 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 5.00.2152.1665
+            ReleaseNotes = 'Release 5.00.2226.2609
 
-* Initial 5.00 release.
-* Transitioned library to .NetStandard 2.0 codebase, in order to support PowerShell 5.x, PowerShell 6, and PowerShellCore with DotNet 4.8 Framework and DotNetCore for Linux and Mac.
-* Deprecated EXE installer.  Library is a published PowerShell Catelog resource.  In order to install the library on another system without Internet access, use Save-Module from another PC, and then manually copy the module contents to the isolated system.
-* All -Username and -Password parameters are now obsolete and deprecated. Plase update your scripts to use the -Credential parameter instead.
-* Added Brocade FOS support to Add-HPOVSanManager
-* Added Consistency Checking parameters to New-HPOVLogicalInterconnectGroup and New-HPOVUplinkSet.
-* Added Network Set support to New-HPOVUplinkSet to either track network set resources, or to copy networks from the provided Network Set(s) with the -CopyNetworksFromNetworkSet parameter.
-* Added unmanaged fibre channel connection to New-HPOVServerProfile and  New-HPOVServerProfileConnection for supported servers.
-* Added Get-HPOVServerOneTimeBoot and Set-HPOVServerOneTimeBoot to support server One Time Boot settings.
-* Added IPv6 address pool support to New-HPOVAddressPoolSubnet and New-HPOVAddressPoolRange.
-* Added Gen10 ComSig firmware hotfix file support to Add-HPOVBaseline.
-* Added ID assignment override to New-HPOVServerProfile when specifying a server profile template.'
+* Fixed Remove-HPOVLogicalSwitchGroup where incorrect string handle caused runtime exception.
+* Fixed ConvertTo-HPOVPowerShellScript where server profile code was not being generated correctly for minimal server profile configuration.
+* [#414] Added support to detect what .NetFramework is installed on the Windows system when using PowerShell 5.1.
+* [#415] Enhanced Get-AllIndexResources internal helper function to trap [HPOneview.ResourceNotFoundException] exceptions when attempting to get full resource.
+* [#421] Fixed New-HPOVRestore due to OneView API changes.
+* Fixed Semantic version detection to support additional HPE SPP baseline component firmware versions.
+* Added support for New-HPOVRestore to accept appliance encryption key (AEK) file if restoring backup to an appliance that has been rebuilt and contains a new encryption key.
+* Added LACP Algorithm support to New-HPOVUplinkSet.
+* Added Data at Rest Encryption Cmdlets: Save-HPOVApplianceDataAtRestEncryptionKey, Enable-HPOVApplianceDataAtRestEncryption, Disable-HPOVApplianceDataAtRestEncryption, and New-HPOVApplianceDataAtRestEncryptionKey.
+* Added HPE Synergy Logical JBOD Cmdlets:  Get-HPOVLogicalJBOD, New-HPOVLogicalJBOD, Set-HPOVLogicalJBOD, Remove-HPOVLogialJBOD, and Get-HPOVDriveEnclosureInventory.
+* Increased the timeout for SCMB certificate management tasks, like Remove-HPOVScmbCertificate.'
 
 		}
 

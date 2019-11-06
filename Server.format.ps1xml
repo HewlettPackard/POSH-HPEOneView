@@ -1613,5 +1613,74 @@
         </TableRowEntries>
       </TableControl>
     </View> 
+
+
+    <!-- HPOneView.Servers.LogicalJBOD FT-->
+    <View>
+      <Name>LogicalJBOD</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Servers.LogicalJBOD</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DriveTechnology</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MinSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MaxSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drives</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UsedBy</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} {1}" -f $_.Interface, $_.Media</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPOneView.Utilities.Library]::IntToStorageString(([int]$_.MinSize * 1GB))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPOneView.Utilities.Library]::IntToStorageString(([int]$_.MaxSize * 1GB))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Drives</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UsedBy</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View> 
   </ViewDefinitions> 
 </Configuration>
