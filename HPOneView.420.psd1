@@ -1,5 +1,5 @@
 ﻿##############################################################################9
-## (C) Copyright 2013-2019 Hewlett Packard Enterprise Development LP 
+## (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.420.psm1'
     
     # Version number of this module.
-    ModuleVersion = '4.20.2163.2381'
+    ModuleVersion = '4.20.2290.1501'
     
     # ID used to uniquely identify this module
     GUID = '7af7a89b-043c-42c3-bdbd-6eb0154fc5ab'
@@ -39,7 +39,7 @@ THE SOFTWARE.
     CompanyName = 'Hewlett-Packard Enterprise'
     
     # Copyright statement for this module
-    Copyright = '(C) Copyright 2013-2019 Hewlett-Packard Development Company, L.P.'
+    Copyright = '(C) Copyright 2013-2020 Hewlett-Packard Development Company, L.P.'
     
     # Description of the functionality provided by this module
     Description = 'HPE OneView PowerShell Library'
@@ -123,12 +123,12 @@ THE SOFTWARE.
 			LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
 			ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
 			IconUri = '';
-            ReleaseNotes = 'Release 4.20.2163.2381
-
--- Fixed ConvertTo-HPOVPowerShellScript where server profile generated code was incorrectly handling associated server profile template.
--- Fixed New-HPOVAddressPoolRange where WWN and MAC address validation would fail if address contained upper case.
--- Added Gen10 CompSig support to Add-HPOVBaseline and Get-HPOVBaseline Cmdlets.
--- [#415] Enhanced Get-AllIndexResources internal helper function to trap [HPOneview.ResourceNotFoundException] exceptions when attempting to get full resource.'
+            ReleaseNotes = 'Release 4.20.2290.1501
+    
+* [#425] Updated Update-HPOVServer logic to handle hostname when parameter is not provided.
+* [#435] Fixed Add-HPOVServer exception that reports the server is already managed or monitored by the appliance was incorrectly handled.
+* Fixed incorrect output of New-HPOVNetworkSet when using ConvertTo-HPOVPowerShellScript.
+* Fixed SNMP handling output of Logical Interconnect Groups when using ConvertTo-HPOVPowerShellScript.'
 
 		}
 
