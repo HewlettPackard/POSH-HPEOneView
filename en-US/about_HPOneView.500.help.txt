@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2013-2019 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP
 
 LICENSE
 
@@ -29,8 +29,23 @@ LICENSE
 SHORT DESCRIPTION
 
     PowerShell library for HP OneView 5.00
-	
+
 WHAT'S NEW
+
+    Release 5.00.2295.3359
+
+     -- [#428] Fixed incorrect uplink set type being set with ConvertTo-HPOVPowerShellScript.
+     -- [#428] Fixed logical interconnect group script code not exported when set to export to a file.
+     -- [#431] Fixed CSR API request object with the correct DTO type.
+     -- [#425] Updated Update-HPOVServer logic to handle hostname when parameter is not provided.
+     -- Added Secondary Contact support to New-HPOVRemoteSupportContact and Set-HPOVRemoteSupportSecondaryContact.
+     -- [#435] Fixed Add-HPOVServer exception that reports the server is already managed or monitored
+        by the appliance was incorrectly handled.
+     -- [#442] Fixed New-HPOVNetwork to allow TypicalBandwidth and MaximumBandwidth to be up to 50000 (50Gbps).
+     -- [#442] Fixed Set-HPOVNetwork to allow TypicalBandwidth and MaximumBandwidth to be up to 50000 (50Gbps).
+     -- [#442] Fixed New-HPOVNetworkSet to allow TypicalBandwidth and MaximumBandwidth to be up to 50000 (50Gbps).
+     -- Fixed incorrect output of New-HPOVNetworkSet when using ConvertTo-HPOVPowerShellScript.
+     -- Fixed SNMP handling output of Logical Interconnect Groups when using ConvertTo-HPOVPowerShellScript.
 
     Release 5.00.2226.2609
 
@@ -68,7 +83,7 @@ WHAT'S NEW
      -- Added Network Set support to New-HPOVUplinkSet to either track network set resources,
         or to copy networks from the provided Network Set(s) with the -CopyNetworksFromNetworkSet
         parameter.
-     -- Added unmanaged fibre channel connection to New-HPOVServerProfile and 
+     -- Added unmanaged fibre channel connection to New-HPOVServerProfile and
         New-HPOVServerProfileConnection for supported servers.
      -- Added Get-HPOVServerOneTimeBoot and Set-HPOVServerOneTimeBoot to support server One
         Time Boot settings.
@@ -90,8 +105,8 @@ LONG DESCRIPTION
 
     A set of sample scripts are also provided, that show how to fully configure an
     HP OneView appliance from the ground up.
-                                        
-    For information regarding this project, to request features or report 
+
+    For information regarding this project, to request features or report
     issues, please see: https://github.com/HewlettPackard/POSH-HPOneView/issues
 
 
