@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.0.2295.3359'
+    ModuleVersion = '5.0.2319.1880'
 
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,19 +121,24 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = 'Release 5.00.2295.3359
+            ReleaseNotes = 'Release 5.00.2341.1920
 
-* [#428] Fixed incorrect uplink set type being set with ConvertTo-HPOVPowerShellScript.
-* [#428] Fixed logical interconnect group script code not exported when set to export to a file.
-* [#431] Fixed CSR API request object with the correct DTO type.
-* [#425] Updated Update-HPOVServer logic to handle hostname when parameter is not provided.
-* Added Secondary Contact support to New-HPOVRemoteSupportContact and Set-HPOVRemoteSupportSecondaryContact.
-* [#435] Fixed Add-HPOVServer exception that reports the server is already managed or monitored by the appliance was incorrectly handled.
-* [#442] Fixed New-HPOVNetwork to allow TypicalBandwidth and MaximumBandwidth to be up to 50000 (50Gbps).
-* [#442] Fixed Set-HPOVNetwork to allow TypicalBandwidth and MaximumBandwidth to be up to 50000 (50Gbps).
-* [#442] Fixed New-HPOVNetworkSet to allow TypicalBandwidth and MaximumBandwidth to be up to 50000 (50Gbps).
-* Fixed incorrect output of New-HPOVNetworkSet when using ConvertTo-HPOVPowerShellScript.
-* Fixed SNMP handling output of Logical Interconnect Groups when using ConvertTo-HPOVPowerShellScript.'
+            -- [#443] Fixed New-HPOVLogicalInterconnectGroup where Scope parameter was not processed.
+            -- Fixed Get-HPOVServerProfileConnectionList to output a valid PowerShell object.
+            -- Fixed ConvertTo-HPOVPowerShellScript handling of Enclosure Groups with multiple Logical Interconnect Groups.
+            -- Fixed SecureBoot procesing in New-HPOVServerProfileTemplate and New-HPOVServerProfile Cmdlets.
+            -- Fixed Initialize process in New-HPOVServerProfileLogicalDriveController Cmdlet.
+            -- [#444] Added EnableStormControl parameter to New-HPOVLogicalInterconnectGroup Cmdlet supporting HPE Synergy Virtual Connect.
+            -- [#447] Fixed incorrect -SnmpV3User parameter declaration in New-HPOVSnmpTrapDestination Cmdlet.
+            -- Added EnableStormControl parameter detection to ConvertTo-HPOVPowerShellScript Cmdlet.
+            -- Added -UplinkSets parameter to New-HPOVLogicalInterconnectGroup to assist with creating uplink sets at the same time as creating the logical interconnect group. This is needed for enabling IGMPSnooping (e.g. -EnableIGMSnooping $True) per VLAN (e.g. -IgmpVlans "10,33,70-82").
+            -- Updated New-HPOVUplinkSet to support Passthru in order to create uplink sets with New-HPOVLogicalInterconnectGroup instead of creating the logical interconnect group, then adding uplink sets after.
+            -- Added -IGMPVlans support to New-HPOVLogicalInterconnectGroup to support per VLAN IGMP Snooping support.  In order to use this feature, you will need to adjust scripts to first use New-HPOVUplinkSet with the -Passthru parameter, then pass the Uplink Set objects using the -UplinkSet parameter in New-HPOVLogicalInterconnectGroup.
+            -- Added Primera storage system support to New-HPOVStorageSystem, Get-HPOVStorageSystem, New-HPOVStorageVolume, and New-HPOVStorageVolumeTemplate Cmdlets.
+            -- Updated New-HPOVUplinkSet to support 32Gb FC uplink port speeds.
+            -- Updated New-HPOVLogicalInterconnectGroup to support configuring the downlink port speed for HPE Virtual Connect SE 100Gb F32 module for Synergy, with the -DownlinkSpeed parameter.
+            -- Refactored New-HPOVUplinkSet to allow the passthru and creation of uplink sets. The -Passthru parameter is used to return a helper object for New-HPOVLogicalInterconnectGroup to create uplink sets during the creation of a logical interconnect.
+            -- Enhanced New-HPOVLogicalInterconnectGroup to support IGMP Snooping advanced settings, Cut-through Switching, Storm Control, and DDNS for Virtual Connect SE 100Gb F32 module and Storm Control for Virtual Connect SE 40Gb F8 module.'
 
         }
 

@@ -388,13 +388,13 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                
+
                 $_.adapters | % {
-                
+
                     "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
-                                
+
                 }
-                
+
                 </ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
@@ -499,7 +499,7 @@
                   (Send-HPOVRequest ("/rest/index/associations?parentUri={0}&amp;name=server_profile_template_to_server_profiles" -f $_.uri) -Hostname $_.ApplianceConnection.Name).members | % {
 
                     "{0}" -f (Send-HPOVRequest $_.childUri -ApplianceConnection $_.ApplianceConnection.Name).name
-                    
+
                   }
                 </ScriptBlock>
               </TableColumnItem>
@@ -709,7 +709,7 @@
     <View>
       <Name>connections</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Profile.Connection</TypeName>
+        <TypeName>HPOneView.ServerProfile.Connection</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -729,12 +729,12 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Requested BW</Label>
+            <Label>RequestedBW</Label>
             <Width>12</Width>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Maximum BW</Label>
+            <Label>MaximumBW</Label>
             <Width>10</Width>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -744,7 +744,7 @@
             <Alignment>Left</Alignment>
           </TableColumnHeader>
           <TableColumnHeader>
-            <Label>Port ID</Label>
+            <Label>PortID</Label>
             <Width>10</Width>
             <Alignment>Left</Alignment>
           </TableColumnHeader>
@@ -775,23 +775,23 @@
               <TableColumnItem>
                 <ScriptBlock>
                   $bootSetting = New-Object System.Collections.ArrayList
-                  
+
                   [void]$bootSetting.Add($_.boot.priority)
-                  
-                  if ($_.boot.targets) 
+
+                  if ($_.boot.targets)
                   {
 
                     for ($i=0; $i -eq $boot.targets.count; $i++) { [void]$bootSetting.Add("WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)") }
 
                   }
-                  
-                  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets)) 
-                  { 
-                  
-                    [void]$bootSetting.Add("(Use Adapter BIOS)") 
-                    
+
+                  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets))
+                  {
+
+                    [void]$bootSetting.Add("(Use Adapter BIOS)")
+
                   }
-                  
+
                   $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
                 </ScriptBlock>
               </TableColumnItem>
@@ -813,6 +813,131 @@
 
                   $address | Out-String | % { $_ -replace '^\s+|\s+$' }
                 </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Server_ServerProfile_ConnectionList FT-->
+    <View>
+      <Name>ConnectionList</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfile.ConnectionList</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+        <TableColumnHeader>
+            <Label>ServerProfile</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PortID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MAC</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWPN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Boot</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ArrayTarget</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LUN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+            <!-- serverProfile, cid, portId, functionType, Network, mac, wwpn, boot, arrayTarget, lun, Appliance -->
+              <TableColumnItem>
+                <PropertyName>serverProfile</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>cid</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>functionType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Network</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if ($_.macType -eq "Virtual" -and $_.mac)      { "{0} (V)" -f $_.mac }
+                  elseif ($_.macType -eq "Physical" -and $_.mac) { "{0} (P)" -f $_.mac }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { "{0} (V)" -f $_.wwpn }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { "{0} (P)" -f $_.wwpn }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>boot</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if (-not ([String]::IsNullOrEmpty($_.arrayTarget)))
+                  {
+
+                    if ($_.functionType -eq 'FibreChannel')
+                    {
+
+                      [regex]::Replace($_.arrayTarget, '(..)', '$1:').Trim(":")
+
+                    }
+
+                    else
+                    {
+
+                      $_.arrayTarget
+
+                    }
+
+                  }
+
+                  elseif ($_.boot -ne "NotBootable" -and [String]::IsNullOrEmpty($_.arrayTarget))
+                  {
+
+                    "UseAdapterBIOS"
+
+                  }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>lun</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -929,7 +1054,7 @@
               <ListItem>
                 <Label>Populated Bays</Label>
                 <ScriptBlock>"{0}/{1}" -f (($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}) | Measure-Object).Count,$_.deviceBays.count</ScriptBlock>
-              </ListItem>          
+              </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
@@ -1497,7 +1622,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View> 
+    </View>
     <!-- HPOneView.ServerHardware+Firmware FT-->
     <View>
       <Name>Servers+Firmware</Name>
@@ -1530,7 +1655,7 @@
           <TableColumnHeader>
             <Label>BaselineName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>          
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -1555,7 +1680,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View> 
+    </View>
     <!-- HPOneView.Servers.Enclosure+Firmware FT-->
     <View>
       <Name>Enclosure+Firmware</Name>
@@ -1612,7 +1737,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View> 
+    </View>
 
 
     <!-- HPOneView.Servers.LogicalJBOD FT-->
@@ -1681,6 +1806,6 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View> 
-  </ViewDefinitions> 
+    </View>
+  </ViewDefinitions>
 </Configuration>
