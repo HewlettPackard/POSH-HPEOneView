@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.0.2341.1920'
+    ModuleVersion = '5.0.2368.2592'
 
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,31 +121,23 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = 'Release 5.00.2341.1920
+            ReleaseNotes = "Release 5.00.2368.2592
 
--- [#443] Fixed New-HPOVLogicalInterconnectGroup where Scope parameter was not processed.
--- Fixed Get-HPOVServerProfileConnectionList to output a valid PowerShell object.
--- Fixed ConvertTo-HPOVPowerShellScript handling of Enclosure Groups with multiple Logical Interconnect Groups.
--- Fixed SecureBoot procesing in New-HPOVServerProfileTemplate and New-HPOVServerProfile Cmdlets.
--- Fixed Initialize process in New-HPOVServerProfileLogicalDriveController Cmdlet.
--- [#444] Added EnableStormControl parameter to New-HPOVLogicalInterconnectGroup Cmdlet supporting HPE Synergy Virtual Connect.
--- [#447] Fixed incorrect -SnmpV3User parameter declaration in New-HPOVSnmpTrapDestination Cmdlet.
--- Added EnableStormControl parameter detection to ConvertTo-HPOVPowerShellScript Cmdlet.
--- Added -UplinkSets parameter to New-HPOVLogicalInterconnectGroup to assist with creating uplink sets at the same time as creating the logical interconnect group. This is needed for enabling IGMPSnooping (e.g. -EnableIGMSnooping $True) per VLAN (e.g. -IgmpVlans "10,33,70-82").
--- Updated New-HPOVUplinkSet to support Passthru in order to create uplink sets with New-HPOVLogicalInterconnectGroup instead of creating the logical interconnect group, then adding uplink sets after.
--- Added -IGMPVlans support to New-HPOVLogicalInterconnectGroup to support per VLAN IGMP Snooping support.  In order to use this feature, you will need to adjust scripts to first use New-HPOVUplinkSet with the -Passthru parameter, then pass the Uplink Set objects using the -UplinkSet parameter in New-HPOVLogicalInterconnectGroup.
--- Added Primera storage system support to New-HPOVStorageSystem, Get-HPOVStorageSystem, New-HPOVStorageVolume, and New-HPOVStorageVolumeTemplate Cmdlets.
--- Updated New-HPOVUplinkSet to support 32Gb FC uplink port speeds.
--- Updated New-HPOVLogicalInterconnectGroup to support configuring the downlink port speed for HPE Virtual Connect SE 100Gb F32 module for Synergy, with the -DownlinkSpeed parameter.
--- Refactored New-HPOVUplinkSet to allow the passthru and creation of uplink sets. The -Passthru parameter is used to return a helper object for New-HPOVLogicalInterconnectGroup to create uplink sets during the creation of a logical interconnect.
--- Enhanced New-HPOVLogicalInterconnectGroup to support IGMP Snooping advanced settings, Cut-through Switching, Storm Control, and DDNS for Virtual Connect SE 100Gb F32 module and Storm Control for Virtual Connect SE 40Gb F8 module.'
+* [#411] Fixed regression in Connect-HPOVMgmt where login message wasn't being displayed or honored.
+* [#449] Fixed ConvertTo-HPOVPowerShellScript mishandling of OS Deployment custom attributes with Password.
+* [#450] Enhanced ConvertTo-HPOVPowerShellScript to handle Ethernet and Fibre Channel networks, and Network Sets for OS Custom Attributes, instead of setting a Uri value that might not be valid for another appliance the script may be executed against.
+* [#452] Enhanced New-HPOVNetworkSet and Set-HPOVNetworkSet to support Large VLAN type.
+* [#460] Fixed incorrect handling of exception message within New-HPOVsnmpV3user.
+* [#461] Fixed issue with -LockProvisionMode in New-HPOVStorageVolumeTemplate Cmdlet where provision mode was not locking.
+* [#463] Changed how the library was handling the decryption of password SecureString values for MacOS and PowerShellCore 7.
+* [#464] Fixed Get-HPOVDriveEnclosureInventory mishandling -Avilable parameter where all drives were returned, regardless if drive was allocated to a Logical JBOD or not.
+* [#465] Fixed Update-HPOVLogicalEnclosureFirmware handling of a supplied Baseline.  Object type is now stongly typed to HPOneView.Appliance.Baseline class object from Get-HPOVBaseline.
+* [#466] Fixed New-HPOVUplinkSet regression where uplink set trunking property is not set correctly for non-capable Virtual Connect fabric modules.
+* [#467] Fixed -LocalStorageConsistencyChecking parameter within New-HPOVServerProfileTemplate Cmdlet not supporting 'Minimum' value.
+* Online user documentation has been moved from the GitHub project Wiki site to Gitbook.io.  Offline user documentation has been updated to point to the new site."
 
         }
 
     }
 
 }
-
-
-
-
