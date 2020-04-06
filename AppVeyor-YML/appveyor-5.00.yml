@@ -29,7 +29,7 @@ test_script:
 - appveyor version
 - pwsh: >-
     Import-Module "C:\Tests\appveyor.tests.ps1"
-    
+
     Start-PoshTest
 notifications:
 - provider: Webhook
@@ -41,7 +41,6 @@ notifications:
 - provider: Email
   to:
   - chris.lynch@hpe.com
-  - chris.lynch@outlook.com
   subject: POSH-HPOneView.500 AppVeyor Results
   on_build_success: true
   on_build_failure: true

@@ -1,7 +1,7 @@
 version: 1.00.{build}
 branches:
   only:
-  - staging-IGNORE
+  - staging
 skip_commits:
   files:
     - LICENSE
@@ -13,23 +13,43 @@ skip_commits:
     - '**/*.md'
 
 build_cloud: doc-hyp-cluster1
-image: win10-ent-worker
-clone_folder: C:\projects\poshdocs
+image: linux-worker-image
+clone_folder: $HOME/projects
 init:
 - pwsh: >-
-    Write-Host "STARTING"
+    if ($IsLinux) {
 
-    $env:PSModulePath += ";C:\Projects"
+        $Version = /opt/appveyor/build-agent/appveyor Version 2>&1
+
+    } else {
+
+        $Version = appveyor version 2>&1
+
+    }
+
+    Write-Host "AppVeyor Build Agent version:" $Version
+    Write-Host "Pester version:" ((get-module pester).Version.ToString())
+    Write-Host '$PSVersionTable:'
+    $PSVersionTable
+
 environment:
   ACCESS_TOKEN:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
 build: off
 test_script:
-- appveyor version
-- pwsh: >-
-    Import-Module "C:\Tests\appveyor.poshdocs-tests.ps1"
+  - pwsh: >-
+    #Initialize some variables
+    $TestRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER 'tests'
+    $PesterResults = Join-Path $HOME "PesterResults.xml"
 
-    Start-PoshTest
+    $res = Invoke-Pester -Path $TestRoot -OutputFormat NUnitXml -OutputFile $PesterResults -PassThru
+
+    (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $PesterResults)
+
+    if ($res.FailedCount -gt 0) {
+        throw "$($res.FailedCount) tests failed."
+    }
+
 notifications:
 - provider: Webhook
   url: https://webhooks.gitter.im/e/16d4b9581293e5e56a9d
