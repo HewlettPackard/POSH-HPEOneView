@@ -1,7 +1,7 @@
 version: 1.00.{build}
 branches:
-  only:
-  - staging
+  except:
+  - master
 skip_commits:
   files:
     - LICENSE
