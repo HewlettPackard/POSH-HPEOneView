@@ -40,7 +40,7 @@ build: off
 
 test_script:
   - pwsh: >-
-      #Initialize some variables
+      # Initialize some variables
 
       $TestRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER 'tests'
 
@@ -59,6 +59,13 @@ test_script:
 
 on_success:
   - pwsh: >-
+      # Create a new branch for the pull request
+      Push-Location $env:APPVEYOR_BUILD_FOLDER
+
+      Write-Host "Creating new PR branch"
+      $PRBranchName = "staging-" + ($env:APPVEYOR_REPO_COMMIT)
+      git checkout -b $PRBranchName
+
       Write-Host "Building updated docs"
 
       $BuildRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER "tools"
@@ -70,14 +77,13 @@ on_success:
       git config --global user.name "Chris Lynch"
 
       Write-Host "Adding new commit for PR into master."
-      Push-Location $env:APPVEYOR_BUILD_FOLDER
       git add .
       git commit -m "Building updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
       git push
 
-      Write-Host "Creating new pull request from 'staging' to 'master' branch."
+      Write-Host "Creating new pull request from '$PRBranchName' to 'master' branch."
       # Now, create a new pull request from REMOTE:staging to REMOTE:master
-      hub pull-request -b REMOTE:staging -h REMOTE:master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+      hub pull-request -b REMOTE:$PRBranchName -h REMOTE:master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
 
 notifications:
 - provider: Webhook
