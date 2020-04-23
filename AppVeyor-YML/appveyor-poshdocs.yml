@@ -35,7 +35,9 @@ init:
 environment:
   ACCESS_TOKEN:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
+
 build: off
+
 test_script:
   - pwsh: >-
     #Initialize some variables
@@ -49,6 +51,27 @@ test_script:
     if ($res.FailedCount -gt 0) {
         throw "$($res.FailedCount) tests failed."
     }
+
+on_success:
+  - pwsh: >-
+    Write-Host "Building updated docs"
+
+    $BuildRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER "tools"
+    & (Join-Path $BuildRoot "build.ps1")
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
+    git config --global user.email "chris.lynch@hpe.com"
+    git config --global user.name "Chris Lynch"
+
+    Write-Host "Adding new commit for PR into master."
+    Push-Location $env:APPVEYOR_BUILD_FOLDER
+    git add .
+    git commit -m "Building updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+    git push
+
+    Write-Host "Creating new pull request from 'staging' to 'master' branch."
+    # Now, create a new pull request from REMOTE:staging to REMOTE:master
+    hub pull-request -b REMOTE:staging -h REMOTE:master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
 
 notifications:
 - provider: Webhook
