@@ -16,21 +16,21 @@ build_cloud: doc-hyp-cluster1
 image: linux-worker-image
 clone_folder: $HOME/projects
 init:
-- pwsh: >-
-    if ($IsLinux) {
+  - pwsh: >-
+      if ($IsLinux) {
 
-        $Version = /opt/appveyor/build-agent/appveyor Version 2>&1
+          $Version = /opt/appveyor/build-agent/appveyor Version 2>&1
 
-    } else {
+      } else {
 
-        $Version = appveyor version 2>&1
+          $Version = appveyor version 2>&1
 
-    }
+      }
 
-    Write-Host "AppVeyor Build Agent version:" $Version
-    Write-Host "Pester version:" ((get-module pester).Version.ToString())
-    Write-Host '$PSVersionTable:'
-    $PSVersionTable
+      Write-Host "AppVeyor Build Agent version:" $Version
+      Write-Host "Pester version:" ((get-module pester).Version.ToString())
+      Write-Host '$PSVersionTable:'
+      $PSVersionTable
 
 environment:
   ACCESS_TOKEN:
@@ -59,25 +59,25 @@ test_script:
 
 on_success:
   - pwsh: >-
-    Write-Host "Building updated docs"
+      Write-Host "Building updated docs"
 
-    $BuildRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER "tools"
+      $BuildRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER "tools"
 
-    & (Join-Path $BuildRoot "build.ps1")
+      & (Join-Path $BuildRoot "build.ps1")
 
-    Add-Content "$HOME\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
-    git config --global user.email "chris.lynch@hpe.com"
-    git config --global user.name "Chris Lynch"
+      Add-Content "$HOME\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
+      git config --global user.email "chris.lynch@hpe.com"
+      git config --global user.name "Chris Lynch"
 
-    Write-Host "Adding new commit for PR into master."
-    Push-Location $env:APPVEYOR_BUILD_FOLDER
-    git add .
-    git commit -m "Building updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
-    git push
+      Write-Host "Adding new commit for PR into master."
+      Push-Location $env:APPVEYOR_BUILD_FOLDER
+      git add .
+      git commit -m "Building updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+      git push
 
-    Write-Host "Creating new pull request from 'staging' to 'master' branch."
-    # Now, create a new pull request from REMOTE:staging to REMOTE:master
-    hub pull-request -b REMOTE:staging -h REMOTE:master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+      Write-Host "Creating new pull request from 'staging' to 'master' branch."
+      # Now, create a new pull request from REMOTE:staging to REMOTE:master
+      hub pull-request -b REMOTE:staging -h REMOTE:master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
 
 notifications:
 - provider: Webhook
