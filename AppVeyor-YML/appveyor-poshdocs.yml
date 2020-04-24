@@ -19,6 +19,9 @@ init:
     Write-Host "AppVeyor Build Agent version:" $Version
 
 
+    Write-Host "Pester version:" ((get-module pester).Version.ToString())
+
+
     Write-Host '$PSVersionTable:'
 
 
@@ -36,12 +39,6 @@ test_script:
 
 
     $PesterResults = Join-Path $HOME "PesterResults.xml"
-
-
-    Import-Module pester
-
-
-    Write-Host "Pester version:" ((get-module pester).Version.ToString())
 
 
 
@@ -108,17 +105,3 @@ on_success:
     # Now, create a new pull request from REMOTE:staging to REMOTE:master
 
     hub pull-request -b $PRBranchName -h master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
-notifications:
-- provider: Webhook
-  url: https://webhooks.gitter.im/e/16d4b9581293e5e56a9d
-  method: POST
-  on_build_success: true
-  on_build_failure: true
-  on_build_status_changed: true
-- provider: Email
-  to:
-  - chris.lynch@hpe.com
-  subject: POSH-HPOneView-docs AppVeyor Results
-  on_build_success: true
-  on_build_failure: true
-  on_build_status_changed: false
