@@ -19,12 +19,6 @@ init:
     Write-Host "AppVeyor Build Agent version:" $Version
 
 
-    Import-Module pester
-
-
-    Write-Host "Pester version:" ((get-module pester).Version.ToString())
-
-
     Write-Host '$PSVersionTable:'
 
 
@@ -43,6 +37,12 @@ test_script:
 
 
     $PesterResults = Join-Path $HOME "PesterResults.xml"
+
+
+    Import-Module pester
+
+
+    Write-Host "Pester version:" ((get-module pester).Version.ToString())
 
 
 
