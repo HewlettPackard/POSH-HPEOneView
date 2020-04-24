@@ -26,8 +26,7 @@ init:
 environment:
   GITHUB_TOKEN:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
-build:
-  verbosity: minimal
+build: off
 test_script:
 - pwsh: >-
     # Initialize some variables
