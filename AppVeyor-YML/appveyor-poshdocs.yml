@@ -1,90 +1,111 @@
-version: 1.00.{build}
+version: 1.0.{build}
 branches:
   except:
   - master
-skip_commits:
-  files:
-    - LICENSE
-    - '*.psd1'
-    - '**/*.xml'
-    - '**/*.txt'
-    - '*.md'
-    - '*.yml'
-    - '**/*.md'
-
-build_cloud: doc-hyp-cluster1
-image: linux-worker-image
 clone_folder: $HOME/projects
 init:
-  - pwsh: >-
-      if ($IsLinux) {
+- pwsh: >-
+    if ($IsLinux) {
 
-          $Version = /opt/appveyor/build-agent/appveyor Version 2>&1
+        $Version = /opt/appveyor/build-agent/appveyor Version 2>&1
 
-      } else {
+    } else {
 
-          $Version = appveyor version 2>&1
+        $Version = appveyor version 2>&1
 
-      }
+    }
 
-      Write-Host "AppVeyor Build Agent version:" $Version
-      Write-Host "Pester version:" ((get-module pester).Version.ToString())
-      Write-Host '$PSVersionTable:'
-      $PSVersionTable
 
+    Write-Host "AppVeyor Build Agent version:" $Version
+
+
+    Write-Host "Pester version:" ((get-module pester).Version.ToString())
+
+
+    Write-Host '$PSVersionTable:'
+
+
+    $PSVersionTable
 environment:
-  ACCESS_TOKEN:
+  GITHUB_TOKEN:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
-
-build: off
-
+build:
+  verbosity: minimal
 test_script:
-  - pwsh: >-
-      # Initialize some variables
-
-      $TestRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER 'tests'
-
-      $PesterResults = Join-Path $HOME "PesterResults.xml"
+- pwsh: >-
+    # Initialize some variables
 
 
-      $res = Invoke-Pester -Path $TestRoot -OutputFormat NUnitXml -OutputFile $PesterResults -PassThru
+    $TestRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER 'tests'
 
 
-      (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $PesterResults)
+    $PesterResults = Join-Path $HOME "PesterResults.xml"
 
 
-      if ($res.FailedCount -gt 0) {
-          throw "$($res.FailedCount) tests failed."
-      }
 
+    $res = Invoke-Pester -Path $TestRoot -OutputFormat NUnitXml -OutputFile $PesterResults -PassThru
+
+
+
+    (New-Object 'System.Net.WebClient').UploadFile("https://ci.appveyor.com/api/testresults/nunit/$($env:APPVEYOR_JOB_ID)", $PesterResults)
+
+
+
+    if ($res.FailedCount -gt 0) {
+        throw "$($res.FailedCount) tests failed."
+    }
 on_success:
-  - pwsh: >-
-      # Create a new branch for the pull request
-      Push-Location $env:APPVEYOR_BUILD_FOLDER
+- pwsh: >-
+    # Create a new branch for the pull request
 
-      Write-Host "Creating new PR branch"
-      $PRBranchName = "staging-" + ($env:APPVEYOR_REPO_COMMIT)
-      git checkout -b $PRBranchName
+    Push-Location $env:APPVEYOR_BUILD_FOLDER
 
-      Write-Host "Building updated docs"
 
-      $BuildRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER "tools"
+    Write-Host "Creating new PR branch"
 
-      & (Join-Path $BuildRoot "build.ps1")
 
-      Add-Content "$HOME\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
-      git config --global user.email "chris.lynch@hpe.com"
-      git config --global user.name "Chris Lynch"
+    $PRBranchName = "staging-" + ($env:APPVEYOR_REPO_COMMIT)
 
-      Write-Host "Adding new commit for PR into master."
-      git add .
-      git commit -m "Building updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
-      git push
 
-      Write-Host "Creating new pull request from '$PRBranchName' to 'master' branch."
-      # Now, create a new pull request from REMOTE:staging to REMOTE:master
-      hub pull-request -b REMOTE:$PRBranchName -h REMOTE:master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+    git checkout -b $PRBranchName
 
+
+    Write-Host "Building updated docs"
+
+
+    $BuildRoot      = Join-Path $env:APPVEYOR_BUILD_FOLDER "tools"
+
+
+    & (Join-Path $BuildRoot "build.ps1")
+
+
+    Add-Content "$HOME\.git-credentials" "https://$($env:ACCESS_TOKEN):x-oauth-basic@github.com`n"
+
+
+    git config --global user.email "chris.lynch@hpe.com"
+
+
+    git config --global user.name "Chris Lynch"
+
+
+    Write-Host "Adding new commit for PR into master."
+
+
+    git add .
+
+
+    git commit -m "Building updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+
+
+    git push
+
+
+    Write-Host "Creating new pull request from '$PRBranchName' to 'master' branch."
+
+
+    # Now, create a new pull request from REMOTE:staging to REMOTE:master
+
+    hub pull-request -b $PRBranchName -h master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
 notifications:
 - provider: Webhook
   url: https://webhooks.gitter.im/e/16d4b9581293e5e56a9d
