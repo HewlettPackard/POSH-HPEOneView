@@ -2,6 +2,18 @@ version: 1.0.{build}
 branches:
   except:
   - master
+skip_commits:
+  files:
+    - LICENSE
+    - '*.psd1'
+    - '**/*.xml'
+    - '**/*.txt'
+    - '*.md'
+    - '*.yml'
+    - '**/*.md'
+
+build_cloud: doc-hyp-cluster1
+image: linux-worker
 clone_folder: $HOME/projects
 init:
 - pwsh: >-
