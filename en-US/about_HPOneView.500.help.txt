@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+    Release 5.00.2400.1845
+
+     -- [#466] Fixed New-HPOVUplinkSet where FC uplink sets were not being created due to code refactor.
+     -- Fixed uplink port detection logic where improper camelCase handling would cause an "Unable to parse
+        the provided UplinkPort value" when either Enclosure or Bay is in all upper case.
+     -- Enhanced Connect-HPOVMgmt to detect -Username value for NT Domain Name (i.e. Domain\Username, Domain.local\Username) or
+        UPN (i.e. user-a@domain.local).
+     -- [#471] Enhanced Remote Support Cmdlets to support Interconnects and Rack Managers.
+
     Release 5.00.2368.2592
 
      -- [#411] Fixed regression in Connect-HPOVMgmt where login message wasn't being displayed or honored.

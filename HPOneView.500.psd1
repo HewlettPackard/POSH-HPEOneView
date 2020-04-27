@@ -1,4 +1,4 @@
-﻿##############################################################################9
+##############################################################################9
 ## (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.0.2368.2592'
+    ModuleVersion = '5.0.2400.1845'
 
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,20 +121,12 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = "Release 5.00.2368.2592
+            ReleaseNotes = "Release 5.00.2400.1845
 
-* [#411] Fixed regression in Connect-HPOVMgmt where login message wasn't being displayed or honored.
-* [#449] Fixed ConvertTo-HPOVPowerShellScript mishandling of OS Deployment custom attributes with Password.
-* [#450] Enhanced ConvertTo-HPOVPowerShellScript to handle Ethernet and Fibre Channel networks, and Network Sets for OS Custom Attributes, instead of setting a Uri value that might not be valid for another appliance the script may be executed against.
-* [#452] Enhanced New-HPOVNetworkSet and Set-HPOVNetworkSet to support Large VLAN type.
-* [#460] Fixed incorrect handling of exception message within New-HPOVsnmpV3user.
-* [#461] Fixed issue with -LockProvisionMode in New-HPOVStorageVolumeTemplate Cmdlet where provision mode was not locking.
-* [#463] Changed how the library was handling the decryption of password SecureString values for MacOS and PowerShellCore 7.
-* [#464] Fixed Get-HPOVDriveEnclosureInventory mishandling -Avilable parameter where all drives were returned, regardless if drive was allocated to a Logical JBOD or not.
-* [#465] Fixed Update-HPOVLogicalEnclosureFirmware handling of a supplied Baseline.  Object type is now stongly typed to HPOneView.Appliance.Baseline class object from Get-HPOVBaseline.
-* [#466] Fixed New-HPOVUplinkSet regression where uplink set trunking property is not set correctly for non-capable Virtual Connect fabric modules.
-* [#467] Fixed -LocalStorageConsistencyChecking parameter within New-HPOVServerProfileTemplate Cmdlet not supporting 'Minimum' value.
-* Online user documentation has been moved from the GitHub project Wiki site to Gitbook.io.  Offline user documentation has been updated to point to the new site."
+* [#466] Fixed New-HPOVUplinkSet where FC uplink sets were not being created due to code refactor.
+* Fixed uplink port detection logic where improper camelCase handling would cause an 'Unable to parse the provided UplinkPort value' when either Enclosure or Bay is in all upper case.
+* Enhanced Connect-HPOVMgmt to detect -Username value for NT Domain Name (i.e. Domain\Username, Domain.local\Username) or UPN (i.e. user-a@domain.local).
+* [#471] Enhanced Remote Support Cmdlets to support Interconnects and Rack Managers."
 
         }
 
