@@ -119,4 +119,4 @@ on_success:
 
     # Now, create a new pull request from REMOTE:staging to REMOTE:master
 
-    hub pull-request -b $PRBranchName -h master -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
+    hub pull-request -b master -h $PRBranchName -m "Updated user docs from commit $($env:APPVEYOR_REPO_COMMIT)"
