@@ -28,9 +28,27 @@ LICENSE
 
 SHORT DESCRIPTION
 
-    PowerShell library for HP OneView 5.20
+    PowerShell library for HPE OneView 5.20
 
 WHAT'S NEW
+
+   Release 5.20.2452.2750
+
+     -- Enhanced Enter-HPOVMaintenanceMode and Disable-HPOVMaintenanceMode to support
+        [HPOneView.Appliance.ScopeCollection] objects from Get-HPOVScope.  This will parse
+        the members for server hardware and server profiles.
+     -- Updated New-HPOVSupportDump to support new features in 5.20.  The Cmdlet now supports excluding
+        appliance support dumps when creating a logical enclosure support dump.  Appliance support
+        dump now offers advanced content selects.  Please only use at the direction from
+        HPE Support.
+     -- Fixed regression within New-HPOVServerProfileTemplate not handling connection to volume
+        attachment requests.
+     -- [#482] Fixed New-HPOVOSDeploymentServer Cmdlet do to OneView API changes.
+     -- [#481] Fixed regression in New-HPOVLicense where the wrong object type version was passed
+        to the API.
+     -- [#480] Fixed ConvertTo-HPOVPowerShellScript where certain profile template parameters
+        were being generated for profiles.
+     -- Refactored Wait-HPOVTaskComplete to improve the handle of child tasks and their progress.
 
    Release 5.20.2423.1730
 
@@ -45,7 +63,7 @@ LONG DESCRIPTION
     The library can be used as either a CLI or using the core cmdlets to call from
     wrapper scripts.  The core cmdlets are:
 
-      -- Connect-HPOVmgmt
+      -- Connect-HPOVMgmt
       -- Send-HPOVRequest
       -- New-HPOVResource
       -- Set-HPOVResource

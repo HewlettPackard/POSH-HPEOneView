@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.520.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.20.2422.3962'
+    ModuleVersion = '5.20.2452.2750'
 
     # ID used to uniquely identify this module
     GUID = '53cc9b65-a000-447b-aec8-805a2a8dd9aa'
@@ -121,12 +121,15 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = "Release 5.20.2423.1730
+            ReleaseNotes = "Release 5.20.2452.2750
 
-* Initial 5.20 release.
-* Remove-HPOVRemoteSupportContact now returns an HPOneView.Appliance.TaskResource object.
-* Added maintenance mode Cmdlets; Enable-HPOVMaintenanceMode, Disable-HPOVMaintenanceMode.
-* Enhanced Get-HPOVServer to filter for server resources in maintenance mode."
+- Enhanced Enter-HPOVMaintenanceMode and Disable-HPOVMaintenanceMode to support [HPOneView.Appliance.ScopeCollection] objects from Get-HPOVScope.  This will parse the members for server hardware and server profiles.
+- Updated New-HPOVSupportDump to support new features in 5.20.  The Cmdlet now supports excluding appliance support dumps when creating a logical enclosure support dump.  Appliance support dump now offers advanced content selects.  Please only use at the direction from HPE Support.
+- Fixed regression within New-HPOVServerProfileTemplate not handling connection to volume attachment requests.
+- [#482] Fixed New-HPOVOSDeploymentServer Cmdlet do to OneView API changes.
+- [#481] Fixed regression in New-HPOVLicense where the wrong object type version was passed to the API.
+- [#480] Fixed ConvertTo-HPOVPowerShellScript where certain profile template parameters were being generated for profiles.
+- Refactored Wait-HPOVTaskComplete to improve the handle of child tasks and their progress."
 
         }
 
