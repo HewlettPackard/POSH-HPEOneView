@@ -84,6 +84,9 @@ on_success:
     git checkout -b $PRBranchName
 
 
+    git push --set-upstream origin $PRBranchName
+
+
     Write-Host "Building updated docs"
 
 
