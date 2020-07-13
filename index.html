@@ -4,7 +4,7 @@
 <head>
   <meta charset='utf-8'>
   <meta http-equiv="X-UA-Compatible" content="chrome=1">
-  <meta name="description" content="POSH-HPOneView : The HPE OneView PowerShell library.">
+  <meta name="description" content="POSH-HPEOneView : The HPE OneView PowerShell library.">
 
   <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
 
@@ -16,15 +16,15 @@
   <!-- HEADER -->
   <div id="header_wrap" class="outer">
     <header class="inner">
-      <a id="forkme_banner" href="https://github.com/HewlettPackard/POSH-HPOneView" target="_blank">View on GitHub</a>
+      <a id="forkme_banner" href="https://github.com/HewlettPackard/POSH-HPEOneView" target="_blank">View on GitHub</a>
 
-      <h1 id="project_title">POSH-HPOneView</h1>
+      <h1 id="project_title">POSH-HPEOneView</h1>
       <h2 id="project_tagline">The HPE OneView PowerShell library.</h2>
 
       <section id="downloads">
-        <a class="zip_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/zipball/master" target="_blank">Download this project as a .zip file</a>
-        <a class="tar_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/tarball/master" target="_blank">Download this project as a tar.gz file</a>
-        <a class="exe_download_link" href="https://github.com/HewlettPackard/POSH-HPOneView/releases" target="_blank">Download an Installer</a>
+        <a class="zip_download_link" href="https://github.com/HewlettPackard/POSH-HPEOneView/zipball/master" target="_blank">Download this project as a .zip file</a>
+        <a class="tar_download_link" href="https://github.com/HewlettPackard/POSH-HPEOneView/tarball/master" target="_blank">Download this project as a tar.gz file</a>
+        <a class="exe_download_link" href="https://github.com/HewlettPackard/POSH-HPEOneView/releases" target="_blank">Download an Installer</a>
       </section>
     </header>
   </div>
@@ -53,18 +53,18 @@
         Started
       </h3>
 
-      <p>To get started, you can <a href="https://github.com/HewlettPackard/POSH-HPOneView/releases" target="_blank">download</a> the latest release in an easy to use, digitally signed installer.</p>
+      <p>To get started, you can <a href="https://github.com/HewlettPackard/POSH-HPEOneView/releases" target="_blank">download</a> the latest release in an easy to use, digitally signed installer.</p>
 
-      <p>The library (version 3.10 and newer) is also available on the <a href="https://www.powershellgallery.com/items?q=hp.powershell&x=0&y=0" target="_blank">PowerShellGallery</a>:</p>
+      <p>The library (version 3.10 and newer) is also available on the <a href="https://www.powershellgallery.com/items?q=hpe.powershell&x=0&y=0" target="_blank">PowerShellGallery</a>:</p>
 
       <pre><code><font color="008000"># Locate the HPE OneView PowerShell library on PowerShellGallery</font>
-<font color="FFFF33">Find-Module</font> HPOneView.310 
+<font color="FFFF33">Find-Module</font> HPOneView.520 
 Version    Name          Repository Description 
 -------    ----          ---------- ----------- 
-3.10.14... HPOneView.310 PSGallery  HPE OneView PowerShell Library
+5.20.24... HPOneView.520 PSGallery  HPE OneView PowerShell Library
 
 <font color="008000"># Install the HPE OneView PowerShell library</font>
-<font color="FFFF33">Install-Module</font> HPOneView.310
+<font color="FFFF33">Install-Module</font> HPOneView.520
 </code></pre>
 
       <p>Lastly, you can clone the source repository:</p>
@@ -74,11 +74,11 @@ Version    Name          Repository Description
 
 cd <font color="00FF00">$ParentDirectory</font>
 
-<font color="008000"># Clone POSH-HPOneView repository</font>
-<font color="FFFF33">git</font> clone https://github.com/HewlettPackard/POSH-HPOneView.git
+<font color="008000"># Clone POSH-HPEOneView repository</font>
+<font color="FFFF33">git</font> clone https://github.com/HewlettPackard/POSH-HPEOneView.git
 </code></pre>
 
-      <p>Online documentation can be found in the <a href="https://github.com/HewlettPackard/POSH-HPOneView/wiki" target="_blank">Project Wiki</a>.</p>
+      <p>Online documentation can be found in the <a href="https://hpe-docs.gitbook.io/posh-hponeview/" target="_blank">online documentation hub</a>.</p>
 
       <h3>
         <a name="project-ci-status" class="anchor" href="#project-ci-status"><span class="octicon octicon-link"></span></a>Project
@@ -86,20 +86,20 @@ cd <font color="00FF00">$ParentDirectory</font>
       <table>
         <thead>
           <tr>
-            <th>AppVeyor 3.00 Branch</th>
-            <th>AppVeyor 3.10 Branch</th>
             <th>AppVeyor 4.00 Branch</th>
             <th>AppVeyor 4.10 Branch</th>
-            <th>AppVeyor 4.20 (origin/master) Branch</th>
+            <th>AppVeyor 4.20 Branch</th>
+            <th>AppVeyor 5.00 Branch</th>
+            <th>AppVeyor 5.20 (origin/master) Branch</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/n1mk2r2lpa1sdxxw/branch/3.00?svg=true" alt="Build status"></a></td>
-            <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-34esg" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/7aeeipw70yo0gbcm/branch/3.10?svg=true" alt="Build status"></a></td>
             <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-cskif" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/n4btdae2oaua0bra/branch/4.00?svg=true" alt="Build status"></a></td>
             <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-0fpb0" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/ubd52rrmholhuuwa/branch/4.10?svg=true" alt="Build status"></a></td>
             <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-vhpsr" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/fxl9dobgborusp1r/branch/4.20?svg=true" alt="Build status"></a></td>
+            <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-8bg6q" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/q6u8r06y4fgybg59/branch/5.00?svg=true" alt="Build status"></a></td>
+            <td><a href="https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview" target="_blank"><img src="https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb/branch/5.20?svg=true" alt="Build status"></a></td>
           </tr>
         </tbody>
       </table>
@@ -112,13 +112,12 @@ cd <font color="00FF00">$ParentDirectory</font>
 
       <ul>
         <li>Chris Lynch (<a href="https://github.com/ChrisLynchHPE" class="user-mention" target="_blank">@ChrisLynchHPE</a>)</li>
-        <li>Bob Fraser(<a href="https://github.com/bobfraser1" class="user-mention" target="_blank">@bobfraser1</a>)</li>
       </ul>
 
       <h3>
         <a name="support" class="anchor" href="#support"><span class="octicon octicon-link"></span></a>Support</h3>
 
-      <p>Having trouble? Missing a feature? Please use the project <a href="https://github.com/HewlettPackard/POSH-HPOneView/issues"
+      <p>Having trouble? Missing a feature? Please use the project <a href="https://github.com/HewlettPackard/POSH-HPEOneView/issues"
           target="_blank">Issues Tracker</a>.</p>
     </section>
   </div>
@@ -126,7 +125,7 @@ cd <font color="00FF00">$ParentDirectory</font>
   <!-- FOOTER  -->
   <div id="footer_wrap" class="outer">
     <footer class="inner">
-      <p class="copyright">POSH-HPOneView maintained by <a href="https://github.com/HewlettPackard" target="_blank">Hewlett-Packard Enterprise</a></p>
+      <p class="copyright">POSH-HPEOneView maintained by <a href="https://github.com/HewlettPackard" target="_blank">Hewlett-Packard Enterprise</a></p>
     </footer>
   </div>
 
