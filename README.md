@@ -13,11 +13,9 @@ The major changes are:
 * Withe the deprecation of PowerShell 4.0, the EXE installer is also deprecated.  Microsoft provides built-in PowerShellGet support to save published modules from PowerShell Gallery, by using the [`Save-Module`](https://go.microsoft.com/fwlink/?LinkId=531351) Cmdlet.
 
 ## Build status
-AppVeyor 5.30 Branch | AppVeyor 5.20 Branch | AppVeyor 4.20 Branch
+AppVeyor 5.30 Branch | AppVeyor 5.20 Branch | AppVeyor 5.00 Branch
 -------------------- | -------------------- | ---------------------
-[![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013/branch/5.30?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview/branch/5.30) | [![Build status](https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb/branch/5.20?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview/branch/5.20) | [![Build status](https://ci.appveyor.com/api/projects/status/fxl9dobgborusp1r/branch/4.20?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-vhpsr/branch/4.20)
-
-
+[![Build status](https://ci.appveyor.com/api/projects/status/u84505l6syp70013/branch/5.30?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview/branch/5.30) | [![Build status](https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb/branch/5.20?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview/branch/5.20) | [![Build status](https://ci.appveyor.com/api/projects/status/q6u8r06y4fgybg59/branch/5.00?svg=true)](https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-8bg6q/branch/5.00)
 
 ## Getting started
 To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?LinkID=398573) Cmdlet to install from the PowerShell Gallery to your local system.
