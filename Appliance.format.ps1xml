@@ -25,7 +25,7 @@
         <TypeName>HPOneView.PowerDeliveryDevice.PduAcModule</TypeName>
         <TypeName>HPOneView.PowerDeliveryDevice.LoadSegment</TypeName>
         <TypeName>HPOneView.PowerDeliveryDevice.OutletBar</TypeName>
-        <TypeName>HPOneView.PowerDeliveryDevice.Outlet</TypeName>        
+        <TypeName>HPOneView.PowerDeliveryDevice.Outlet</TypeName>
       </Types>
     </SelectionSet>
   </SelectionSets>
@@ -210,7 +210,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>    
+    </View>
     <!--ComposerNode FT-->
     <View>
       <Name>ComposerNode</Name>
@@ -784,7 +784,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View> 
+    </View>
     <!--HPOneView.Appliance.RemoteSupport.Partner FT-->
     <View>
       <Name>RemoteSupportPartner</Name>
@@ -861,23 +861,23 @@
           <TableColumnHeader>
             <Label>Name</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>AliasName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>CertificateStatus</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidFrom</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -918,23 +918,23 @@
           <TableColumnHeader>
             <Label>Name</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>Status</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>CRLInfo</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidFrom</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>ValidUntil</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader> 
+          </TableColumnHeader>
         </TableHeaders>
         <TableRowEntries>
           <TableRowEntry>
@@ -958,7 +958,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>  
+    </View>
     <!--HPOneView.Appliance.RemoteSupport.Schedule FT-->
     <View>
       <Name>RemoteSupportSchedule</Name>
@@ -971,7 +971,7 @@
           <TableColumnHeader>
             <Label>ScheduleName</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>      
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>RepeatOption</Label>
             <Alignment>Left</Alignment>
@@ -1085,7 +1085,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>  
+    </View>
     <!--APPLIANCE_SMTPALERTS-->
 		<View>
 			<Name>SmtpConfigurationObject</Name>
@@ -1352,7 +1352,7 @@
 					</ListEntry>
 				</ListEntries>
 			</ListControl>
-		</View>       
+		</View>
     <!--APPLIANCE_USER_ROLES FT-->
 		<View>
 			<Name>UserRole</Name>
@@ -1377,7 +1377,7 @@
 					</TableRowEntry>
 				</TableRowEntries>
 			</TableControl>
-		</View>   
+		</View>
     <!--APPLIANCEUSER FT-->
 		<View>
 			<Name>User</Name>
@@ -1437,7 +1437,7 @@
 					</TableRowEntry>
 				</TableRowEntries>
 			</TableControl>
-		</View>  
+		</View>
     <!--ConnectionPermission FT-->
 		<View>
 			<Name>ConnectionPermission</Name>
@@ -1476,7 +1476,7 @@
 					</TableRowEntry>
 				</TableRowEntries>
 			</TableControl>
-		</View>  
+		</View>
     <!--AuthGlobalDirectoryConfiguration FT-->
     <View>
       <Name>AuthGlobalDirectoryConfiguration</Name>
@@ -1529,7 +1529,7 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View>   
+    </View>
     <!--AuthDirectory FT-->
     <View>
       <Name>AuthDirectory</Name>
@@ -2450,7 +2450,7 @@
               <TableColumnItem>
                 <ScriptBlock>
                 if ($null -ne $_.subnetMask) { $_.subnetMask }
-                else { $_.prefixLength}                
+                else { $_.prefixLength}
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
@@ -2495,7 +2495,7 @@
                 <Label>SubnetMask</Label>
                 <ScriptBlock>
                 if ($null -ne $_.subnetMask) { $_.subnetMask }
-                else { $_.prefixLength}                
+                else { $_.prefixLength}
                 </ScriptBlock>
               </ListItem>
               <ListItem>
@@ -3332,7 +3332,7 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View> 
+    </View>
     <!--HPOneView.Appliance.OsDeploymentPlan FT-->
     <View>
       <Name>OsDeploymentPlan</Name>
@@ -3458,7 +3458,7 @@
           <TableColumnHeader>
             <Label>DefaultPowerLineVoltage</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>          
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>RemoteSupportLocation</Label>
             <Alignment>Left</Alignment>
@@ -3580,11 +3580,11 @@
           <TableColumnHeader>
             <Label>PostalCode</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>          
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>CountryCode</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>        
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>TimeZone</Label>
             <Alignment>Left</Alignment>

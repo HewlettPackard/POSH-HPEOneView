@@ -237,7 +237,7 @@
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>
-                
+
                 if (-not [System.String]::IsNullOrWhiteSpace($_.subnetUri)) { '{0}' -f (Send-HPOVRequest -Uri $_.subnetUri -Hostname $_.ApplianceConnection.Name).networkId }
                 else { 'None' }
 
@@ -294,7 +294,7 @@
               <ListItem>
                 <Label>IPv4Subnet</Label>
                 <ScriptBlock>
-                
+
                 if (-not [System.String]::IsNullOrWhiteSpace($_.subnetUri)) { '{0}' -f (Send-HPOVRequest -Uri $_.subnetUri -Hostname $_.ApplianceConnection.Name).networkId }
                 else { 'None' }
 
@@ -343,7 +343,7 @@
               <ListItem>
                 <Label>Member Of</Label>
                 <ScriptBlock>
-                  
+
                   $indexResponse = Send-HPOVRequest -uri "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
                   if ($indexResponse.parents.NETWORKSET_TO_NETWORK.resource) { $indexResponse.parents.NETWORKSET_TO_NETWORK.resource.name }
                   else { "None" }
@@ -476,7 +476,7 @@
               <ListItem>
                 <Label>SANManager</Label>
                 <ScriptBlock>
-                  
+
                   $indexResponse = Send-HPOVRequest "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
                   if ($indexResponse.parents.MANAGED_SAN_TO_FC_NETWORK.parents.SAN_MANAGER_TO_MANAGED_SAN.resource) { $indexResponse.parents.MANAGED_SAN_TO_FC_NETWORK.parents.SAN_MANAGER_TO_MANAGED_SAN.resource.name }
                   else { "None" }
@@ -721,9 +721,9 @@
                 <ScriptBlock>
                 $ApplianceConnection = $_.ApplianceConnection.Name
                 $_.networkUris | % {
-                  
+
                   (Send-HPOVRequest $_ -Hostname $ApplianceConnection).name
-                
+
                 }
                 </ScriptBlock>
               </TableColumnItem>
@@ -813,7 +813,7 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View>  
+    </View>
     <!--HPOneView.Networking.LogicalInterconnectGroup FT-->
     <View>
       <Name>LogicalInterconnectGroup</Name>
@@ -1038,7 +1038,7 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View>  
+    </View>
     <!--HPOneView.Networking.LogicalInterconnect.SnmpConfiguration FT-->
     <View>
       <Name>snmpConfiguration</Name>
@@ -1604,7 +1604,7 @@
               <ListItem>
                 <Label>SerialNumber</Label>
                 <PropertyName>serialNumber</PropertyName>
-              </ListItem>  
+              </ListItem>
               <ListItem>
                 <Label>IPAddress</Label>
                 <ScriptBlock>$_.ipAddressList.ipAddress</ScriptBlock>
@@ -1616,12 +1616,12 @@
               <ListItem>
                 <Label>Model</Label>
                 <PropertyName>model</PropertyName>
-              </ListItem>              
+              </ListItem>
             </ListItems>
           </ListEntry>
         </ListEntries>
       </ListControl>
-    </View>           
+    </View>
     <!--HPOneView.Networking.InterconnectType FT-->
     <View>
       <Name>InterconnectType</Name>
@@ -2019,7 +2019,7 @@
             </ListItems>
           </ListEntry>
         </ListEntries>
-      </ListControl>    
+      </ListControl>
     </View>
     <!--HPOneView.Networking.LogicalInterconnect.UplinkSet.FibreChannel-->
     <View>
@@ -2054,7 +2054,7 @@
                 <Label>Reachability</Label>
                 <PropertyName>reachability</PropertyName>
               </ListItem>
-              <ListItem>          
+              <ListItem>
                 <Label>LoginRedistribution</Label>
                 <ScriptBlock>
 
@@ -2076,7 +2076,7 @@
                 </ScriptBlock>
               </ListItem>
               <ListItem>
-            
+
                 <Label>UplinkPorts</Label>
 
                 <ScriptBlock>
@@ -2445,7 +2445,7 @@
             </ListItem>
               <ListItem>
                 <Label>LossofSync</Label>
-                <ScriptBlock>"{0}" -f $_.fcStatistics.fcLossOfSynchronization</ScriptBlock>             
+                <ScriptBlock>"{0}" -f $_.fcStatistics.fcLossOfSynchronization</ScriptBlock>
             </ListItem>
               <ListItem>
                 <Label>BBCreditFrameFailures</Label>
@@ -2622,21 +2622,21 @@
                 <ScriptBlock>
                   switch ($_.type)
                   {
-                  
+
                     'sas-logical-interconnect-group'
                     {
-                    
+
                       'SAS'
-                      
+
                     }
-                    
+
                     default
                     {
-                    
+
                       'VC'
-                    
+
                     }
-                  
+
                   }
                 </ScriptBlock>
               </TableColumnItem>
@@ -3198,7 +3198,7 @@
           <TableColumnHeader>
             <Label>IPAddress</Label>
             <Alignment>Left</Alignment>
-          </TableColumnHeader>          
+          </TableColumnHeader>
           <TableColumnHeader>
             <Label>LogicalSwitch</Label>
             <Alignment>Left</Alignment>

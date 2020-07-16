@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.20.2470.2147
+
+     -- POTENTIAL BREAKING CHANGE: Changed the root class name from HPOneView to
+        HPOneView.
+     -- [#484] Fixed regression in Wait-HPOVTaskComplete for Linux and MacOS users, were an inadvertant
+        alias "sort" was used, which conflicts with an OS utility not intended for PowerShell.
+     -- [#485] Fixed ConvertTo-HPOVPowerShellScript where Ethernet network script code would
+        generate invalid output when a subnet was not assigned.
+
    Release 5.20.2452.2750
 
      -- Enhanced Enter-HPOVMaintenanceMode and Disable-HPOVMaintenanceMode to support
