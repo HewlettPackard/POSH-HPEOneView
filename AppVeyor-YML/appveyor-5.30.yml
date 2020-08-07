@@ -10,8 +10,9 @@ skip_commits:
     - '**/*.xml'
     - '**/*.txt'
     - '*.md'
-    - '*.yml'
     - '**/*.md'
+    - '*.yml'
+    - '**/*.yml'
 
 build_cloud: doc-hyp-cluster1
 image: win10-ent-worker
