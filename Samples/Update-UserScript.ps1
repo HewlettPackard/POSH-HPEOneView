@@ -54,11 +54,11 @@ Process
 {
 
     $CmdletSearchExpression   = [System.Text.RegularExpressions.Regex]::new("(?'CmdletVerb'add|copy|get|new|remove|set|show|wait|clear|connect|convert|convertto|disable|disconnect|enable|enter|exit|import|install|invoke|join|ping|pop|push|reset|restart|restore|save|search|send|start|stop|test|update)-(?'VendorPrefix'hpov)(?'CmdletNoun'[a-z]+)", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
-    $OtherBrandStyleSearchExp = [System.Text.RegularExpressions.Regex]::new("(?'Libraryname'HPEOneView.", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
+    $OtherBrandStyleSearchExp = [System.Text.RegularExpressions.Regex]::new("(?'Libraryname'HPEOneView\.)", [System.Text.RegularExpressions.RegexOptions]::IgnoreCase)
     $StringBuilder            = [System.Collections.ArrayList]::new()
     $File                     = [System.IO.StreamReader]::new($Path)
     $ReplacementString        = '${CmdletVerb}-OV${CmdletNoun}'
-    $LibraryReplacementString = 'HPEOneView'
+    $LibraryReplacementString = 'HPEOneView.'
 
     While (-not ($file.EndOfStream))
     {
@@ -76,7 +76,7 @@ Process
     if ($PSBoundParameters.Keys -Contains 'Replace')
     {
 
-        [System.IO.File]::WriteAllText($StringBuilder, $File)
+        [System.IO.File]::WriteAllText($File, $StringBuilder.ToArray())
 
     }
 

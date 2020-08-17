@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.530.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.30.2472.1534'
+ModuleVersion = '5.30.2507.1301'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,10 +155,19 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.30.2472.1534
+        ReleaseNotes = 'Release 5.30.2507.1301
 
-- Initial 5.30 release.
-- Renamed all Cmdlets with the new library vendor noun prefix.  Old prefix was HPOV, new prefix is OV.  A Cmdlet, Update-OVUserScript, and Sample script, Update-UserScript.ps1, as available to help update user ceated, non-digitally signed scripts with the updated Cmdlet and C# Class namespace.'
+- Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They are Get-HPOVComposerIloStatus, Enable-HPOVComposerIlo, Disable-HPOVComposerIlo and Set-HPOVComposerIlo.
+- Added multiple HPE hotfix component signature (compsig) file support to Add-OVBaseline.
+- Enhanced New-HPOVLogicalEnclosure with Ebipa parameters. Now supports a hashtable of defined addresses, or autofill for device and/or interconnect bays.
+- Fixed Remove-HPOVScmbCertificates where a missing HTTP header was necessary.
+- [#429] Enhanced Get-HPOVRack to filter on Datacenter location.
+- Fixed issue with Get-OVScmbCertificate when attempting to export a PFX due to cignificant X509Certificate2 changes in DotNetCore API.
+- Fixed condition where created LIG by the library will result in any further edits to generate an Internal Error message.  Existing LIGs will not be fixed by this change. Only LIG resources created with the HPE OneView 5.30 library are impacted.
+- [#495] Fixed New-OVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter was not handled correctly for Synergy configurations.
+- [#497] Fixed issue with Set-OVRemoteSupport mishandling Insight Online portal registration.
+- [#499] Fixed issue with Update-OVUserScript with a non-complete regex statement causing a runtime exception.
+- [#500] Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.'
 
         # Prerelease string of this module
         # Prerelease = ''
