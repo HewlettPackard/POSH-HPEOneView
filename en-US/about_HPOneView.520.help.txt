@@ -32,7 +32,7 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
-   Release 5.20.2506.1628
+   Release 5.20.2506.1630
 
      -- Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They
         are Get-HPOVComposerIloStatus, Enable-HPOVComposerIlo, Disable-HPOVComposerIlo and
@@ -47,6 +47,7 @@ WHAT'S NEW
         wasn't handled correctly for Synergy configurations.
      -- [#497] Fixed issue with Set-OVRemoteSupport mishandling Insight Online portal registration.
      -- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.
+     -- [#501] Fixed regression within New-HPOVLogicalEnclosure when Synergy "EBIPA" parameters were added.
 
    Release 5.20.2470.2147
 

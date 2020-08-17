@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.520.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.20.2506.1628'
+ModuleVersion = '5.20.2506.1630'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -153,7 +153,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.20.2506.1628
+        ReleaseNotes = 'Release 5.20.2506.1630
 
 - Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They are Get-HPOVComposerIloStatus, Enable-HPOVComposerIlo, Disable-HPOVComposerIlo and Set-HPOVComposerIlo.
 - Enhanced New-HPOVLogicalEnclosure with Ebipa parameters. Now supports a hashtable of defined addresses, or autofill for device and/or interconnect bays.
@@ -162,7 +162,8 @@ PrivateData = @{
 - Fixed issue with Get-OVScmbCertificate when attempting to export a PFX due to cignificant X509Certificate2 changes in DotNetCore API.
 - [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter was not handled correctly for Synergy configurations.
 - [#497] Fixed issue with Set-OVRemoteSupport mishandling Insight Online portal registration.
-- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.'
+- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.
+- [#501] Fixed regression within New-HPOVLogicalEnclosure when Synergy "EBIPA" parameters were added.'
 
         # Prerelease string of this module
         # Prerelease = ''
