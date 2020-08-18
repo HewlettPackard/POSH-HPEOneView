@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.530.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.30.2507.1301'
+ModuleVersion = '5.30.2507.1303'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,7 +155,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.30.2507.1301
+        ReleaseNotes = 'Release 5.30.2507.1303
 
 - Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They are Get-HPOVComposerIloStatus, Enable-HPOVComposerIlo, Disable-HPOVComposerIlo and Set-HPOVComposerIlo.
 - Added multiple HPE hotfix component signature (compsig) file support to Add-OVBaseline.
