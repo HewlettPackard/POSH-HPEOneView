@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.520.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.20.2506.1630'
+ModuleVersion = '5.20.2506.1632'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -153,7 +153,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.20.2506.1630
+        ReleaseNotes = 'Release 5.20.2506.1632
 
 - Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They are Get-HPOVComposerIloStatus, Enable-HPOVComposerIlo, Disable-HPOVComposerIlo and Set-HPOVComposerIlo.
 - Enhanced New-HPOVLogicalEnclosure with Ebipa parameters. Now supports a hashtable of defined addresses, or autofill for device and/or interconnect bays.

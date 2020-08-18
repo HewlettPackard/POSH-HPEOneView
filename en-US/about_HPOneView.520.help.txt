@@ -32,7 +32,7 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
-   Release 5.20.2506.1630
+   Release 5.20.2506.1632
 
      -- Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They
         are Get-HPOVComposerIloStatus, Enable-HPOVComposerIlo, Disable-HPOVComposerIlo and
