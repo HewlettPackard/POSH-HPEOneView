@@ -64,7 +64,7 @@ You have a general question about the library?  For general questions, or need t
 
 [ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
 [ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/fxl9dobgborusp1r?svg=true
+[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
 [ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
 [ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/q6u8r06y4fgybg59?svg=true
 [ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-8bg6q
