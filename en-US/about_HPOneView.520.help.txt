@@ -32,6 +32,10 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.20.2515.1660
+
+     -- [#501] Continued fixing of regression within New-HPOVLogicalEnclosure when Synergy "EBIPA" parameters were added.
+
    Release 5.20.2506.1632
 
      -- Added Cmdlets to configure and manage HPE Synergy Composer2 iLO remote access. They
