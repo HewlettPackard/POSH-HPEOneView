@@ -32,6 +32,19 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+    Release 5.00.2521.2063
+
+     -- [#472] Updated Reset-HPOVInterconnectNetOpPassword to support Virtual Connect SE 100Gb F32 Module for Synergy
+        interconnect type.
+     -- Fixed Remove-HPOVScmbCertificates where a missing HTTP header was necessary.
+     -- [#429] Enhanced Get-HPOVRack to filter on Datacenter location.
+     -- Fixed issue with Get-HPOVScmbCertificate when attempting to export a PFX due to cignificant
+        X509Certificate2 changes in DotNetCore API.
+     -- [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter
+        wasn't handled correctly for Synergy configurations.
+     -- [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
+     -- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.
+
     Release 5.00.2400.1845
 
      -- [#466] Fixed New-HPOVUplinkSet where FC uplink sets were not being created due to code refactor.
@@ -178,7 +191,7 @@ LONG DESCRIPTION
 
 SEE ALSO
 
-    https://github.com/HewlettPackard/POSH-HPOneView
+    https://github.com/HewlettPackard/POSH-HPEOneView
     http://hpe.com/info/oneviewcommunity
     Update-Help HPOneView.500
     Get-Help about_Appliance_Connections

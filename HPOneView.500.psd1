@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.0.2400.1845'
+    ModuleVersion = '5.0.2521.2063'
 
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,12 +121,15 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = "Release 5.00.2400.1845
+            ReleaseNotes = "Release 5.00.2521.2063
 
-* [#466] Fixed New-HPOVUplinkSet where FC uplink sets were not being created due to code refactor.
-* Fixed uplink port detection logic where improper camelCase handling would cause an 'Unable to parse the provided UplinkPort value' when either Enclosure or Bay is in all upper case.
-* Enhanced Connect-HPOVMgmt to detect -Username value for NT Domain Name (i.e. Domain\Username, Domain.local\Username) or UPN (i.e. user-a@domain.local).
-* [#471] Enhanced Remote Support Cmdlets to support Interconnects and Rack Managers."
+- [#472] Updated Reset-HPOVInterconnectNetOpPassword to support Virtual Connect SE 100Gb F32 Module for Synergy interconnect type.
+- Fixed Remove-HPOVScmbCertificates where a missing HTTP header was necessary.
+- [#429] Enhanced Get-HPOVRack to filter on Datacenter location.
+- Fixed issue with Get-HPOVScmbCertificate when attempting to export a PFX due to cignificant X509Certificate2 changes in DotNetCore API.
+- [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter wasn't handled correctly for Synergy configurations.
+- [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
+- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled."
 
         }
 
