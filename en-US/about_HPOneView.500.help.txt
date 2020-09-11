@@ -43,7 +43,8 @@ WHAT'S NEW
      -- [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter
         wasn't handled correctly for Synergy configurations.
      -- [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
-     -- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.
+     -- Fixed Get-HPOVDataCenter that would generate an exception when Remote Support was enabled.
+     -- Enhanced Set-HPOVManagedSan to perform additional validations to zone and alias policies.
 
     Release 5.00.2400.1845
 

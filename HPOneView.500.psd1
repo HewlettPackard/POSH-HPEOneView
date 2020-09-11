@@ -129,7 +129,8 @@ THE SOFTWARE.
 - Fixed issue with Get-HPOVScmbCertificate when attempting to export a PFX due to cignificant X509Certificate2 changes in DotNetCore API.
 - [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter wasn't handled correctly for Synergy configurations.
 - [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
-- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled."
+- Fixed Get-HPOVDataCenter that would generate an exception when Remote Support was enabled.
+- Enhanced Set-HPOVManagedSan to perform additional validations to zone and alias policies."
 
         }
 
