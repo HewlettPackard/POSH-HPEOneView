@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.0.2521.2063'
+    ModuleVersion = '5.0.2539.1742'
 
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,7 +121,7 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = "Release 5.00.2521.2063
+            ReleaseNotes = "Release 5.00.2539.1742
 
 - [#472] Updated Reset-HPOVInterconnectNetOpPassword to support Virtual Connect SE 100Gb F32 Module for Synergy interconnect type.
 - Fixed Remove-HPOVScmbCertificates where a missing HTTP header was necessary.
@@ -130,7 +130,8 @@ THE SOFTWARE.
 - [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter wasn't handled correctly for Synergy configurations.
 - [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
 - Fixed Get-HPOVDataCenter that would generate an exception when Remote Support was enabled.
-- Enhanced Set-HPOVManagedSan to perform additional validations to zone and alias policies."
+- Enhanced Set-HPOVManagedSan to perform additional validations to zone and alias policies.
+- Fixed issue with Set-HPOVSanManager not returning a task object."
 
         }
 

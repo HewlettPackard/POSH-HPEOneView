@@ -32,7 +32,7 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
-    Release 5.00.2521.2063
+    Release 5.00.2539.1742
 
      -- [#472] Updated Reset-HPOVInterconnectNetOpPassword to support Virtual Connect SE 100Gb F32 Module for Synergy
         interconnect type.
@@ -45,6 +45,7 @@ WHAT'S NEW
      -- [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
      -- Fixed Get-HPOVDataCenter that would generate an exception when Remote Support was enabled.
      -- Enhanced Set-HPOVManagedSan to perform additional validations to zone and alias policies.
+     -- Fixed issue with Set-HPOVSanManager not returning a task object.
 
     Release 5.00.2400.1845
 
