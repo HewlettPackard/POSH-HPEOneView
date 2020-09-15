@@ -155,10 +155,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.40.2540.2165
+        ReleaseNotes = 'Release 5.40.2541.2093
 
 - Fixed issue with Set-HPOVSanManager not returning a task object.
-- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.'
+- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.
+- Added additional LACP load balancing parameters to New-OVUplinkSet.'
 
         # Prerelease string of this module
         # Prerelease = ''

@@ -32,10 +32,11 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
-   Release 5.40.2540.2165
+   Release 5.40.2541.2093
 
      -- Fixed issue with Set-HPOVSanManager not returning a task object.
      -- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.
+     -- Added additional LACP load balancing parameters to New-OVUplinkSet.
 
    Release 5.40.2534.2926
 
