@@ -13,9 +13,9 @@ The major changes are:
 * Withe the deprecation of PowerShell 4.0, the EXE installer is also deprecated.  Microsoft provides built-in PowerShellGet support to save published modules from PowerShell Gallery, by using the [`Save-Module`](https://go.microsoft.com/fwlink/?LinkId=531351) Cmdlet.
 
 ## Build status
-AppVeyor 5.40 Branch | AppVeyor 5.30 Branch | AppVeyor 5.20 Branch | AppVeyor 5.00 Branch
--------------------- | -------------------- | -------------------- | ---------------------
-[![Build status][ovm-master-build-status-badge]][ov-master-status-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link]
+AppVeyor 5.30 Branch | AppVeyor 5.20 Branch | AppVeyor 5.00 Branch
+-------------------- | -------------------- | ---------------------
+[![Build status][ovm-master-build-status-badge]][ov-master-status-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link]
 
 ## Getting started
 To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?LinkID=398573) Cmdlet to install from the PowerShell Gallery to your local system.
@@ -23,10 +23,10 @@ To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?Link
 ### For all supported PowerShell and PowerShellCore systems
 ```PowerShell
 # Install library from the PowerShell Gallery
-Install-Module HPEOneView.540
+Install-Module HPEOneView.530
 
 # Load the module
-Import-Module HPEOneView.540
+Import-Module HPEOneView.530
 
 # Connect to your appliance
 Connect-OVMgmt -Hostname MyAppliance.FQDN.Name -Credential $MyOneViewCredential
@@ -58,22 +58,13 @@ The library normally uses [FormatPX](https://github.com/KirkMunro/FormatPx) to f
 The Get-OVCommandTrace Cmdlet will generate the required output.  But due to a limitation in the DotNet Standard API, a prior used API is no longer available, resulting in Verbose and Debug messages from the HPE OneView C# Class Library to not be captured.  When reporting errors, and using the Cmdlet, or if you invoke `[HPEOneView.Config]::EnableVerbose = $true` and/or `[HPEOneView.Config]::EnableDebug = $true`, the generated output should be recaptured by Select All, copy and then paste into the created log file.
 
 ## Getting help
-First, [read the manual][ReadTheManualLink].  Cmdlets are documented here in a new doc repository.  The project wiki is no longer maintained, and will be removed in a future update.
-
 Are you running into a road block?  Have an issue with unexpected bahriov?  Feel free to open a [new issue](https://github.com/HewlettPackard/POSH-HPOneView/issues/new/choose) on the tracker.
 
 You have a general question about the library?  For general questions, or need to discuss a topic that doesn't need to be tracked in the issue tracker, please join the Gitter.im chat room:  [![Join the chat](https://img.shields.io/static/v1.svg?label=chat&message=on%20gitter&color=informational&logo=gitter)](https://gitter.im/POSH-HPOneView/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
-[ReadTheManualLink]: https://hpe-docs.gitbook.io/posh-hpeoneview/
-<!-- 5.40 -->
-[ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/afrq6bvcenxf61i5?svg=true
-[ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8tiw6
-<!-- 5.30 -->
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
-[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
-<!-- 5.20 -->
-[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
-[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
-<!-- 5.00 -->
-[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/q6u8r06y4fgybg59?svg=true
-[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-8bg6q
+[ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
+[ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
+[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
+[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
+[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/q6u8r06y4fgybg59?svg=true
+[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-8bg6q

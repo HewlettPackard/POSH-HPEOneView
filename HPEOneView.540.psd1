@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.540.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.40.2534.2926'
+ModuleVersion = '5.40.2540.2165'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,10 +155,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.40.2534.2926
+        ReleaseNotes = 'Release 5.40.2540.2165
 
-* Initial HPE OneView 5.40 library release.
-* Enhanced Set-OVManagedSan to perform additional validations to zone and alias policies.'
+- Fixed issue with Set-HPOVSanManager not returning a task object.
+- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.'
 
         # Prerelease string of this module
         # Prerelease = ''
