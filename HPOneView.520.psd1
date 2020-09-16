@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.520.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.20.2515.1660'
+ModuleVersion = '5.20.2542.1729'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -153,9 +153,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.20.2515.1660
+        ReleaseNotes = 'Release 5.20.2542.1729
 
-- [#501] Continued fixing of regression within New-HPOVLogicalEnclosure when Synergy "EBIPA" parameters were added.'
+- Enhanced Set-OVManagedSan to perform additional validations to zone and alias policies.
+- Fixed issue with Set-HPOVSanManager not returning a task object.
+- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.'
 
         # Prerelease string of this module
         # Prerelease = ''

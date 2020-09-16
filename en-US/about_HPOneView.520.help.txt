@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.20.2534.2504
+
+     -- Enhanced Set-OVManagedSan to perform additional validations to zone and alias policies.
+     -- Fixed issue with Set-HPOVSanManager not returning a task object.
+     -- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.
+
    Release 5.20.2515.1660
 
      -- [#501] Continued fixing of regression within New-HPOVLogicalEnclosure when Synergy "EBIPA" parameters were added.
@@ -45,11 +51,11 @@ WHAT'S NEW
         defined addresses, or autofill for device and/or interconnect bays.
      -- Fixed Remove-HPOVScmbCertificates where a missing HTTP header was necessary.
      -- [#429] Enhanced Get-HPOVRack to filter on Datacenter location.
-     -- Fixed issue with Get-OVScmbCertificate when attempting to export a PFX due to cignificant
+     -- Fixed issue with Get-HPOVScmbCertificate when attempting to export a PFX due to cignificant
         X509Certificate2 changes in DotNetCore API.
      -- [#495] Fixed New-HPOVLogicalInterconnectGroup where the -EnablePauseFloodProtection parameter
         wasn't handled correctly for Synergy configurations.
-     -- [#497] Fixed issue with Set-OVRemoteSupport mishandling Insight Online portal registration.
+     -- [#497] Fixed issue with Set-HPOVRemoteSupport mishandling Insight Online portal registration.
      -- Fixed Get-OVDataCenter that would generate an exception when Remote Support was enabled.
      -- [#501] Fixed regression within New-HPOVLogicalEnclosure when Synergy "EBIPA" parameters were added.
 
