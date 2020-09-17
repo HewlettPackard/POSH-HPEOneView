@@ -32,6 +32,11 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+    Release 5.00.2542.2883
+
+     -- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.
+     -- Added additional LACP load balancing parameters to New-OVUplinkSet.
+
     Release 5.00.2539.1742
 
      -- [#472] Updated Reset-HPOVInterconnectNetOpPassword to support Virtual Connect SE 100Gb F32 Module for Synergy
