@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.530.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.30.2541.2687'
+ModuleVersion = '5.30.2552.3262'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,12 +155,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.30.2541.2687
+        ReleaseNotes = "Release 5.30.2552.3262
 
-- Enhanced Set-OVManagedSan to perform additional validations to zone and alias policies.
-- Fixed issue with Set-HPOVSanManager not returning a task object.
-- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.
-- Added additional LACP load balancing parameters to New-OVUplinkSet.'
+-- Added iLO helper Cmdlets New-OVServerProfileIloPolicy, New-OVIloLocalUserAccount and New-OVIloDirectoryGroup for Server Profile and Server Profile Template Cmdlets.
+-- [#505] Updated Show-OVFirmwareReport use of PowerShell operator -Match to [Regex]::Match() method to avoid PowerShell treating embedded parenthesis characters in the evalutation string, which would result in `"not enough ('s`" error message.
+-- Fixed New-OVServerProfileTemplate where invalid BIOS Boot Mode was being set for unsupported server hardware.
+-- [#499] Addressed Update-OVUserScript Cmdlet not writing to original file."
 
         # Prerelease string of this module
         # Prerelease = ''

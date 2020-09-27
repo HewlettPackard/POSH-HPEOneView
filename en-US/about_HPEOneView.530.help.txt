@@ -32,6 +32,18 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.20.2552.3262
+
+     -- [#505] Updated Show-OVFirmwareReport use of PowerShell operator -Match to
+        [Regex]::Match() method to avoid PowerShell treating embedded parenthesis
+        characters in the evalutation string, which would result in "not enough ('s"
+        error message.
+     -- Added iLO helper Cmdlets New-OVServerProfileIloPolicy, New-OVIloLocalUserAccount
+        and New-OVIloDirectoryGroup for Server Profile and Server Profile Template Cmdlets.
+     -- Fixed New-OVServerProfileTemplate where invalid BIOS Boot Mode was being set for
+        unsupported server hardware.
+     -- [#499] Addressed Update-OVUserScript Cmdlet not writing to original file.
+
    Release 5.30.2541.2687
 
      -- Enhanced Set-OVManagedSan to perform additional validations to zone and alias policies.
