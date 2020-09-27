@@ -41,10 +41,10 @@ THE SOFTWARE.
 #>
 ##############################################################################
 
-if (-not (get-module HPEOneView.530))
+if (-not (get-module HPEOneView.540))
 {
 
-    Import-Module HPEOneView.530
+    Import-Module HPEOneView.540
 
 }
 

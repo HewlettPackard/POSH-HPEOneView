@@ -94,10 +94,10 @@ param
 
 )
 
-if (-not (Get-Module HPEOneView.530))
+if (-not (Get-Module HPEOneView.540))
 {
 
-    Import-Module HPEOneView.530
+    Import-Module HPEOneView.540
 
 }
 
@@ -472,6 +472,6 @@ if (-not (Get-Module HPEOneView.530))
 
     Disconnect-OVMgmt
 
-	Remove-Module HPEOneView.530
+	Remove-Module HPEOneView.540
 
 #endregion

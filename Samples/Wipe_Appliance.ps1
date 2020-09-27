@@ -35,10 +35,10 @@ param
 if ($PSCmdlet.ShouldProcess($Hostname,("remove all resources on appliance")))
 {
 
-    if (! (Get-Module -Name 'HPEOneView.530'))
+    if (! (Get-Module -Name 'HPEOneView.540'))
     {
 
-        Import-Module HPEOneView.530
+        Import-Module HPEOneView.540
 
     }
 

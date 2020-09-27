@@ -108,10 +108,10 @@ param
 
 )
 
-if (-not (Get-Module HPEOneView.530))
+if (-not (Get-Module HPEOneView.540))
 {
 
-    Import-Module POSH-HPEOneView.530
+    Import-Module POSH-HPEOneView.540
 
 }
 
