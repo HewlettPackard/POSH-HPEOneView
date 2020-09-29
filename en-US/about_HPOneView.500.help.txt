@@ -32,6 +32,21 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+    Release 5.00.2554.3636
+
+     -- [#505] Updated Show-HPOVFirmwareReport use of PowerShell operator -Match to
+        [Regex]::Match() method to avoid PowerShell treating embedded parenthesis
+        characters in the evalutation string, which would result in "not enough ('s"
+        error message.
+     -- Added iLO helper Cmdlets New-HPOVServerProfileIloPolicy, New-HPOVIloLocalUserAccount
+        and New-HPOVIloDirectoryGroup for Server Profile and Server Profile Template Cmdlets.
+     -- Fixed New-HPOVServerProfileTemplate where invalid BIOS Boot Mode was being set for
+        unsupported server hardware.
+     -- [#506] Fixed Get-HPOVAddressPool and Get-HPOVAddressPoolRange not returning IPv6
+        pools and ranges.
+     -- [#507] Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled
+        correctly returning no results from the appliance API.
+
     Release 5.00.2542.2883
 
      -- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.

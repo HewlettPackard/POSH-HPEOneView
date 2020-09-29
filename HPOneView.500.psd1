@@ -27,7 +27,7 @@ THE SOFTWARE.
     RootModule = 'HPOneView.500.psm1'
 
     # Version number of this module.
-    ModuleVersion = '5.0.2542.2883'
+    ModuleVersion = '5.0.2554.3636'
 
     # ID used to uniquely identify this module
     GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7'
@@ -121,10 +121,13 @@ THE SOFTWARE.
             LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
             ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
             IconUri = '';
-            ReleaseNotes = "Release 5.00.2542.2883
+            ReleaseNotes = "Release 5.00.2554.3636
 
-- [#504] Fixing merge issue with New-HPOVUplinkSet with invalid object property.
-- Added additional LACP load balancing parameters to New-OVUplinkSet."
+- Added iLO helper Cmdlets New-HPOVServerProfileIloPolicy, New-HPOVIloLocalUserAccount and New-HPOVIloDirectoryGroup for Server Profile and Server Profile Template Cmdlets.
+- [#505] Updated Show-HPOVFirmwareReport use of PowerShell operator -Match to [Regex]::Match() method to avoid PowerShell treating embedded parenthesis characters in the evalutation string, which would result in `"not enough ('s`" error message.
+- Fixed New-HPOVServerProfileTemplate where invalid BIOS Boot Mode was being set for unsupported server hardware.
+- [#506] Fixed Get-HPOVAddressPool and Get-HPOVAddressPoolRange not returning IPv6 pools and ranges.
+- [#507] Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled correctly returning no results from the appliance API."
 
         }
 
