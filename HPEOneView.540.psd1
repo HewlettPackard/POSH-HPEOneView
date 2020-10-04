@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.540.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.40.2551.2353'
+ModuleVersion = '5.40.2559.2085'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,12 +155,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.40.2551.2353
+        ReleaseNotes = "Release 5.40.2559.2085
 
--- Added iLO helper Cmdlets New-OVServerProfileIloPolicy, New-OVIloLocalUserAccount and New-OVIloDirectoryGroup for Server Profile and Server Profile Template Cmdlets.
--- [#505] Updated Show-OVFirmwareReport use of PowerShell operator -Match to [Regex]::Match() method to avoid PowerShell treating embedded parenthesis characters in the evalutation string, which would result in `"not enough ('s`" error message.
--- Fixed New-OVServerProfileTemplate where invalid BIOS Boot Mode was being set for unsupported server hardware.
--- [#499] Addressed Update-OVUserScript Cmdlet not writing to original file."
+- [#506] Fixed Get-OVAddressPool and Get-OVAddressPoolRange not returning IPv6 pools and ranges.
+- [#507] Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled correctly returning no results from the appliance API.
+- [#87] Added new Cmdlet to report utilization for server hardware, server profiles assigned to server hardware and enclosures with Show-OVUtilization.
+- Fixed New-OVRack where rack height was not being calculated when only UHeight was provided."
 
         # Prerelease string of this module
         # Prerelease = ''

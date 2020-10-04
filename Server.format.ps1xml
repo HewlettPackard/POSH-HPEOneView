@@ -51,7 +51,6 @@
     </Control>
   </Controls>
   <ViewDefinitions>
-
     <!--RackManager FT-->
     <View>
       <Name>RackManager</Name>
@@ -208,14 +207,6 @@
         </TableRowEntries>
       </TableControl>
     </View>
-
-
-
-
-
-
-
-
     <!--ServerHardware FT-->
     <View>
       <Name>ServerHardware</Name>
@@ -944,6 +935,59 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <!-- ServerUtilization -->
+    <View>
+      <Name>ServerUtilization</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerUtilization</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CPUCurrent</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerCurrent</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AmbientTemperature</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastUpdated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CPUCurrent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PowerCurrent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AmbientTemperature</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastUpdated</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--ENCLOSURE FT-->
     <View>
       <Name>Enclosure</Name>
@@ -1059,6 +1103,52 @@
           </ListEntry>
         </ListEntries>
       </ListControl>
+    </View>
+    <!-- EnclosureUtilization -->
+    <View>
+      <Name>EnclosureUtilization</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.EnclosureUtilization</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerCurrent</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AmbientTemperature</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastUpdated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PowerCurrent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AmbientTemperature</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastUpdated</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
     </View>
     <!--LOGICALENCLOSURE FT-->
     <View>

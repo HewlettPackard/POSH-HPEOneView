@@ -32,6 +32,17 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.40.2559.2085
+
+     -- [#506] Fixed Get-OVAddressPool and Get-OVAddressPoolRange not returning IPv6
+        pools and ranges.
+     -- [#507] Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled
+        correctly returning no results from the appliance API.
+     -- [#87] Added new Cmdlet to report utilization for server hardware, server profiles
+        assigned to server hardware and enclosures with Show-OVUtilization.
+     -- Fixed New-OVRack where rack height was not being calculated when only UHeight was
+        provided.
+
    Release 5.40.2551.2353
 
      -- [#505] Updated Show-OVFirmwareReport use of PowerShell operator -Match to
