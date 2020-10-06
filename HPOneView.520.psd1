@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.520.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.20.2552.4058'
+ModuleVersion = '5.20.2561.3357'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -153,12 +153,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.20.2552.4058
+        ReleaseNotes = "Release 5.20.2561.3357
 
--- Added iLO helper Cmdlets New-HPOVServerProfileIloPolicy, New-HPOVIloLocalUserAccount and New-HPOVIloDirectoryGroup for Server Profile and Server Profile Template Cmdlets.
--- [#505] Updated Show-HPOVFirmwareReport use of PowerShell operator -Match to [Regex]::Match() method to avoid PowerShell treating embedded parenthesis characters in the evalutation string, which would result in `"not enough ('s`" error message.
--- Fixed New-HPOVServerProfileTemplate where invalid BIOS Boot Mode was being set for unsupported server hardware.
--- [#506] Fixed Get-HPOVAddressPool and Get-HPOVAddressPoolRange not returning IPv6 pools and ranges."
+- [#87] Added new Cmdlet to report utilization for server hardware, server profiles assigned to server hardware and enclosures with Show-HPOVUtilization.
+- Fixed New-HPOVRack where rack height was not being calculated when only UHeight was provided."
 
         # Prerelease string of this module
         # Prerelease = ''

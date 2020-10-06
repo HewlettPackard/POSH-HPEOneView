@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.20.2561.3357
+
+     -- [#87] Added new Cmdlet to report utilization for server hardware, server profiles
+        assigned to server hardware and enclosures with Show-HPOVUtilization.
+     -- Fixed New-HPOVRack where rack height was not being calculated when only UHeight was provided.
+
    Release 5.20.2552.4058
 
      -- [#505] Updated Show-HPOVFirmwareReport use of PowerShell operator -Match to
@@ -44,6 +50,8 @@ WHAT'S NEW
         unsupported server hardware.
      -- [#506] Fixed Get-HPOVAddressPool and Get-HPOVAddressPoolRange not returning IPv6
         pools and ranges.
+     -- Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled
+        correctly returning no results from the appliance API.
 
    Release 5.20.2534.2504
 
