@@ -4,7 +4,7 @@
 
 COPYRIGHT
 
-    (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+    (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP
 
 LICENSE
 
@@ -29,11 +29,29 @@ LICENSE
 SHORT DESCRIPTION
 
     PowerShell library for HP OneView 4.20
-	
+
 WHAT'S NEW
 
+    Release 4.20.2570.1391
+
+     -- [#443] Fixed New-HPOVLogicalInterconnectGroup where Scope parameter was not processed.
+     -- Fixed Get-HPOVServerProfileConnectionList to output a valid PowerShell object.
+     -- Fixed issue where index resources were stale, resulting in object not found exception.
+     -- Fixed Install-HPOVUpdate Cmdlet where it would not track
+     -- [#507] Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled
+        correctly returning no results from the appliance API.
+     -- Fixed New-HPOVServerProfileTemplate where invalid BIOS Boot Mode was being set for
+        unsupported server hardware.
+     -- Fixed issue with Get-HPOVScmbCertificate when attempting to export a PFX due to cignificant
+        X509Certificate2 changes in DotNetCore API.
+     -- Fixed Set-HPOVUplinkSet handling of both Logical Interconnect Group and Logical Interconnect
+        resources.
+     -- Fixed New-HPOVServerProfile mishandle of address assignment parameters and internal logic.
+     -- Fixed New-HPOVServerProfileTemplate and New-HPOVServerProfileAttachVolume validation logic
+        of mapping attachable volumes.
+
     Release 4.20.2290.1501
-    
+
      -- [#425] Updated Update-HPOVServer logic to handle hostname when parameter is not provided.
      -- [#435] Fixed Add-HPOVServer exception that reports the server is already managed or monitored
         by the appliance was incorrectly handled.
@@ -98,8 +116,8 @@ LONG DESCRIPTION
 
     A set of sample scripts are also provided, that show how to fully configure an
     HP OneView appliance from the ground up.
-                                        
-    For information regarding this project, to request features or report 
+
+    For information regarding this project, to request features or report
     issues, please see: https://github.com/HewlettPackard/POSH-HPOneView/issues
 
 

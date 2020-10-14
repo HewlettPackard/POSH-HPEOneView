@@ -709,7 +709,7 @@
     <View>
       <Name>connections</Name>
       <ViewSelectedBy>
-        <TypeName>HPOneView.Profile.Connection</TypeName>
+        <TypeName>HPOneView.ServerProfile.Connection</TypeName>
       </ViewSelectedBy>
       <TableControl>
         <TableHeaders>
@@ -813,6 +813,131 @@
 
                   $address | Out-String | % { $_ -replace '^\s+|\s+$' }
                 </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Server_ServerProfile_ConnectionList FT-->
+    <View>
+      <Name>ConnectionList</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.ServerProfile.ConnectionList</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+        <TableColumnHeader>
+            <Label>ServerProfile</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PortID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MAC</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWPN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Boot</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ArrayTarget</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LUN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+            <!-- serverProfile, cid, portId, functionType, Network, mac, wwpn, boot, arrayTarget, lun, Appliance -->
+              <TableColumnItem>
+                <PropertyName>serverProfile</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>cid</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>functionType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Network</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if ($_.macType -eq "Virtual" -and $_.mac)      { "{0} (V)" -f $_.mac }
+                  elseif ($_.macType -eq "Physical" -and $_.mac) { "{0} (P)" -f $_.mac }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { "{0} (V)" -f $_.wwpn }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { "{0} (P)" -f $_.wwpn }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>boot</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if (-not ([String]::IsNullOrEmpty($_.arrayTarget)))
+                  {
+
+                    if ($_.functionType -eq 'FibreChannel')
+                    {
+
+                      [regex]::Replace($_.arrayTarget, '(..)', '$1:').Trim(":")
+
+                    }
+
+                    else
+                    {
+
+                      $_.arrayTarget
+
+                    }
+
+                  }
+
+                  elseif ($_.boot -ne "NotBootable" -and [String]::IsNullOrEmpty($_.arrayTarget))
+                  {
+
+                    "UseAdapterBIOS"
+
+                  }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>lun</PropertyName>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -1612,6 +1737,75 @@
           </TableRowEntry>
         </TableRowEntries>
       </TableControl>
-    </View> 
-  </ViewDefinitions> 
+    </View>
+
+
+    <!-- HPOneView.Servers.LogicalJBOD FT-->
+    <View>
+      <Name>LogicalJBOD</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Servers.LogicalJBOD</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DriveTechnology</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MinSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MaxSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drives</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UsedBy</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} {1}" -f $_.Interface, $_.Media</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPOneView.Utilities.Library]::IntToStorageString(([int]$_.MinSize * 1GB))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPOneView.Utilities.Library]::IntToStorageString(([int]$_.MaxSize * 1GB))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Drives</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UsedBy</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
 </Configuration>
