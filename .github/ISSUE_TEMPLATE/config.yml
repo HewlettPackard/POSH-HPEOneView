@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+    - name: HPE OneView PowerShell Gitter.im
+      url: https://gitter.im/POSH-HPOneView/Lobby
+      about: Please ask and answer questions here.
