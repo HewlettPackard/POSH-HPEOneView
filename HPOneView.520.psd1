@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.520.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.20.2561.3357'
+ModuleVersion = '5.20.2597.1857'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -153,10 +153,19 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.20.2561.3357
+        ReleaseNotes = 'Release 5.20.2597.1857
 
-- [#87] Added new Cmdlet to report utilization for server hardware, server profiles assigned to server hardware and enclosures with Show-HPOVUtilization.
-- Fixed New-HPOVRack where rack height was not being calculated when only UHeight was provided."
+- Updated New-HPOVNetworkSet to no longer require -Networks parameter.
+- Fixed New-HPOVSnmpV3User where paraeter validation logic was incorrect when providing the -AuthPassword parameter with -SecurityLevel to "AuthOnly".
+- Fixed issue with Install-HPOVUpdate not hanlding error conditions from the API correctly.
+- [#509] Fixed New-HPOVServerProfileTemplate and New-HPOVServerProfile where each Cmdlet would not handle TargetAddress parameter correctly.
+- [#511] Enhanced New-HPOVServerProfileLogicalDisk to support permanent logical JBODs when assigned to server profile templates and server profiles.
+- Enhanced Install-HPOVLogicalInterconnectFirmware to support Orchestrated firmware installation for HPE Synergy Virtual Connect fabrics.
+- [#514] Enhanced ConvertTo-HPOVPowerShellScript to handle unassign network connections.
+- [#513] Enhanced New-HPOVServerProfileConnection to support Unassigned network connections.
+- Enhanced Install-HPOVLogicalInterconnectFirmware to support HPE Synergy Orchestrated activation, and HPE SAS logical interconnect type.
+- [#515] Enhanced New-HPOVNetwork to include the ability to create bulk Ethernet networks and associate with one or more existing Network Sets.
+- [#512] Enhanced Set-HPOVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.'
 
         # Prerelease string of this module
         # Prerelease = ''

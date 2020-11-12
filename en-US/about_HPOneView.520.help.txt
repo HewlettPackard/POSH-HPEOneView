@@ -32,6 +32,30 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.20.2597.1857
+
+     -- Updated New-HPOVNetworkSet to no longer require -Networks parameter.
+     -- Fixed New-HPOVSnmpV3User where paraeter validation logic was incorrect when providing
+        the -AuthPassword parameter with -SecurityLevel to "AuthOnly".
+     -- Fixed issue with Install-HPOVUpdate not hanlding error conditions from the API
+        correctly.
+     -- [#509] Fixed New-HPOVServerProfileTemplate and New-HPOVServerProfile where each Cmdlet
+        would not handle TargetAddress parameter correctly.
+     -- [#511] Enhanced New-HPOVServerProfileLogicalDisk to support permanent logical JBODs
+        when assigned to server profile templates and server profiles.
+     -- Enhanced Install-HPOVLogicalInterconnectFirmware to support Orchestrated firmware
+        installation for HPE Synergy Virtual Connect fabrics.
+     -- [#514] Enhanced ConvertTo-HPOVPowerShellScript to handle unassign network connections.
+     -- [#513] Enhanced New-HPOVServerProfileConnection to support Unassigned network connections.
+     -- Enhanced Install-HPOVLogicalInterconnectFirmware to support HPE Synergy Orchestrated
+        activation, and HPE SAS logical interconnect type.
+     -- [#512] Enhanced Set-HPOVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.
+     -- [#515] Enhanced New-HPOVNetwork to include the ability to create bulk Ethernet networks
+        and associate with one or more existing Network Sets.
+     -- [#516] Fixed Get-HPOVLoginMessage and Set-HPOVLoginMessage generating cannot convert error.
+     -- [#517] Enhanced Wait-HPOVTaskComplete to only display 'Appliance is rebooting' message once,
+        if the appliance requires a reboot for a task (ex. Set-HPOVApplianceCurrentSecurityMode).
+
    Release 5.20.2561.3357
 
      -- [#87] Added new Cmdlet to report utilization for server hardware, server profiles
