@@ -2198,7 +2198,7 @@
               </ListItem>
               <ListItem>
                 <Label>BundleSize</Label>
-                <ScriptBlock>'{0:N2}GB' -f ($_.BundleSize / 1GB)</ScriptBlock>
+                <ScriptBlock>[HPEOneView.Utilities.Library]::IntToStorageString($_.BundleSize)</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>Locations</Label>
