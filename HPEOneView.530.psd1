@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.530.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.30.2560.2096'
+ModuleVersion = '5.30.2606.1885'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,12 +155,18 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.30.2560.2096
+        ReleaseNotes = "Release 5.30.2606.1885
 
-- [#506] Fixed Get-OVAddressPool and Get-OVAddressPoolRange not returning IPv6 pools and ranges.
-- [#507] Fixed Get-HPOVAlert where Start, End and Timespan values where not being handled correctly returning no results from the appliance API.
-- [#87] Added new Cmdlet to report utilization for server hardware, server profiles assigned to server hardware and enclosures with Show-OVUtilization.
-- Fixed New-OVRack where rack height was not being calculated when only UHeight was provided."
+- Enhanced Install-OVLogicalInterconnectFirmware to support HPE Synergy Orchestrated activation, and HPE SAS logical interconnect type.
+- Added Test-OVRemoteSupportEvent Cmdlet to initiate an HPE OneView Remote Suport test case event.
+- Enhanced New-OVApplianceTrustedCertificate to build and install the certificate chain of a provided public SSL certificate or host.  The PowerShell client OS must have the certificate chain trusted in the operating systems trust store in order to properly build the certificate chain.
+- [#512] Enhanced Set-HPOVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.
+- [#515] Enhanced New-OVNetwork to allow assigning bulk networks to network sets with the -VlanRange and -NetworkSet paramters.
+- [#516] Fixed Get-OVLoginMessage and Set-OVLoginMessage mishandling of an internal variable resulting in an unable to transform class exception.
+- [#519] Enhanced Set-OVApplianceBackupConfig to fetch remote servers public SCP/SFTP key.
+- [#520] Fixed internal Upload-File function where uploaded hotfixes would not report their filesize.
+- [#521] Fixed a casting issue within Get-OVApplianceServiceConsoleAccess when service console is disabled.
+- [#523] Enhanced Get-OVServer to allow searching for server hardware serial number."
 
         # Prerelease string of this module
         # Prerelease = ''
