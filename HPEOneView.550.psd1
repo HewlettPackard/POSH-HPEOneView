@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.550.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.50.2604.1781'
+ModuleVersion = '5.50.2607.2724'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,16 +155,14 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.50.2604.1781
+        ReleaseNotes = 'Release 5.50.2607.2724
 
-- Enhanced Install-OVLogicalInterconnectFirmware to support HPE Synergy Orchestrated activation, and HPE SAS logical interconnect type.
-- Added Test-OVRemoteSupportEvent Cmdlet to initiate an HPE OneView Remote Suport test case event.
-- Enhanced New-OVApplianceTrustedCertificate to build and install the certificate chain of a provided public SSL certificate or host.  The PowerShell client OS must have the certificate chain trusted in the operating systems trust store in order to properly build the certificate chain.
-- [#512] Enhanced Set-HPOVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.
-- [#515] Enhanced New-OVNetwork to allow assigning bulk networks to network sets with the -VlanRange and -NetworkSet paramters.
-- [#516] Fixed Get-OVLoginMessage and Set-OVLoginMessage mishandling of an internal variable resulting in an unable to transform class exception.
-- [#519] Enhanced Set-OVApplianceBackupConfig to fetch remote servers public SCP/SFTP key.
-- [#520] Fixed internal Upload-File function where uploaded hotfixes would not report their filesize.'
+- [#518] Fixed merge issue where incorect handling of Base64 encoded certificates would cause an exception in Add-OVApplianceTrustedCertificate.
+- [#521] Fixed a casting issue within Get-OVApplianceServiceConsoleAccess when service console is disabled.
+- [#523] Enhanced Get-OVServer to allow searching for server hardware serial number.
+- [POTENTIAL BREAKING CHANGE] Changed Set-OVTwoFactorAuthentication by removing the -EnableEmergencyLocalLogin and -EmergencyLoginAllowType parameters, and moving them to both Set-OVLdapDefaultDirectory and Disable-OVLdapLocalLogin Cmdlets.
+- Fixed Connect-OVMgmt not properly handling embedded NT style domain name of user account, and not sending the case sensitive formatted value to the API.
+- [#528] Added new Start-OVEnclosureApplianceDevice Cmdlet to power on appliance devices within an HPE Synergy Frame.'
 
         # Prerelease string of this module
         # Prerelease = ''

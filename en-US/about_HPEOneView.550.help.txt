@@ -32,6 +32,21 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.50.2607.2724
+
+      -- [#518] Fixed merge issue where incorect handling of Base64 encoded certificates
+         would cause an exception in Add-OVApplianceTrustedCertificate.
+      -- [#521] Fixed a casting issue within Get-OVApplianceServiceConsoleAccess when
+         service console is disabled.
+      -- [#523] Enhanced Get-OVServer to allow searching for server hardware serial number.
+      -- [POTENTIAL BREAKING CHANGE] Changed Set-OVTwoFactorAuthentication by removing the
+         -EnableEmergencyLocalLogin and -EmergencyLoginAllowType parameters, and moving them to
+         both Set-OVLdapDefaultDirectory and Disable-OVLdapLocalLogin Cmdlets.
+      -- Fixed Connect-OVMgmt not properly handling embedded NT style domain name of user account,
+         and not sending the case sensitive formatted value to the API.
+      -- [#528] Added new Start-OVEnclosureApplianceDevice Cmdlet to power on appliance devices
+         within an HPE Synergy Frame.
+
    Release 5.50.2604.1781
 
       -- Enhanced Install-OVLogicalInterconnectFirmware to support HPE Synergy Orchestrated
