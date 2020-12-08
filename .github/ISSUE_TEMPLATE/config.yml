@@ -1,6 +1,6 @@
 blank_issues_enabled: false
 contact_links:
-    - name: HPE OneView PowerShell Discussions
+    - name: HPE OneView PowerShell Discussions ❓
       url: https://github.com/HewlettPackard/POSH-HPEOneView/discussions
       about: Ask questions, requests, other topics that are not reporting bugs.
     - name: HPE OneView Community
