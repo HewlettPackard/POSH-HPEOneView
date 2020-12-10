@@ -13,7 +13,7 @@ The major changes are:
 * Withe the deprecation of PowerShell 4.0, the EXE installer is also deprecated.  Microsoft provides built-in PowerShellGet support to save published modules from PowerShell Gallery, by using the [`Save-Module`](https://go.microsoft.com/fwlink/?LinkId=531351) Cmdlet.
 
 ## Build status
-AppVeyor 5.40 Branch | AppVeyor 5.30 Branch | AppVeyor 5.20 Branch | AppVeyor 5.00 Branch
+AppVeyor 5.50 Branch | AppVeyor 5.40 Branch | AppVeyor 5.30 Branch | AppVeyor 5.20 Branch
 -------------------- | -------------------- | -------------------- | ---------------------
 [![Build status][ovm-master-build-status-badge]][ov-master-status-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link]
 
@@ -23,10 +23,10 @@ To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?Link
 ### For all supported PowerShell and PowerShellCore systems
 ```PowerShell
 # Install library from the PowerShell Gallery
-Install-Module HPEOneView.540
+Install-Module HPEOneView.550
 
 # Load the module
-Import-Module HPEOneView.540
+Import-Module HPEOneView.550
 
 # Connect to your appliance
 Connect-OVMgmt -Hostname MyAppliance.FQDN.Name -Credential $MyOneViewCredential
@@ -60,20 +60,29 @@ The Get-OVCommandTrace Cmdlet will generate the required output.  But due to a l
 ## Getting help
 First, [read the manual][ReadTheManualLink].  Cmdlets are documented here in a new doc repository.  The project wiki is no longer maintained, and will be removed in a future update.
 
-Are you running into a road block?  Have an issue with unexpected bahriov?  Feel free to open a [new issue](https://github.com/HewlettPackard/POSH-HPOneView/issues/new/choose) on the tracker.
+Are you running into a road block?  Have an issue with unexpected bahriov?  Feel free to open a [![new issue][new-issue-badge-url]][new-issue-link] on the tracker.
 
-You have a general question about the library?  For general questions, or need to discuss a topic that doesn't need to be tracked in the issue tracker, please join the Gitter.im chat room:  [![Join the chat](https://img.shields.io/static/v1.svg?label=chat&message=on%20gitter&color=informational&logo=gitter)](https://gitter.im/POSH-HPOneView/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+You have a general question about the library?  For general questions, or need to discuss a topic that doesn't need to be tracked in the issue tracker, please join the new GitHub Discussions for the project: [![Join the discussion][github-chat-badge-url]][github-chat-link]
 
+Still available, but not actively maintained Gitter.im chat room: [![Join the chat][gitter-chat-badge-url]][gitter-chat-link]
+
+<!-- markdown variables links -->
 [ReadTheManualLink]: https://hpe-docs.gitbook.io/posh-hpeoneview/
+<!-- 5.50 -->
+[ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
+[ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-6jhe9
 <!-- 5.40 -->
-[ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/afrq6bvcenxf61i5?svg=true
-[ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8tiw6
+[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/afrq6bvcenxf61i5?svg=true
+[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8tiw6
 <!-- 5.30 -->
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
-[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
+[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
+[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
 <!-- 5.20 -->
-[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
-[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
-<!-- 5.00 -->
-[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/q6u8r06y4fgybg59?svg=true
-[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview-8bg6q
+[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
+[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
+[new-issue-badge-url]: https://img.shields.io/badge/issues-new-yellowgreen?style=flat&logo=github
+[new-issue-link]: https://github.com/HewlettPackard/POSH-HPOneView/issues/new/choose
+[github-chat-badge-url]: https://img.shields.io/badge/chat-on%20github%20discussions-green?style=flat&logo=gitter
+[github-chat-link]: https://github.com/HewlettPackard/POSH-HPEOneView/discussions
+[gitter-chat-badge-url]: https://camo.githubusercontent.com/fd5dd4417d3bc721ada1bf5564e66e74de3cf909/68747470733a2f2f696d672e736869656c64732e696f2f7374617469632f76312e7376673f6c6162656c3d63686174266d6573736167653d6f6e25323067697474657226636f6c6f723d696e666f726d6174696f6e616c266c6f676f3d676974746572
+[gitter-chat-link]: https://gitter.im/POSH-HPOneView/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
