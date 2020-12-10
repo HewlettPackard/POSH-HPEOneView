@@ -60,10 +60,13 @@ The Get-OVCommandTrace Cmdlet will generate the required output.  But due to a l
 ## Getting help
 First, [read the manual][ReadTheManualLink].  Cmdlets are documented here in a new doc repository.  The project wiki is no longer maintained, and will be removed in a future update.
 
-Are you running into a road block?  Have an issue with unexpected bahriov?  Feel free to open a [new issue](https://github.com/HewlettPackard/POSH-HPOneView/issues/new/choose) on the tracker.
+Are you running into a road block?  Have an issue with unexpected bahriov?  Feel free to open a [![new issue][new-issue-badge-url]][new-issue-link] on the tracker.
 
-You have a general question about the library?  For general questions, or need to discuss a topic that doesn't need to be tracked in the issue tracker, please join the Gitter.im chat room:  [![Join the chat](https://img.shields.io/static/v1.svg?label=chat&message=on%20gitter&color=informational&logo=gitter)](https://gitter.im/POSH-HPOneView/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+You have a general question about the library?  For general questions, or need to discuss a topic that doesn't need to be tracked in the issue tracker, please join the new GitHub Discussions for the project: [![Join the discussion][github-chat-badge-url]][github-chat-link]
 
+Still available, but not actively maintained Gitter.im chat room: [![Join the chat][gitter-chat-badge-url]][gitter-chat-link]
+
+<!-- markdown variables links -->
 [ReadTheManualLink]: https://hpe-docs.gitbook.io/posh-hpeoneview/
 <!-- 5.50 -->
 [ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
@@ -77,3 +80,9 @@ You have a general question about the library?  For general questions, or need t
 <!-- 5.20 -->
 [ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
 [ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
+[new-issue-badge-url]: https://img.shields.io/badge/issues-new-yellowgreen?style=flat&logo=github
+[new-issue-link]: https://github.com/HewlettPackard/POSH-HPOneView/issues/new/choose
+[github-chat-badge-url]: https://img.shields.io/badge/chat-on%20github%20discussions-green?style=flat&logo=gitter
+[github-chat-link]: https://github.com/HewlettPackard/POSH-HPEOneView/discussions
+[gitter-chat-badge-url]: https://camo.githubusercontent.com/fd5dd4417d3bc721ada1bf5564e66e74de3cf909/68747470733a2f2f696d672e736869656c64732e696f2f7374617469632f76312e7376673f6c6162656c3d63686174266d6573736167653d6f6e25323067697474657226636f6c6f723d696e666f726d6174696f6e616c266c6f676f3d676974746572
+[gitter-chat-link]: https://gitter.im/POSH-HPOneView/Lobby?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge
