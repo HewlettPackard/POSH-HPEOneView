@@ -5,7 +5,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -53,7 +53,7 @@ param
 
 )
 
-function Test-IsAdmin 
+function Test-IsAdmin
 {
 
     ([Security.Principal.WindowsPrincipal] [Security.Principal.WindowsIdentity]::GetCurrent()).IsInRole([Security.Principal.WindowsBuiltInRole] "Administrator")
@@ -87,7 +87,7 @@ if (-not(Get-WindowsFeature -Name $FeatureName).Installed)
 
     Try
     {
-    
+
         $resp = Install-WindowsFeature -Name $FeatureName -IncludeManagementTools
 
         if ($resp.RestartNeeded -eq 'Yes')
@@ -96,16 +96,16 @@ if (-not(Get-WindowsFeature -Name $FeatureName).Installed)
             Write-Warning "A reboot is needed to complete installation.  Please reboot the server, and re-run this script.  It will continue the configuration of WebDAV."
 
         }
-    
+
         Write-Host 'Done.' -ForegroundColor Green
 
     }
-    
+
     Catch
     {
-    
+
         $PSCmdlet.ThrowTerminatingError($_)
-    
+
     }
 
     Start-Service w3svc
@@ -122,18 +122,18 @@ if ((Get-WindowsFeature -Name $FeatureName).Installed -and $resp.RestartNeeded -
 
         Try
         {
-        
+
             $null = Install-WindowsFeature -Name Web-Dir-Browsing -IncludeManagementTools
-        
+
             Write-Host 'Done.' -ForegroundColor Green
 
         }
-        
+
         Catch
         {
-        
+
             $PSCmdlet.ThrowTerminatingError($_)
-        
+
         }
 
     }
@@ -149,7 +149,7 @@ if ((Get-WindowsFeature -Name $FeatureName).Installed -and $resp.RestartNeeded -
 
             $null = New-WebVirtualDirectory -Site $WebsiteName -Name $VirtualDirectoryName -PhysicalPath $Path
 
-        }    
+        }
 
     }
 
@@ -202,24 +202,24 @@ if ((Get-WindowsFeature -Name $FeatureName).Installed -and $resp.RestartNeeded -
         if (-not(Get-WebConfigurationProperty -Filter //staticContent -Location $WebsiteName -Name collection[fileExtension=".iso"]))
         {
 
-            Add-webconfigurationproperty -Filter "//staticContent" -PSPath ("IIS:\Sites\{0}" -f $WebsiteName) -name collection -value @{fileExtension='.iso'; mimeType='application/octet-stream'} 
-        
+            Add-webconfigurationproperty -Filter "//staticContent" -PSPath ("IIS:\Sites\{0}" -f $WebsiteName) -name collection -value @{fileExtension='.iso'; mimeType='application/octet-stream'}
+
         }
 
         if (-not(Get-WebConfigurationProperty -Filter //staticContent -Location $WebsiteName -Name collection[fileExtension=".scexe"]))
         {
 
-            Add-webconfigurationproperty -Filter "//staticContent" -PSPath ("IIS:\Sites\{0}" -f $WebsiteName) -name collection -value @{fileExtension='.scexe'; mimeType='application/octet-stream'} 
-        
+            Add-webconfigurationproperty -Filter "//staticContent" -PSPath ("IIS:\Sites\{0}" -f $WebsiteName) -name collection -value @{fileExtension='.scexe'; mimeType='application/octet-stream'}
+
         }
-        
+
         if ((Get-WebConfigurationProperty -Filter //staticContent -Location $WebsiteName -Name collection[fileExtension=".rpm"]).mimeType -ne "application/octet-stream")
         {
 
             Set-WebConfigurationProperty -Filter "//staticContent/mimeMap[@fileExtension='.rpm']" -PSPath ("IIS:\Sites\{0}" -f $WebsiteName) -Name mimeType -Value "application/octet-stream"
 
         }
-        
+
 
     }
 
@@ -233,7 +233,7 @@ if ((Get-WindowsFeature -Name $FeatureName).Installed -and $resp.RestartNeeded -
     #Set WebDAV Access Rules
     Try
     {
-        
+
         $NewRule = @{
 
             users  = "*";
@@ -247,7 +247,7 @@ if ((Get-WindowsFeature -Name $FeatureName).Installed -and $resp.RestartNeeded -
 
             $null = Add-WebConfiguration -Filter system.webServer/webdav/authoringRules -PSPath "MACHINE/WEBROOT/APPHOST" -Location $WebsiteName -Value $NewRule
 
-        }   
+        }
 
         if (-not(Get-WebConfigurationProperty -filter 'system.webServer/webdav/authoring' -Location $WebsiteName -Name Enabled).Value)
         {
