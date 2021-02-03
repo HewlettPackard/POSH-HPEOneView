@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.540.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.40.2605.2185'
+ModuleVersion = '5.40.2681.1725'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -155,24 +155,14 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.40.2605.2185
+        ReleaseNotes = "Release 5.40.2605.2185
 
-- Updated New-OVNetworkSet to change -Networks parameter to no longer required.
-- Fixed New-OVSnmpV3User where paraeter validation logic was incorrect when providing the -AuthPassword parameter with -SecurityLevel to "AuthOnly".
-- Fixed issue with Install-OVUpdate not handling error conditions from the API correctly.
-- [#509] Fixed New-OVServerProfileTemplate and New-OVServerProfile where each Cmdlet would not handle TargetAddress parameter correctly.
-- [#511] Enhanced New-OVServerProfileLogicalDisk to support permanent logical JBODs when assigned to server profile templates and server profiles.
-- Enhanced Install-OVLogicalInterconnectFirmware to support Orchestrated firmware installation for HPE Synergy Virtual Connect fabrics.
-- Enhanced Install-OVLogicalInterconnectFirmware to support HPE Synergy Orchestrated activation, and HPE SAS logical interconnect type.
-- [#512] Enhanced Set-OVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.
-- [#514] Enhanced ConvertTo-OVPowerShellScript to handle unassign network connections.
-- [#513] Enhanced New-OVServerProfileConnection to support Unassigned network connections.
-- [#515] Enhanced New-OVNetwork to allow assigning bulk networks to network sets with the -VlanRange and -NetworkSet paramters.
-- [#516] Fixed Get-OVLoginMessage and Set-OVLoginMessage mishandling of an internal variable resulting in an unable to transform class exception.
-- [#519] Enhanced Set-OVApplianceBackupConfig to fetch remote servers public SCP/SFTP key.
-- [#520] Fixed internal Upload-File function where uploaded hotfixes would not report their filesize.
-- Added Test-OVRemoteSupportEvent Cmdlet to initiate an HPE OneView Remote Suport test case event.
-- Enhanced New-OVApplianceTrustedCertificate to build and install the certificate chain of a provided public SSL certificate or host.  The PowerShell client OS must have the certificate chain trusted in the operating systems trust store in order to properly build the certificate chain.'
+- [#534] Fixed Show-OVFirmwareReport mishandling non-existent firmware baselines.
+- [#539] Fixed New-OVSnmpTrapDestination and the object it returns.
+- [#540] Fixed New-OVSnmpTrapDestination to handle SNMPv3 Engine ID correctly.
+- [#548] Fixed Enable-OVDeviceUid and Disable-OVDeviceUid where a resource eTag wasn't being passed to the API for Synergy Frames.
+- Added Get-OVSmtpAlertEmailFilter, Set-OVSmtpAlertEmailFilter and Remove-OVSmtpAlertEmailFilter Cmdlets to manage email/SMTP alert filtering.
+- Fixed New-OVServerProfileTemplate mishandling async task in an error state containing more than one taskError message."
 
         # Prerelease string of this module
         # Prerelease = ''
