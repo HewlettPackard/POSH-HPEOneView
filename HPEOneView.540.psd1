@@ -155,7 +155,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.40.2605.2185
+        ReleaseNotes = "Release 5.40.2681.1725
 
 - [#534] Fixed Show-OVFirmwareReport mishandling non-existent firmware baselines.
 - [#539] Fixed New-OVSnmpTrapDestination and the object it returns.
