@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.530.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.30.2606.1885'
+ModuleVersion = '5.30.2682.3811'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,18 +155,20 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.30.2606.1885
+        ReleaseNotes = "Release 5.30.2682.3811
 
-- Enhanced Install-OVLogicalInterconnectFirmware to support HPE Synergy Orchestrated activation, and HPE SAS logical interconnect type.
-- Added Test-OVRemoteSupportEvent Cmdlet to initiate an HPE OneView Remote Suport test case event.
-- Enhanced New-OVApplianceTrustedCertificate to build and install the certificate chain of a provided public SSL certificate or host.  The PowerShell client OS must have the certificate chain trusted in the operating systems trust store in order to properly build the certificate chain.
-- [#512] Enhanced Set-HPOVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.
-- [#515] Enhanced New-OVNetwork to allow assigning bulk networks to network sets with the -VlanRange and -NetworkSet paramters.
-- [#516] Fixed Get-OVLoginMessage and Set-OVLoginMessage mishandling of an internal variable resulting in an unable to transform class exception.
-- [#519] Enhanced Set-OVApplianceBackupConfig to fetch remote servers public SCP/SFTP key.
-- [#520] Fixed internal Upload-File function where uploaded hotfixes would not report their filesize.
+- Fixed New-OVServerProfileTemplate mishandling async task in an error state containing more than one taskError message.
+- [#518] Fixed merge issue where incorect handling of Base64 encoded certificates would cause an exception in Add-OVApplianceTrustedCertificate.
 - [#521] Fixed a casting issue within Get-OVApplianceServiceConsoleAccess when service console is disabled.
-- [#523] Enhanced Get-OVServer to allow searching for server hardware serial number."
+- [#523] Enhanced Get-OVServer to allow searching for server hardware serial number.
+- [POTENTIAL BREAKING CHANGE] Changed Set-OVTwoFactorAuthentication by removing the -EnableEmergencyLocalLogin and -EmergencyLoginAllowType parameters, and moving them to both Set-OVLdapDefaultDirectory and Disable-OVLdapLocalLogin Cmdlets.
+- Fixed Connect-OVMgmt not properly handling embedded NT style domain name of user account, and not sending the case sensitive formatted value to the API.
+- [#528] Added new Start-OVEnclosureApplianceDevice Cmdlet to power on appliance devices within an HPE Synergy Frame.
+- [#534] Fixed Show-OVFirmwareReport mishandling non-existent firmware baselines.
+- [#539] Fixed New-OVSnmpTrapDestination and the object it returns.
+- [#540] Fixed New-OVSnmpTrapDestination to handle SNMPv3 Engine ID correctly.
+- [#548] Fixed Enable-OVDeviceUid and Disable-OVDeviceUid where a resource eTag wasn't being passed to the API for Synergy Frames.
+- Added Get-OVSmtpAlertEmailFilter, Set-OVSmtpAlertEmailFilter and Remove-OVSmtpAlertEmailFilter Cmdlets to manage email/SMTP alert filtering."
 
         # Prerelease string of this module
         # Prerelease = ''
