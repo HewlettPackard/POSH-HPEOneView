@@ -4,7 +4,7 @@
 #
 #   VERSION 1.1
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -47,7 +47,7 @@ if (-not(Test-Path $CSV -PathType Leaf))
 
 }
 
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
@@ -56,8 +56,8 @@ if (-not (get-module HPOneView.410))
 
 # First connect to the HP OneView appliance
 if (-not($ConnectedSessions))
-{ 
-	
+{
+
 	$ApplianceConnection = Connect-HPOVMgmt -hostname $Hostname
 
 }
@@ -74,7 +74,7 @@ $counter = 1
 $AsyncTaskCollection = New-Object System.Collections.ArrayList
 
 Write-Progress -ID 1 -Activity ("Adding Servers to {0}" -f $ApplianceConnection.Name) -Status "Starting" -PercentComplete 0
- 
+
 $i = 1
 
 $ServersList | % {
@@ -85,16 +85,16 @@ $ServersList | % {
 
 		Write-Host 'Sleeping for 120 seconds.'
 
-		1..120 | % { 
-			
-			Write-Progress -id 2 -parentid 1 -Activity 'Sleeping for 2 minutes' -Status ("{0:mm\:ss}"-f (New-TimeSpan -Seconds $_ ))-PercentComplete (($_ / 120) * 100) 
-			
+		1..120 | % {
+
+			Write-Progress -id 2 -parentid 1 -Activity 'Sleeping for 2 minutes' -Status ("{0:mm\:ss}"-f (New-TimeSpan -Seconds $_ ))-PercentComplete (($_ / 120) * 100)
+
 			Start-Sleep -Seconds 1
-		
+
 		}
 
 		Write-Progress -Activity 'Sleeping for 2 minutes' -Completed
-		
+
 		#Reset counter here
 		$counter = 1
 

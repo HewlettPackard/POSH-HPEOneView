@@ -4,7 +4,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2021 Hewlett-Packard Development Company, L.P.
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -30,7 +30,7 @@ THE SOFTWARE.
 <#
 .SYNOPSIS
 Appliance Backup Automation Script
-            
+
 .DESCRIPTION
 This PowerShell script will assist in automating the backup of an HP OneView appliance.
 
@@ -59,12 +59,12 @@ Execute the backup of an appliance, specifying an alternate directory.
 #>
 
 [CmdletBinding()]
-Param 
+Param
 (
-        
+
 	[parameter(Mandatory = $false, Position = 0)]
 	[String]$Location = 'C:\HPOneView_Backup'
-    
+
 )
 
 #Begin Command Trace for logging purposes
@@ -78,14 +78,14 @@ if (-not(Test-Path $Location))
 
 }
 
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'

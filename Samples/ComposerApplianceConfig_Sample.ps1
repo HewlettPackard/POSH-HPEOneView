@@ -1,11 +1,11 @@
 ﻿##############################################################################
 # ComposerApplianceConfig_Sample.ps1
-# - Example scripts for configuring an HPE OneView appliance (networking, NTP, 
+# - Example scripts for configuring an HPE OneView appliance (networking, NTP,
 #   etc.).
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -94,14 +94,14 @@ param
 
 )
 
-if (-not (Get-Module HPOneView.410)) 
+if (-not (Get-Module HPOneView.410))
 {
 
     Import-Module POSH-HPOneView.410
 
 }
 
-#region 
+#region
 
 	Write-Host 'Waiting for appliance to respond to network test.' -NoNewline
 
@@ -117,7 +117,7 @@ if (-not (Get-Module HPOneView.410))
 	#Core Appliance Setup
 
     # Accept the EULA
-    if (-not (Get-HPOVEulaStatus -Appliance $DhcpAddress.IPAddressToString).Accepted ) 
+    if (-not (Get-HPOVEulaStatus -Appliance $DhcpAddress.IPAddressToString).Accepted )
 	{
 
         Write-Host "Accepting EULA..."
@@ -134,18 +134,18 @@ if (-not (Get-Module HPOneView.410))
 
 			$PSCMdlet.ThrowTerminatingError($_)
 		}
-        
+
     }
 
     # For initial setup, connect first using "default" Administrator credentials:
-    Try 
-	{ 
-		
+    Try
+	{
+
 		Connect-HPOVMgmt -appliance $DhcpAddress.IPAddressToString -user "Administrator" -password "admin"
-	
+
 	}
 
-    catch [HPOneView.Appliance.PasswordChangeRequired] 
+    catch [HPOneView.Appliance.PasswordChangeRequired]
 	{
 
         Write-Host "Set initial password"
@@ -163,10 +163,10 @@ if (-not (Get-Module HPOneView.410))
 			$PSCMdlet.ThrowTerminatingError($_)
 
 		}
-    
+
     }
 
-	catch [HPOneView.Appliance.AuthSessionException] 
+	catch [HPOneView.Appliance.AuthSessionException]
 	{
 
 		Write-Host "Default password was already changed."
@@ -188,7 +188,7 @@ if (-not (Get-Module HPOneView.410))
 		$ApplianceConnection = Connect-HPOVMgmt -appliance $DhcpAddress.IPAddressToString -user Administrator -password $NewPassword
 
 	}
-    
+
 	Catch
 	{
 
@@ -228,7 +228,7 @@ if (-not (Get-Module HPOneView.410))
 		$task = Set-HPOVApplianceNetworkConfig @params
 
 	}
-    
+
 	Catch
 	{
 
@@ -236,23 +236,23 @@ if (-not (Get-Module HPOneView.410))
 
 	}
 
-    if (-not($Global:ConnectedSessions | ? Name -EQ $Hostname)) 
-	{ 
-	
+    if (-not($Global:ConnectedSessions | ? Name -EQ $Hostname))
+	{
+
 		Try
 		{
 
 			$ApplianceConnection = Connect-HPOVMgmt -appliance $Hostname -user Administrator -password $NewPassword
 
-		}	
-		
+		}
+
 		Catch
 		{
 
 			$PSCMdlet.ThrowTerminatingError($_)
 
 		}
-	
+
 	}
 
 	try
@@ -297,7 +297,7 @@ if (-not (Get-Module HPOneView.410))
 		New-HPOVLdapGroup -d $LdapAuthDirectory -GroupName $StorageAdminGroup -Roles "Storage administrator"  @AuthParams
 
 	}
-    
+
 	Catch
 	{
 
@@ -320,7 +320,7 @@ if (-not (Get-Module HPOneView.410))
 
 	}
 
-    
+
 	# Create the new users
     New-HPOVUser Nat   -fullName "Nat Network Admin"  -password hpinvent -roles "Network administrator"
     New-HPOVUser Sarah -fullName "Sarah Server Admin" -password hpinvent -roles "Server administrator"
@@ -329,11 +329,11 @@ if (-not (Get-Module HPOneView.410))
     New-HPOVUser Bob   -fullName "Bob Backup"	      -password hpinvent -roles "Backup administrator"
     New-HPOVUser admin -fullName "admin"              -password hpinvent -roles "Infrastructure administrator"
 
-#endregion 
+#endregion
 
-#region 
+#region
 
-	#Resource Configuration    
+	#Resource Configuration
 
     $params = @{
 
@@ -344,7 +344,7 @@ if (-not (Get-Module HPOneView.410))
         UseSsl    = $True
 
     }
-    
+
     write-host "Importing BNA SAN Manager"
 
 	Try
@@ -353,27 +353,27 @@ if (-not (Get-Module HPOneView.410))
 		Add-HPOVSanManager @params | Wait-HPOVTaskComplete
 
 	}
-    
+
 	Catch
 	{
 
 		$PSCMdlet.ThrowTerminatingError($_)
 
 	}
-    
+
     Write-Host "Creating network resources"
-    
+
     # Management networks
 	Try
 	{
 
 		New-HPOVNetwork -Name "MLAG VLAN 10" -type "Ethernet" -vlanId 10 -smartlink $true -purpose Management
-		
+
         # Internal Networks
 		New-HPOVNetwork -Name "Internal Live Migration" -type "Ethernet" -vlanId 100 -smartlink $true -purpose VMMigration
         New-HPOVNetwork -Name "Internal Heartbeat" -type "Ethernet" -vlanId 101 -smartlink $true -purpose Management
         New-HPOVNetwork -Name "iSCSI Network" -type "Ethernet" -vlanId 3000 -smartlink $true -purpose ISCSI
-    
+
 		# VM Networks
         20,30,40,50 | % { New-HPOVNetwork -Name "MLAG Prod VLAN $_" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
 		101,102,103,104,105 | % { New-HPOVNetwork -Name "MLAG Dev VLAN $_" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
@@ -381,11 +381,11 @@ if (-not (Get-Module HPOneView.410))
 		$AllMlagDevNetworks = Get-HPOVNetwork -Name "MLAG Dev VLAN"
 		$AllMlagNetworks    = Get-HPOVNetwork -Name "MLAG VLAN*"
         $InternalNetworks   = Get-HPOVNetwork -Name Internal*
-    
+
 		# Create the network sets
-		New-HPOVNetworkSet -Name "Prod NetSet" -networks $AllMlagNetworks -untaggedNetwork $AllMlagNetworks[0] -typicalBandwidth 2500 -maximumBandwidth 10000 
-		New-HPOVNetworkSet -Name "Dev Networks A" -networks $AllMlagDevNetworks -untaggedNetwork $AllMlagDevNetworks[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 
-    
+		New-HPOVNetworkSet -Name "Prod NetSet" -networks $AllMlagNetworks -untaggedNetwork $AllMlagNetworks[0] -typicalBandwidth 2500 -maximumBandwidth 10000
+		New-HPOVNetworkSet -Name "Dev Networks A" -networks $AllMlagDevNetworks -untaggedNetwork $AllMlagDevNetworks[0]  -typicalBandwidth 2500 -maximumBandwidth 10000
+
 		# Create the FC networks:
 		New-HPOVNetwork -Name "Fabric A" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true #-managedSan "SAN1_0"
 		New-HPOVNetwork -Name "Fabric B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true #-managedSan "SAN1_1"
@@ -393,7 +393,7 @@ if (-not (Get-Module HPOneView.410))
 		New-HPOVNetwork -Name "DirectAttach B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
 
 	}
-    
+
     Catch
 	{
 
@@ -402,14 +402,14 @@ if (-not (Get-Module HPOneView.410))
 	}
 
     $params = @{
-    
+
         username  = "3paradm";
         password  = "3pardata";
         hostname  = "172.18.11.11";
         domain    = "NO DOMAIN"
-    
+
     }
-    
+
     Write-Host "Importing storage array: $($params.hostname)"
 	Try
 	{
@@ -436,13 +436,13 @@ if (-not (Get-Module HPOneView.410))
 		InternalNetworks   = $InternalNetworks;
 		FabricRedundancy   = 'HighlyAvailable'
 		Bays               = @{
-								Frame1 = @{Bay3 = 'SEVC40f8'; Bay6 = 'SE20ILM' }; 
+								Frame1 = @{Bay3 = 'SEVC40f8'; Bay6 = 'SE20ILM' };
 								Frame2 = @{Bay3 = 'SE20ILM'; Bay6 = 'SEVC40f8'};
 								Frame3 = @{Bay3 = 'SE20ILM'; Bay6 = 'SE20ILM'}
 								}
 
 	}
-	
+
 	$CreatedLogicalInterconnectObject = New-HPOVLogicalInterconnectGroup @SynergyLigParams | Get-HPOVLogicalInterconnectGroup
 
 	$UplinkSetParams = @{
@@ -458,7 +458,7 @@ if (-not (Get-Module HPOneView.410))
 	$CreateUplinkSetResults = New-HPOVUplinkSet @UplinkSetParams
 
 	$LIG = Get-HPOVLogicalInterconnectGroup -Name 'Default Synergy LIG'
-        
+
 	$EgParams = @{
 
 		Name                            = 'Synergy Default EG';

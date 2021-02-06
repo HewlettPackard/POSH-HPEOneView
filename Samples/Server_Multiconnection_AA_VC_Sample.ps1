@@ -6,13 +6,13 @@
 # - Configure 2 NICs in paired with VLAN 10-A and VLAN 10-B
 # - Configure 2 NICs in paired with VLAN 60-A and VLAN 60-B
 # - Configure 2 NICs in paired with Production Networks-A and Production Networks-B Network Sets (Production Networks)
-# - Configure 2 FC connections to the Production Fabric A and B            
+# - Configure 2 FC connections to the Production Fabric A and B
 # - Set requested bandwidth
 # - Configures HP Power Profile to Max Performance, and sets other BIOS Dependancies
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -34,14 +34,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'
@@ -71,8 +71,8 @@ ForEach ($server in $servers) {
 
 # Now create a server profile for the first available server
 ForEach ($server in $servers) {
-    if (($server.state -eq "NoProfileApplied") -and ($server.powerState -eq "Off")) { 
-        return; 
+    if (($server.state -eq "NoProfileApplied") -and ($server.powerState -eq "Off")) {
+        return;
     }
 }
 
@@ -134,12 +134,12 @@ $maxPower = $powerProfile.options | where { $_.name -match "Maximum Performance"
 
 #Check to see if there are additional BIOS Options that should be modified.
 #NOTE: Setting the HP Power Profile will modify the HP Power Regulator BIOS Setting.
-if ($maxPower.optionLinks) { 
+if ($maxPower.optionLinks) {
 
-    foreach ($option in $maxPower.optionLinks) { 
+    foreach ($option in $maxPower.optionLinks) {
 
-        [Void]$biosSettings.add(@{ id = $option.settingId ; value = $option.optionId}) 
-    
+        [Void]$biosSettings.add(@{ id = $option.settingId ; value = $option.optionId})
+
     }
 
 }
@@ -150,7 +150,7 @@ New-HPOVProfile -name $profileName -server Unassigned -serverHardwareType $serve
 # Display the connections for our profile
 Get-HPOVProfileConnectionList $profileName
 
-# Now update the firmware of the profile.  
+# Now update the firmware of the profile.
 # List available SPP's on the appliance
 Get-HPOVBaseline
 

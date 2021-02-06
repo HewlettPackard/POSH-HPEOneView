@@ -5,7 +5,7 @@
 #
 #   VERSION 3.1
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,7 +28,7 @@ THE SOFTWARE.
 
 #>
 ##############################################################################
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
@@ -36,7 +36,7 @@ if (-not (get-module HPOneView.410))
 }
 
 # First connect to the HP OneView appliance.
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'
@@ -111,7 +111,7 @@ Catch
 
 }
 
-foreach ($alert in $alerts) 
+foreach ($alert in $alerts)
 {
 
 	Try
@@ -129,18 +129,18 @@ foreach ($alert in $alerts)
 		Write-Error -ErrorRecord $_ -EA Stop
 
 	}
-   
+
 }
 
 # Clear any alerts older than one week
 $alerts = Get-HPOVAlert -AlertState Active
 
-foreach ($alert in $alerts) 
+foreach ($alert in $alerts)
 {
 
     $created = Get-Date $alert.created
 
-    if ((Get-Date) -gt $created.AddDays(7)) 
+    if ((Get-Date) -gt $created.AddDays(7))
 	{
 
 		Try
@@ -148,7 +148,7 @@ foreach ($alert in $alerts)
 
 			$updatedAlert = Clear-HPOVAlert $alert
 
-			"Cleared from {0} : {1}" -f $created,$updatedAlert.description | Write-Host 
+			"Cleared from {0} : {1}" -f $created,$updatedAlert.description | Write-Host
 
 		}
 

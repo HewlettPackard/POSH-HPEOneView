@@ -4,7 +4,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -27,14 +27,14 @@ THE SOFTWARE.
 #>
 ##############################################################################
 
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'
@@ -45,7 +45,7 @@ if (-not $ConnectedSessions)
 
 }
 
-# Get the OA hostname, user name and password 
+# Get the OA hostname, user name and password
 $myOA          = Read-Host "Enclosure OA hostname or IP address"
 $myOAUser      = Read-Host "OA user name"
 $myOAPass      = Read-Host "OA password"

@@ -4675,5 +4675,51 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <!--HPOneView.Appliance.AlertEmailFilter FT-->
+    <View>
+      <Name>AlertEmailFilter</Name>
+      <ViewSelectedBy>
+        <TypeName>HPOneView.Appliance.AlertEmailFilter</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Disabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DisplayFilter</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Emails</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>filterName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>disabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>displayFilter</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>emails</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
   </ViewDefinitions>
 </Configuration>
