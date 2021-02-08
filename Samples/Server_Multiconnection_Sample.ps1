@@ -6,12 +6,12 @@
 # - Configure 2 NICs in paired with Red
 # - Configure 2 NICs in paired with Black
 # - Configure 2 NICs in paired with NetworkSet (Production Networks)
-# - Configure 2 FC connections to the Production Fabric A and B            
+# - Configure 2 FC connections to the Production Fabric A and B
 # - Set requested bandwidth
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,14 +33,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'
@@ -101,7 +101,7 @@ $task = $task | Wait-HPOVTaskComplete
 # Change Connection ID 5 and 6 to "green" in the profile we just created
 $profile = Send-HPOVRequest $task.associatedResource.resourceUri
 Write-Host "Adding network to" $profile.name
-    
+
 #Validate the Server Power is off prior to modifying Connections (Requirement for 1.00 and 1.01)
 if ($server.powerState -ne "Off") {
     Write-Host "Server" $server.name "is" $server.powerState ".  Powering it off..."
@@ -132,11 +132,11 @@ Write-Host "Set boot order to" $profile.boot.order
 #Set the BIOS setting to disable external USB ports
 Write-Host "There are" $serverType.biosSettings.Count "possible BIOS settings for this server"
 foreach ($setting in $serverType.biosSettings) {
-    if ($setting.name.Contains("USB Control")) { 
+    if ($setting.name.Contains("USB Control")) {
         foreach ($option in $setting.options) {
             if ($option.name.Contains("External")) {
                 $profile.bios.manageBios = $true
-                $profile.bios.overriddenSettings = 
+                $profile.bios.overriddenSettings =
                     @(@{id=$setting.id;value=$option.id})
                 Write-Host $setting.name ":" $option.name
                 break
@@ -151,7 +151,7 @@ $task = Set-HPOVResource $profile
 $task = Wait-HPOVTaskComplete -taskUri $task.uri -timeout (New-TimeSpan -Minutes 20)
 $profile = Send-HPOVRequest $task.associatedResource.resourceUri
 
-# Now update the firmware of the profile.  
+# Now update the firmware of the profile.
 # List available SPP's on the appliance
 Get-HPOVBaseline
 

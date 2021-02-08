@@ -4,7 +4,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -108,14 +108,14 @@ param
 
 )
 
-if (-not (Get-Module HPOneView.410)) 
+if (-not (Get-Module HPOneView.410))
 {
 
     Import-Module POSH-HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'

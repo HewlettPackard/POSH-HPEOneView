@@ -5,7 +5,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -28,14 +28,14 @@ THE SOFTWARE.
 #>
 ##############################################################################
 
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'
@@ -55,29 +55,29 @@ $myStorageSystemPass  = "3pardata"
 #Add Storage System specifying the Virtual Domain and Storage Host Ports
 $params = @{
 
-    hostname  = $myStorageSystem;    
+    hostname  = $myStorageSystem;
     username  = $myStorageSystemAdmin;
     password  = $myStorageSystemPass;
     domain    = "NODOMAIN"
     Ports = @{
-        
-        "0:1:1" = "3PAR SAN DA A"; 
-        "0:1:2" = "3PAR SAN Fabric A"; 
-        "1:1:1" = "3PAR SAN Fabric B"; 
+
+        "0:1:1" = "3PAR SAN DA A";
+        "0:1:2" = "3PAR SAN Fabric A";
+        "1:1:1" = "3PAR SAN Fabric B";
         "1:1:2" = "3PAR SAN DA B"
-        
+
     };
 	PortGroups = @{
 
-		"0:1:1" = "PG_1"; 
-        "0:1:2" = "PG_2"; 
-        "1:1:1" = "PG_1"; 
+		"0:1:1" = "PG_1";
+        "0:1:2" = "PG_2";
+        "1:1:1" = "PG_1";
         "1:1:2" = "PG_2"
 
 	}
-    
+
 }
-    
+
 "Importing POD storage array: {0}" -f $params.hostname | Write-Host
 
 Try
@@ -102,31 +102,31 @@ $myStorageSystemAdmin  = "3paradm"
 $myStorageSystemPass   = "3pardata"
 $myStorageSystemDomain = "VirtualDomain1" #NOTE: The value is case sensitive.
 $myStorageSystemPorts  = @{
-	
-	"1:1:1" = "Fabric A"; 
-	"2:1:1" = "FabricA"; 
-	"1:1:2" = "Fabric B"; 
+
+	"1:1:1" = "Fabric A";
+	"2:1:1" = "FabricA";
+	"1:1:2" = "Fabric B";
 	"2:1:2" = "Fabric B"
 }
 
 $myStorageSystemPG     = @{
 
-	"0:1:1" = "PG_1"; 
-    "0:1:2" = "PG_2"; 
-    "1:1:1" = "PG_1"; 
+	"0:1:1" = "PG_1";
+    "0:1:2" = "PG_2";
+    "1:1:1" = "PG_1";
     "1:1:2" = "PG_2"
 
 }
 
 $params = @{
 
-    hostname   = $myStorageSystem;    
+    hostname   = $myStorageSystem;
     username   = $myStorageSystemAdmin;
     password   = $myStorageSystemPass;
     domain     = $myStorageSystemDomain;
     Ports      = $myStorageSystemPorts;
 	PortGroups = $myStorageSystemPG
-    
+
 }
 
 "Importing POD storage array: {0}" -f $params.hostname | Write-Host

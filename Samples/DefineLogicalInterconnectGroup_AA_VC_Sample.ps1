@@ -4,7 +4,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -26,14 +26,14 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module HPOneView.410
 
 }
 
-if (-not $ConnectedSessions) 
+if (-not $ConnectedSessions)
 {
 
 	$Appliance = Read-Host 'ApplianceName'
@@ -44,7 +44,7 @@ if (-not $ConnectedSessions)
 
 }
 
-$LIGName = "My AA Prod" 
+$LIGName = "My AA Prod"
 $Bays = @{1 = "FlexFabric";2 = "FlexFabric"}
 $SNMP = @{readCommunity = "MyTr@p1"; enabled=$True; systemContact = "Network Admin"; snmpAccess = @("192.168.1.2/32","10.1.1.0/24");trapDestinations = @(@{trapDestination="myhost.local";communityString="MyTr@p2";trapFormat="SNMPv1";trapSeverities=@("Critical", "Major", "Minor", "Warning", "Normal", "Info", "Unknown");fcTrapCategories=@("PortStatus", "Other")})}
 

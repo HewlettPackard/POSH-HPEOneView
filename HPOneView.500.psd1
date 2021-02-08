@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.500.psm1';
 
 # Version number of this module.;
-ModuleVersion = '5.0.2597.2846'
+ModuleVersion = '5.0.2685.1865'
 
 # ID used to uniquely identify this module
 GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7';
@@ -24,7 +24,7 @@ Author = 'Hewlett-Packard Enterprise';
 CompanyName = 'Hewlett-Packard Enterprise';
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -124,20 +124,14 @@ PrivateData = @{
         LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
         ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
         IconUri = '';
-        ReleaseNotes = "Release 5.00.2597.2846
+        ReleaseNotes = "Release 5.00.2685.1865
 
-- Updated New-HPOVNetworkSet to no longer require -Networks parameter.
-- Fixed New-HPOVSnmpV3User where paraeter validation logic was incorrect when providing the -AuthPassword parameter with -SecurityLevel to 'AuthOnly'.
-- Fixed issue with Install-HPOVUpdate not hanlding error conditions from the API correctly.
-- [#509] Fixed New-HPOVServerProfileTemplate and New-HPOVServerProfile where each Cmdlet would not handle TargetAddress parameter correctly.
-- [#511] Enhanced New-HPOVServerProfileLogicalDisk to support permanent logical JBODs when assigned to server profile templates and server profiles.
-- Enhanced Install-HPOVLogicalInterconnectFirmware to support Orchestrated firmware installation for HPE Synergy Virtual Connect fabrics.
-- Enhanced Install-HPOVLogicalInterconnectFirmware to support HPE Synergy Orchestrated activation, and HPE SAS logical interconnect type.
-- [#512] Enhanced Set-HPOVUplinkSet by adding -AddNetworkSet and -RemoveNetworkSet parameters.
-- [#513] Enhanced New-HPOVServerProfileConnection to support Unassigned network connections.
-- [#514] Enhanced ConvertTo-HPOVPowerShellScript to handle unassign network connections.
-- [#515] Enhanced New-HPOVNetwork to include the ability to create bulk Ethernet networks and associate with one or more existing Network Sets.
-- [#517] Enhanced Wait-HPOVTaskComplete to only display 'Appliance is rebooting' message once, if the appliance requires a reboot for a task (ex. Set-HPOVApplianceCurrentSecurityMode)."
+- [#534] Fixed Show-HPOVFirmwareReport where Cmdlet would mishandle enclosure resources without a baseline assigned and no baseline object provided by caller would generate an exception.
+- [#539] Fixed New-HPOVSnmpTrapDestination and the object it returns.
+- [#540] Fixed New-HPOVSnmpTrapDestination to handle SNMPv3 Engine ID correctly.
+- [#548] Fixed Enable-OHPVDeviceUid and Disable-OVDeviceUid where a resource eTag wasn't being passed to the API for Synergy Frames.
+- Added Get-HPOVSmtpAlertEmailFilter, Set-HPOVSmtpAlertEmailFilter and Remove-HPOVSmtpAlertEmailFilter Cmdlets to manage email/SMTP alert filtering.
+- Fixed New-HPOVServerProfileTemplate mishandling async task in an error state containing more than one taskError message."
 
     };
 

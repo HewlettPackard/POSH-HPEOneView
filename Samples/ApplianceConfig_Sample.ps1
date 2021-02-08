@@ -1,11 +1,11 @@
 ﻿##############################################################################
 # ApplianceConfig_Sample.ps1
-# - Example scripts for configuring an HPE OneView appliance (networking, NTP, 
+# - Example scripts for configuring an HPE OneView appliance (networking, NTP,
 #   etc.).
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP 
+# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -77,14 +77,14 @@ param
 
 )
 
-if (-not (get-module HPOneView.410)) 
+if (-not (get-module HPOneView.410))
 {
 
     Import-Module POneView.400
 
 }
 
-#region 
+#region
 
 	Write-Host 'Waiting for appliance to respond to network test.' -NoNewline
 
@@ -100,7 +100,7 @@ if (-not (get-module HPOneView.410))
 	#Core Appliance Setup
 
     # Accept the EULA
-    if (-not (Get-HPOVEulaStatus -Appliance $vm_ipaddr.IPAddressToString).Accepted ) 
+    if (-not (Get-HPOVEulaStatus -Appliance $vm_ipaddr.IPAddressToString).Accepted )
 	{
 
         Write-Host "Accepting EULA..."
@@ -117,18 +117,18 @@ if (-not (get-module HPOneView.410))
 
 			$PSCMdlet.ThrowTerminatingError($_)
 		}
-        
+
     }
 
     # For initial setup, connect first using "default" Administrator credentials:
-    Try 
-	{ 
-		
+    Try
+	{
+
 		Connect-HPOVMgmt -appliance $vm_ipaddr.IPAddressToString -user "Administrator" -password "admin"
-	
+
 	}
 
-    catch [HPOneView.Appliance.PasswordChangeRequired] 
+    catch [HPOneView.Appliance.PasswordChangeRequired]
 	{
 
         Write-Host "Set initial password"
@@ -146,7 +146,7 @@ if (-not (get-module HPOneView.410))
 			$PSCMdlet.ThrowTerminatingError($_)
 
 		}
-    
+
     }
 
 	Catch
@@ -164,7 +164,7 @@ if (-not (get-module HPOneView.410))
 		$ApplianceConnection = Connect-HPOVMgmt -appliance $vm_ipaddr.IPAddressToString -user Administrator -password $NewPassword
 
 	}
-    
+
 	Catch
 	{
 
@@ -200,7 +200,7 @@ if (-not (get-module HPOneView.410))
 		$task = Set-HPOVApplianceNetworkConfig @params
 
 	}
-    
+
 	Catch
 	{
 
@@ -208,23 +208,23 @@ if (-not (get-module HPOneView.410))
 
 	}
 
-    if (-not($Global:ConnectedSessions | ? Name -EQ $Hostname)) 
-	{ 
-	
+    if (-not($Global:ConnectedSessions | ? Name -EQ $Hostname))
+	{
+
 		Try
 		{
 
 			$ApplianceConnection = Connect-HPOVMgmt -appliance $Hostname -user Administrator -password $NewPassword
 
-		}	
-		
+		}
+
 		Catch
 		{
 
 			$PSCMdlet.ThrowTerminatingError($_)
 
 		}
-	
+
 	}
 
 	try
@@ -246,26 +246,26 @@ if (-not (get-module HPOneView.410))
     Write-Host "Completed appliance networking configuration"
 
     $template = "WebServer" # must always use concatenated name format
-    $CA       = "MyCA.domain.local\domain-MyCA-CA"  
+    $CA       = "MyCA.domain.local\domain-MyCA-CA"
 	$csrdir   = "C:\Certs\Requests"
 
-    if (-not(Test-Path $csrdir)) 
-	{ 
-		
-		New-Item -Path $csrdir -ItemType directory | Out-Null 
-	
-	} 
+    if (-not(Test-Path $csrdir))
+	{
+
+		New-Item -Path $csrdir -ItemType directory | Out-Null
+
+	}
 
     #Process appliance certificate
     $CSR = @{
-        
+
         Country         = "US";
         State           = "California";
         City            = "Palo Alto";
         Organization    = "Hewlett-Packard";
         CommonName      = $Hostname;
         AlternativeName = "$Hostname,hpov,$IPv4Address"
-    
+
     }
 
 	Try
@@ -274,7 +274,7 @@ if (-not (get-module HPOneView.410))
 		$request = New-HPOVApplianceCsr @CSR -ApplianceConnection $ApplianceConnection
 
 	}
-    
+
 	Catch
 	{
 
@@ -290,10 +290,10 @@ if (-not (get-module HPOneView.410))
 
     $csr = Get-ChildItem $csrdir | ? name -eq $csrFileName
 
-    $parameters = "-config {0} -submit -attrib CertificateTemplate:{1} {2}\{3}.csr {2}\{3}.cer {2}\{3}.p7b" -f $CA, $template, $csrdir, $baseName 
+    $parameters = "-config {0} -submit -attrib CertificateTemplate:{1} {2}\{3}.csr {2}\{3}.cer {2}\{3}.p7b" -f $CA, $template, $csrdir, $baseName
 
     $request = [System.Diagnostics.Process]::Start("certreq", $parameters)
-    
+
     $request.WaitForExit()
 
     $Task = gc $csrdir\$cerFileName | Install-HPOVApplianceCertificate -ApplianceConnection $ApplianceConnection | Wait-HPOVTaskComplete
@@ -324,7 +324,7 @@ if (-not (get-module HPOneView.410))
 		New-HPOVLdapGroup -d $LdapAuthDirectory -GroupName $StorageAdminGroup -Roles "Storage administrator"  @AuthParams
 
 	}
-    
+
 	Catch
 	{
 
@@ -361,7 +361,7 @@ if (-not (get-module HPOneView.410))
 		$PSCMdlet.ThrowTerminatingError($_)
 
 	}
-    
+
 	# Create the new users
     New-HPOVUser Nat   -fullName "Nat Network Admin"  -password hpinvent -roles "Network administrator"
     New-HPOVUser Sally -fullName "Sally Server Admin" -password hpinvent -roles "Server administrator"
@@ -370,11 +370,11 @@ if (-not (get-module HPOneView.410))
     New-HPOVUser Bob   -fullName "Bob Backup"	      -password hpinvent -roles "Backup administrator"
     New-HPOVUser admin -fullName "admin"              -password hpinvent -roles "Infrastructure administrator"
 
-#endregion 
+#endregion
 
-#region 
+#region
 
-	#Resource Configuration    
+	#Resource Configuration
 
     $params = @{
 
@@ -385,7 +385,7 @@ if (-not (get-module HPOneView.410))
         UseSsl    = $True
 
     }
-    
+
     write-host "Importing BNA SAN Manager"
 
 	Try
@@ -394,28 +394,28 @@ if (-not (get-module HPOneView.410))
 		Add-HPOVSanManager @params | Wait-HPOVTaskComplete
 
 	}
-    
+
 	Catch
 	{
 
 		$PSCMdlet.ThrowTerminatingError($_)
 
 	}
-    
+
     Write-Host "Creating network resources"
-    
+
     # Management networks
 	Try
 	{
 
 		New-HPOVNetwork -Name "VLAN 1-A" -type "Ethernet" -vlanId 1 -smartlink $true -purpose Management
 		New-HPOVNetwork -Name "VLAN 1-B" -type "Ethernet" -vlanId 1 -smartlink $true -purpose Management
-		
+
         # Internal Networks
 		New-HPOVNetwork -Name "Live Migration" -type "Ethernet" -vlanId 100 -smartlink $true -purpose VMMigration
         New-HPOVNetwork -Name "Heartbeat" -type "Ethernet" -vlanId 101 -smartlink $true -purpose Management
         New-HPOVNetwork -Name "iSCSI Network" -type "Ethernet" -vlanId 3000 -smartlink $true -purpose ISCSI
-    
+
 		# VM Networks
 		10,20,30,40,50 | % { New-HPOVNetwork -Name "VLAN $_-A" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
 		10,20,30,40,50 | % { New-HPOVNetwork -Name "VLAN $_-B" -type "Ethernet" -vlanId $_ -smartlink $true -purpose General }
@@ -424,19 +424,19 @@ if (-not (get-module HPOneView.410))
 
         #Misc networks
         New-HPOVNetwork -Name "My Vlan 501" -type "Ethernet" -vlanId 3000 -smartlink $true -purpose General
-    
+
 		$ProdNetsA = Get-HPOVNetwork -Name "VLAN *0-A" -ErrorAction Stop
 		$ProdNetsB = Get-HPOVNetwork -Name "VLAN *0-B" -ErrorAction Stop
 		$DevNetsA  = Get-HPOVNetwork -Name "Dev VLAN *-A" -ErrorAction Stop
 		$DevNetsB  = Get-HPOVNetwork -Name "Dev VLAN *-B" -ErrorAction Stop
         $InternalNetworks = 'Live Migration','Heartbeat' | % { Get-HPOVNetwork -Name $_ -ErrorAction Stop }
-    
+
 		# Create the network sets
-		New-HPOVNetworkSet -Name "Prod NetSet1 A" -networks $ProdNetsA -untaggedNetwork $ProdNetsA[0] -typicalBandwidth 2500 -maximumBandwidth 10000 
-		New-HPOVNetworkSet -Name "Prod NetSet1 B" -networks $ProdNetsB -untaggedNetwork $ProdNetsB[0] -typicalBandwidth 2500 -maximumBandwidth 10000 
-		New-HPOVNetworkSet -Name "Dev Networks A" -networks $DevNetsA  -untaggedNetwork $DevNetsA[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 
-		New-HPOVNetworkSet -Name "Dev Networks B" -networks $DevNetsB  -untaggedNetwork $DevNetsB[0]  -typicalBandwidth 2500 -maximumBandwidth 10000 
-    
+		New-HPOVNetworkSet -Name "Prod NetSet1 A" -networks $ProdNetsA -untaggedNetwork $ProdNetsA[0] -typicalBandwidth 2500 -maximumBandwidth 10000
+		New-HPOVNetworkSet -Name "Prod NetSet1 B" -networks $ProdNetsB -untaggedNetwork $ProdNetsB[0] -typicalBandwidth 2500 -maximumBandwidth 10000
+		New-HPOVNetworkSet -Name "Dev Networks A" -networks $DevNetsA  -untaggedNetwork $DevNetsA[0]  -typicalBandwidth 2500 -maximumBandwidth 10000
+		New-HPOVNetworkSet -Name "Dev Networks B" -networks $DevNetsB  -untaggedNetwork $DevNetsB[0]  -typicalBandwidth 2500 -maximumBandwidth 10000
+
 		# Create the FC networks:
 		New-HPOVNetwork -Name "Fabric A" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -managedSan "SAN1_0"
 		New-HPOVNetwork -Name "Fabric B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -managedSan "SAN1_1"
@@ -444,14 +444,14 @@ if (-not (get-module HPOneView.410))
 		New-HPOVNetwork -Name "DirectAttach B" -type "FibreChannel" -typicalBandwidth 4000 -autoLoginRedistribution $true -fabricType DirectAttach
 
 	}
-    
+
     Catch
 	{
 
 		$PSCMdlet.ThrowTerminatingError($_)
 
-	}   
-    
+	}
+
 	Try
 	{
 
@@ -473,7 +473,7 @@ if (-not (get-module HPOneView.410))
 		# Create Ethernet Uplink Sets
 		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 1" -Type "Ethernet" -Networks $ProdNetsA -nativeEthNetwork $ProdNetsA[0] -UplinkPorts "BAY1:X1","BAY1:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
 		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "Uplink Set 2" -Type "Ethernet" -Networks $ProdNetsB -nativeEthNetwork $ProdNetsB[0] -UplinkPorts "BAY2:X1","BAY2:X2" -EthMode "Auto" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
-    
+
 		# FC Uplink Sets
 		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric A" -Type "FibreChannel" -Networks $FabricA   -UplinkPorts "BAY1:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
 		$CreatedLig = $CreatedLig | New-HPOVUplinkSet -Name "FC Fabric B" -Type "FibreChannel" -Networks $FabricB   -UplinkPorts "BAY2:X7" | Wait-HPOVTaskComplete | Get-HPOVLogicalInterconnectGroup -ErrorAction Stop
@@ -490,7 +490,7 @@ if (-not (get-module HPOneView.410))
 		$PSCMdlet.ThrowTerminatingError($_)
 
 	}
-	
+
 	Try
 	{
 
@@ -517,7 +517,7 @@ hponcfg all >> end_marker
             <ADMIN_PRIV value ="N"/>
             <REMOTE_CONS_PRIV value ="Y"/>
             <RESET_SERVER_PRIV value ="N"/>
-            <VIRTUAL_MEDIA_PRIV value ="N"/>            
+            <VIRTUAL_MEDIA_PRIV value ="N"/>
             <CONFIG_ILO_PRIV value="Yes"/>
          </ADD_USER>
       </USER_INFO>
@@ -536,19 +536,19 @@ end_marker'
 		$PSCMdlet.ThrowTerminatingError($_)
 
 	}
-    
+
     Write-host "Sleeping 30 seconds"
     start-sleep -Seconds 30
 
     $params = @{
-    
+
         username  = "3paradm";
         password  = "3pardata";
         hostname  = "172.18.11.11";
         domain    = "NO DOMAIN"
-    
+
     }
-    
+
     Write-Host "Importing storage array: $($params.hostname)"
 	Try
 	{
