@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.550.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.50.2680.1687'
+ModuleVersion = '5.50.2689.2416'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,14 +155,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.50.2680.1687
+        ReleaseNotes = "Release 5.50.2689.2416
 
-- [#534] Fixed Show-OVFirmwareReport mishandling non-existent firmware baselines.
-- [#539] Fixed New-OVSnmpTrapDestination and the object it returns.
-- [#540] Fixed New-OVSnmpTrapDestination to handle SNMPv3 Engine ID correctly.
-- [#548] Fixed Enable-OVDeviceUid and Disable-OVDeviceUid where a resource eTag wasn't being passed to the API for Synergy Frames.
-- Added Get-OVSmtpAlertEmailFilter, Set-OVSmtpAlertEmailFilter and Remove-OVSmtpAlertEmailFilter Cmdlets to manage email/SMTP alert filtering.
-- Fixed New-OVServerProfileTemplate mishandling async task in an error state containing more than one taskError message."
+- [#538] Fixed HPOneView.Networking.SnmpV3User class to return NA instead of NONE when authentication protocol and no privacy protocol setting.
+- [#552] Fixed duplicate key when attempting to convert from JSON to object with baselines."
 
         # Prerelease string of this module
         # Prerelease = ''
