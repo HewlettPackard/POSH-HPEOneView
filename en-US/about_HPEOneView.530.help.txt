@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 5.30.
+
+      -- [#538] Fixed HPEOneView.Networking.SnmpV3User class to return NA instead of NONE when
+         authentication protocol and no privacy protocol setting.
+      -- [#552] Fixed duplicate key when attempting to convert from JSON to object with baselines.
+
    Release 5.30.2682.3811
 
      -- [#518] Fixed merge issue where incorect handling of Base64 encoded certificates
