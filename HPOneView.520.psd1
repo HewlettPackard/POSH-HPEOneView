@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.520.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.20.2684.2161'
+ModuleVersion = '5.20.2689.2416'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -153,14 +153,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.20.2684.2161
+        ReleaseNotes = "Release 5.20.2689.2416
 
-- [#534] Fixed Show-HPOVFirmwareReport where Cmdlet would mishandle enclosure resources without a baseline assigned and no baseline object provided by caller would generate an exception.
-- [#539] Fixed New-HPOVSnmpTrapDestination and the object it returns.
-- [#540] Fixed New-HPOVSnmpTrapDestination to handle SNMPv3 Engine ID correctly.
-- [#548] Fixed Enable-OHPVDeviceUid and Disable-OVDeviceUid where a resource eTag wasn't being passed to the API for Synergy Frames.
-- Added Get-HPOVSmtpAlertEmailFilter, Set-HPOVSmtpAlertEmailFilter and Remove-HPOVSmtpAlertEmailFilter Cmdlets to manage email/SMTP alert filtering.
-- Fixed New-HPOVServerProfileTemplate mishandling async task in an error state containing more than one taskError message."
+- [#538] Fixed HPOneView.Networking.SnmpV3User class to return NA instead of NONE when authentication protocol and no privacy protocol setting.
+- [#552] Fixed duplicate key when attempting to convert from JSON to object with baselines."
 
         # Prerelease string of this module
         # Prerelease = ''
