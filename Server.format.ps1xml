@@ -1,0 +1,1901 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration>
+  <Controls>
+    <!--ServerHardware+Firmware-GroupingFormat-->
+    <Control>
+      <Name>ServerHardware+Firmware-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Server: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.Name
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+    <!--Enclosure+Firmware-GroupingFormat-->
+    <Control>
+      <Name>EnclosureFirmware-GroupingFormat</Name>
+      <CustomControl>
+        <CustomEntries>
+          <CustomEntry>
+            <CustomItem>
+              <Frame>
+                <LeftIndent>4</LeftIndent>
+                <CustomItem>
+                  <Text>Enclosure: </Text>
+                  <ExpressionBinding>
+                    <ScriptBlock>
+                      $_.Name
+                    </ScriptBlock>
+                  </ExpressionBinding>
+                  <NewLine/>
+                </CustomItem>
+              </Frame>
+            </CustomItem>
+          </CustomEntry>
+        </CustomEntries>
+      </CustomControl>
+    </Control>
+  </Controls>
+  <ViewDefinitions>
+    <!--RackManager FT-->
+    <View>
+      <Name>RackManager</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.RackManager</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SerialNumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Licensing</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PartNumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>SerialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LicenseIntent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PartNumber</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--RackManager.SubResources FL-->
+    <View>
+      <Name>RackManager.SubResources</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.SubResources</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Chassis</Label>
+                <PropertyName>Chassis</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Partitions</Label>
+                <PropertyName>Partitions</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Managers</Label>
+                <PropertyName>Managers</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--RackManager FT-->
+    <View>
+      <Name>SubResources.Chassis</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.Chassis</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SerialNumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PhysicalLocation</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PartitionName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>SerialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PhysicalLocation</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PartitionName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerHardware FT-->
+    <View>
+      <Name>ServerHardware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerHardare</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ServerName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Power</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ROM</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>iLO</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Profile</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>License</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serverName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>powerState</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>shortModel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>romVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.mpModel + " " + ($_.mpFirmwareVersion -split " ")[0]</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if (-not($_.serverProfileUri)) { 'No Profile' }
+                  else { (Send-OVRequest $_.serverProfileUri -hostname $_.ApplianceConnection.Name).name }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>licensingIntent</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerHardware FL-->
+    <View>
+      <Name>ServerHardware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerHardware</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Form Factor</Label>
+                <PropertyName>formFactor</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Adapters</Label>
+                <ScriptBlock>
+
+                  $_.adapters | % {
+
+                  "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ServerHardwareType FT-->
+    <View>
+      <Name>ServerHardwareType</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerHardwareType</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Form Factor</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Adapters</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>formFactor</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                $_.adapters | % {
+
+                    "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
+
+                }
+
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerHardwareType FL-->
+    <View>
+      <Name>ServerHardwareType</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerHardwareType</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Form Factor</Label>
+                <PropertyName>formFactor</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Adapters</Label>
+                <ScriptBlock>
+
+                  $_.adapters | % {
+
+                  "{0} {1} - {2}" -f $_.location,$_.slot,$_.model
+
+                  }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ServerProfileTemplate FT-->
+    <View>
+      <Name>ServerProfileTemplate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfileTemplate</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Affinity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Profiles</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+               <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>affinity</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  (Send-OVRequest ("/rest/index/associations?parentUri={0}&amp;name=server_profile_template_to_server_profiles" -f $_.uri) -Hostname $_.ApplianceConnection.Name).members | % {
+
+                    "{0}" -f (Send-OVRequest $_.childUri -ApplianceConnection $_.ApplianceConnection.Name).name
+
+                  }
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerProfileTemplate FL-->
+    <View>
+      <Name>ServerProfileTemplate</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfileTemplate</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Server Hardware Type</Label>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Affinity</Label>
+                <PropertyName>affinity</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.serialNumber,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>UUID</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.uuid,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Connections</Label>
+                <ScriptBlock>"{0}" -f $_.connections.count</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Manage BIOS</Label>
+                <ScriptBlock>"{0}" -f $_.bios.manageBios</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ServerProfile FT-->
+    <View>
+      <Name>ServerProfile</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Compliance</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Template</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Server Hardware Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Affinity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>templateCompliance</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverProfileTemplateUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverHardwareUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>affinity</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerProfile FL-->
+    <View>
+      <Name>ServerProfile</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Compliance</Label>
+                <PropertyName>templateCompliance</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Template</Label>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverProfileTemplateUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Server Hardware</Label>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverHardwareUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Server Hardware Type</Label>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.serverHardwareTypeUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>"{0}" -f (Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Affinity</Label>
+                <PropertyName>affinity</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.serialNumber,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>UUID</Label>
+                <ScriptBlock>"{0} ({1})" -f $_.uuid,$_.serialNumberType</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Connections</Label>
+                <ScriptBlock>"{0}" -f $_.connections.count</ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Manage BIOS</Label>
+                <ScriptBlock>"{0}" -f $_.bios.manageBios</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--Server_Profile_Connections FT-->
+    <View>
+      <Name>connections</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile.Connection</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ID</Label>
+            <Width>2</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Width>12</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network</Label>
+            <Width>30</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RequestedBW</Label>
+            <Width>12</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MaximumBW</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Boot</Label>
+            <Width>20</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PortID</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Address</Label>
+            <Width>32</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>functionType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$profileCache[$_.networkUri]</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} Gbps" -f ($_.requestedMbps / 1000)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} Gbps" -f ($_.maximumMbps / 1000)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $bootSetting = New-Object System.Collections.ArrayList
+
+                  [void]$bootSetting.Add($_.boot.priority)
+
+                  if ($_.boot.targets)
+                  {
+
+                    for ($i=0; $i -eq $boot.targets.count; $i++) { [void]$bootSetting.Add("WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)") }
+
+                  }
+
+                  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets))
+                  {
+
+                    [void]$bootSetting.Add("(Use Adapter BIOS)")
+
+                  }
+
+                  $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $address = New-Object System.Collections.ArrayList
+
+                  if ($_.macType -eq "Virtual" -and $_.mac)      { [void]$address.Add("MAC $($_.mac) (V)") }
+                  elseif ($_.macType -eq "Physical" -and $_.mac) { [void]$address.Add("MAC $($_.mac) (p)") }
+
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwnn)      { [void]$address.Add("WWNN $($_.wwnn) (v)") }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwnn) { [void]$address.Add("WWNN $($_.wwnn) (p)") }
+
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { [void]$address.Add("WWPN $($_.wwpn) (v)") }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { [void]$address.Add("WWPN $($_.wwpn) (p)") }
+
+                  $address | Out-String | % { $_ -replace '^\s+|\s+$' }
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Server_ServerProfile_ConnectionList FT-->
+    <View>
+      <Name>ConnectionList</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile.ConnectionList</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+        <TableColumnHeader>
+            <Label>ServerProfile</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PortID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MAC</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>WWPN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Boot</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ArrayTarget</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LUN</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+            <!-- serverProfile, cid, portId, functionType, Network, mac, wwpn, boot, arrayTarget, lun, Appliance -->
+              <TableColumnItem>
+                <PropertyName>serverProfile</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>cid</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>functionType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Network</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if ($_.macType -eq "Virtual" -and $_.mac)      { "{0} (V)" -f $_.mac }
+                  elseif ($_.macType -eq "Physical" -and $_.mac) { "{0} (P)" -f $_.mac }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { "{0} (V)" -f $_.wwpn }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { "{0} (P)" -f $_.wwpn }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>boot</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  if (-not ([String]::IsNullOrEmpty($_.arrayTarget)))
+                  {
+
+                    if ($_.functionType -eq 'FibreChannel')
+                    {
+
+                      [regex]::Replace($_.arrayTarget, '(..)', '$1:').Trim(":")
+
+                    }
+
+                    else
+                    {
+
+                      $_.arrayTarget
+
+                    }
+
+                  }
+
+                  elseif ($_.boot -ne "NotBootable" -and [String]::IsNullOrEmpty($_.arrayTarget))
+                  {
+
+                    "UseAdapterBIOS"
+
+                  }
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>lun</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- ServerUtilization -->
+    <View>
+      <Name>ServerUtilization</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerUtilization</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CPUCurrent</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerCurrent</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AmbientTemperature</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastUpdated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CPUCurrent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PowerCurrent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AmbientTemperature</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastUpdated</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ENCLOSURE FT-->
+    <View>
+      <Name>Enclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.Enclosure</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Serial Number</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Rack</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Populated Bays</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>enclosureType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>serialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>rackName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  if ($_.enclosureGroupUri) { (Send-OVRequest $_.enclosureGroupUri -HostName $_.ApplianceConnection.Name).name }
+                  else { "N/A" }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}/{1}" -f (($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}) | Measure-Object).Count,$_.deviceBays.count</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ENCLOSURE FL-->
+    <View>
+      <Name>Enclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Enclosure</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>enclosureType</PropertyName>
+              </ListItem>
+              <ListItem>
+                  <Label>State</Label>
+                  <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Serial Number</Label>
+                <PropertyName>serialNumber</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Rack</Label>
+                <PropertyName>rackName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>
+                  if ($_.enclosureGroupUri) { (Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name }
+                  else { "N/A" }
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Populated Bays</Label>
+                <ScriptBlock>"{0}/{1}" -f (($_.deviceBays | ? { $_.devicePresence -eq "Present" -or $_.devicePresence -eq "subsumed"}) | Measure-Object).Count,$_.deviceBays.count</ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!-- EnclosureUtilization -->
+    <View>
+      <Name>EnclosureUtilization</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.EnclosureUtilization</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PowerCurrent</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AmbientTemperature</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastUpdated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>PowerCurrent</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AmbientTemperature</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastUpdated</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--LOGICALENCLOSURE FT-->
+    <View>
+      <Name>LogicalEnclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.LogicalEnclosure</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosures</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Enclosure Group</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Logical Interconnects</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>state</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.enclosureUris | % { Send-OVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>(Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.logicalInterconnectUris | % { Send-OVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--LogicalEnclosure FL-->
+    <View>
+      <Name>LogicalEnclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.LogicalEnclosure</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>State</Label>
+                <PropertyName>state</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosures</Label>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.enclosureUris | % { Send-OVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Enclosure Group</Label>
+                <ScriptBlock>(Send-OVRequest $_.enclosureGroupUri -Hostname $_.ApplianceConnection.Name).name </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>Logical Interconnects</Label>
+                <ScriptBlock>
+                  $_ApplianceConnectionName = $_.ApplianceConnection.Name
+                  ($_.logicalInterconnectUris | % { Send-OVRequest $_ -Hostname $_ApplianceConnectionName }).name
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ENCLOSURE_GROUP FT-->
+    <View>
+      <Name>Enclosure</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.EnclosureGroup</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LogicalInterconnectGroup</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UsedBy</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+
+                  $_HostName = $_.ApplianceConnection.Name
+
+                  ($_.associatedLogicalInterconnectGroups | % { (send-OVrequest $_ -Hostname $_HostName).Name }) -join ","
+
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  ((Send-OVRequest -Uri "/rest/index/associations/resources?count=-1&amp;start=0&amp;name='ENCLOSURE_GROUP_TO_LOGICAL_ENCLOSURE'&amp;parentUri='$($_.uri)'" -Hostname $_.ApplianceConnection.Name).members | % { $_.childResource.name}) -join ","
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--UNMANAGED_RESOURCE FT-->
+    <View>
+      <Name>UnmanagedResource</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.UnmanagedResource</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Height</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IPv4 Management Address</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IPv6 Management Address</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Max Power</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} U" -f $_.height</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ipv4Address</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ipv6Address</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} Watts" -f $_.maxPwrConsumed</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--PotentialPowerConnection FT-->
+    <View>
+      <Name>PotentialPowerConnection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.PowerDevice.PotentialPowerConnection</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connection</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Connection Side</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deviceConnection</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>deviceConnectionSide</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--PotentialPowerConnection FL-->
+    <View>
+      <Name>PotentialPowerConnection</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.PowerDevice.PotentialPowerConnection</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Model</Label>
+                <PropertyName>model</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Connection</Label>
+                <PropertyName>deviceConnection</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Connection Side</Label>
+                <PropertyName>deviceConnectionSide</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--ServerProfileMessage FT-->
+    <View>
+      <Name>ServerProfileMessage</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfileMessage</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Server Profile</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Message</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ServerProfileName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>message</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ServerProfileMessage FL-->
+    <View>
+      <Name>ServerProfileMessage</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfileMessage</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Server Profile</Label>
+                <PropertyName>ServerProfileName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Created</Label>
+                <PropertyName>createdTime</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Message</Label>
+                <PropertyName>message</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Recommended Actions</Label>
+                <PropertyName>recommendedActions</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPEOneView.ServerProfile.CompliancePreview FL-->
+    <View>
+      <Name>ServerProfileCompliancePreview</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile.CompliancePreviewe</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>Name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>IsOnlineUpdate</Label>
+                <PropertyName>IsOnlineUpdate</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>AutomaticUpdates</Label>
+                <PropertyName>AutomaticUpdates</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ManualUpdates</Label>
+                <PropertyName>ManualUpdates</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPEOneView.ServerProfile.CompliancePreview FT-->
+    <View>
+      <Name>ServerProfileCompliancePreview</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile.CompliancePreview</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IsOnlineUpdate</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AutomaticUpdates</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ManualUpdates</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsOnlineUpdate</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AutomaticUpdates</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ManualUpdates</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--ContractAndWarrantyStatus FT-->
+    <View>
+      <Name>ContractAndWarrantyStatus</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.RemoteSupport.ContractAndWarrantyStatus</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ResourceName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ResourceSerialNumber</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IsEntitled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>EntitlementPackage</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>EntitlementStatus</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CoverageDays</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>OfferEndDate</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ResourceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ResourceSerialNumber</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsEntitled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>EntitlementPackage</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>EntitlementStatus</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CoverageDays</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>OfferEndDate</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPEOneView.RemoteSupport.ResourceSetting FT-->
+    <View>
+      <Name>RemoteSupportResourceSetting</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.RemoteSupport.ResourceSetting</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ResourceName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SupportEnabled</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SalesChannelPartner</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SupportChannelPartner</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PrimaryContact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>SecondaryContact</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ResourceName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>supportEnabled</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.SalesChannelPartner.name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$_.SupportChannelPartner.name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0} {1}' -f $_.PrimaryContact.firstName,$_.PrimaryContact.lastName</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>'{0} {1}' -f $_.SecondaryContact.firstName,$_.SecondaryContact.lastName</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPEOneView.ServerHardware+Firmware FT-->
+    <View>
+      <Name>Servers+Firmware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.ServerHardware+Firmware</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>Name</PropertyName>
+        <CustomControlName>ServerHardware+Firmware-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Component</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ComponentType</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Installed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineVersion</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Component</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ComponentType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Installed</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPEOneView.Servers.Enclosure+Firmware FT-->
+    <View>
+      <Name>Enclosure+Firmware</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.Enclosure+Firmware</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>Name</PropertyName>
+        <CustomControlName>EnclosureFirmware-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+        <TableColumnHeader>
+            <Label>Component</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ComponentModel</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Installed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Baseline</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+            <TableColumnItem>
+                <PropertyName>Component</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ComponentModel</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Installed</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineName</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
+    <!-- HPEOneView.Servers.LogicalJBOD FT-->
+    <View>
+      <Name>LogicalJBOD</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.LogicalJBOD</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DriveTechnology</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MinSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MaxSize</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Drives</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UsedBy</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} {1}" -f $_.Interface, $_.Media</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPEOneView.Utilities.Library]::IntToStorageString(([int]$_.MinSize * 1GB))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPEOneView.Utilities.Library]::IntToStorageString(([int]$_.MaxSize * 1GB))</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Drives</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UsedBy</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+  </ViewDefinitions>
+</Configuration>
