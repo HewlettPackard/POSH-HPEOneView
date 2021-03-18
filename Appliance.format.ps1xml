@@ -2797,10 +2797,10 @@
                 <PropertyName>reservedIdCount</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>startAddress</PropertyName>
+                <ScriptBlock>$_.startStopFragments.startAddress</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
-                <PropertyName>endAddress</PropertyName>
+                <ScriptBlock>$_.startStopFragments.endAddress</ScriptBlock>
               </TableColumnItem>
             </TableColumnItems>
           </TableRowEntry>
@@ -2851,11 +2851,11 @@
               </ListItem>
               <ListItem>
                 <Label>Start</Label>
-                <PropertyName>startAddress</PropertyName>
+                <ScriptBlock>$_.startStopFragments.startAddress</ScriptBlock>
               </ListItem>
               <ListItem>
                 <Label>End</Label>
-                <PropertyName>endAddress</PropertyName>
+                <ScriptBlock>$_.startStopFragments.endAddress</ScriptBlock>
               </ListItem>
             </ListItems>
           </ListEntry>

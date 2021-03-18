@@ -884,6 +884,7 @@
 
                   if ($_.macType -eq "Virtual" -and $_.mac)      { "{0} (V)" -f $_.mac }
                   elseif ($_.macType -eq "Physical" -and $_.mac) { "{0} (P)" -f $_.mac }
+                  else { "{0} (U)" -f $_.mac}
 
                 </ScriptBlock>
               </TableColumnItem>
@@ -891,6 +892,7 @@
                 <ScriptBlock>
                   if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { "{0} (V)" -f $_.wwpn }
                   elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { "{0} (P)" -f $_.wwpn }
+                  else { "{0} (U)" -f $_.wwpn}
                 </ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
