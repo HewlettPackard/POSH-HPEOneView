@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.540.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.40.2689.2416'
+ModuleVersion = '5.40.2725.2163'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,10 +155,20 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.40.2689.2416
+        ReleaseNotes = 'Release 5.40.2725.2163
 
-- [#538] Fixed HPEOneView.Networking.SnmpV3User class to return NA instead of NONE when authentication protocol and no privacy protocol setting.
-- [#552] Fixed duplicate key when attempting to convert from JSON to object with baselines."
+- Updated New-OVUplinkSet to ensure ImageStreamer type always sets LacpLoadBalancingMode to "None".
+- Relaxed Show-OVFirmwareReport to allow supported Monitored server hardware resources in report collection.
+- Fixed issue with Show-OVFirmwareReport not handling SDFlex compute partitions when attempting to display firmware.
+- Enhanced Show-OVFirmwareReport to handle baselines that are associated with supported resources and are no longer present on the appliance.
+- [#554] Fixed Synergy fabric module typo in New-OVLogicalInterconnectGroup for HPE Synergy 32Gb FC module.
+- [#556] Updated Server.format.ps1xml to display connection address when is User Assigned from using Show-OVServerProfileConnection.
+- [#557] Fixed New-OVLdapGroup and Set-OVLdapGroup requiring -Credential parameter when the authentication directory is assigned a service account.
+- [#558] Fixed ConvertTo-OVPowerShellScript not handling multiple logical interconnect group mappings, and IPv6 Address pools.
+- [#561] Fixed ConvertTo-OVPowerShellScript not providing server profile connection network name variable in generated script code.
+- Fixed an issue within Set-OVUplinkSet where a provided Uplink Set resource (from Get-OVUplinkSet) reports an incorrect category type, causing validation logic to fail.
+- Added -Name parameter to Get-OVAddressPoolRange to assist with filtering for specific pool ranges.
+- Added -Append parameter to Set-OVLdapGroup and Set-OVUser Cmdlets to change the behavior of changing the roles or scope permissions.'
 
         # Prerelease string of this module
         # Prerelease = ''
