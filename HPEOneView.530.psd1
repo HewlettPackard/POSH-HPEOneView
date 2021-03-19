@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.530.psm1'
 
 # Version number of this module.
-ModuleVersion = '5.30.2682.3811'
+ModuleVersion = '5.30.2726.1663'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2020 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -155,20 +155,20 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 5.30.2682.3811
+        ReleaseNotes = 'Release 5.30.2726.1663
 
-- Fixed New-OVServerProfileTemplate mishandling async task in an error state containing more than one taskError message.
-- [#518] Fixed merge issue where incorect handling of Base64 encoded certificates would cause an exception in Add-OVApplianceTrustedCertificate.
-- [#521] Fixed a casting issue within Get-OVApplianceServiceConsoleAccess when service console is disabled.
-- [#523] Enhanced Get-OVServer to allow searching for server hardware serial number.
-- [POTENTIAL BREAKING CHANGE] Changed Set-OVTwoFactorAuthentication by removing the -EnableEmergencyLocalLogin and -EmergencyLoginAllowType parameters, and moving them to both Set-OVLdapDefaultDirectory and Disable-OVLdapLocalLogin Cmdlets.
-- Fixed Connect-OVMgmt not properly handling embedded NT style domain name of user account, and not sending the case sensitive formatted value to the API.
-- [#528] Added new Start-OVEnclosureApplianceDevice Cmdlet to power on appliance devices within an HPE Synergy Frame.
-- [#534] Fixed Show-OVFirmwareReport mishandling non-existent firmware baselines.
-- [#539] Fixed New-OVSnmpTrapDestination and the object it returns.
-- [#540] Fixed New-OVSnmpTrapDestination to handle SNMPv3 Engine ID correctly.
-- [#548] Fixed Enable-OVDeviceUid and Disable-OVDeviceUid where a resource eTag wasn't being passed to the API for Synergy Frames.
-- Added Get-OVSmtpAlertEmailFilter, Set-OVSmtpAlertEmailFilter and Remove-OVSmtpAlertEmailFilter Cmdlets to manage email/SMTP alert filtering."
+- Updated New-OVUplinkSet to ensure ImageStreamer type always sets LacpLoadBalancingMode to "None".
+- Relaxed Show-OVFirmwareReport to allow supported Monitored server hardware resources in report collection.
+- Fixed issue with Show-OVFirmwareReport not handling SDFlex compute partitions when attempting to display firmware.
+- Enhanced Show-OVFirmwareReport to handle baselines that are associated with supported resources and are no longer present on the appliance.
+- [#554] Fixed Synergy fabric module typo in New-OVLogicalInterconnectGroup for HPE Synergy 32Gb FC module.
+- [#556] Updated Server.format.ps1xml to display connection address when is User Assigned from using Show-OVServerProfileConnection.
+- [#557] Fixed New-OVLdapGroup and Set-OVLdapGroup requiring -Credential parameter when the authentication directory is assigned a service account.
+- [#558] Fixed ConvertTo-OVPowerShellScript not handling multiple logical interconnect group mappings, and IPv6 Address pools.
+- [#561] Fixed ConvertTo-OVPowerShellScript not providing server profile connection network name variable in generated script code.
+- Fixed an issue within Set-OVUplinkSet where a provided Uplink Set resource (from Get-OVUplinkSet) reports an incorrect category type, causing validation logic to fail.
+- Added -Name parameter to Get-OVAddressPoolRange to assist with filtering for specific pool ranges.
+- Added -Append parameter to Set-OVLdapGroup and Set-OVUser Cmdlets to change the behavior of changing the roles or scope permissions.'
 
         # Prerelease string of this module
         # Prerelease = ''
