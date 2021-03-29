@@ -12,7 +12,7 @@
 RootModule = 'HPOneView.500.psm1';
 
 # Version number of this module.;
-ModuleVersion = '5.0.2689.2416'
+ModuleVersion = '5.0.2736.1630'
 
 # ID used to uniquely identify this module
 GUID = '39a18995-ec04-422b-a972-1c4b3f8cebe7';
@@ -124,10 +124,22 @@ PrivateData = @{
         LicenseUri = 'https://github.com/HewlettPackard/POSH-HPOneView/blob/master/LICENSE';
         ProjectUri = 'http://hewlettpackard.github.io/POSH-HPOneView';
         IconUri = '';
-        ReleaseNotes = "Release 5.00.2689.2416
+        ReleaseNotes = 'Release 5.00.2736.1630
 
-- [#538] Fixed HPOneView.Networking.SnmpV3User class to return NA instead of NONE when authentication protocol and no privacy protocol setting.
-- [#552] Fixed duplicate key when attempting to convert from JSON to object with baselines."
+- Updated New-HPOVUplinkSet to ensure ImageStreamer type always sets LacpLoadBalancingMode to "None".
+- Relaxed Show-HPOVFirmwareReport to allow supported Monitored server hardware resources in report collection.
+- Fixed issue with Show-HPOVFirmwareReport not handling SDFlex compute partitions when attempting to display firmware.
+- Enhanced Show-HPOVFirmwareReport to handle baselines that are associated with supported resources and are no longer present on the appliance.
+- [#554] Fixed Synergy fabric module typo in New-HPOVLogicalInterconnectGroup for HPE Synergy 32Gb FC module.
+- [#556] Updated Server.format.ps1xml to display connection address when is User Assigned from using Show-HPOVServerProfileConnection.
+- [#557] Fixed New-HPOVLdapGroup and Set-HPOVLdapGroup requiring -Credential parameter when the authentication directory is assigned a service account.
+- [#558] Fixed ConvertTo-HPOVPowerShellScript not handling multiple logical interconnect group mappings, and IPv6 Address pools.
+- [#561] Fixed ConvertTo-HPOVPowerShellScript not providing server profile connection network name variable in generated script code.
+- Fixed an issue within Set-HPOVUplinkSet where a provided Uplink Set resource (from Get-HPOVUplinkSet) reports an incorrect category type, causing validation logic to fail.
+- Added -Name parameter to Get-HPOVAddressPoolRange to assist with filtering for specific pool ranges.
+- Added -Append parameter to Set-HPOVLdapGroup and Set-HPOVUser Cmdlets to change the behavior of changing the roles or scope permissions.
+- [#564] Fixed Set-OVSmtpConfig to send a properly formatted request to the appliance REST API to disable email alert filters.
+- Added -UseMXRecordLookup to Set-OVSmtpConfig Cmdlet to allow for DNS MX record lookup to be used instead of specifying an SMTP server with the -Server parameter.'
 
     };
 
