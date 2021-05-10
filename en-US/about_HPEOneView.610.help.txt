@@ -42,11 +42,13 @@ WHAT'S NEW
          to be used instead of specifying an SMTP server with the -Server parameter.
       -- Enhanced Get-OVServer to return expanded server hardware inventory. This now fully populates
          the subResources property with available inventory data.
-      -- [#5] Fixed Set-OVUplinkSet to add and remove associated networks when adding/removing network
+      -- [#512] Fixed Set-OVUplinkSet to add and remove associated networks when adding/removing network
          set(s).
       -- Added Windows Server 2019 and Ubuntu values for HostOStype parameter within New-OVServerProfile,
          New-OVServerProfileTemplate and New-OVServerProfileAttachVolume Cmdlets.
       -- [#569] Refactored detection of duplicate JSON pattern in API response, mainly with FW baselines/SPPs.
+      -- Fixing new version branch changing default parameter values that were inadvertently being discovered
+         as version string.
 
 LONG DESCRIPTION
 
