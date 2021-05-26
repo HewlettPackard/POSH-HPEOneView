@@ -32,6 +32,23 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 6.00.2785.2604
+
+      -- Deprecated Invoke-OVVcmMigration as the functionality was removed from HPE OneView 5.40.
+      -- [#564] Fixed Set-OVSmtpConfig to send a properly formatted request to the appliance
+         REST API to disable email alert filters.
+      -- Added -UseMXRecordLookup to Set-OVSmtpConfig Cmdlet to allow for DNS MX record lookup
+         to be used instead of specifying an SMTP server with the -Server parameter.
+      -- Enhanced Get-OVServer to return expanded server hardware inventory. This now fully populates
+         the subResources property with available inventory data.
+      -- [#512] Fixed Set-OVUplinkSet to add and remove associated networks when adding/removing network
+         set(s).
+      -- Added Windows Server 2019 and Ubuntu values for HostOStype parameter within New-OVServerProfile,
+         New-OVServerProfileTemplate and New-OVServerProfileAttachVolume Cmdlets.
+      -- [#569] Refactored detection of duplicate JSON pattern in API response, mainly with FW baselines/SPPs.
+      -- Refactored Show-OVLogicalInterconnectMacTable to return properly formatted object, instead of
+         Microsoft.PowerShell.Commands.Internal.Format.FormatEntryData from Format-Table.
+
    Release 6.00.2719.1668
 
       -- Initial HPE OneView 6.00 library release.
