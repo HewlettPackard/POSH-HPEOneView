@@ -155,21 +155,17 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 5.50.2723.2763
+        ReleaseNotes = 'Release 5.50.2794.1655
 
-- Updated New-OVUplinkSet to ensure ImageStreamer type always sets LacpLoadBalancingMode to "None".
-- Relaxed Show-OVFirmwareReport to allow supported Monitored server hardware resources in report collection.
-- Fixed issue with Show-OVFirmwareReport not handling SDFlex compute partitions when attempting to display firmware.
-- Enhanced Show-OVFirmwareReport to handle baselines that are associated with supported resources and are no longer present on the appliance.
-- [#554] Fixed Synergy fabric module typo in New-OVLogicalInterconnectGroup for HPE Synergy 32Gb FC module.
-- [#556] Updated Server.format.ps1xml to display connection address when is User Assigned from using Show-OVServerProfileConnection.
-- [#557] Fixed New-OVLdapGroup and Set-OVLdapGroup requiring -Credential parameter when the authentication directory is assigned a service account.
-- [#558] Fixed ConvertTo-OVPowerShellScript not handling multiple logical interconnect group mappings, and IPv6 Address pools.
-- [#561] Fixed ConvertTo-OVPowerShellScript not providing server profile connection network name variable in generated script code.
-- Fixed an issue within Set-OVUplinkSet where a provided Uplink Set resource (from Get-OVUplinkSet) reports an incorrect category type, causing validation logic to fail.
-- Added -Name parameter to Get-OVAddressPoolRange to assist with filtering for specific pool ranges.
-- Added -Append parameter to Set-OVLdapGroup and Set-OVUser Cmdlets to change the behavior of changing the roles or scope permissions.
-- Deprecated Invoke-OVVcmMigration as the functionality was removed from HPE OneView 5.40.'
+- Added -UseMXRecordLookup to Set-OVSmtpConfig Cmdlet to allow for DNS MX record lookup to be used instead of specifying an SMTP server with the -Server parameter.
+- Refactored Show-OVLogicalInterconnectMacTable to return properly formatted object, instead of Microsoft.PowerShell.Commands.Internal.Format.FormatEntryData from Format-Table.
+- [#564] Fixed Set-OVSmtpConfig to send a properly formatted request to the appliance REST API to disable email alert filters.
+- Added -UseMXRecordLookup to Set-OVSmtpConfig Cmdlet to allow for DNS MX record lookup to be used instead of specifying an SMTP server with the -Server parameter.
+- Enhanced Get-OVServer to return expanded server hardware inventory. This now fully populates the subResources property with available inventory data.
+- [#512] Fixed Set-OVUplinkSet to add and remove associated networks when adding/removing network set(s).
+- Added Windows Server 2019 and Ubuntu values for HostOStype parameter within New-OVServerProfile, New-OVServerProfileTemplate and New-OVServerProfileAttachVolume Cmdlets.
+- [#569] Refactored detection of duplicate JSON pattern in API response, mainly with FW baselines/SPPs.
+- Fixing new version branch changing default parameter values that were inadvertently being discovered as version string.'
 
         # Prerelease string of this module
         # Prerelease = ''
