@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.630.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.30.2913.2047'
+ModuleVersion = '6.30.2928.3678'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,12 +155,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 6.30.2913.2047
+        ReleaseNotes = 'Release 6.30.2928.3678
 
-- Initial HPE OneView 6.30 library release.
-- [#572] Fixed issue with ConvertTo-OVPowerShellScript incorrectly handling profile connection types and getting the assigned network details causing an error.
-- [#512] Fixed regression in Set-OVUplinkSet.
-- Refactored Show-OVLogicalInterconnectMacTable to return properly formatted object, instead of Microsoft.PowerShell.Commands.Internal.Format.FormatEntryData from Format-Table.'
+- CRITICAL FIX: Fixed critical issue where API version was incorrectly being set to the 6.10 API version.
+- Enhanced Invoke-OVUpdate to handle an issue with the update progress tracker API.'
 
         # Prerelease string of this module
         # Prerelease = ''

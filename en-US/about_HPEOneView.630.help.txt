@@ -32,6 +32,11 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 6.30.2928.3678
+
+      -- CRITICAL FIX: Fixed critical issue where API version was incorrectly being set to the 6.10 API version.
+      -- Enhanced Invoke-OVUpdate to handle an issue with the update progress tracker API.
+
    Release 6.30.2913.2047
 
       -- Initial HPE OneView 6.30 library release.
