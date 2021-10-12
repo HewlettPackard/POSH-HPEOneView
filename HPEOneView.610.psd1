@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.610.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.10.2778.2020'
+ModuleVersion = '6.10.2932.2738'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,17 +155,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 6.10.2778.2020
+        ReleaseNotes = 'Release 6.10.2932.2738
 
-- Initial HPE OneView 6.10 library release.
-- Deprecated Invoke-OVVcmMigration as the functionality was removed from HPE OneView 5.40.
-- [#564] Fixed Set-OVSmtpConfig to send a properly formatted request to the appliance REST API to disable email alert filters.
-- Added -UseMXRecordLookup to Set-OVSmtpConfig Cmdlet to allow for DNS MX record lookup to be used instead of specifying an SMTP server with the -Server parameter.
-- Enhanced Get-OVServer to return expanded server hardware inventory. This now fully populates the subResources property with available inventory data.
-- [#512] Fixed Set-OVUplinkSet to add and remove associated networks when adding/removing network set(s).
-- Added Windows Server 2019 and Ubuntu values for HostOStype parameter within New-OVServerProfile, New-OVServerProfileTemplate and New-OVServerProfileAttachVolume Cmdlets.
-- [#569] Refactored detection of duplicate JSON pattern in API response, mainly with FW baselines/SPPs.
-- Fixing new version branch changing default parameter values that were inadvertently being discovered as version string.'
+- [#572] Fixed issue with ConvertTo-OVPowerShellScript incorrectly handling profile connection types and getting the assigned network details causing an error.
+- [#512] Fixed regression in Set-OVUplinkSet.
+- Refactored Show-OVLogicalInterconnectMacTable to return properly formatted object, instead of Microsoft.PowerShell.Commands.Internal.Format.FormatEntryData from Format-Table.
+- Enhanced Invoke-OVUpdate to handle an issue with the update progress tracker API.'
 
         # Prerelease string of this module
         # Prerelease = ''

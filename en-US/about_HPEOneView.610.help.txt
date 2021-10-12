@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 6.10.2932.2738
+
+      -- [#572] Fixed issue with ConvertTo-OVPowerShellScript incorrectly handling profile connection
+         types and getting the assigned network details causing an error.
+      -- [#512] Fixed regression in Set-OVUplinkSet.
+      -- Refactored Show-OVLogicalInterconnectMacTable to return properly formatted object,
+         instead of Microsoft.PowerShell.Commands.Internal.Format.FormatEntryData from Format-Table.
+      -- Enhanced Invoke-OVUpdate to handle an issue with the update progress tracker API.
+
    Release 6.10.2775.2226
 
       -- Initial HPE OneView 6.10 library release.
