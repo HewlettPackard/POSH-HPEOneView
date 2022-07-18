@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.630.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.30.3188.1814'
+ModuleVersion = '6.30.3188.1900'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,8 +155,9 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 6.30.3188.1814
+        ReleaseNotes = "Release 6.30.3188.1900
 
+- [#612] Fixed typo in helper function which creates uplink set objects.
 - [#611] Fixed Get-OVRemoteSupportSetting where unecessary API lookups were causing PowerShell failures.
 - [#609] Fixed identification of supported Composer model strings.
 - [#606] Fixed New-OVServerProfile and New-OVServerProfileTemplate to handle unassigned connections.
