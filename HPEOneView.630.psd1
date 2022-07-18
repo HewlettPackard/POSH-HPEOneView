@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.630.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.30.2928.3678'
+ModuleVersion = '6.30.3188.1814'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -155,10 +155,25 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 6.30.2928.3678
+        ReleaseNotes = "Release 6.30.3188.1814
 
-- CRITICAL FIX: Fixed critical issue where API version was incorrectly being set to the 6.10 API version.
-- Enhanced Invoke-OVUpdate to handle an issue with the update progress tracker API.'
+- [#611] Fixed Get-OVRemoteSupportSetting where unecessary API lookups were causing PowerShell failures.
+- [#609] Fixed identification of supported Composer model strings.
+- [#606] Fixed New-OVServerProfile and New-OVServerProfileTemplate to handle unassigned connections.
+- [#606] Fixed New-OVServerProfileConnection not handling all -ConnectionType types.
+- [#587] Fixed ConvertTo-OVPowerShellScript to address mishandling iLO settings in the generated script code.
+- [#603] Added support for Alletra6000 and Alletra9000 storage systems to Add-OVStorageSystem and Get-OVStorageSystem Cmdlets.
+- [#601] Fixed New-OVServerProfile not handling user defined FC addresses for unmanaged FC connections.
+- [#600] Fixed New-OVServerProfileTemplate incorrectly handling unmanaged FC connections and FC storage assignment.
+- [#599] Fixed Get-OVServerProfile -Detailed not displaying an assigned baseline correctly.
+- [#595] Fixed Show-OVUtilization and [HPEOneView.EnclosureUtilization] class to report current and max power for enclosure resources.
+- [#594] Addressed a condition where using Connect-OVMgmt to connect to the same appliance multiple times and additional caller code is to be processed will not. Cmdlet will now display warning message and return back to the caller appropriately.
+- [#588] Changed -GroupSID parameter to be mandatory.
+- [#587] Fixed ConvertTo-OVPowerShellScript to handle iLO directory settings correctly.
+- Updated ConvertTo-OVPowerShellScript to support handling unmanaged connections.
+- [#583] Fixed Show-OVFirmwareReport where enclosures with assigned baseline wasn't handled correctly.
+- Enhanced New-OVNetwork to support Synergy RoCE network types.
+- Added new Cmdlets Get-OVApplianceUpdate, Get-OVApplianceUpdateSchedule and Set-OVApplianceUpdateSchedule."
 
         # Prerelease string of this module
         # Prerelease = ''

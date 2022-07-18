@@ -131,6 +131,95 @@
     </Control>
   </Controls>
 	<ViewDefinitions>
+      <!--ApplianceAvailableUpdates FL-->
+    <View>
+      <Name>ApplianceAvailableUpdates</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.ApplianceAvailableUpdates</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Version</Label>
+                <PropertyName>version</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>ReleaseDate</Label>
+                <PropertyName>releaseDate</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>UpdateType</Label>
+                <PropertyName>updateType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Description</Label>
+                <PropertyName>description</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPEOneView.Appliance.ApplianceUpdate FT-->
+    <View>
+      <Name>HPEOneView.Appliance.ApplianceUpdateSchedule</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.ApplianceUpdateSchedule</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ScheduleFrequency</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Day</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Time</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastSuccessfulCheck</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ScheduleFrequency</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Day</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0:00}:{1:00}UTC" -f $_.Time.Hours, $_.Time.Minutes</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastSuccessfulCheck</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
     <!--HPEOneView.Appliance.ComposerNetworkInterface FT-->
     <View>
       <Name>HPEOneView.Appliance.ComposerNetworkInterface</Name>

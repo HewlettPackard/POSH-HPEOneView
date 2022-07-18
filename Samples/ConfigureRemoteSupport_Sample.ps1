@@ -4,7 +4,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -108,10 +108,10 @@ param
 
 )
 
-if (-not (Get-Module HPEOneView.540))
+if (-not (Get-Module HPEOneView.630))
 {
 
-    Import-Module POSH-HPEOneView.540
+    Import-Module POSH-HPEOneView.630
 
 }
 

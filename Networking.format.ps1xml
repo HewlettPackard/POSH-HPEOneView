@@ -7,6 +7,7 @@
         <TypeName>HPEOneView.Networking.EthernetNetwork</TypeName>
         <TypeName>HPEOneView.Networking.FibreChannelNetwork</TypeName>
         <TypeName>HPEOneView.Networking.FCoENetwork</TypeName>
+        <TypeName>HPEOneView.Networking.RoCENetwork</TypeName>
       </Types>
     </SelectionSet>
     <SelectionSet>
@@ -42,6 +43,7 @@
 
                       'ethernet-networks' { "Ethernet" }
                       'fc-networks'       { "Fibre Channel" }
+                      'roce-networks'       { "RoCE" }
                       'fcoe-networks'       { "FCoE" }
                       'iscsi-networks'       { "iSCSI" }
 
@@ -342,6 +344,158 @@
                 </ListItem>
               <ListItem>
                 <Label>Member Of</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-OVRequest -uri "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
+                  if ($indexResponse.parents.NETWORKSET_TO_NETWORK.resource) { $indexResponse.parents.NETWORKSET_TO_NETWORK.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
+    <!--HPEOneView.Networking.RoCENetwork FT-->
+    <View>
+      <Name>RoCENetwork</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Networking.RoCENetwork</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>NetworkResources-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Status</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>VlanID</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PrivateNetwork</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PreferredBandwidth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MaxBandwidth</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>status</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ethernetNetworkType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>vlanId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>privateNetwork</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultTypicalBandwidth</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--HPEOneView.Networking.RoCENetwork FL-->
+    <View>
+      <Name>RoCENetwork</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Networking.RoCENetwork</TypeName>
+      </ViewSelectedBy>
+      <GroupBy>
+        <PropertyName>type</PropertyName>
+        <CustomControlName>NetworkResources-GroupingFormat</CustomControlName>
+      </GroupBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>Name</Label>
+                <PropertyName>name</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Status</Label>
+                <PropertyName>status</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Type</Label>
+                <PropertyName>ethernetNetworkType</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>VlanID</Label>
+                <PropertyName>vlanId</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>Smartlink</Label>
+                <PropertyName>smartLink</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>PrivateNetwork</Label>
+                <PropertyName>privateNetwork</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>PreferredBandwidth</Label>
+                <PropertyName>defaultTypicalBandwidth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>MaxBandwidth</Label>
+                <PropertyName>defaultMaximumBandwidth</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>UplinkSet</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-OVRequest -uri "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
+                  if ($indexResponse.parents.UPLINK_SET_TO_NETWORK.resource) { $indexResponse.parents.UPLINK_SET_TO_NETWORK.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+              </ListItem>
+              <ListItem>
+                <Label>UsedByServerProfiles</Label>
+                <ScriptBlock>
+
+                  $indexResponse = Send-OVRequest -uri "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name
+                  if ($indexResponse.parents.server_profiles_to_networks.resource) { $indexResponse.parents.server_profiles_to_networks.resource.name }
+                  else { "None" }
+
+                </ScriptBlock>
+                </ListItem>
+              <ListItem>
+                <Label>MemberOf</Label>
                 <ScriptBlock>
 
                   $indexResponse = Send-OVRequest -uri "/rest/index/trees$($_.uri)?childDepth=1&amp;parentDepth=2" -Hostname $_.ApplianceConnection.Name

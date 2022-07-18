@@ -4,7 +4,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2021 Hewlett-Packard Development Company, L.P.
+# (C) Copyright 2013-2022 Hewlett-Packard Development Company, L.P.
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -78,10 +78,10 @@ if (-not(Test-Path $Location))
 
 }
 
-if (-not (get-module HPEOneView.540))
+if (-not (get-module HPEOneView.630))
 {
 
-    Import-Module HPEOneView.540
+    Import-Module HPEOneView.630
 
 }
 

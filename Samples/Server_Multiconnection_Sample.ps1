@@ -11,7 +11,7 @@
 #
 #   VERSION 3.0
 #
-# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -33,10 +33,10 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
 #>
 ##############################################################################
-if (-not (get-module HPEOneView.540))
+if (-not (get-module HPEOneView.630))
 {
 
-    Import-Module HPEOneView.540
+    Import-Module HPEOneView.630
 
 }
 

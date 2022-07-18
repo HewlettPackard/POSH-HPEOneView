@@ -1,7 +1,7 @@
 ##############################################################################
 # Update-UserScript.ps1
 #
-# This script can be used independently from the HPEOneView.540 library to
+# This script can be used independently from the HPEOneView.630 library to
 # parse a user script and update all legacy HPEOneView Cmdlet names from
 # {VERB}-OV{Nound} to {VERB}-OV{NOUN}, and any reference to HPOneView to
 # HPEOneView.
@@ -14,7 +14,7 @@
 #
 #   VERSION 1.0
 #
-# (C) Copyright 2013-2021 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
