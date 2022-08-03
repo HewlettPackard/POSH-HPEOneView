@@ -1,0 +1,82 @@
+﻿TOPIC
+
+    about_HPEOneView.660
+
+COPYRIGHT
+
+    (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+
+LICENSE
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+SHORT DESCRIPTION
+
+    PowerShell library for HPE OneView 6.60
+
+WHAT'S NEW
+
+   Release 6.60.3227.2799
+
+      -- Initial HPE OneView 6.60 library release.
+      -- [#610] Fixed Get-OVServerProfileConnectionList to support unassigned network connections
+      -- [#512] Updated removing network set logic to appropriately handle removing associated networks,
+         except when the associated network is assigned to another network set.
+      -- Added NFSPath parameter to New-OVExternalRepository to support RMC firmware updates.
+      -- Refactored Set-OVExternalRepository to use PATCH API call.
+      -- Added -FirmwareInstallationPolicy switch to New-OVServerProfile and New-OVServerProfileTemplate
+         Cmdlets.
+      -- Removed "Brocade", "BNA", and "Brocade Network Advisor" from the -Type parameter in Add-OVSanManager
+         Cmdlet as Brocade SAN Network Advisor is no longer supported with HPE OneView.
+      -- The HPE OneView 6.60 release is an LTS release for HPE BladeSystem customers.  Associated Cmdlets
+         to manage HPE BladeSystem c-Class resources are deprecated and will be removed in the following
+         release.  This will not impact HPE Synergy customers.  Deprecated Cmdlets will display a warning
+         message.
+
+LONG DESCRIPTION
+
+    This library provides HP OneView management capabilities for Windows PowerShell.
+    The library can be used as either a CLI or using the core cmdlets to call from
+    wrapper scripts.  The core cmdlets are:
+
+      -- Connect-OVMgmt
+      -- Send-OVRequest
+      -- New-OVResource
+      -- Set-OVResource
+      -- Remove-OVResource
+
+    A set of sample scripts are also provided, that show how to fully configure an
+    HP OneView appliance from the ground up.
+
+    For information regarding this project, to request features or report
+    issues, please see: https://github.com/HewlettPackard/POSH-HPEOneView/issues
+
+
+SEE ALSO
+
+    https://github.com/HewlettPackard/POSH-HPEOneView
+    https://hpe-docs.gitbook.io/posh-hpeoneview
+    http://hpe.com/info/oneviewcommunity
+    Update-Help HPEOneView.660
+    Get-Help about_Appliance_Connections
+    Get-Help about_Appliance_Connection_Permissions
+    Get-Help about_Two_Factor_Authentication
+    Get-Help Connect-OVmgmt
+    Get-Help Send-OVRequest
+    [install_dir]\Samples
