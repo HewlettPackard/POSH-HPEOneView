@@ -1,0 +1,48 @@
+version: 7.10.{build}
+branches:
+  only:
+  - 7.10
+skip_tags: true
+skip_commits:
+  files:
+    - LICENSE
+    - '*.psd1'
+    - '**/*.xml'
+    - '**/*.txt'
+    - '*.md'
+    - '**/*.md'
+    - '*.yml'
+    - '**/*.yml'
+
+build_cloud: doc-hyp-cluster1
+image: win10-ent-worker
+clone_folder: C:\projects\HPEOneView.710
+init:
+- pwsh: >-
+    Write-Host "STARTING"
+
+    $env:PSModulePath += ";C:\Projects"
+environment:
+  ACCESS_TOKEN:
+    secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
+build: off
+test_script:
+- appveyor version
+- pwsh: >-
+    Import-Module "C:\Tests\appveyor.tests.ps1"
+
+    Start-PoshTest
+notifications:
+- provider: Webhook
+  url: https://webhooks.gitter.im/e/16d4b9581293e5e56a9d
+  method: POST
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: true
+- provider: Email
+  to:
+  - chris.lynch@hpe.com
+  subject: POSH-HPEOneView.710 AppVeyor Results
+  on_build_success: true
+  on_build_failure: true
+  on_build_status_changed: false
