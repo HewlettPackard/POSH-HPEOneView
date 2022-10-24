@@ -34,7 +34,7 @@ Connect-OVMgmt -Hostname MyAppliance.FQDN.Name -Credential $MyOneViewCredential
 ```
 
 ### Linux or Mac, including Windows Services for Linux (WSL)
-Windows Services for Linux (WSL) is tested and supported using the Ubuntu 18.04 image from the [Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab).  To test and use WSL, Windows 10 1709 (aka Windows 10 Creaters Fall Update) is required.  Please see [this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) Microsoft document for further instructions.
+Windows Services for Linux (WSL) is tested and supported using the Ubuntu 18.04 image from the [Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab).  To test and use WSL, Windows 10 1709 (aka Windows 10 Creaters Fall Update) or newer is required.  Please see [this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) Microsoft document for further instructions.
 
 For Linux distributions and appliances with a CA signed/issued certificate, you will need to make sure the issuing CA, and CA chain, is exported to PEM format, and placed within the OS SSL cert trusts location.  For Ubuntu 18.04, you can:
 
@@ -70,14 +70,14 @@ Still available, but not actively maintained Gitter.im chat room: [![Join the ch
 <!-- markdown variables links -->
 [ReadTheManualLink]: https://hpe-docs.gitbook.io/posh-hpeoneview/
 <!--7.00 -->
-[ov-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
-[ov-master-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-6jhe9
+[ov-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/sd3kpd05knu3l7q7?svg=true
+[ov-master-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-dk4yu
 [ov-master-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.700.svg?label=PSGallery
 [ov-master-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.700
 
 <!-- 6.60 -->
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
-[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-6jhe9
+[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/a52cr3cdav90ff6q?svg=true
+[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-j5gwv
 [ov-minus1-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.660.svg?label=PSGallery
 [ov-minus1-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.660
 
