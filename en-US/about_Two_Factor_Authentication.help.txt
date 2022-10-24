@@ -169,4 +169,4 @@ SEE ALSO
     https://github.com/HewlettPackard/POSH-HPEOneView
     https://hpe-docs.gitbook.io/posh-hpeoneview
     http://hp.com/go/oneviewcommunity
-    Get-Help about_HPEOneView.660
+    Get-Help about_HPEOneView.700

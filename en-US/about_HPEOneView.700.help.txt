@@ -32,7 +32,7 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
-   Release 7.00.3307.2893
+   Release 7.00.3307.2894
 
       -- Initial HPE OneView 7.00 library release.
       -- All HPE BladeSystem c-Class features have been removed from the library. This aligns

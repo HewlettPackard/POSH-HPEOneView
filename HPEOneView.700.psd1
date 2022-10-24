@@ -107,35 +107,40 @@ FormatsToProcess = 'Appliance.format.ps1xml', 'Cluster.format.ps1xml',
 # ModuleList = @()
 
 # List of all files packaged with this module
-FileList = 'HPEOneView.700.psd1', 'HPEOneView.700.psm1',
-               'Appliance.format.ps1xml', 'Cluster.format.ps1xml',
-               'Networking.format.ps1xml', 'Server.format.ps1xml',
-               'Storage.format.ps1xml',
-               'HPEOneView.700_1c1507cc-089e-412f-b686-7ba9c24c2330_HelpInfo.xml',
-               'HPEOneView.700_1c1507cc-089e-412f-b686-7ba9c24c2330_ModuleInfo.xml',
-               'en-US\about_Appliance_Connections.help.txt',
-               'en-US\about_Appliance_Connection_Permissions.help.txt',
-               'en-US\about_Two_Factor_Authentication.help.txt',
-               'en-US\about_HPEOneView.700.help.txt',
-               'en-US\HPEOneView.700.psm1-help.xml', 'lib\HPEOneView_Classes.dll',
-               'Samples\AddServers_Monitored_Sample.ps1',
-               'Samples\AddStorageSystem_Sample.ps1', 'Samples\Alerts_Sample.ps1',
-               'Samples\ApplianceConfig_Sample.ps1',
-               'Samples\Appliance_Backup_Sample.ps1',
-               'Samples\CreateEnclosureGroup_Sample.ps1',
-               'Samples\Configure_IIS_WebDav_ExternalRepo_Sample.ps1',
-               'Samples\ConfigureRemoteSupport_Sample.ps1',
-               'Samples\DefineLogicalInterconnectGroup_AA_VC_Sample.ps1',
-               'Samples\DefineLogicalInterconnectGroup_Sample.ps1',
-               'Samples\DefineNetworks_AA_VC_Sample.ps1',
-               'Samples\DefineNetworks_Sample.ps1',
-               'Samples\ImportEnclosure_Sample.ps1',
-               'Samples\Server_Multiconnection_AA_VC_Sample.ps1',
-               'Samples\Server_Multiconnection_Sample.ps1',
-               'Samples\Server_Multiconnection_SAN_Storage_Sample.ps1',
-               'Samples\Server_Profile_Template_Multiconnection_Sample.ps1',
-               'Samples\Wipe_Appliance.ps1'
-
+FileList = 'HPEOneView.700.psd1',
+            'HPEOneView.700.psm1',
+            'Appliance.format.ps1xml',
+            'Cluster.format.ps1xml',
+            'Networking.format.ps1xml',
+            'Server.format.ps1xml',
+            'Storage.format.ps1xml',
+            'HPEOneView.700_1c1507cc-089e-412f-b686-7ba9c24c2330_HelpInfo.xml',
+            'HPEOneView.700_1c1507cc-089e-412f-b686-7ba9c24c2330_ModuleInfo.xml',
+            'en-US\about_Appliance_Connections.help.txt',
+            'en-US\about_Appliance_Connection_Permissions.help.txt',
+            'en-US\about_Two_Factor_Authentication.help.txt',
+            'en-US\about_HPEOneView.700.help.txt',
+            'en-US\HPEOneView.700.psm1-help.xml',
+            'lib\HPEOneView_Classes.dll',
+            'Samples\AddServers_Monitored_Sample.ps1',
+            'Samples\AddStorageSystem_Sample.ps1',
+            'Samples\Alerts_Sample.ps1',
+            'Samples\Appliance_Backup_Sample.ps1',
+            'Samples\ApplianceConfig_Sample.ps1',
+            'Samples\ComposerApplianceConfig_Sample.ps1',
+            'Samples\Configure_IIS_WebDav_ExternalRepo_Sample.ps1',
+            'Samples\ConfigureRemoteSupport_Sample.ps1',
+            'Samples\CreateEnclosureGroup_Sample.ps1',
+            'Samples\DefineLogicalInterconnectGroup_AA_VC_Sample.ps1',
+            'Samples\DefineLogicalInterconnectGroup_Sample.ps1',
+            'Samples\DefineNetworks_AA_VC_Sample.ps1',
+            'Samples\DefineNetworks_Sample.ps1',
+            'Samples\Server_Multiconnection_AA_VC_Sample.ps1',
+            'Samples\Server_Multiconnection_Sample.ps1',
+            'Samples\Server_Multiconnection_SAN_Storage_Sample.ps1',
+            'Samples\Server_Profile_Template_Multiconnection_Sample.ps1',
+            'Samples\Server_Profile_Template_Rack_Server_Sample.ps1',
+            'Samples\Wipe_Appliance.ps1'
 # Private data to pass to the module specified in RootModule/ModuleToProcess. This may also contain a PSData hashtable with additional module metadata used by PowerShell.
 PrivateData = @{
 
@@ -155,7 +160,7 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 7.00.3307.2893
+        ReleaseNotes = "Release 7.00.3307.2894
 
 - Initial HPE OneView 7.00 library release.
 - All HPE BladeSystem c-Class features have been removed from the library. This aligns with the removed features in HPE OneView 7.00 for c-Class resources.

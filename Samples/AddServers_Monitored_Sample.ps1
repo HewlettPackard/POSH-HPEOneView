@@ -2,7 +2,7 @@
 # AddServers_Monitored_Sample.ps1
 # - Example script for importing multiple servers to be monitored.
 #
-#   VERSION 1.2#
+#   VERSION 1.2
 # (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#

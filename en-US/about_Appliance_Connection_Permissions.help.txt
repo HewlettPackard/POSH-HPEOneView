@@ -106,7 +106,7 @@ SEE ALSO
     https://github.com/HewlettPackard/POSH-HPOneView
     https://hpe-docs.gitbook.io/posh-hpeoneview
     http://hp.com/go/oneviewcommunity
-    Get-Help about_HPEOneView.660
+    Get-Help about_HPEOneView.700
     Get-Help about_Appliance_Connections
     Get-Help Push-OVAppliancePermission
     Get-Help Pop-OVAppliancePermission
