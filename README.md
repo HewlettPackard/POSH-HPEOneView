@@ -16,7 +16,7 @@ The major changes are:
 
 AppVeyor 7.10 Branch | AppVeyor 7.00 Branch | AppVeyor 6.60 Branch | AppVeyor 6.30 Branch
 -------------------- | -------------------- | -------------------- | ---------------------
-[![Build status][ov-master-build-status-badge]][ov-master-status-link] [![PS Gallery][ov-master-psgallery-badge]][ov-master-psgallery-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] [![PS Gallery][ov-minus1-psgallery-badge]][ov-minus1-psgallery-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] [![PS Gallery][ov-minus2-psgallery-badge]][ov-minus2-psgallery-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link] [![PS Gallery][ov-minus3-psgallery-badge]][ov-minus3-psgallery-link]
+[![Build status][ov-master-build-status-badge]][ov-master-build-link] [![PS Gallery][ov-master-psgallery-badge]][ov-master-psgallery-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] [![PS Gallery][ov-minus1-psgallery-badge]][ov-minus1-psgallery-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] [![PS Gallery][ov-minus2-psgallery-badge]][ov-minus2-psgallery-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link] [![PS Gallery][ov-minus3-psgallery-badge]][ov-minus3-psgallery-link]
 
 ## Getting started
 To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?LinkID=398573) Cmdlet to install from the PowerShell Gallery to your local system.
@@ -75,18 +75,18 @@ Still available, but not actively maintained Gitter.im chat room: [![Join the ch
 [ov-master-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.710.svg?label=PSGallery
 [ov-master-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.710
 <!-- 7.00 -->
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/5sd3kpd05knu3l7q7?svg=true
+[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/sd3kpd05knu3l7q7?svg=true
 [ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-dk4yu
 [ov-minus1-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.700.svg?label=PSGallery
 [ov-minus1-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.700
 <!-- 6.60 -->
-[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
-[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-6jhe9
+[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/a52cr3cdav90ff6q?svg=true
+[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-j5gwv
 [ov-minus2-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.660.svg?label=PSGallery
 [ov-minus2-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.660
 <!-- 6.30 -->
-[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/afrq6bvcenxf61i5?svg=true
-[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8tiw6
+[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/t0r1x79b9hnm328k?svg=true
+[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-il66a
 [ov-minus3-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.630.svg?label=PSGallery
 [ov-minus3-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.630
 
