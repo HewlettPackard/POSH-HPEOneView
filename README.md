@@ -14,13 +14,9 @@ The major changes are:
 
 ## Build status
 
-<<<<<<< HEAD
-AppVeyor 6.60 Branch | AppVeyor 6.30 Branch | AppVeyor 6.20 Branch | AppVeyor 6.10 Branch
-=======
-AppVeyor 6.30 Branch | AppVeyor 6.20 Branch | AppVeyor 6.10 Branch | AppVeyor 6.00 Branch
->>>>>>> 8ab22bd3822712bf6901c6d11de767091a822b0e
+AppVeyor 7.10 Branch | AppVeyor 7.00 Branch | AppVeyor 6.60 Branch | AppVeyor 6.30 Branch
 -------------------- | -------------------- | -------------------- | ---------------------
-[![Build status][ovm-master-build-status-badge]][ov-master-status-link] [![PS Gallery][ovm-master-psgallery-badge]][ovm-master-psgallery-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] [![PS Gallery][ov-minus1-psgallery-badge]][ov-minus1-psgallery-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] [![PS Gallery][ov-minus2-psgallery-badge]][ov-minus2-psgallery-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link] [![PS Gallery][ov-minus3-psgallery-badge]][ov-minus3-psgallery-link]
+[![Build status][ov-master-build-status-badge]][ov-master-build-link] [![PS Gallery][ov-master-psgallery-badge]][ov-master-psgallery-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] [![PS Gallery][ov-minus1-psgallery-badge]][ov-minus1-psgallery-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] [![PS Gallery][ov-minus2-psgallery-badge]][ov-minus2-psgallery-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link] [![PS Gallery][ov-minus3-psgallery-badge]][ov-minus3-psgallery-link]
 
 ## Getting started
 To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?LinkID=398573) Cmdlet to install from the PowerShell Gallery to your local system.
@@ -28,24 +24,17 @@ To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?Link
 ### For all supported PowerShell and PowerShellCore systems
 ```PowerShell
 # Install library from the PowerShell Gallery
-<<<<<<< HEAD
-Install-Module HPEOneView.660
+Install-Module HPEOneView.700
 
 # Load the module
-Import-Module HPEOneView.660
-=======
-Install-Module HPEOneView.630
-
-# Load the module
-Import-Module HPEOneView.630
->>>>>>> 8ab22bd3822712bf6901c6d11de767091a822b0e
+Import-Module HPEOneView.700
 
 # Connect to your appliance
 Connect-OVMgmt -Hostname MyAppliance.FQDN.Name -Credential $MyOneViewCredential
 ```
 
 ### Linux or Mac, including Windows Services for Linux (WSL)
-Windows Services for Linux (WSL) is tested and supported using the Ubuntu 18.04 image from the [Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab).  To test and use WSL, Windows 10 1709 (aka Windows 10 Creaters Fall Update) is required.  Please see [this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) Microsoft document for further instructions.
+Windows Services for Linux (WSL) is tested and supported using the Ubuntu 18.04 image from the [Windows Store](https://www.microsoft.com/en-us/p/ubuntu-1804-lts/9n9tngvndl3q?activetab=pivot:overviewtab).  To test and use WSL, Windows 10 1709 (aka Windows 10 Creaters Fall Update) or newer is required.  Please see [this](https://docs.microsoft.com/en-us/windows/wsl/install-win10) Microsoft document for further instructions.
 
 For Linux distributions and appliances with a CA signed/issued certificate, you will need to make sure the issuing CA, and CA chain, is exported to PEM format, and placed within the OS SSL cert trusts location.  For Ubuntu 18.04, you can:
 
@@ -80,49 +69,26 @@ Still available, but not actively maintained Gitter.im chat room: [![Join the ch
 
 <!-- markdown variables links -->
 [ReadTheManualLink]: https://hpe-docs.gitbook.io/posh-hpeoneview/
-<<<<<<< HEAD
+<!-- 7.10 -->
+[ov-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/2togihtcswqybheh?svg=true
+[ov-master-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8pqq2
+[ov-master-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.710.svg?label=PSGallery
+[ov-master-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.710
+<!-- 7.00 -->
+[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/sd3kpd05knu3l7q7?svg=true
+[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-dk4yu
+[ov-minus1-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.700.svg?label=PSGallery
+[ov-minus1-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.700
 <!-- 6.60 -->
-[ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
-[ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-6jhe9
-[ovm-master-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.660.svg?label=PSGallery
-[ovm-master-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.660
+[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/a52cr3cdav90ff6q?svg=true
+[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-j5gwv
+[ov-minus2-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.660.svg?label=PSGallery
+[ov-minus2-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.660
 <!-- 6.30 -->
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/afrq6bvcenxf61i5?svg=true
-[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8tiw6
-[ov-minus1-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.630.svg?label=PSGallery
-[ov-minus1-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.630
-<!-- 6.20 -->
-[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
-[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
-[ov-minus2-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.620.svg?label=PSGallery
-[ov-minus2-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.620
-<!-- 6.10 -->
-[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
-[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
-[ov-minus3-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPOneView.610.svg?label=PSGallery
-[ov-minus3-psgallery-link]: https://www.powershellgallery.com/packages/HPOneView.610
-=======
-<!-- 6.30 -->
-[ovm-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/5904s5hv3u9osgmh?svg=true
-[ov-master-status-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-6jhe9
-[ovm-master-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.630.svg?label=PSGallery
-[ovm-master-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.630
-<!-- 6.20 -->
-[ov-minus1-build-status-badge]: https://ci.appveyor.com/api/projects/status/afrq6bvcenxf61i5?svg=true
-[ov-minus1-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-8tiw6
-[ov-minus1-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.620.svg?label=PSGallery
-[ov-minus1-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.620
-<!-- 6.10 -->
-[ov-minus2-build-status-badge]: https://ci.appveyor.com/api/projects/status/u84505l6syp70013?svg=true
-[ov-minus2-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview
-[ov-minus2-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.610.svg?label=PSGallery
-[ov-minus2-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.610
-<!-- 6.00 -->
-[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/yeahhq0y4df1pymb?svg=true
-[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hponeview
-[ov-minus3-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPOneView.600.svg?label=PSGallery
-[ov-minus3-psgallery-link]: https://www.powershellgallery.com/packages/HPOneView.600
->>>>>>> 8ab22bd3822712bf6901c6d11de767091a822b0e
+[ov-minus3-build-status-badge]: https://ci.appveyor.com/api/projects/status/t0r1x79b9hnm328k?svg=true
+[ov-minus3-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-il66a
+[ov-minus3-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.630.svg?label=PSGallery
+[ov-minus3-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.630
 
 <!-- MISC DO NOT TOUCH -->
 [new-issue-badge-url]: https://img.shields.io/badge/issues-new-yellowgreen?style=flat&logo=github
