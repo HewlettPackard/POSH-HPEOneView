@@ -16,7 +16,7 @@ skip_commits:
 
 build_cloud: doc-hyp-cluster1
 image: win10-ent-worker
-clone_folder: C:\projects\HPEOneView.800
+clone_folder: C:\Projects\HPEOneView.800
 init:
 - pwsh: >-
     Write-Host "STARTING"
