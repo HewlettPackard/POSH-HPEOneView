@@ -1,7 +1,7 @@
-version: 7.20.{build}
+version: 8.00.{build}
 branches:
   only:
-  - 7.20
+  - 8.00
 skip_tags: true
 skip_commits:
   files:
@@ -16,7 +16,7 @@ skip_commits:
 
 build_cloud: doc-hyp-cluster1
 image: win10-ent-worker
-clone_folder: C:\projects\HPEOneView.720
+clone_folder: C:\projects\HPEOneView.800
 init:
 - pwsh: >-
     Write-Host "STARTING"
@@ -42,7 +42,7 @@ notifications:
 - provider: Email
   to:
   - chris.lynch@hpe.com
-  subject: POSH-HPEOneView.720 AppVeyor Results
+  subject: POSH-HPEOneView.800 AppVeyor Results
   on_build_success: true
   on_build_failure: true
   on_build_status_changed: false
