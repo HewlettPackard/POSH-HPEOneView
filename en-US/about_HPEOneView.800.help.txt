@@ -32,7 +32,7 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
-   Release 8.00.3327.2537
+   Release 8.00.3327.2540
 
       -- Initial HPE OneView 8.00 library release.
       -- Removed support for HPE Insight Online, as it is now a deprecated service.
