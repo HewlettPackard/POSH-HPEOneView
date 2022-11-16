@@ -3437,5 +3437,72 @@
         </ListEntries>
       </ListControl>
     </View>
+    <!-- HPEOneView.Networking.RemotePortMonitor FT-->
+    <View>
+      <Name>RemotePortMonitor</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Networking.RemotePortMonitor</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <!-- <AutoSize/> -->
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>NetworkName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>AnalyzerPort</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MonitoredPorts</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <Wrap/>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>NetworkName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>AnalyzerPort</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>MonitoredPorts</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!-- HPEOneView.Networking.RemotePortMonitor Fl-->
+    <View>
+      <Name>RemotePortMonitor</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Networking.RemotePortMonitor</TypeName>
+      </ViewSelectedBy>
+      <ListControl>
+        <ListEntries>
+          <ListEntry>
+            <ListItems>
+              <ListItem>
+                <Label>NetworkName</Label>
+                <PropertyName>NetworkName</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>AnalyzerPort</Label>
+                <PropertyName>AnalyzerPort</PropertyName>
+              </ListItem>
+              <ListItem>
+                <Label>MonitoredPorts</Label>
+                <PropertyName>MonitoredPorts</PropertyName>
+              </ListItem>
+            </ListItems>
+          </ListEntry>
+        </ListEntries>
+      </ListControl>
+    </View>
   </ViewDefinitions>
 </Configuration>

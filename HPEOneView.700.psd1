@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.700.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.00.3307.2893'
+ModuleVersion = '7.00.3333.2084'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -160,20 +160,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 7.00.3307.2894
+        ReleaseNotes = "Release 7.00.3333.2084
 
-- Initial HPE OneView 7.00 library release.
-- All HPE BladeSystem c-Class features have been removed from the library. This aligns with the removed features in HPE OneView 7.00 for c-Class resources.
-- Added back BNA support after mistakenly removing.
-- Fixed Get-OVNetwork returning all index resources when -Type FC parameter was provided.
-- Added password property redaction method to hide passwords when using -Verbose output.
-- Fixed PowerShell platform detection when attempting to identify .Net client installed.
-- [#614] Addressed issue with iLO self-signed certificate handling within PowerShell Core.
-- Changes to New-OVServerProfileLogicalDiskController and the -ControllerID parameter now has a new enum list that doesn't allow spaces in the parameter value. Prior, 'Mezz 1' was an allowed value, it must now be 'Mezz1'.
-- Updated New-OVServerProfileLogicalDiskController by adding spare drive policy parameter to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
-- Updated New-OVServerProfileLogicalDisk by adding add spare drive parameter to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
-- Removed StoreVirtual support due to the removal of support from HPE OneView 7.0.
-- Added Cmdlets to help manage appliance static routes.  Only supported with virtual machine appliance, and not HPE Synergy Composer."
+- [#615] Added missing health category to Get-OVAlert.
+- Removed support for HPE Insight Online, as it is now a deprecated service.
+- Enhanced Enable-OVLogicalInterconnectPortMonitoring to support remote sessions."
 
         # Prerelease string of this module
         # Prerelease = ''

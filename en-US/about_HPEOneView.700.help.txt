@@ -32,6 +32,12 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 7.00.3333.2084
+
+      -- [#615] Added missing health category to Get-OVAlert.
+      -- Removed support for HPE Insight Online, as it is now a deprecated service.
+      -- Enhanced Enable-OVLogicalInterconnectPortMonitoring to support remote sessions.
+
    Release 7.00.3307.2894
 
       -- Initial HPE OneView 7.00 library release.

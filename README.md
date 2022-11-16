@@ -24,10 +24,10 @@ To get started, use the [`Install-Module`](https://go.microsoft.com/fwlink/?Link
 ### For all supported PowerShell and PowerShellCore systems
 ```PowerShell
 # Install library from the PowerShell Gallery
-Install-Module HPEOneView.700
+Install-Module HPEOneView.710
 
 # Load the module
-Import-Module HPEOneView.700
+Import-Module HPEOneView.710
 
 # Connect to your appliance
 Connect-OVMgmt -Hostname MyAppliance.FQDN.Name -Credential $MyOneViewCredential
