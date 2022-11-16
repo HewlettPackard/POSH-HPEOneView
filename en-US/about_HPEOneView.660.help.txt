@@ -32,6 +32,29 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 6.60.3332.3428
+
+      -- [#615] Added missing health category to Get-OVAlert.
+      -- [#614] Addressed issue with iLO self-signed certificate handling within PowerShell Core.
+      -- Changes to New-OVServerProfileLogicalDiskController and the -ControllerID parameter now
+         has a new enum list that doesn't allow spaces in the parameter value. Prior, "Mezz 1" was
+         an allowed value, it must now be "Mezz1".
+      -- Updated New-OVServerProfileLogicalDiskController by adding spare drive policy parameter
+         to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
+      -- Updated New-OVServerProfileLogicalDisk by adding add spare drive parameter to manage spare
+         drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
+      -- Added Cmdlets to help manage appliance static routes.  Only supported with virtual machine
+         appliance, and not HPE Synergy Composer.
+      -- Removed support for HPE Insight Online, as it is now a deprecated service.
+
+   Release 6.60.3234.2195
+
+      -- Added back BNA support after mistakenly removing.
+      -- Fixed Get-OVNetwork returning all index resources when -Type FC parameter was provided.
+      -- Added password property redaction method to hide passwords when using -Verbose output.
+      -- Fixed PowerShell platform detection when attempting to identify .Net client installed.
+      -- Fixed Copy-OVServerProfile to handle local storage configuration changes.
+
    Release 6.60.3227.2799
 
       -- Initial HPE OneView 6.60 library release.

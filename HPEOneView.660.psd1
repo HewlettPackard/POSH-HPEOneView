@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.660.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.60.3227.2799'
+ModuleVersion = '6.60.3332.3428'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,16 +155,15 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 6.60.3227.2799
+        ReleaseNotes = "Release 6.60.3332.3428
 
-- Initial HPE OneView 6.60 library release.
-- [#610] Fixed Get-OVServerProfileConnectionList to support unassigned network connections
-- [#512] Updated removing network set logic to appropriately handle removing associated networks, except when the associated network is assigned to another network set.
-- Added NFSPath parameter to New-OVExternalRepository to support RMC firmware updates.
-- Refactored Set-OVExternalRepository to use PATCH API call.
-- Added -FirmwareInstallationPolicy switch to New-OVServerProfile and New-OVServerProfileTemplate Cmdlets.
-- Removed "Brocade", "BNA", and "Brocade Network Advisor" from the -Type parameter in Add-OVSanManager Cmdlet as Brocade SAN Network Advisor is no longer supported with HPE OneView.
-- The HPE OneView 6.60 release is an LTS release for HPE BladeSystem customers.  Associated Cmdlets to manage HPE BladeSystem c-Class resources are deprecated and will be removed in the following release.  This will not impact HPE Synergy customers.  Deprecated Cmdlets will display a warning message.'
+- [#615] Added missing health category to Get-OVAlert.
+- [#614] Addressed issue with iLO self-signed certificate handling within PowerShell Core.
+- Changes to New-OVServerProfileLogicalDiskController and the -ControllerID parameter now has a new enum list that doesn't allow spaces in the parameter value. Prior, 'Mezz 1' was an allowed value, it must now be 'Mezz1'.
+- Updated New-OVServerProfileLogicalDiskController by adding spare drive policy parameter to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
+- Updated New-OVServerProfileLogicalDisk by adding add spare drive parameter to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
+- Added Cmdlets to help manage appliance static routes.  Only supported with virtual machine appliance, and not HPE Synergy Composer.
+- Removed support for HPE Insight Online, as it is now a deprecated service."
 
         # Prerelease string of this module
         # Prerelease = ''
