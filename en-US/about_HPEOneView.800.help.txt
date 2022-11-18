@@ -32,6 +32,13 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 8.00.3334.2865
+
+      -- Fixed Get-OVRackManager mishandling API responses.
+      -- Updated Get-OVRackManager and the returned classes HPEOneView.Servers.RackManager,
+         and HPEOneView.Servers.Partition (part of the SubResources.Partitions collection)
+         to report firmware versions correctly.
+
    Release 8.00.3327.2540
 
       -- Initial HPE OneView 8.00 library release.

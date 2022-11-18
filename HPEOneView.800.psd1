@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.800.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.0.3327.2540'
+ModuleVersion = '8.00.3334.2865'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,10 +156,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.00.3327.2540
+        ReleaseNotes = 'Release 8.00.3334.2865
 
-- Initial HPE OneView 8.00 library release.
-- Removed support for HPE Insight Online, as it is now a deprecated service.'
+- Fixed Get-OVRackManager mishandling API responses.
+- Updated Get-OVRackManager and the returned classes HPEOneView.Servers.RackManager, and HPEOneView.Servers.Partition (part of the SubResources.Partitions collection) to report firmware versions correctly.'
 
         # Prerelease string of this module
         # Prerelease = ''
