@@ -32,6 +32,14 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 6.60.3348.1441
+
+      -- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned
+         connections.
+      -- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+      -- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN)
+         and status.
+
    Release 6.60.3332.3428
 
       -- [#615] Added missing health category to Get-OVAlert.

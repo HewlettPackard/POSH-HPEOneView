@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.660.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.60.3332.3428'
+ModuleVersion = '6.60.3348.1441'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,15 +155,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 6.60.3332.3428
+        ReleaseNotes = "Release 6.60.3348.1441
 
-- [#615] Added missing health category to Get-OVAlert.
-- [#614] Addressed issue with iLO self-signed certificate handling within PowerShell Core.
-- Changes to New-OVServerProfileLogicalDiskController and the -ControllerID parameter now has a new enum list that doesn't allow spaces in the parameter value. Prior, 'Mezz 1' was an allowed value, it must now be 'Mezz1'.
-- Updated New-OVServerProfileLogicalDiskController by adding spare drive policy parameter to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
-- Updated New-OVServerProfileLogicalDisk by adding add spare drive parameter to manage spare drive policy with HPE Synergy D3940 and Gen10 or newer controllers.
-- Added Cmdlets to help manage appliance static routes.  Only supported with virtual machine appliance, and not HPE Synergy Composer.
-- Removed support for HPE Insight Online, as it is now a deprecated service."
+- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
+- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status."
 
         # Prerelease string of this module
         # Prerelease = ''
