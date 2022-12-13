@@ -32,6 +32,16 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 7.00.3360.1593
+
+      -- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned
+         connections.
+      -- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+      -- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN)
+         and status.
+      -- [#623] Added Set-OVRack Cmdlet to edit existing rack resources.
+      -- [#625] Refactored New-OVDataCenter to handle mandatory parameters.
+
    Release 7.00.3333.2084
 
       -- [#615] Added missing health category to Get-OVAlert.

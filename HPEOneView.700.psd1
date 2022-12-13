@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.700.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.00.3333.2084'
+ModuleVersion = '7.00.3360.1593'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -160,11 +160,13 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 7.00.3333.2084
+        ReleaseNotes = "Release 7.00.3360.1593
 
-- [#615] Added missing health category to Get-OVAlert.
-- Removed support for HPE Insight Online, as it is now a deprecated service.
-- Enhanced Enable-OVLogicalInterconnectPortMonitoring to support remote sessions."
+- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
+- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.
+- [#623] Added Set-OVRack Cmdlet to edit existing rack resources.
+- [#625] Refactored New-OVDataCenter to handle mandatory parameters."
 
         # Prerelease string of this module
         # Prerelease = ''
