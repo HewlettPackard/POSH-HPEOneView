@@ -4,7 +4,7 @@ TOPIC
 
 COPYRIGHT
 
-    (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
 
 LICENSE
 
@@ -31,6 +31,19 @@ SHORT DESCRIPTION
     PowerShell library for HPE OneView 7.20
 
 WHAT'S NEW
+
+   Release 7.20.3389.2614
+
+      -- Removed support for HPE Insight Online, as it is now a deprecated service.
+      -- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned
+         connections.
+      -- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+      -- [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling
+         Synergy frame resources.
+      -- [#631] Fixed Update-OVServerFirmware handling of system ROM component version not
+         converting to Symentic version.
+      -- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU
+         and LAN) and status.
 
    Release 7.20.3325.2416
 

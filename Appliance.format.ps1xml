@@ -5007,5 +5007,58 @@
         </TableRowEntries>
       </TableControl>
     </View>
+    <!--HPEOneView.Appliance.ApplianceStatu FT-->
+    <View>
+      <Name>ApplianceStatus</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.ApplianceStatus</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ApplianceConnection</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CPUSpeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Memory</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LinkSpeed</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Uptime</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ApplianceConnection</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0:#.##} GHz" -f $_.CPUSpeed</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPEOneView.Utilities.Library]::IntToStorageString($_.Memory)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPEOneView.Utilities.Library]::BandwidthAsFormattedString($_.LinkSpeed)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} Days, {1} Hours, {2} Minutes" -f $_.Uptime.Days, $_.Uptime.Hours, $_.Uptime.Minutes </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
   </ViewDefinitions>
 </Configuration>

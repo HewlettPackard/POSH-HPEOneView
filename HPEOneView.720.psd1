@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.720.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.20.3325.2416'
+ModuleVersion = '7.20.3389.2614'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -156,13 +156,14 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 7.20.3325.2416
+        ReleaseNotes = 'Release 7.20.3389.2614
 
-- Initial HPE OneView 7.20 library release.
-- Added Install-OVServerFirmware Cmdlet to install offline SPP to Gen10 and newer volume server platforms (aka non-HPE Synergy).
-- Updated Install-OVApplianceCertificate to support PKCS#12 certificate upload.
-- Removed Base64 cert support from -Path variable in Install-OVApplianceCertificate Cmdlet.
-- Updated Send-OVRequest HTTP 405 error handling to return error message from API.'
+- Removed support for HPE Insight Online, as it is now a deprecated service.
+- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
+- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+- [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling Synergy frame resources.
+- [#631] Fixed Update-OVServerFirmware handling of system ROM component version not converting to Symentic version.
+- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.'
 
         # Prerelease string of this module
         # Prerelease = ''
