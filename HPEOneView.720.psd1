@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.720.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.20.3389.2614'
+ModuleVersion = '7.20.3391.2120'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,13 +156,15 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 7.20.3389.2614
+        ReleaseNotes = 'Release 7.20.3391.2120
 
 - Removed support for HPE Insight Online, as it is now a deprecated service.
 - [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
 - [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+- [#625] Refactored New-OVDataCenter to handle mandatory parameters.
 - [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling Synergy frame resources.
 - [#631] Fixed Update-OVServerFirmware handling of system ROM component version not converting to Symentic version.
+- [#631] Fixed returning baseline preview to pipeline without specifying the -PreviewOnly parameter.  Baseline preview will be displayed to console as non-capturable text.
 - Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.'
 
         # Prerelease string of this module
