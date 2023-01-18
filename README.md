@@ -10,7 +10,7 @@ The major changes are:
 * Changing `HPOneView_Classes` class module from targeting DotNet Framework 4.6 to DotNet Standard 2.0.  This will require DotNet Framework 4.7.1 for Windows at a minimum, which means Windows 10 1709 or newer will be required.  It also means that Windows Management Framework 4.0 is no longer supported.
 * Support Windows PowerShell 5.1 and 7.x for Windows, and PowerShellCore 7.x for Mac and Linux.
 * Unified library for the supported PowerShell and PowerShellCore versions.
-* Withe the deprecation of PowerShell 4.0, the EXE installer is also deprecated.  Microsoft provides built-in PowerShellGet support to save published modules from PowerShell Gallery, by using the [`Save-Module`](https://go.microsoft.com/fwlink/?LinkId=531351) Cmdlet.
+* With the deprecation of PowerShell 4.0, the EXE installer is also deprecated.  Microsoft provides built-in PowerShellGet support to save published modules from PowerShell Gallery, by using the [`Save-Module`](https://go.microsoft.com/fwlink/?LinkId=531351) Cmdlet.
 
 ## Build status
 

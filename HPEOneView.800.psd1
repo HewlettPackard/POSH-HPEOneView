@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.800.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.00.3334.2865'
+ModuleVersion = '8.00.3396.2206'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -156,10 +156,15 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.00.3334.2865
+        ReleaseNotes = 'Release 8.00.3396.2206
 
-- Fixed Get-OVRackManager mishandling API responses.
-- Updated Get-OVRackManager and the returned classes HPEOneView.Servers.RackManager, and HPEOneView.Servers.Partition (part of the SubResources.Partitions collection) to report firmware versions correctly.'
+- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
+- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+- [#625] Refactored New-OVDataCenter to handle mandatory parameters.
+- [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling Synergy frame resources.
+- [#631] Fixed Update-OVServerFirmware handling of system ROM component version not converting to Symentic version.
+- [#631] Fixed returning baseline preview to pipeline without specifying the -PreviewOnly parameter.  Baseline preview will be displayed to console as non-capturable text.
+- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.'
 
         # Prerelease string of this module
         # Prerelease = ''
