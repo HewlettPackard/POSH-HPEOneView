@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.710.psm1'
 
 # Version number of this module.
-ModuleVersion = '7.10.3320.2952'
+ModuleVersion = '7.10.3396.2936'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -161,14 +161,15 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 7.10.3320.2952
+        ReleaseNotes = 'Release 7.10.3396.2936
 
-        - Initial HPE OneView 7.10 library release.
-        - Added Alletra 5k storage system support to Add-OVStorageSystem.
-        - Added RetainStorageConfig switch parameter to Remove-OVServerProfile to retain shared storage configuration when the server profile resource is deleted from the appliance.
-        - Enhanced Enable-OVLogicalInterconnectPortMonitoring to support remote sessions.
-        - [#615] Added Security to the Get-OVAlert -HealthCategory parameter.
-        - [#617] Added support for interconnects with Get-OVRemoteSupportSetting.'
+- Removed support for HPE Insight Online, as it is now a deprecated service.
+- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
+- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
+- [#623] Added Set-OVRack to modify the properties of a created rack resource.
+- [#625] Refactored New-OVDataCenter to handle mandatory parameters.
+- [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling Synergy frame resources.
+- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.'
 
         # Prerelease string of this module
         # Prerelease = ''

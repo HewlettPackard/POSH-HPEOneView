@@ -1944,5 +1944,69 @@
         </TableRowEntries>
       </TableControl>
     </View>
+
+    <!-- HPEOneView.Servers.ServerHardware+FirmwareCompliancePreview -->
+    <View>
+      <Name>FirmwareCompliancePreview</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.ServerHardware+FirmwareCompliancePreview</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ComponentName</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Location</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>InstalledVersion</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>BaselineVersion</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Operation</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>UpdateRequired</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ComponentName</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Location</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>InstalledVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>BaselineVersion</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Operation</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>UpdateRequired</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
+
   </ViewDefinitions>
 </Configuration>
