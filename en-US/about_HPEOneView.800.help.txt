@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 8.00.3439.1646
+
+      -- HPE ImageStreamer Cmdlets and helper Cmdlets are not deprecated and obsolete.
+         They will be removed from the next major library release.
+      -- Fixed regression in Reset-OVEnclosureDevice preventing HPE Synergy power operations.
+      -- Changed Obslete message for deprecated HPE BladeSystem c-Class features with a
+         terminating exception.  The new exception class is
+         [HPEOneView.Library.UnsupportedOperationException].
+
    Release 8.00.3396.2206
 
       -- [#621] Fixed regression with New-OVServerProfileConnection and handling
@@ -47,6 +56,7 @@ WHAT'S NEW
          -PreviewOnly parameter.  Baseline preview will be displayed to console as non-capturable text.
       -- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration
          (memory, CPU and LAN) and status.
+      -- [#623] Added Set-OVRack to modify the properties of a created rack resource.
 
    Release 8.00.3334.2865
 
