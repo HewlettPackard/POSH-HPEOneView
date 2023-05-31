@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.800.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.00.3439.1646'
+ModuleVersion = '8.00.3528.2178'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -51,7 +51,7 @@ Copyright = '    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development 
 Description = 'HPE OneView PowerShell Library'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '7.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -156,15 +156,14 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.00.3396.2206
+        ReleaseNotes = 'Release 8.00.3528.2178
 
-- [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
-- [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
-- [#625] Refactored New-OVDataCenter to handle mandatory parameters.
-- [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling Synergy frame resources.
-- [#631] Fixed Update-OVServerFirmware handling of system ROM component version not converting to Symentic version.
-- [#631] Fixed returning baseline preview to pipeline without specifying the -PreviewOnly parameter.  Baseline preview will be displayed to console as non-capturable text.
-- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.'
+- [#633] Fixed mishandling of network sets when assigned to a profile connection and processing with ConvertTo-OVPowerShellScript.
+- [#634] Fixed missing -IloHostname parameter in ConvertTo-OVPowerShellScript when processing either a server profile template or server profile object.
+- [#637] Fixed generating user role output in ConvertTo-OVPowerShellScript.
+- [#638] Fixed Set-OVNetworkSet inadvertantly trying to change the network set type to REGULAR.
+- Added workaround to supporting Gen10 Plus V2 platforms and supporting firmware management.
+- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.'
 
         # Prerelease string of this module
         # Prerelease = ''

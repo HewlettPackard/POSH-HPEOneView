@@ -32,6 +32,21 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 8.00.3528.2178
+
+      -- Support for PowerShell 5 and 6 is now deprecated and no longer supported.
+      -- [#633] Fixed mishandling of network sets when assigned to a profile
+         connection and processing with ConvertTo-OVPowerShellScript.
+      -- [#634] Fixed missing -IloHostname parameter in ConvertTo-OVPowerShellScript
+         when processing either a server profile template or server profile object.
+      -- [#637] Fixed generating user role output in ConvertTo-OVPowerShellScript.
+      -- [#638] Fixed Set-OVNetworkSet inadvertantly trying to change the network set
+         type to REGULAR.
+      -- Added workaround to supporting Gen10 Plus V2 platforms and supporting
+         firmware management.
+      -- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support
+         entitlement data with the backend.
+
    Release 8.00.3439.1646
 
       -- HPE ImageStreamer Cmdlets and helper Cmdlets are not deprecated and obsolete.
