@@ -4,7 +4,7 @@
 #
 #   VERSION 3.00
 #
-# (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
 ##############################################################################
 # The information contained herein is subject to change without notice.
 # The only warranties for HP products and services are set forth in the

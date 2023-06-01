@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.660.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.60.3348.1441'
+ModuleVersion = '6.60.3530.1622'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -155,11 +155,18 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 6.60.3348.1441
+        ReleaseNotes = "Release 6.60.3530.1622
 
 - [#621] Fixed regression with New-OVServerProfileConnection and handling unassigned connections.
 - [#622] Fixed issue with Get-OVComposerIloStatus returning a null value to the pipeline.
-- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status."
+- Added Get-OVApplianceStatus Cmdlet to get appliance resource configuration (memory, CPU and LAN) and status.
+- [#625] Refactored New-OVDataCenter to handle mandatory parameters.
+- [#630] Fixed regression in Get-OVEnclosureGroup and Reset-OVEnclosureDevice mishandling Synergy frame resources.
+- [#633] Fixed mishandling of network sets when assigned to a profile connection and processing with ConvertTo-OVPowerShellScript.
+- [#634] Fixed missing -IloHostname parameter in ConvertTo-OVPowerShellScript when processing either a server profile template or server profile object.
+- [#637] Fixed generating user role output in ConvertTo-OVPowerShellScript.
+- [#638] Fixed Set-OVNetworkSet inadvertantly trying to change the network set type to REGULAR.
+- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend."
 
         # Prerelease string of this module
         # Prerelease = ''

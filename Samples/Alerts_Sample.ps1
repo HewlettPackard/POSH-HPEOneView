@@ -5,7 +5,7 @@
 #
 #   VERSION 3.1
 #
-# (C) Copyright 2013-2022 Hewlett Packard Enterprise Development LP
+# (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 Permission is hereby granted, free of charge, to any person obtaining a copy
