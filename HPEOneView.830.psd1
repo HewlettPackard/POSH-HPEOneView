@@ -51,7 +51,7 @@ Copyright = '    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development 
 Description = 'HPE OneView PowerShell Library'
 
 # Minimum version of the PowerShell engine required by this module
-PowerShellVersion = '5.1'
+PowerShellVersion = '7.0'
 
 # Name of the PowerShell host required by this module
 # PowerShellHostName = ''
@@ -156,13 +156,11 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.30.3515.1690
+        ReleaseNotes = 'Release 8.30.3534.1611
 
-- Initial HPE OneView 8.30 library release.
-- [#633] Fixed mishandling of network sets when assigned to a profile connection and processing with ConvertTo-OVPowerShellScript.
-- [#634] Fixed missing -IloHostname parameter in ConvertTo-OVPowerShellScript when processing either a server profile template or server profile object.
-- [#637] Fixed generating user role output in ConvertTo-OVPowerShellScript.
-- [#638] Fixed Set-OVNetworkSet inadvertantly trying to change the network set type to REGULAR.'
+- Support for PowerShell 5 and 6 is now deprecated and is no longer supported.
+- Added workaround to supporting Gen10 Plus V2 platforms and supporting firmware management.
+- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.'
 
         # Prerelease string of this module
         # Prerelease = ''

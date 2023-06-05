@@ -32,6 +32,14 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 8.30.3534.1611
+
+      -- Support for PowerShell 5 and 6 is now deprecated and is no longer supported.
+      -- Added workaround to supporting Gen10 Plus V2 platforms and supporting
+         firmware management.
+      -- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support
+         entitlement data with the backend.
+
    Release 8.30.3515.1690
 
       -- Initial HPE OneView 8.30 library release.
