@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.830.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.30.3515.1690'
+ModuleVersion = '8.30.3534.1611'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
