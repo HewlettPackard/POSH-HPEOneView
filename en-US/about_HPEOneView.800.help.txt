@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 8.00.3642.2784
+
+      -- [#647] Fixed ConvertTo-OVPowerShellScript mishandling BIOS consistency
+         policy when parsing a server profile template.
+      -- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support
+         entitlement data with the backend.
+      -- Updated core library to handle web proxy in a more efficient method.
+      -- Updated core library to use TLS1.2 only.
+
    Release 8.00.3528.2178
 
       -- Support for PowerShell 5 and 6 is now deprecated and no longer supported.
@@ -44,8 +53,6 @@ WHAT'S NEW
          type to REGULAR.
       -- Added workaround to supporting Gen10 Plus V2 platforms and supporting
          firmware management.
-      -- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support
-         entitlement data with the backend.
 
    Release 8.00.3439.1646
 

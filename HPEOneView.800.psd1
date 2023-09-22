@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.800.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.00.3528.2178'
+ModuleVersion = '8.00.3642.2784'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,14 +156,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.00.3528.2178
+        ReleaseNotes = 'Release 8.00.3642.2784
 
-- [#633] Fixed mishandling of network sets when assigned to a profile connection and processing with ConvertTo-OVPowerShellScript.
-- [#634] Fixed missing -IloHostname parameter in ConvertTo-OVPowerShellScript when processing either a server profile template or server profile object.
-- [#637] Fixed generating user role output in ConvertTo-OVPowerShellScript.
-- [#638] Fixed Set-OVNetworkSet inadvertantly trying to change the network set type to REGULAR.
-- Added workaround to supporting Gen10 Plus V2 platforms and supporting firmware management.
-- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.'
+- [#647] Fixed ConvertTo-OVPowerShellScript mishandling BIOS consistency policy when parsing a server profile template.
+- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.
+- Updated core library to handle web proxy in a more efficient method.
+- Updated core library to use TLS1.2 only.'
 
         # Prerelease string of this module
         # Prerelease = ''
