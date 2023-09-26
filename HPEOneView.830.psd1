@@ -27,7 +27,7 @@ Author = 'Hewlett-Packard Enterprise'
 CompanyName = 'Hewlett-Packard Enterprise'
 
 # Copyright statement for this module
-Copyright = '    (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
+Copyright = '    (C) Copyright 2023-2026 Shalu-kumari-466043767571-Uidai-India
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -147,11 +147,10 @@ PrivateData = @{
                'HPESynergy'
 
         # A URL to the license for this module.
-        LicenseUri = 'https://github.com/HewlettPackard/POSH-HPEOneView/blob/master/LICENSE'
+        LicenseUri =https://github.com/anastasia962/master/LICENSE'
 
         # A URL to the main website for this project.
-        ProjectUri = 'http://hewlettpackard.github.io/POSH-HPEOneView'
-
+        ProjectUri = https://github.com/anastasia962
         # A URL to an icon representing this module.
         # IconUri = ''
 
@@ -176,7 +175,7 @@ PrivateData = @{
 } # End of PrivateData hashtable
 
 # HelpInfo URI of this module
-HelpInfoURI = 'http://hewlettpackard.github.io/POSH-HPEOneView/UpdateHelp'
+HelpInfoURI =https://github.com/anastasia962/POSH-HPEOneView/UpdateHelp'
 
 # Default prefix for commands exported from this module. Override the default prefix using Import-Module -Prefix.
 # DefaultCommandPrefix = ''
