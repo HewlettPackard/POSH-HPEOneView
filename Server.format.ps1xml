@@ -1945,6 +1945,74 @@
       </TableControl>
     </View>
 
+    <!-- HPEOneView.Servers.PhysicalDrive -->
+    <View>
+      <Name>PhysicalDrive</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Servers.PhysicalDrive</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Location</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Model</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Capacity</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DriveTechnology</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>IsAllocated</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>FailurePredicted</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LifeRemaining</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Location</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Model</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>[HPEOneView.Utilities.Library]::IntToStorageString($_.Capacity)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>DriveTechnology</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>IsAllocated</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>FailurePredicted</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}%" -f $_.LifeRemaining</ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
     <!-- HPEOneView.Servers.ServerHardware+FirmwareCompliancePreview -->
     <View>
       <Name>FirmwareCompliancePreview</Name>

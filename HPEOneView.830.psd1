@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.830.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.30.3534.1611'
+ModuleVersion = '8.30.3660.2366'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,11 +156,13 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.30.3534.1611
+        ReleaseNotes = 'Release 8.30.
 
-- Support for PowerShell 5 and 6 is now deprecated and is no longer supported.
-- Added workaround to supporting Gen10 Plus V2 platforms and supporting firmware management.
-- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.'
+- [#647] Fixed ConvertTo-OVPowerShellScript mishandling BIOS consistency policy when parsing a server profile template.
+- [#642] Fixed incorrect use of internal variable within Update-OVServerFirmware.
+- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.
+- Updated core library to handle web proxy in a more efficient method.
+- Updated core library to use TLS1.2 only.'
 
         # Prerelease string of this module
         # Prerelease = ''
