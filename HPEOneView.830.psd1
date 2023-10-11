@@ -156,11 +156,17 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 8.30.
+        ReleaseNotes = 'Release 8.30.3660.2366
 
 - [#647] Fixed ConvertTo-OVPowerShellScript mishandling BIOS consistency policy when parsing a server profile template.
 - [#642] Fixed incorrect use of internal variable within Update-OVServerFirmware.
+- [#654] Fixed ConvertTo-OVPowerShellScript mishandling Tunnel uplink set resources.
+- [#656] Fixed parameter evaluation bug with Update-OVServerProfile and the -Stage parameter.
 - Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.
+- Added MegaRAID support to New-OVServerProfileLogicalDiskController.
+- Added Get-OVServerHardwareAvailableController to return discovered disk drive controllers for volume servers (DL, ML, Apollo) and drives.  New classes added HPEOneView.Servers.StorageController and HPEOneView.Servers.PhysicalDrive.
+- Added the ability to specify controller returned from Get-OVServerHardwareAvailableController.
+- Added the ability to specify specific drives in New-OVServerProfileLogicalDisk after invoking Get-OVServerHardwareAvailableController to get list of controllers and available drives that are part of the HPEOneView.Servers.StorageController.Drives property.
 - Updated core library to handle web proxy in a more efficient method.
 - Updated core library to use TLS1.2 only.'
 
