@@ -3,7 +3,6 @@
 ###################
 "Build Scripts/MamlOneViewHelpFiles/**"
 "/Build Scripts/GitHub Documentation/**"
-*.md
 *.zip
 .vscode
 signed/
