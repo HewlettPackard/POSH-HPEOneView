@@ -71,8 +71,8 @@ Still available, but not actively maintained Gitter.im chat room: [![Join the ch
 [ReadTheManualLink]: https://hpe-docs.gitbook.io/posh-hpeoneview/
 
 <!-- 8.50 -->
-[ov-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/v0fr443ttv7d162q?svg=true
-[ov-master-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-kr9vk
+[ov-master-build-status-badge]: https://ci.appveyor.com/api/projects/status/4c2t5na71npdhqnx?svg=true
+[ov-master-build-link]: https://ci.appveyor.com/project/ChrisLynchHPE/posh-hpeoneview-wrymm
 [ov-master-psgallery-badge]: https://img.shields.io/powershellgallery/dt/HPEOneView.850.svg?label=PSGallery
 [ov-master-psgallery-link]: https://www.powershellgallery.com/packages/HPEOneView.850
 

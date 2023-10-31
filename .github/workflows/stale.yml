@@ -1,0 +1,19 @@
+name: "Stale issue handler"
+on:
+  workflow_dispatch:
+  schedule:
+  cron: "0 */12 * * *" # Run the job every 12 hours
+
+jobs:
+  stale:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/stale@v3.0.14
+      with:
+        repo-token: ${{ secrets.GITHUB_TOKEN }}
+        stale-issue-message: 'This issue is stale because it has been open 60 or more days with no activity. Remove stale label or comment or this will be closed in 7 days.'
+        close-issue-message: 'This stale issue is being closed, because it has been open for 60 or more days with no further activity.  If you feel this is in error, please add a comment or re-open the issue.'
+        days-before-stale: 60
+        days-before-close: 7
+        close-issue-label: Stale-Closed
+        operations-per-run: 250
