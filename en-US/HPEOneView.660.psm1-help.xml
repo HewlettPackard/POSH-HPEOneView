@@ -388,6 +388,13 @@ Minimum required privileges: Infrastructure administrator, Network administrator
 					<command:parameterValue required="False" variableLength="False">Array</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>UseInvokeWebRequest</maml:name>
+					<maml:description>
+						<maml:para>Use to override the libraries default use of System.Net.WebRequest .Net class support for syncronously uploading a file.  This parameter should only be used when uploading baselines larger than 2GB.  Using this parameter will not display any status progress during file transfer.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Async</maml:name>
 					<maml:description>
 						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
@@ -450,6 +457,17 @@ Minimum required privileges: Infrastructure administrator, Network administrator
 				<command:parameterValue required="False" variableLength="False">HPEOneView.Appliance.ScopeCollection[]</command:parameterValue>
 				<dev:type>
 					<maml:name>HPEOneView.Appliance.ScopeCollection[]</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>UseInvokeWebRequest</maml:name>
+				<maml:description>
+					<maml:para>Use to override the libraries default use of System.Net.WebRequest .Net class support for syncronously uploading a file.  This parameter should only be used when uploading baselines larger than 2GB.  Using this parameter will not display any status progress during file transfer.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
@@ -10610,6 +10628,20 @@ Minimum required privileges: Infrastructure administrator, Server administrator,
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>WhatIf</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False" />
+				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Confirm</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False" />
+				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
@@ -10636,6 +10668,17 @@ Minimum required privileges: Infrastructure administrator, Server administrator,
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="cf">
+				<maml:name>Confirm</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False" />
+				<dev:type>
+					<maml:name />
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="True" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="None">
 				<maml:name>InputObject</maml:name>
 				<maml:description>
@@ -10644,6 +10687,17 @@ Minimum required privileges: Infrastructure administrator, Server administrator,
 				<command:parameterValue required="True" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="wi">
+				<maml:name>WhatIf</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False" />
+				<dev:type>
+					<maml:name />
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -20194,6 +20248,13 @@ Default Value: (PWD).Path</maml:para>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="(All)">
+					<maml:name>Passthru</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
 			</command:syntaxItem>
 		</command:syntax>
 		<command:parameters>
@@ -20212,6 +20273,17 @@ Default Value: (PWD).Path</maml:para>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>(pwd).path</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
+				<maml:name>Passthru</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue />
 			</command:parameter>
 			<command:parameter required="True" globbing="False" pipelineInput="true (ByValue)" position="0" parameterSetName="(All)" aliases="Command">
 				<maml:name>ScriptBlock</maml:name>
@@ -41381,7 +41453,14 @@ If an automatic backup policy is configured on the appliance, the Cmdlet is inst
 					<maml:description>
 						<maml:para>The full path to where the Support Dump will be saved to.  The downloaded file name will be generated by the appliance.  If the directory does not exist, it will be created. By default will use current directory.</maml:para>
 					</maml:description>
-					<command:parameterValue required="True" variableLength="False">String</command:parameterValue>
+					<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Passphrase</maml:name>
+					<maml:description>
+						<maml:para>Introduced in the HPE OneView 6.60.06 patch, a secure Passphrase is required to encrypt the appliance backup.  The parameter is only required if the appliance version is 6.60.06 or 6.60.07.  An exception will be generated if this parameter is used and the target appliance doesn't meet the minimum required version.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>Force</maml:name>
@@ -41441,16 +41520,27 @@ If an automatic backup policy is configured on the appliance, the Cmdlet is inst
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
-			<command:parameter required="True" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="save">
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="save">
 				<maml:name>Location</maml:name>
 				<maml:description>
 					<maml:para>The full path to where the Support Dump will be saved to.  The downloaded file name will be generated by the appliance.  If the directory does not exist, it will be created. By default will use current directory.</maml:para>
 				</maml:description>
-				<command:parameterValue required="True" variableLength="False">String</command:parameterValue>
+				<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				<dev:type>
 					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue>(get-location).Path</dev:defaultValue>
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Passphrase</maml:name>
+				<maml:description>
+					<maml:para>Introduced in the HPE OneView 6.60.06 patch, a secure Passphrase is required to encrypt the appliance backup.  The parameter is only required if the appliance version is 6.60.06 or 6.60.07.  An exception will be generated if this parameter is used and the target appliance doesn't meet the minimum required version.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
+				</dev:type>
+				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
 		</command:parameters>
 		<command:inputTypes>
@@ -52779,6 +52869,13 @@ Minimum required privileges: Infrastructure administrator, Software administrato
 					<command:parameterValue required="True" variableLength="False">System.IO.FileInfo</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="default">
+					<maml:name>Passphrase</maml:name>
+					<maml:description>
+						<maml:para>Introduced in the HPE OneView 6.60.06 patch, a secure Passphrase is required to encrypt the appliance backup and when restoring from the generated backup.  The parameter is only required if the appliance version is 6.60.06 or 6.60.07.  An exception will be generated if this parameter is used and the target appliance doesn't meet the minimum required version.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="default">
 					<maml:name>EncryptionKey</maml:name>
 					<maml:description>
 						<maml:para>Provide the encryption key file path or file object.  When restoring an appliance backup, and after the appliance has been factory reset, the prior encryption key is needed to decrypt the backup file.  This is only supported with HPE Synergy Composer 2 appliances.</maml:para>
@@ -52851,6 +52948,17 @@ Minimum required privileges: Infrastructure administrator, Software administrato
 				<command:parameterValue required="True" variableLength="False">System.IO.FileInfo</command:parameterValue>
 				<dev:type>
 					<maml:name>System.IO.FileInfo</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="default" aliases="None">
+				<maml:name>Passphrase</maml:name>
+				<maml:description>
+					<maml:para>Introduced in the HPE OneView 6.60.06 patch, a secure Passphrase is required to encrypt the appliance backup and when restoring from the generated backup.  The parameter is only required if the appliance version is 6.60.06 or 6.60.07.  An exception will be generated if this parameter is used and the target appliance doesn't meet the minimum required version.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -84613,6 +84721,13 @@ Default: SCP</maml:para>
 					</maml:description>
 					<command:parameterValue required="True" variableLength="False">String</command:parameterValue>
 				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>Passphrase</maml:name>
+					<maml:description>
+						<maml:para>Introduced in the HPE OneView 6.60.06 patch, a secure Passphrase is required to encrypt the appliance backup and when restoring from the generated backup.  The parameter is only required if the appliance version is 6.60.06 or 6.60.07.  An exception will be generated if this parameter is used and the target appliance doesn't meet the minimum required version.</maml:para>
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Disable, Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
@@ -84793,6 +84908,17 @@ Default: SCP</maml:para>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>Passphrase</maml:name>
+				<maml:description>
+					<maml:para>Introduced in the HPE OneView 6.60.06 patch, a secure Passphrase is required to encrypt the appliance backup and when restoring from the generated backup.  The parameter is only required if the appliance version is 6.60.06 or 6.60.07.  An exception will be generated if this parameter is used and the target appliance doesn't meet the minimum required version.</maml:para>
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="True" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
 				<maml:name>Password</maml:name>
 				<maml:description>
@@ -84928,6 +85054,25 @@ Set-OVAutomaticBackupConfig -Hostname scphost.domain.com -Username backupadmin -
 New-OVBackup</dev:code>
 				<dev:remarks>
 					<dev:para>This command will configure automatic appliance backup, based on a weekly Monday, Wednesday and Friday schedule to execute at 18:00 (6:00PM).  Then, a call to New-OVBackup will be made, which will generate and copy the backup file to the remote location configured.</dev:para>
+					<dev:para />
+				</dev:remarks>
+				<command:commandLines>
+					<command:commandLine>
+						<command:commandText />
+					</command:commandLine>
+				</command:commandLines>
+			</command:example>
+			<command:example>
+				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:introduction>
+					<maml:para />
+				</maml:introduction>
+				<dev:code>$HostSSHKey = Get-Content C:\host.key
+$Passphrase = Get-Credential -Message "Enter passphrase for the backup file" -UserName "donotuse"
+Set-OVAutomaticBackupConfig -Hostname scphost.domain.com -Username backupadmin -Password (ConvertTo-SecureString password -AsPlainText -Force) -HostSSHKey $HostSSHKey -Protocol SCP -Interval Weekly -Days "MON","WED","FRI" -Time 18:00 -Passphrase $Passphrase.Password
+New-OVBackup</dev:code>
+				<dev:remarks>
+					<dev:para>This command will configure automatic appliance backup, based on a weekly Monday, Wednesday and Friday schedule to execute at 18:00 (6:00PM), and set the required backup Passphrase.  Then, a call to New-OVBackup will be made, which will generate and copy the backup file to the remote location configured.</dev:para>
 					<dev:para />
 				</dev:remarks>
 				<command:commandLines>
@@ -87035,9 +87180,35 @@ Minimum required privileges: Server administrator or Infrastructure administrato
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy, Default">
 					<maml:name>LogicalInterconnectGroupMapping</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>An Enclosure Group can reference multiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
+
+To specify a specific C-Class Logical Interconnect Group(s) for one or more Interconnect Bays, use a Hashtable, with the Bay ID as the Key, and Logical Interconnect Group Name, URI or Object as the Value.  Example:
+
+$LogicalInterConnectGroupMapping = @{ 1 = "MyLIg1"; 2 = "MyLig1"; 5 = "OtherLIG"; 6 = "OtherLIG"}
+
+$MyLig1 = Get-OVLogicalInterconnectGroup -Name MyLig1
+$OtherLIG = Get-OVLogicalInterconnectGroup OtherLIG
+$LogicalInterConnectGroupMapping = @{ 1 = $MyLig1; 2 = $MyLig1; 5 = $OtherLIG; 6 = $OtherLIG"
+
+When attempting to define a Syenrgy-based Enclosure Group, either an Array or Hashtable is allowed.  If an Array of Logical Interconnect Groups are provided, the Cmdlet will determine the Interconnect placement automatically. Example:
+
+$MySynergyLig1 = Get-OVLogicalInterconnectGroup -Name MySynergyLig1
+$LogicalInterConnectGroupMapping = $MySynergyLig1
+#or
+$MySynergyLig1 = Get-OVLogicalInterconnectGroup -Name MySynergyLig1
+$MySynergyLig2 = Get-OVLogicalInterconnectGroup -Name MySynergyLig2
+$LogicalInterConnectGroupMapping = $MySynergyLig1,$MySynergyLig2
+
+
+Do know that SAS and VC FC LIGs are bound to a single frame, and will not reference other Frames if FrameCount is greater than 1.
+
+Use a Hashtable to bind specific LIGs to specific Frames.  The Interconnect placement will be determined automatically based on either the Hashtable Key name "Frame#" (where # is the numerical value of the Frame) or Enclosure Index value (depending if a SAS or Synergy VC FC LIG).  Example:
+
+$3FrameVCLIG = Get-OVLogicalInterconnectGroup -Name "My MultiFrame Synergy LIG 1"
+$SasLIG = Get-OVLogicalInterconnectGroup -Name "My Synergy Sas LIG 1"
+$LogicalInterconnectGroupMapping = @{Frame1 = $3FrameVCLIG,$SasLIG; Frame2 = $3FrameVCLIG,$SasLIG; Frame3 = $3FrameVCLIG }</maml:para>
 					</maml:description>
-					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="True" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="Synergy, Default">
 					<maml:name>ApplianceConnection</maml:name>
@@ -87059,9 +87230,35 @@ Minimum required privileges: Server administrator or Infrastructure administrato
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy, Default">
 					<maml:name>LogicalInterconnectGroupMapping</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>An Enclosure Group can reference multiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
+
+To specify a specific C-Class Logical Interconnect Group(s) for one or more Interconnect Bays, use a Hashtable, with the Bay ID as the Key, and Logical Interconnect Group Name, URI or Object as the Value.  Example:
+
+$LogicalInterConnectGroupMapping = @{ 1 = "MyLIg1"; 2 = "MyLig1"; 5 = "OtherLIG"; 6 = "OtherLIG"}
+
+$MyLig1 = Get-OVLogicalInterconnectGroup -Name MyLig1
+$OtherLIG = Get-OVLogicalInterconnectGroup OtherLIG
+$LogicalInterConnectGroupMapping = @{ 1 = $MyLig1; 2 = $MyLig1; 5 = $OtherLIG; 6 = $OtherLIG"
+
+When attempting to define a Syenrgy-based Enclosure Group, either an Array or Hashtable is allowed.  If an Array of Logical Interconnect Groups are provided, the Cmdlet will determine the Interconnect placement automatically. Example:
+
+$MySynergyLig1 = Get-OVLogicalInterconnectGroup -Name MySynergyLig1
+$LogicalInterConnectGroupMapping = $MySynergyLig1
+#or
+$MySynergyLig1 = Get-OVLogicalInterconnectGroup -Name MySynergyLig1
+$MySynergyLig2 = Get-OVLogicalInterconnectGroup -Name MySynergyLig2
+$LogicalInterConnectGroupMapping = $MySynergyLig1,$MySynergyLig2
+
+
+Do know that SAS and VC FC LIGs are bound to a single frame, and will not reference other Frames if FrameCount is greater than 1.
+
+Use a Hashtable to bind specific LIGs to specific Frames.  The Interconnect placement will be determined automatically based on either the Hashtable Key name "Frame#" (where # is the numerical value of the Frame) or Enclosure Index value (depending if a SAS or Synergy VC FC LIG).  Example:
+
+$3FrameVCLIG = Get-OVLogicalInterconnectGroup -Name "My MultiFrame Synergy LIG 1"
+$SasLIG = Get-OVLogicalInterconnectGroup -Name "My Synergy Sas LIG 1"
+$LogicalInterconnectGroupMapping = @{Frame1 = $3FrameVCLIG,$SasLIG; Frame2 = $3FrameVCLIG,$SasLIG; Frame3 = $3FrameVCLIG }</maml:para>
 					</maml:description>
-					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+					<command:parameterValue required="True" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>PowerRedundantMode</maml:name>
@@ -87078,42 +87275,60 @@ Allowed Values:
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>IPv4AddressType</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use to specify how the IPv4 Addresses will be assigned to Synergy resources management interface(s).  Allowed values:
+
+    * External -  The IPv4 address is managed externally, static assignment. 
+    * DHCP -  The IPv4 address is assigned using DHCP. 
+    * AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter, similar to HPE BladeSystem C-Class "Enclosure Bay IP Addressing" (aka EBIPA). 
+
+Default: DHCP</maml:para>
 					</maml:description>
-					<command:parameterValue required="False" variableLength="False">string</command:parameterValue>
+					<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>IPv4AddressRange</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The IPv4 address pool object from Get-OVAddressPoolRange.</maml:para>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>IPv6AddressType</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use to specify how the IPv6 Addresses will be assigned to Synergy resources management interface(s).  Allowed values:
+
+    * External -  The IPv4 address is managed externally, static assignment. 
+    * DHCP -  The IPv4 address is assigned using DHCP. 
+    * AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter, similar to HPE BladeSystem C-Class "Enclosure Bay IP Addressing" (aka EBIPA). 
+
+Default: None</maml:para>
 					</maml:description>
-					<command:parameterValue required="False" variableLength="False">string</command:parameterValue>
+					<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>IPv6AddressRange</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The IPv6 address pool object from Get-OVAddressPoolRange.</maml:para>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>DeploymentNetworkType</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Specify the Synergy Image Stream deployment network type.  Allowed values:
+
+    * Internal - Deployment network is an internal, managed by the Frame links, which Logical Intercoonect Group must have an ImageStreamer Uplink Set.
+    * External - Deployment network is connected to an External management switch.
+    * None - No deployment network will be configured.
+
+Default: None</maml:para>
 					</maml:description>
-					<command:parameterValue required="False" variableLength="False">string</command:parameterValue>
+					<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Synergy">
 					<maml:name>DeploymentNetwork</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>The Ethernet Network with the purpose property set to Management.  Must also include DeploymentNetworkType parameter, value must be "External", with the Ethernet Network associated with a non-ImageStreamer Uplink Set.</maml:para>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				</command:parameter>
@@ -87153,7 +87368,7 @@ Allowed Values:
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy" aliases="None">
 				<maml:name>DeploymentNetwork</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The Ethernet Network with the purpose property set to Management.  Must also include DeploymentNetworkType parameter, value must be "External", with the Ethernet Network associated with a non-ImageStreamer Uplink Set.</maml:para>
 				</maml:description>
 				<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -87164,18 +87379,24 @@ Allowed Values:
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy" aliases="None">
 				<maml:name>DeploymentNetworkType</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Specify the Synergy Image Stream deployment network type.  Allowed values:
+
+    * Internal - Deployment network is an internal, managed by the Frame links, which Logical Intercoonect Group must have an ImageStreamer Uplink Set.
+    * External - Deployment network is connected to an External management switch.
+    * None - No deployment network will be configured.
+
+Default: None</maml:para>
 				</maml:description>
-				<command:parameterValue required="False" variableLength="False">string</command:parameterValue>
+				<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				<dev:type>
-					<maml:name>string</maml:name>
+					<maml:name>String</maml:name>
 				</dev:type>
-				<dev:defaultValue />
+				<dev:defaultValue>None</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy" aliases="None">
 				<maml:name>IPv4AddressRange</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The IPv4 address pool object from Get-OVAddressPoolRange.</maml:para>
 				</maml:description>
 				<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -87186,18 +87407,24 @@ Allowed Values:
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy" aliases="None">
 				<maml:name>IPv4AddressType</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use to specify how the IPv4 Addresses will be assigned to Synergy resources management interface(s).  Allowed values:
+
+    * External -  The IPv4 address is managed externally, static assignment. 
+    * DHCP -  The IPv4 address is assigned using DHCP. 
+    * AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter, similar to HPE BladeSystem C-Class "Enclosure Bay IP Addressing" (aka EBIPA). 
+
+Default: DHCP</maml:para>
 				</maml:description>
-				<command:parameterValue required="False" variableLength="False">string</command:parameterValue>
+				<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				<dev:type>
-					<maml:name>string</maml:name>
+					<maml:name>String</maml:name>
 				</dev:type>
-				<dev:defaultValue />
+				<dev:defaultValue>DHCP</dev:defaultValue>
 			</command:parameter>
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy" aliases="None">
 				<maml:name>IPv6AddressRange</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>The IPv6 address pool object from Get-OVAddressPoolRange.</maml:para>
 				</maml:description>
 				<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
 				<dev:type>
@@ -87208,11 +87435,17 @@ Allowed Values:
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy" aliases="None">
 				<maml:name>IPv6AddressType</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use to specify how the IPv6 Addresses will be assigned to Synergy resources management interface(s).  Allowed values:
+
+    * External -  The IPv4 address is managed externally, static assignment. 
+    * DHCP -  The IPv4 address is assigned using DHCP. 
+    * AddressPool - The IPv4 address is assigned from a pool of IP addresses specified by the AddressPool parameter, similar to HPE BladeSystem C-Class "Enclosure Bay IP Addressing" (aka EBIPA). 
+
+Default: None</maml:para>
 				</maml:description>
-				<command:parameterValue required="False" variableLength="False">string</command:parameterValue>
+				<command:parameterValue required="False" variableLength="False">String</command:parameterValue>
 				<dev:type>
-					<maml:name>string</maml:name>
+					<maml:name>String</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -87227,12 +87460,38 @@ Allowed Values:
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
-			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, Default" aliases="LogicalInterconnectGroupUri, LogicalInterconnectGroup">
+			<command:parameter required="True" globbing="False" pipelineInput="false" position="named" parameterSetName="Synergy, Default" aliases="LogicalInterconnectGroupUri, LogicalInterconnectGroup">
 				<maml:name>LogicalInterconnectGroupMapping</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>An Enclosure Group can reference multiple Logical Interconnect Groups, once per Interconnect Bay.  If a Single Logical Interconnect Group object is provided (either via parameter variable or via Pipeline), the Logical Interconnect Group objects Logical Interconnect Bay configuration will be used.
+
+To specify a specific C-Class Logical Interconnect Group(s) for one or more Interconnect Bays, use a Hashtable, with the Bay ID as the Key, and Logical Interconnect Group Name, URI or Object as the Value.  Example:
+
+$LogicalInterConnectGroupMapping = @{ 1 = "MyLIg1"; 2 = "MyLig1"; 5 = "OtherLIG"; 6 = "OtherLIG"}
+
+$MyLig1 = Get-OVLogicalInterconnectGroup -Name MyLig1
+$OtherLIG = Get-OVLogicalInterconnectGroup OtherLIG
+$LogicalInterConnectGroupMapping = @{ 1 = $MyLig1; 2 = $MyLig1; 5 = $OtherLIG; 6 = $OtherLIG"
+
+When attempting to define a Syenrgy-based Enclosure Group, either an Array or Hashtable is allowed.  If an Array of Logical Interconnect Groups are provided, the Cmdlet will determine the Interconnect placement automatically. Example:
+
+$MySynergyLig1 = Get-OVLogicalInterconnectGroup -Name MySynergyLig1
+$LogicalInterConnectGroupMapping = $MySynergyLig1
+#or
+$MySynergyLig1 = Get-OVLogicalInterconnectGroup -Name MySynergyLig1
+$MySynergyLig2 = Get-OVLogicalInterconnectGroup -Name MySynergyLig2
+$LogicalInterConnectGroupMapping = $MySynergyLig1,$MySynergyLig2
+
+
+Do know that SAS and VC FC LIGs are bound to a single frame, and will not reference other Frames if FrameCount is greater than 1.
+
+Use a Hashtable to bind specific LIGs to specific Frames.  The Interconnect placement will be determined automatically based on either the Hashtable Key name "Frame#" (where # is the numerical value of the Frame) or Enclosure Index value (depending if a SAS or Synergy VC FC LIG).  Example:
+
+$3FrameVCLIG = Get-OVLogicalInterconnectGroup -Name "My MultiFrame Synergy LIG 1"
+$SasLIG = Get-OVLogicalInterconnectGroup -Name "My Synergy Sas LIG 1"
+$LogicalInterconnectGroupMapping = @{Frame1 = $3FrameVCLIG,$SasLIG; Frame2 = $3FrameVCLIG,$SasLIG; Frame3 = $3FrameVCLIG }</maml:para>
 				</maml:description>
-				<command:parameterValue required="False" variableLength="False">Object</command:parameterValue>
+				<command:parameterValue required="True" variableLength="False">Object</command:parameterValue>
 				<dev:type>
 					<maml:name>Object</maml:name>
 				</dev:type>
@@ -104647,7 +104906,7 @@ Update-OVRemoteSupportEntitlement -InputObject $Enclusre</dev:code>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-				<command:parameter required="False" globbing="True" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DefRefreshWithCredentialsault, Default">
+				<command:parameter required="False" globbing="True" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="RefreshWithCredentials, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Specify one HPEOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
@@ -104692,10 +104951,7 @@ Update-OVRemoteSupportEntitlement -InputObject $Enclusre</dev:code>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
-			</command:syntaxItem>
-			<command:syntaxItem>
-				<maml:name>Update-OVServer</maml:name>
-				<command:parameter required="False" globbing="True" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DefRefreshWithCredentialsault, Default">
+				<command:parameter required="False" globbing="True" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="RefreshWithCredentials, Default">
 					<maml:name>ApplianceConnection</maml:name>
 					<maml:description>
 						<maml:para>Specify one HPEOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
@@ -104706,7 +104962,7 @@ Update-OVRemoteSupportEntitlement -InputObject $Enclusre</dev:code>
 		</command:syntax>
 		<command:parameters>
 			<!--All Parameters-->
-			<command:parameter required="True" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="DefRefreshWithCredentialsault, Default" aliases="Appliance">
+			<command:parameter required="True" globbing="False" pipelineInput="true (ByPropertyName)" position="named" parameterSetName="RefreshWithCredentials, Default" aliases="Appliance">
 				<maml:name>ApplianceConnection</maml:name>
 				<maml:description>
 					<maml:para>Specify one HPEOneView.Appliance.Connection object or Name property value. If Resource object is provided via Pipeline, the ApplianceConnection property of the object will be used.</maml:para>
@@ -106556,5 +106812,5 @@ Once the task enters the running state, the Cmdlet will return the task resource
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2023-06-01T19:32:59:94.941Z-->
+	<!--Edited on: 2024-09-06T17:49:39:44.442Z-->
 </helpItems>

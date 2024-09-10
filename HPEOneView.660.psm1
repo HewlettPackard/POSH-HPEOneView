@@ -2,7 +2,7 @@
 # HPE OneView PowerShell Library
 ##############################################################################
 ##############################################################################
-## (C) Copyright 2013-2023 Hewlett Packard Enterprise Development LP
+## (C) Copyright 2013-2024 Hewlett Packard Enterprise Development LP
 ##############################################################################
 <#
 
@@ -27,7 +27,7 @@ THE SOFTWARE.
 #>
 
 # Set HPEOneView POSH Library Version
-[Version]$ModuleVersion = '6.60.3530.1622'
+[Version]$ModuleVersion = '6.60.3990.1744'
 New-Variable -Name PSLibraryVersion -Scope Global -Value ([HPEOneView.Library.Version]::new($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [Bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -1237,7 +1237,7 @@ $ResourceCategoryEnum = @{
     }
     $Script:OrganizationalUnitPattern = '^(?:(?:CN|OU|DC)\=[\w\s]+,)*(?:CN|OU|DC)\=[\w\s]+$'
     $CommonNamePattern                = '^CN=(.+?),(?:CN|OU)=.+'
-    $JsonPasswordRegEx                = '(\"password\"\:)[\s]*?\"(.*?)\"'
+    $JsonPasswordRegEx                = '(\"[p|P]ass[word|phrase]+\"\:)[\s]*?\"((?=.*[a-z])(?=.*\W)(?!.* ).{2,})\"'
 
 # Endregion
 
@@ -1328,10 +1328,67 @@ class ServerProfileUnmanagedFCConnection
 class ObsoleteMessage
 {
 
+    static [hashtable] $DeprecatedCmdlets = @{
+        VMA = @(
+            "Add-OVEnclosure",
+            "Disable-OVLogicalInterconnectPortMonitoring",
+            "Enable-OVLogicalInterconnectPortMonitoring",
+            "Get-OVAddressPool",
+            "Get-OVAddressPoolRange",
+            "Get-OVAddressPoolSubnet",
+            "Get-OVEnclosure",
+            "Get-OVEnclosureGroup",
+            "Get-OVInterconnect",
+            "Get-OVInterconnectNTPConfiguration",
+            "Get-OVInterconnectType",
+            "Get-OVLogicalEnclosure",
+            "Get-OVLogicalInterconnect",
+            "Get-OVLogicalInterconnectGroup",
+            "Get-OVLogicalInterconnectPortMonitoring",
+            "Get-OVLogicalSwitch",
+            "Get-OVLogicalSwitchGroup",
+            "Get-OVUplinkSet",
+            "Install-OVLogicalInterconnectFirmware",
+            "New-OVAddressPoolRange",
+            "New-OVAddressPoolSubnet",
+            "New-OVAddressRange",
+            "New-OVEnclosure",
+            "New-OVEnclosureGroup",
+            "New-OVLogicalEnclosure",
+            "New-OVLogicalInterconnectGroup",
+            "New-OVUplinkSet",
+            "Remove-OVAddressPoolRange",
+            "Remove-OVAddressPoolSubnet",
+            "Remove-OVEnclosure",
+            "Remove-OVEnclosureGroup",
+            "Remove-OVLogicalEnclosure",
+            "Remove-OVLogicalInterconnectGroup",
+            "Reset-OVEnclosureDevice",
+            "Set-OVAddressPoolSubnet",
+            "Set-OVEnclosure",
+            "Set-OVEnclosureGroup",
+            "Set-OVLogicalEnclosure",
+            "Set-OVUplinkSet",
+            "Show-OVPortStatistics",
+            "Update-OVEnclosure",
+            "Update-OVLogicalEnclosure",
+            "Update-OVLogicalEnclosureFirmware",
+            "Update-OVLogicalInterconnect",
+            "Test-ObsoleteMessage"
+        );
+        Composer = @()
+
+    }
+
     static [void] WriteMessage ([HPEOneView.Appliance.Connection]$_Appliance, [String]$Caller)
     {
 
-        if ($_Appliance.ApplianceType -eq 'VMA')
+        "[DEBUG] Processing [ObsoleteMessage]::WriteMessage() method." | Microsoft.PowerShell.Utility\Write-Debug
+        "[DEBUG] Caller: {0}" -f $Caller | Microsoft.PowerShell.Utility\Write-Debug
+        "[DEBUG] Appliance type: {0}" -f $_Appliance.ApplianceType | Microsoft.PowerShell.Utility\Write-Debug
+        "[DEBUG] Caller Cmdlet is in Deprecated {0} list: {1}" -f $_Appliance.ApplianceType, ([ObsoleteMessage]::DeprecatedCmdlets.$($_Appliance.ApplianceType).Contains($Caller)) | Microsoft.PowerShell.Utility\Write-Debug
+
+        if ($_Appliance.ApplianceType -eq 'VMA' -and [ObsoleteMessage]::DeprecatedCmdlets.VMA.Contains($Caller))
         {
 
             $Message = "WARNING: The command '{0}' is obsolete and will no longer be supported with HPE BladeSystem c-Class resources." -f $Caller
@@ -1340,7 +1397,7 @@ class ObsoleteMessage
 
         }
 
-        elseif ($_Appliance.ApplianceType -eq 'Composer')
+        elseif ($_Appliance.ApplianceType -eq 'Composer' -and [ObsoleteMessage]::DeprecatedCmdlets.Composer.Contains($Caller))
         {
 
             $Message = "WARNING: The command '{0}' is obsolete and will no longer be supported with HPE Synergy in the next major release." -f $Caller
@@ -5838,6 +5895,8 @@ function RedactPassword
 
     )
 
+    $PropToRedact = @('password','passphrase','oldPassword','newPassword','currentPassword','newPassword','confirmPassword','passwords')
+
     $Caller = (Get-PSCallStack)[1].Command
 
     '[{0}] Redacting users Password from Verbose Output' -f $Caller | Write-Verbose
@@ -5870,7 +5929,7 @@ function RedactPassword
         }
 
         # Handle Level 1
-        if (($_Params.psobject.properties | ? Name -eq "password") -and $_Params.password -isnot [System.Security.SecureString])
+        if (($_Params.psobject.properties | ? { $PropToRedact -contains $_.Name } ) -and $_Params.password -isnot [System.Security.SecureString])
         {
 
             $_Params.password = '[*****REDACTED******]'
@@ -5878,7 +5937,7 @@ function RedactPassword
         }
 
         # Handle Level 2
-        if (($_Params[$Item.Key].psobject.properties | ? Name -eq "password") -and $_Params[$Item.Key].password -isnot [System.Security.SecureString])
+        if (($_Params[$Item.Key].psobject.properties | ? { $PropToRedact -contains $_.Name } ) -and $_Params[$Item.Key].password -isnot [System.Security.SecureString])
         {
 
             $_Params[$Item.Key].password = '[*****REDACTED******]'
@@ -6184,7 +6243,19 @@ function Send-OVRequest
                         else
                         {
 
-                            "[{0}] Overloading '{1}' in HttpWebRequest object to: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_header.Key, $_header.Value | Write-Verbose
+                            if ("Password", "Pasphrase" -contains $_header.Key)
+                            {
+
+                                "[{0}] Overloading '{1}' in HttpWebRequest object to: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_header.Key, "******REDACTED******" | Write-Verbose
+
+                            }
+
+                            else
+                            {
+
+                                "[{0}] Overloading '{1}' in HttpWebRequest object to: {2}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_header.Key, $_header.Value | Write-Verbose
+
+                            }
 
                             $req.Headers.Item($_header.Key) = [String]$_header.Value
 
@@ -6712,10 +6783,52 @@ function Send-OVRequest
 
                     "[{0}] InnerException Message: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_.Exception.InnerException.Message | Write-Verbose
 
-                    if ($_.Exception.InnerException.FullyQualifiedErrorId -eq "ApplianceTransportException")
+                    # Set Global Response Error Object
+                    if (-not(${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name))
                     {
 
-                        $ExceptionMessage = "Unable to connect to '{0}' appliance.  {1}" -f $ApplianceHost.Name, $_.Exception.InnerException.Message
+                        $_NewResponseErrorObject = [PSCustomObject]@{
+
+                            Name            = $ApplianceHost.Name
+                            Exception       = $_
+                            LastWebResponse = $LastWebResponse
+                            ErrorResponse   = $ErrorResponse
+
+                        }
+
+                        [void]${Global:ResponseErrorObject}.Add($_NewResponseErrorObject)
+
+                    }
+
+                    else
+                    {
+
+                        (${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).LastWebResponse = $LastWebResponse
+                        (${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).ErrorResponse   = $ErrorResponse
+                        (${Global:ResponseErrorObject} | Where-Object Name -eq $ApplianceHost.Name).Exception       = $_
+
+                    }
+
+                    if ($_.Exception.InnerException.InnerException.FullyQualifiedErrorId -eq "ApplianceTransportException")
+                    {
+
+                        "[{0}] Caught ApplianceTransportException exception." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+                        if ([regex]::Match($_.Exception.InnerException.InnerException.Message, "The certificate is not trusted due to these X509CertChain flags").Success)
+                        {
+
+                            Write-Host "CertChain message caught."
+                            $ExceptionMessage = "Unable to connect to '{0}' appliance.  {1}" -f $ApplianceHost.Name, $_.Exception.InnerException.InnerException.Message
+
+                        }
+
+                        else
+                        {
+
+                            $ExceptionMessage = "Unable to connect to '{0}' appliance.  {1}" -f $ApplianceHost.Name, $_.Exception.InnerException.Message
+
+                        }
+
                         $ErrorRecord = New-ErrorRecord HPEOneView.Library.ApplianceTransportException HostnameAndCertDoNotMatch ResourceUnavailable 'Hostname' -Message $ExceptionMessage
                         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
@@ -10396,6 +10509,9 @@ function Get-OVCommandTrace
         [ScriptBlock]$ScriptBlock = {},
 
         [Parameter (Mandatory = $false)]
+        [Switch]$Passthru,
+
+        [Parameter (Mandatory = $false)]
         [ValidateNotNullOrEmpty()]
         [String]$Location = (Get-Location).path
 
@@ -10464,7 +10580,7 @@ function Get-OVCommandTrace
 
         '[{0}] ScritpBlock to execute: {1}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $sb.ToString() | Write-Verbose
 
-        Invoke-Command -ScriptBlock ([Scriptblock]::Create($sb.ToString())) -ErrorVariable CapturedError | Out-Null
+        Invoke-Command -ScriptBlock ([Scriptblock]::Create($sb.ToString())) -ErrorVariable CapturedError -Outvariable ReturnToCaller | Out-Null
 
         if ($null -ne $CaptureError)
         {
@@ -10474,6 +10590,13 @@ function Get-OVCommandTrace
         }
 
         ([String]::Join('',(1..80 | ForEach-Object { "-" }))) | Write-Verbose -Verbose:$true
+
+        if ($PSBoundParameters['Passthru'])
+        {
+
+            Return $ReturnToCaller
+
+        }
 
     }
 
@@ -13357,8 +13480,8 @@ function ConvertTo-OVPowerShellScript
 
             $ICModuleToFabricModuleTypes = @{
                 "SEVC40f8"                                  = "SEVC40f8" ;
-                "SEVC100f32"                                = "SEV100f32" ;
-                'SE50ILM'                                   = "SEV100f32" ;
+                "SEVC100f32"                                = "SEVC100f32" ;
+                'SE50ILM'                                   = "SEVC100f32" ;
                 'SE20ILM'                                   = "SEVC40f8" ;
                 'SE10ILM'                                   = "SEVC40f8" ;
                 "SEVC16GbFC"                                = "SEVCFC" ;
@@ -13985,7 +14108,7 @@ function ConvertTo-OVPowerShellScript
                         $ingressDscpClassMapping  = $trafficClass.qosClassificationMapping.dscpClassMapping
 
                         [void]$scriptCode.Add('#---- Generating QoS Traffic Class Mapping "{0}" ' -f $className)
-                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dClanamessType' -Value ('"{0}"' -f $className)))
+                        [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'dClassType' -Value ('"{0}"' -f $className)))
                         [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'realTime' -Value ('${0}' -f $realTime)))
                         [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'bandwidthShare' -Value ('{0}' -f $bandwidthShare)))
                         [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'maxBandwidth' -Value ('{0}' -f $maxBandwidth)))
@@ -14012,7 +14135,7 @@ function ConvertTo-OVPowerShellScript
                         [void]$scriptCode.Add((Generate-CustomVarCode -Prefix 'isEnabled' -Value ('${0}' -f $isEnabled)))
 
                         $VarName = 'trafficClass'
-                        $Value = 'New-OVQosTrafficClass -Name $name -MaxBandwidth $maxBandwidth -BandwidthShare -RealTime:$realTime -EgressDot1pValue $egressDot1pValue{0}{1} -Enabled:$isEnabled' -f $ingressDot1pClassMappingParam, $ingressDscpClassMappingParam
+                        $Value = 'New-OVQosTrafficClass -Name $name -MaxBandwidth $maxBandwidth -BandwidthShare $bandwidthShare -RealTime:$realTime -EgressDot1pValue $egressDot1pValue{0}{1} -Enabled:$isEnabled' -f $ingressDot1pClassMappingParam, $ingressDscpClassMappingParam
 
                         [void]$scriptCode.Add((Generate-CustomVarCode -Prefix $VarName -Suffix $q -Value $Value))
 
@@ -14144,7 +14267,7 @@ function ConvertTo-OVPowerShellScript
             {
 
                 $uplName        = $Upl.name
-                $upLinkType     = $Upl.networkType
+                $upLinkType     = $Upl.ethernetNetworkType -eq "Tunnel" ? "Tunnel" : $Upl.networkType
                 $ethMode        = $Upl.mode
                 $networkURIs    = $upl.networkUris
                 $networksetURIs = $upl.networksetUris
@@ -14235,7 +14358,7 @@ function ConvertTo-OVPowerShellScript
                         $fcMode  = $upl.fcMode
 
                         # //TODO: Is this even correct??
-                        $fcSpeed = if ($Upl.FCSpeed) { $Upl.FCSpeed } else { 'Auto' }
+                        $fcSpeed = $Upl.FCSpeed ? $Upl.FCSpeed : 'Auto'
 
                         if ($fcMode -eq 'Trunk')
                         {
@@ -27157,6 +27280,14 @@ function Enable-OVRemoteSupport
 
             }
 
+            'interconnects'
+            {
+
+                $_ID = $InputObject.uri.Split("/")[3]
+                $_uri = '{0}/{1}' -f $RemoteSupportInterconnectSettingsUri,$_ID
+
+            }
+
             default
             {
 
@@ -27225,7 +27356,7 @@ function Disable-OVRemoteSupport
 
     # .ExternalHelp HPEOneView.660.psm1-help.xml
 
-    [CmdLetBinding (DefaultParameterSetName = "default")]
+    [CmdLetBinding (DefaultParameterSetName = "default", SupportsShouldProcess, ConfirmImpact = 'High')]
     Param
     (
 
@@ -27364,6 +27495,14 @@ function Disable-OVRemoteSupport
 
             }
 
+            'interconnects'
+            {
+
+                $_ID = $InputObject.uri.Split("/")[3]
+                $_uri = '{0}/{1}' -f $RemoteSupportInterconnectSettingsUri,$_ID
+
+            }
+
             default
             {
 
@@ -27376,41 +27515,47 @@ function Disable-OVRemoteSupport
 
         }
 
-        try
+        $_ShouldProcessMessage = "disable remote support"
+        if ($PSCmdlet.ShouldProcess($InputObject.name, $_ShouldProcessMessage))
         {
 
-            $_Resp = Send-OVRequest -Uri $_uri -Method PATCH -Body $_PatchOperation -Hostname $ApplianceConnection
-
-        }
-
-        catch
-        {
-
-            $PSCmdlet.ThrowTerminatingError($_)
-
-        }
-
-        if ($PSBoundParameters['Async'])
-        {
-
-            $_Resp
-
-        }
-
-        else
-        {
-
-            Try
+            try
             {
 
-                $_Resp | Wait-OVTaskComplete
+                $_Resp = Send-OVRequest -Uri $_uri -Method PATCH -Body $_PatchOperation -Hostname $ApplianceConnection
 
             }
 
-            Catch
+            catch
             {
 
-                $PSCmdlet.ThrowTerninatingError($_)
+                $PSCmdlet.ThrowTerminatingError($_)
+
+            }
+
+            if ($PSBoundParameters['Async'])
+            {
+
+                $_Resp
+
+            }
+
+            else
+            {
+
+                Try
+                {
+
+                    $_Resp | Wait-OVTaskComplete
+
+                }
+
+                Catch
+                {
+
+                    $PSCmdlet.ThrowTerninatingError($_)
+
+                }
 
             }
 
@@ -30597,6 +30742,17 @@ function Get-OVRemoteSupportEntitlementStatus
 
             }
 
+            $ResourceCategoryEnum.Interconnect
+            {
+
+                "[{0}] Processing interconnect hardware device: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.name | Write-Verbose
+
+                $InputObject | Add-Member -NotePropertyName remoteSupportUri -NotePropertyValue $InputObject.remoteSupport.remoteSupportUri -Force
+
+                [void]$_ResourcesToProcess.Add($InputObject.PSObject.Copy())
+
+            }
+
             default
             {
 
@@ -32143,6 +32299,9 @@ function Add-OVBaseline
         [HPEOneView.Appliance.ScopeCollection]$Scope,
 
         [Parameter (Mandatory = $false)]
+        [Switch]$UseInvokeWebRequest,
+
+        [Parameter (Mandatory = $false)]
         [Switch]$Async,
 
         [Parameter (Mandatory = $false)]
@@ -32361,7 +32520,63 @@ function Add-OVBaseline
 
                     }
 
-                    $AddTask = Upload-File @_Params
+                    if ($PSBoundParameters['UseInvokeWebRequest'] -and -not $PSBoundParameters['CompSigFile'])
+                    {
+
+                        Try
+                        {
+
+                            $FieldName = 'file'
+                            $ContentType = 'application/octet-stream'
+
+                            $FileStream = [System.IO.FileStream]::new($File, [System.IO.FileMode]::Open)
+                            $FileHeader = [System.Net.Http.Headers.ContentDispositionHeaderValue]::new('form-data')
+                            $FileHeader.Name = $FieldName
+                            $FileHeader.FileName = $File.FullName
+                            $FileContent = [System.Net.Http.StreamContent]::new($FileStream)
+                            $FileContent.Headers.ContentDisposition = $FileHeader
+                            $FileContent.Headers.Item("auth") = $_appliance.SessionID
+                            $FileContent.Headers.Item("X-API-Version") = "3800"
+                            $FileContent.Headers.Item("uploadfilename") = $File.Name
+                            $FileContent.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::Parse($ContentType)
+
+                            $MultipartContent = [System.Net.Http.MultipartFormDataContent]::new()
+                            $MultipartContent.Add($FileContent)
+
+                            $AddTask = Invoke-WebRequest -Body $MultipartContent -Method 'POST' -Uri $_Params['URI'] -ConnectionTimeoutSeconds 1200000
+
+
+                            # $AddTask = Invoke-WebRequest -Uri $_Params['URI'] -Method Post -InFile $_Params['File'] -Headers $_Params['AddHeader'] -UseBasicParsing -Credential $_Params['ApplianceConnection'].Credential -SkipCertificateCheck
+
+                        }
+
+                        Catch
+                        {
+
+                            $PSCmdlet.ThrowTerminatingError($_)
+
+                        }
+
+                    }
+
+                    else
+                    {
+
+                        Try
+                        {
+
+                            $AddTask = Upload-File @_Params
+
+                        }
+
+                        Catch
+                        {
+
+                            $PSCmdlet.ThrowTerminatingError($_)
+
+                        }
+
+                    }
 
                     if ((-not $PSBoundParameters['Async'] -and $PSBoundParameters['CompSigFile']) -or (-not $PSBoundParameters['Async']))
                     {
@@ -35193,6 +35408,9 @@ function Set-OVAutomaticBackupConfig
         [ValidateScript ({[RegEx]::IsMatch($_,"([01]?[0-9]|2[0-3]):[0-5][0-9]")})]
         [String]$Time,
 
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [SecureString]$Passphrase,
+
         [Parameter (Mandatory, ParameterSetName = 'Disable')]
         [Switch]$Disabled,
 
@@ -35286,6 +35504,64 @@ function Set-OVAutomaticBackupConfig
 
         }
 
+        # Validate if the appliance version is the minimum version needed to enforce the -Passphrase parameter.
+        $MinimumVersion = [HPEOneView.Appliance.Version]'6.60.06'
+
+        if ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+        {
+
+            For ([Int]$c = 0; $c -lt $ApplianceConnection.Count; $c++)
+            {
+
+                $ApplianceVersion = $PSLibraryVersion.$($ApplianceConnection[$c].Name).ApplianceVersion
+
+                if ($ApplianceVersion -lt $MinimumVersion -and $PSBoundParameters['Passphrase'])
+                {
+
+                    $ExceptionMessage = 'The appliance "{0}" with version "{1}" does not support the -Passphrase parameter.  The minimum version required is "{1}".' -f $ApplianceConnection[$c].Name, $ApplianceVersion, $MinimumVersion
+                    $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException InvalidApplianceVersion InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+                elseif ($ApplianceVersion -ge $MinimumVersion -and -not $PSBoundParameters['Passphrase'] -and -not $PSCmdlet.ParameterSetName -eq 'Disable')
+                {
+
+                    $ExceptionMessage = 'The -Passphrase parameter is required starting with "{0}", which "{1}" is at "{2}" version.' -f $MinimumVersion, $ApplianceConnection[$c].Name, $ApplianceVersion
+                    $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException MissingRequiredParameter InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+            }
+
+        }
+
+        else
+        {
+
+            $ApplianceVersion = $PSLibraryVersion.$($ApplianceConnection.Name).ApplianceVersion
+
+            if ($ApplianceVersion -lt $MinimumVersion -and $PSBoundParameters['Passphrase'])
+            {
+
+                $ExceptionMessage = 'The appliance "{0}" with version "{1}" does not support the -Passphrase parameter.  The minimum version required is "{1}".' -f $ApplianceConnection.Name, $ApplianceVersion, $MinimumVersion
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException InvalidApplianceVersion InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+            elseif ($ApplianceVersion -ge $MinimumVersion -and -not $PSBoundParameters['Passphrase'] -and -not $PSCmdlet.ParameterSetName -eq 'Disable')
+            {
+
+                $ExceptionMessage = 'The -Passphrase parameter is required starting with "{0}", which "{1}" is at "{2}" version.' -f $MinimumVersion, $ApplianceConnection.Name, $ApplianceVersion
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException MissingRequiredParameter InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+        }
+
         $_AutoBackupStatusCollection = [System.Collections.ArrayList]::new()
 
     }
@@ -35373,7 +35649,6 @@ function Set-OVAutomaticBackupConfig
 
                 }
 
-
                 $_AutoBackupConfig.remoteServerDir       = $Directory
                 $_AutoBackupConfig.remoteServerName      = $Hostname
 
@@ -35438,6 +35713,15 @@ function Set-OVAutomaticBackupConfig
                 {
 
                     $_AutoBackupConfig.scheduleTime = $_AutomaticBackupStatus.scheduleTime
+
+                }
+
+                if ($PSBoundParameters['Passphrase'])
+                {
+
+                    $_DecryptedPassphrase = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Passphrase))
+
+                    $_AutoBackupConfig | Add-Member -NotePropertyName "passphrase" -NotePropertyValue $_DecryptedPassphrase
 
                 }
 
@@ -35947,6 +36231,10 @@ function New-OVBackup
         [String]$Location = (get-location).Path,
 
         [Parameter (Mandatory = $false, ParameterSetName = "default")]
+        [ValidateNotNullOrEmpty()]
+        [SecureString]$Passphrase,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [Switch]$Force,
 
         [Parameter (Mandatory = $false, ParameterSetName = "default")]
@@ -36037,6 +36325,64 @@ function New-OVBackup
 
         }
 
+        # Validate if the appliance version is the minimum version needed to enforce the -Passphrase parameter.
+        $MinimumVersion = [HPEOneView.Appliance.Version]'6.60.06'
+
+        if ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+        {
+
+            For ([Int]$c = 0; $c -lt $ApplianceConnection.Count; $c++)
+            {
+
+                $ApplianceVersion = $PSLibraryVersion.$($ApplianceConnection[$c].Name).ApplianceVersion
+
+                if ($ApplianceVersion -lt $MinimumVersion -and $PSBoundParameters['Passphrase'])
+                {
+
+                    $ExceptionMessage = 'The appliance "{0}" with version "{1}" does not support the -Passphrase parameter.  The minimum version required is "{1}".' -f $ApplianceConnection[$c].Name, $ApplianceVersion, $MinimumVersion
+                    $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException InvalidApplianceVersion InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+                elseif ($ApplianceVersion -ge $MinimumVersion -and -not $PSBoundParameters['Passphrase'])
+                {
+
+                    $ExceptionMessage = 'The -Passphrase parameter is required starting with "{0}", which "{1}" is at "{2}" version.' -f $MinimumVersion, $ApplianceConnection[$c].Name, $ApplianceVersion
+                    $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException MissingRequiredParameter InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+            }
+
+        }
+
+        else
+        {
+
+            $ApplianceVersion = $PSLibraryVersion.$($ApplianceConnection.Name).ApplianceVersion
+
+            if ($ApplianceVersion -lt $MinimumVersion -and $PSBoundParameters['Passphrase'])
+            {
+
+                $ExceptionMessage = 'The appliance "{0}" with version "{1}" does not support the -Passphrase parameter.  The minimum version required is "{1}".' -f $ApplianceConnection.Name, $ApplianceVersion, $MinimumVersion
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException InvalidApplianceVersion InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+            elseif ($ApplianceVersion -ge $MinimumVersion -and -not $PSBoundParameters['Passphrase'])
+            {
+
+                $ExceptionMessage = 'The -Passphrase parameter is required starting with "{0}", which "{1}" is at "{2}" version.' -f $MinimumVersion, $ApplianceConnection.Name, $ApplianceVersion
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException MissingRequiredParameter InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+        }
+
         # Validate the path exists.  If not, create it.
         if ($PSBoundParameters['Location'] -and -not(Test-Path $Location))
         {
@@ -36079,7 +36425,22 @@ function New-OVBackup
             Try
             {
 
-                $_taskStatus = Send-OVRequest -Uri $ApplianceBackupUri -Method POST -Hostname $_appliance | Wait-OVTaskComplete -timeout (New-Timespan -minutes 45)
+                $_Params = @{
+                    Uri      = $ApplianceBackupUri;
+                    Method   = "POST";
+                    Hostname = $_appliance
+                }
+
+                if ($PSBoundParameters['Passphrase'])
+                {
+
+                    $_DecryptedPassphrase = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Passphrase))
+
+                    $_Params.Add("AddHeader", @{Passphrase = $_DecryptedPassphrase})
+
+                }
+
+                $_taskStatus = Send-OVRequest @_Params | Wait-OVTaskComplete -timeout (New-Timespan -minutes 45)
 
                 "[{0}] Response: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $($_taskStatus | out-string) | Write-Verbose
 
@@ -36193,6 +36554,10 @@ function New-OVRestore
 
         [Parameter (Mandatory = $false, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
+        [SecureString]$Passphrase,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "default")]
+        [ValidateNotNullOrEmpty()]
         [Object]$EncryptionKey,
 
         [Parameter (Mandatory = $false, ParameterSetName = "default")]
@@ -36280,6 +36645,64 @@ function New-OVRestore
 
         }
 
+        # Validate if the appliance version is the minimum version needed to enforce the -Passphrase parameter.
+        $MinimumVersion = [HPEOneView.Appliance.Version]'6.60.06'
+
+        if ($ApplianceConnection -is [System.Collections.IEnumerable] -and $ApplianceConnection -isnot [System.String])
+        {
+
+            For ([Int]$c = 0; $c -lt $ApplianceConnection.Count; $c++)
+            {
+
+                $ApplianceVersion = $PSLibraryVersion.$($ApplianceConnection[$c].Name).ApplianceVersion
+
+                if ($ApplianceVersion -lt $MinimumVersion -and $PSBoundParameters['Passphrase'])
+                {
+
+                    $ExceptionMessage = 'The appliance "{0}" with version "{1}" does not support the -Passphrase parameter.  The minimum version required is "{1}".' -f $ApplianceConnection[$c].Name, $ApplianceVersion, $MinimumVersion
+                    $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException InvalidApplianceVersion InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+                elseif ($ApplianceVersion -ge $MinimumVersion -and -not $PSBoundParameters['Passphrase'])
+                {
+
+                    $ExceptionMessage = 'The -Passphrase parameter is required starting with "{0}", which "{1}" is at "{2}" version.' -f $MinimumVersion, $ApplianceConnection[$c].Name, $ApplianceVersion
+                    $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException MissingRequiredParameter InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+            }
+
+        }
+
+        else
+        {
+
+            $ApplianceVersion = $PSLibraryVersion.$($ApplianceConnection.Name).ApplianceVersion
+
+            if ($ApplianceVersion -lt $MinimumVersion -and $PSBoundParameters['Passphrase'])
+            {
+
+                $ExceptionMessage = 'The appliance "{0}" with version "{1}" does not support the -Passphrase parameter.  The minimum version required is "{1}".' -f $ApplianceConnection.Name, $ApplianceVersion, $MinimumVersion
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException InvalidApplianceVersion InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+            elseif ($ApplianceVersion -ge $MinimumVersion -and -not $PSBoundParameters['Passphrase'])
+            {
+
+                $ExceptionMessage = 'The -Passphrase parameter is required starting with "{0}", which "{1}" is at "{2}" version.' -f $MinimumVersion, $ApplianceConnection.Name, $ApplianceVersion
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ApplianceVersionException MissingRequiredParameter InvalidArgument 'Passphrase' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+        }
+
         $_ApplianceStatus = [System.Collections.ArrayList]::new()
 
     }
@@ -36336,6 +36759,17 @@ function New-OVRestore
 
                     }
 
+                    # Add Passphrase support
+                    if ($PSBoundParameters['Passphrase'])
+                    {
+
+                        $_DecryptedPassphrase = [Runtime.InteropServices.Marshal]::PtrToStringBSTR([Runtime.InteropServices.Marshal]::SecureStringToBSTR($Passphrase))
+
+                        $_restoreObject.Add("passphrase", $_DecryptedPassphrase)
+
+                    }
+
+                    # EncryptionKey is for Composer data at rest encryption
                     if ($PSBoundParameters['EncryptionKey'] -and $ApplianceConnection.ApplianceType -ne 'Composer')
                     {
 
@@ -36647,7 +37081,16 @@ function Download-File
         ForEach ($_h in $_fileDownload.Headers)
         {
 
-            "[{0}] Request Header $($i): $($_h) = $($_fileDownload.Headers[$i])" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+            $_HeaderValue = $_fileDownload.Headers[$i]
+
+            if ("Password", "Passphrase" -contains $_h.key)
+            {
+
+                $_HeaderValue = "********REDACTED********"
+
+            }
+
+            "[{0}] Request Header $($i): $($_h) = $_HeaderValue" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
             $i++
 
@@ -39665,16 +40108,31 @@ function Get-OVApplianceUpdateSchedule
 
         }
 
-        Return [HPEOneView.Appliance.ApplianceUpdateSchedule]::new($ApplianceUpdateScheduleConfig.state,
-                                                            $ApplianceUpdateScheduleConfig.etag,
-                                                            $ApplianceUpdateScheduleConfig.created,
-                                                            $ApplianceUpdateScheduleConfig.modified,
-                                                            $ApplianceUpdateScheduleConfig.frequencyInWeeks,
-                                                            $ApplianceUpdateScheduleConfig.scheduleFrequency,
-                                                            $ApplianceUpdateScheduleConfig.scheduleDay,
-                                                            $ApplianceUpdateScheduleConfig.scheduleTimeUTC,
-                                                            $ApplianceUpdateScheduleConfig.lastSuccessfulCheck,
-                                                            $ApplianceUpdateScheduleConfig.ApplianceConnection)
+        if ($ApplianceUpdateScheduleConfig.state -eq "DISABLED")
+        {
+
+            Return [HPEOneView.Appliance.FirmwareBundleUpdateSchedule]::new($ApplianceUpdateScheduleConfig.state,
+                                                                        $ApplianceUpdateScheduleConfig.etag,
+                                                                        $ApplianceUpdateScheduleConfig.created,
+                                                                        $ApplianceUpdateScheduleConfig.frequencyInWeeks,
+                                                                        $ApplianceUpdateScheduleConfig.ApplianceConnection)
+
+        }
+
+        else
+        {
+
+            Return [HPEOneView.Appliance.FirmwareBundleUpdateSchedule]::new($ApplianceUpdateScheduleConfig.state,
+                                                                        $ApplianceUpdateScheduleConfig.etag,
+                                                                        $ApplianceUpdateScheduleConfig.created,
+                                                                        $ApplianceUpdateScheduleConfig.modified,
+                                                                        $ApplianceUpdateScheduleConfig.frequencyInWeeks,
+                                                                        $ApplianceUpdateScheduleConfig.scheduleFrequency,
+                                                                        $ApplianceUpdateScheduleConfig.scheduleDay,
+                                                                        $ApplianceUpdateScheduleConfig.scheduleTimeUTC,
+                                                                        $ApplianceUpdateScheduleConfig.lastSuccessfulCheck,
+                                                                        $ApplianceUpdateScheduleConfig.ApplianceConnection)
+        }
 
     }
 
@@ -48784,7 +49242,7 @@ function Update-OVServer
         [Switch]$Async,
 
         [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'Default')]
-        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'DefRefreshWithCredentialsault')]
+        [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = 'RefreshWithCredentials')]
         [ValidateNotNullOrEmpty()]
         [Alias ('Appliance')]
         [Object]$ApplianceConnection = (${Global:ConnectedSessions} | Where-Object Default)
@@ -50652,6 +51110,9 @@ function Set-OVEnclosureGroup
 
     Process
     {
+
+        # Validate appliance type is supported
+        [ObsoleteMessage]::Write($ApplianceConnection)
 
         # Validate InputObject
         if ($InputObject.category -ne $ResourceCategoryEnum['EnclosureGroup'])
@@ -55361,8 +55822,7 @@ function Get-OVEnclosure
         ForEach ($_appliance in $ApplianceConnection)
         {
 
-            # Display obselete message if the connection is a VM, not Synergy
-            [ObsoleteMessage]::Write($_appliance)
+            [ObsoleteMessage]::WriteMessage($_appliance, $MyInvocation.InvocationName.ToString())
 
             "[{0}] Processing '{1}' Appliance (of {2})" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_appliance.Name, $ApplianceConnection.Count | Write-Verbose
 
@@ -55798,7 +56258,7 @@ function Reset-OVEnclosureDevice
                 Try
                 {
 
-                    $_resp = Send-OVRequest -Uri $InputObject.Uri -Method PATCH -Body $_Operation -AddHeader @{'If-Match' = $Enclosure.eTag} -Hostname $Enclosure.ApplianceConnection | Wait-OVTaskStart
+                    $_resp = Send-OVRequest -Uri $InputObject.Uri -Method PATCH -Body $_Operation -AddHeader @{'If-Match' = $InputObject.eTag} -Hostname $InputObject.ApplianceConnection | Wait-OVTaskStart
 
                     if (-not($PSBoundParameters['Async']))
                     {
@@ -107849,7 +108309,7 @@ function New-OVServerProfile
                     $ServerProfile.firmware.forceInstallFirmware   = $ReinstallFirmware.IsPresent
 
                     # This policy setting is only supported with Gen10 and newer platforms
-                    if ([enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $ServerHardwareType.generation))
+                    if ([enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $ServerHardwareType.generation.Replace(" ", $null)))
                     {
 
                         $ServerProfile.firmware.installationPolicy     = $FirmwareInstallationPolicy
@@ -112551,7 +113011,7 @@ function New-OVServerProfileTemplate
                 $_spt.firmware.forceInstallFirmware   = [Bool]$forceInstallFirmware
 
                 # This policy setting is only supported with Gen10 and newer platforms
-                if ([enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $serverHardwareType.generation))
+                if ([enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $serverHardwareType.generation.Replace(" ", $null)))
                 {
 
                     $_spt.firmware.installationPolicy     = $FirmwareInstallationPolicy
@@ -124107,7 +124567,7 @@ function Get-OVTask
         [Parameter (Mandatory = $false, ParameterSetName = "ResourceCategory")]
         [ValidateNotNullorEmpty()]
         [ValidateSet ("Unknown","New","Running","Pending","Stopping","Suspended","Terminated","Killed","Completed","Error","Warning")]
-        [String]$State,
+        [String[]]$State,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "ResourceCategory")]
@@ -124224,9 +124684,11 @@ function Get-OVTask
             if ($PSBoundParameters['State'])
             {
 
-                "[{0}] State Parameter value: $($State)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                $_State = [string]::Join(" OR ", $State)
 
-                $Uri += "&filter=taskState='$State'"
+                "[{0}] State Parameter value: $($_State)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+                $Uri += "&filter=taskState='$_State'"
 
             }
 
@@ -145657,7 +146119,3 @@ $ExecutionContext.SessionState.Module.OnRemove = {
     'PesterTest','CallStack', 'ConnectedSessions','FCNetworkFabricTypeEnum','GetUplinkSetPortSpeeds','SetUplinkSetPortSpeeds','LogicalInterconnectConsistencyStatusEnum','UplinkSetNetworkTypeEnum','UplinkSetEthNetworkTypeEnum','LogicalInterconnectGroupRedundancyEnum','IgnoreCertPolicy','ResponseErrorObject' | ForEach-Object { Remove-Variable -Name $_ -Scope Global -ErrorAction SilentlyContinue }
 
 }
-
-
-
-
