@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.660.psm1'
 
 # Version number of this module.
-ModuleVersion = '6.60.3990.1744'
+ModuleVersion = '6.60.3997.2964'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -155,12 +155,9 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 6.60.3990.1744
+        ReleaseNotes = "Release 6.60.3997.2964
 
-- Updated Get-OVRemoteSupportSetting and Get-OVRemoteSupportEntitlementStatus to support interconnect resources.
-- Updated New-OVBackup and New-OVRestore to support the HPE OneView 6.60.06 patch that introduced a backup passphrase.
-- Updated [HPEOneView.Appliance.Version] class to support IComparable methods.
-- Added new parameter option -UseInvokeWebRequest to Add-OVBaseline to use native PowerShell Cmdlet Invoke-WebRequest."
+- Fixed incorrect merge issue impacting Add-OVBaseline and the -UseInvokeWebRequest parameter feature."
 
         # Prerelease string of this module
         # Prerelease = ''

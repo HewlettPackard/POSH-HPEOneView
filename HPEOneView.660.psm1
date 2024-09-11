@@ -27,7 +27,7 @@ THE SOFTWARE.
 #>
 
 # Set HPEOneView POSH Library Version
-[Version]$ModuleVersion = '6.60.3990.1744'
+[Version]$ModuleVersion = '6.60.3997.2964'
 New-Variable -Name PSLibraryVersion -Scope Global -Value ([HPEOneView.Library.Version]::new($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [Bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -32523,6 +32523,8 @@ function Add-OVBaseline
                     if ($PSBoundParameters['UseInvokeWebRequest'] -and -not $PSBoundParameters['CompSigFile'])
                     {
 
+                        Write-Warning "Using the -UseInvokeWebRequest switch parameter will not display progress.  Please wait while the baseline file is uploaded..."
+
                         Try
                         {
 
@@ -32535,18 +32537,31 @@ function Add-OVBaseline
                             $FileHeader.FileName = $File.FullName
                             $FileContent = [System.Net.Http.StreamContent]::new($FileStream)
                             $FileContent.Headers.ContentDisposition = $FileHeader
-                            $FileContent.Headers.Item("auth") = $_appliance.SessionID
-                            $FileContent.Headers.Item("X-API-Version") = "3800"
-                            $FileContent.Headers.Item("uploadfilename") = $File.Name
                             $FileContent.Headers.ContentType = [System.Net.Http.Headers.MediaTypeHeaderValue]::Parse($ContentType)
-
                             $MultipartContent = [System.Net.Http.MultipartFormDataContent]::new()
                             $MultipartContent.Add($FileContent)
 
-                            $AddTask = Invoke-WebRequest -Body $MultipartContent -Method 'POST' -Uri $_Params['URI'] -ConnectionTimeoutSeconds 1200000
+                            # Add the headers, which do not belong in the FileContent object
+                            $Headers = @{
+                                "auth" = $_appliance.SessionID;
+                                "X-API-Version" = 3800;
+                                "uploadfilename" = $File.Name
+                            }
 
+                            $_Uri = "https://{0}{1}" -f $_appliance, $ApplianceFwBundlesUri
 
-                            # $AddTask = Invoke-WebRequest -Uri $_Params['URI'] -Method Post -InFile $_Params['File'] -Headers $_Params['AddHeader'] -UseBasicParsing -Credential $_Params['ApplianceConnection'].Credential -SkipCertificateCheck
+                            $_UploadResp = Invoke-WebRequest -Body $MultipartContent -Method 'POST' -Uri $_Uri -Headers $Headers -ConnectionTimeoutSeconds 1200000 -SkipCertificateCheck
+
+                            if ($_UploadResp.StatusCode -ne 202)
+                            {
+
+                                $ExceptionMessage = "The file upload operation failed with a status code of {0}, and exception message {1}" -f $_UploadResp.StatusCode, $_UploadResp.Content
+                                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException InvalidFileUploadOperation InvalidOperation 'File' -TargetType 'System.IO.FileInfo' -Message $ExceptionMessage
+                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                            }
+
+                            $AddTask = Send-OVRequest -Uri $_UploadResp.Headers['Location'][0] -ApplianceConnection $_appliance
 
                         }
 

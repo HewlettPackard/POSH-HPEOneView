@@ -20251,7 +20251,7 @@ Default Value: (PWD).Path</maml:para>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="(All)">
 					<maml:name>Passthru</maml:name>
 					<maml:description>
-						<maml:para />
+						<maml:para>Use this parameter to return a the generated output that will also be captured in the generated log file.</maml:para>
 					</maml:description>
 					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
@@ -20277,7 +20277,7 @@ Default Value: (PWD).Path</maml:para>
 			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="(All)" aliases="None">
 				<maml:name>Passthru</maml:name>
 				<maml:description>
-					<maml:para />
+					<maml:para>Use this parameter to return a the generated output that will also be captured in the generated log file.</maml:para>
 				</maml:description>
 				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
@@ -106812,5 +106812,5 @@ Once the task enters the running state, the Cmdlet will return the task resource
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2024-09-06T17:49:39:44.442Z-->
+	<!--Edited on: 2024-09-11T01:20:32:77.773Z-->
 </helpItems>

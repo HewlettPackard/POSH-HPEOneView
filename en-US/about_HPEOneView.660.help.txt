@@ -32,7 +32,13 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 6.60.3997.2964
+
+      -- Fixed incorrect merge issue impacting Add-OVBaseline and the -UseInvokeWebRequest
+         parameter feature.
+
    Release 6.60.3990.1744
+
       -- Updated Get-OVRemoteSupportSetting and Get-OVRemoteSupportEntitlementStatus to
          support interconnect resources.
       -- Updated New-OVBackup and New-OVRestore to support the HPE OneView 6.60.06 patch
