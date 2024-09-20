@@ -14,7 +14,7 @@ The major changes are:
 
 ## Build status
 
-AppVeyor 9.10 Branch | AppVeyor 8.60 Branch | AppVeyor 8.40 Branch | AppVeyor 7.20 Branch
+AppVeyor 9.10 Branch | AppVeyor 8.60 Branch | AppVeyor 8.40 Branch | AppVeyor 6.60 Branch
 -------------------- | -------------------- | -------------------- | --------------------
 [![Build status][ov-master-build-status-badge]][ov-master-build-link] [![PS Gallery][ov-master-psgallery-badge]][ov-master-psgallery-link] | [![Build status][ov-minus1-build-status-badge]][ov-minus1-build-link] [![PS Gallery][ov-minus1-psgallery-badge]][ov-minus1-psgallery-link] | [![Build status][ov-minus2-build-status-badge]][ov-minus2-build-link] [![PS Gallery][ov-minus2-psgallery-badge]][ov-minus2-psgallery-link] | [![Build status][ov-minus3-build-status-badge]][ov-minus3-build-link] [![PS Gallery][ov-minus3-psgallery-badge]][ov-minus3-psgallery-link]
 
