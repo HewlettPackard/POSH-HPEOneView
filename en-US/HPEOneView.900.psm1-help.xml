@@ -77713,7 +77713,7 @@ Remove-OVServer $server -confirm:$false -force</dev:code>
 			<command:syntaxItem>
 				<maml:name>Remove-OVServerProfile</maml:name>
 				<command:parameter required="True" globbing="True" pipelineInput="true (ByValue)" position="named" parameterSetName="default">
-					<maml:name>ServerProfile</maml:name>
+					<maml:name>InputObject</maml:name>
 					<maml:description>
 						<maml:para>The server profile object(s), name(s) or URI(s) to be removed.</maml:para>
 					</maml:description>
@@ -77802,6 +77802,17 @@ If the -RetainStorageConfig parameter is used while deleting a server profile, t
 				</dev:type>
 				<dev:defaultValue>False</dev:defaultValue>
 			</command:parameter>
+			<command:parameter required="True" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name, profile, ServerProfile">
+				<maml:name>InputObject</maml:name>
+				<maml:description>
+					<maml:para>The server profile object(s), name(s) or URI(s) to be removed.</maml:para>
+				</maml:description>
+				<command:parameterValue required="True" variableLength="False">Object</command:parameterValue>
+				<dev:type>
+					<maml:name>Object</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
 			<command:parameter required="False" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="None">
 				<maml:name>RetainStorageConfig</maml:name>
 				<maml:description>
@@ -77821,17 +77832,6 @@ If the -RetainStorageConfig parameter is used while deleting a server profile, t
 				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				<dev:type>
 					<maml:name>SwitchParameter</maml:name>
-				</dev:type>
-				<dev:defaultValue />
-			</command:parameter>
-			<command:parameter required="True" globbing="False" pipelineInput="true (ByValue)" position="named" parameterSetName="default" aliases="uri, name, profile">
-				<maml:name>ServerProfile</maml:name>
-				<maml:description>
-					<maml:para>The server profile object(s), name(s) or URI(s) to be removed.</maml:para>
-				</maml:description>
-				<command:parameterValue required="True" variableLength="False">Object</command:parameterValue>
-				<dev:type>
-					<maml:name>Object</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -77894,26 +77894,8 @@ If the -RetainStorageConfig parameter is used while deleting a server profile, t
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>$task = Remove-OVServerProfile -profile "Profile6"
-Wait-OVTaskComplete $task.uri
-                        </dev:code>
-				<dev:remarks>
-					<dev:para>Remove the profile specifed by name. Wait for remove to complete.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
-				<dev:code>$profile = Get-OVServerProfile -name "Profile2"
-Remove-OVServerProfile $profile -confirm:$false</dev:code>
+				<dev:code>$profile = Get-OVServerProfile -Name "Profile2"
+Remove-OVServerProfile -InputObject $profile -Confirm:$false</dev:code>
 				<dev:remarks>
 					<dev:para>Remove the profile specifed by $profile. Disable confirmation prompt.</dev:para>
 					<dev:para />
@@ -77925,7 +77907,7 @@ Remove-OVServerProfile $profile -confirm:$false</dev:code>
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -78197,26 +78179,8 @@ Remove-OVServerProfile $profile -confirm:$false</dev:code>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
-				<dev:code>$task = Remove-OVServerProfileTemplate -ServerProfileTemplate "My Template Profile"
-Wait-OVTaskComplete -InputObject $task
-                        </dev:code>
-				<dev:remarks>
-					<dev:para>Remove the profile template specifed by name. Wait for remove to complete.</dev:para>
-					<dev:para />
-				</dev:remarks>
-				<command:commandLines>
-					<command:commandLine>
-						<command:commandText />
-					</command:commandLine>
-				</command:commandLines>
-			</command:example>
-			<command:example>
-				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
-				<maml:introduction>
-					<maml:para />
-				</maml:introduction>
 				<dev:code>$spt = Get-OVServerProfileTemplate -name "My Template Profile" -ErrorAction Stop
-Remove-OVServerProfileTemplate $spt -Confirm:$false</dev:code>
+Remove-OVServerProfileTemplate -InputObject $spt -Confirm:$false</dev:code>
 				<dev:remarks>
 					<dev:para>Remove the profile template specifed by $spt. Disable confirmation prompt.</dev:para>
 					<dev:para />
@@ -78228,7 +78192,7 @@ Remove-OVServerProfileTemplate $spt -Confirm:$false</dev:code>
 				</command:commandLines>
 			</command:example>
 			<command:example>
-				<maml:title>-------------------------- EXAMPLE 3 --------------------------</maml:title>
+				<maml:title>-------------------------- EXAMPLE 2 --------------------------</maml:title>
 				<maml:introduction>
 					<maml:para />
 				</maml:introduction>
@@ -108462,6 +108426,13 @@ $Name = "HPE Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
 				</command:parameter>
 				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Default">
+					<maml:name>PreviewOnly</maml:name>
+					<maml:description>
+						<maml:para />
+					</maml:description>
+					<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				</command:parameter>
+				<command:parameter required="False" globbing="True" pipelineInput="false" position="named" parameterSetName="Default">
 					<maml:name>Async</maml:name>
 					<maml:description>
 						<maml:para>Use this parameter to immediately return the async task.  By default, the Cmdlet will wait for the task to complete.</maml:para>
@@ -108569,6 +108540,17 @@ $Name = "HPE Service Pack For ProLiant  OneView 2014 11 13"</maml:para>
 				<command:parameterValue required="False" variableLength="False">System.Version</command:parameterValue>
 				<dev:type>
 					<maml:name>System.Version</maml:name>
+				</dev:type>
+				<dev:defaultValue />
+			</command:parameter>
+			<command:parameter required="False" globbing="False" pipelineInput="false" position="named" parameterSetName="Default" aliases="None">
+				<maml:name>PreviewOnly</maml:name>
+				<maml:description>
+					<maml:para />
+				</maml:description>
+				<command:parameterValue required="False" variableLength="False">SwitchParameter</command:parameterValue>
+				<dev:type>
+					<maml:name>SwitchParameter</maml:name>
 				</dev:type>
 				<dev:defaultValue />
 			</command:parameter>
@@ -110262,5 +110244,5 @@ Once the task enters the running state, the Cmdlet will return the task resource
 			</maml:navigationLink>
 		</maml:relatedLinks>
 	</command:command>
-	<!--Edited on: 2024-09-23T22:12:29:37.373Z-->
+	<!--Edited on: 2024-09-26T04:28:27:87.878Z-->
 </helpItems>
