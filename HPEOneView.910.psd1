@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.910.psm1'
 
 # Version number of this module.
-ModuleVersion = '9.10.4006.1748'
+ModuleVersion = '9.10.4012.2256'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,15 +156,10 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 9.10.4006.1748
+        ReleaseNotes = 'Release 9.10.4012.2256
 
-- Initial HPE OneView 9.10 library release.
-- Added Get-OVRotateMPPasswordPolicy and Set-OVRotateMPPasswordPolicy cmdlets that will rotate the priviledged user account OneView deploys to a servers embedded management processor (i.e. iLO).
-- Added Firmware Bundle Updates to New-OVServerProfileTemplate and New-OVServerProfile Cmdlets.
-- Added server profile support to Update-OVServerFirmware Cmdlet.  This will modify the server profile resource directly, and not invoke the process with the server hardware resource.
-- Added Get-OVRemoteSupportPortalConnection, Register-OVRemoteSupportPortalConnection, Unregister-OVRemoteSupportPortalConnection Cmdlets to manage registering the appliance with the HPE Support Center for enhanced support case vibility.
-- Fixed New-OVRemoteSupportContact returning the correct object type.
-- Remove-OVRemoteSupportPartner API returns an Async task.'
+- Added Compliance Preview back to Update-OVServerFirmware with -PreviewOnly switch parameter.
+- Fixed incorrect handling of server profile resource (assigned and unassigned) with Update-OVServerFirmware.'
 
         # Prerelease string of this module
         # Prerelease = ''

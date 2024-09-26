@@ -32,6 +32,13 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 9.10.4012.2256
+
+      -- Added Compliance Preview back to Update-OVServerFirmware with -PreviewOnly
+         switch parameter.
+      -- Fixed incorrect handling of server profile resource (assigned and unassigned)
+         with Update-OVServerFirmware.
+
    Release 9.10.4006.1748
 
       -- Initial HPE OneView 9.10 library release.
