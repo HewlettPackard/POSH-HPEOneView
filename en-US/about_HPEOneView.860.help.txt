@@ -32,6 +32,26 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 8.60.4019.2522
+
+      -- [#676] Fixed -Detailed parameter output with Get-OVServerProfile.
+      -- [#667] Fixed mishandling of baseline resource object class type.
+      -- Added Compliance Preview back to Update-OVServerFirmware with -PreviewOnly
+         switch parameter.
+      -- Fixed incorrect handling of server profile resource (assigned and unassigned)
+         with Update-OVServerFirmware.
+      -- Fixed Show-OVFirmwareReport mishandling Synergy compute module resources when
+         calculating compliance.
+      -- Fixed Show-OVFirmwareReport mishandling Synergy management appliance module
+         resources when calculating compliance.
+      -- Added Firmware Bundle Updates to New-OVServerProfileTemplate and
+         New-OVServerProfile Cmdlets.
+      -- Added server profile support to Update-OVServerFirmware Cmdlet.  This will
+         modify the server profile resource directly, and not invoke the process
+         with the server hardware resource.
+      -- Fixed New-OVRemoteSupportContact returning the correct object type.
+      -- Remove-OVRemoteSupportPartner API returns an Async task.
+
    Release 8.60.3997.3057
 
       -- Initial HPE OneView 8.60 library release.

@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.860.psm1'
 
 # Version number of this module.
-ModuleVersion = '8.60.3997.3057'
+ModuleVersion = '8.60.4019.2522'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,37 +156,18 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = "Release 8.60.3997.3057
+        ReleaseNotes = "Release 8.60.4019.2522
 
-- Initial HPE OneView 8.60 library release.
-- Support for PowerShell 5 and 6 is now deprecated and is no longer supported.
-- [#647] Fixed ConvertTo-OVPowerShellScript mishandling BIOS consistency policy when parsing a server profile template.
-- [#642] Fixed incorrect use of internal variable within Update-OVServerFirmware.
-- [#654] Fixed ConvertTo-OVPowerShellScript mishandling Tunnel uplink set resources.
-- [#656] Fixed parameter evaluation bug with Update-OVServerProfile and the -Stage parameter.
-- Added Cmdlets to manage HPE GreenLake for Compute Ops Managment - OneView Edition service configuration and status from the appliance.
-- Added workaround to supporting Gen10 Plus V2 platforms and supporting firmware management.
-- Added Update-OVRemoteSupportEntitlement Cmdlet to refresh remote support entitlement data with the backend.
-- Updated Get-OVRemoteSupportSetting and Get-OVRemoteSupportEntitlementStatus to support interconnect resources.
-- Added HPE GreenLake for Compute Ops Management - OneView Edition Cmdlets; Get-OVComputeOpsManagement, Set-OVComputeOpsManagement, Connect-OVComputeOpsManagement, Enable-OVComputeOpsManagement, Disable-OVComputeOpsManagement
-- Added Alletra 9000 FC-NVMe support to Add-OVStorageSystem.
-- Added MegaRAID support to New-OVServerProfileLogicalDiskController.
-- Added Get-OVServerHardwareAvailableController to return discovered disk drive controllers for volume servers (DL, ML, Apollo) and drives.  New classes added HPEOneView.Servers.StorageController and HPEOneView.Servers.PhysicalDrive.
-- Added the ability to specify controller returned from Get-OVServerHardwareAvailableController.
-- Added the ability to specify specific drives in New-OVServerProfileLogicalDisk after invoking Get-OVServerHardwareAvailableController to get list of controllers and available drives that are part of the HPEOneView.Servers.StorageController.Drives property.
-- Updated core library to handle web proxy in a more efficient method.
-- Updated core library to use TLS1.2 only.
-- [#659] Enhanced Show-OVFirmwareReport to provide available baseline version.
-- [#662] Resolved issue with Update-OVServerProfile not handling -Stage parameter correctly.
-- Enhanced New-OVBackup to require passphrase to create backup file.
-- Enhanced Send-OVRequest to handle appliance certificate validation errors correctly.
-- Changed Get-OVApplianceUpdateSchedule to Get-OVFirmwareBundleUpdateSchedule.  Alias to original Cmdlet is available for backwards compatibility.  Please update your scripts.
-- Changed Set-OVApplianceUpdateSchedule to Set-OVFirmwareBundleUpdateSchedule.  Alias to original Cmdlet is available for backwards compatibility.  Please update your scripts.
-- Changed Get-OVApplianceUpdate to Get-OVFirmwareBundleUpdate.  Alias to original Cmdlet is available for backwards compatibility.  Please update your scripts.
-- Changed HPEOneView.Appliance.ApplianceUpdate class to HPEOneView.Appliance.FirmwareBundleUpdate.
-- Changed HPEOneView.Appliance.ApplianceUpdateSchedule class to HPEOneView.Appliance.FirmwareBundleUpdateSchedule.
-- Removed -PreviewOnly switch parameter from Update-OVServerFirmware, as the API doesn't provide a compliance feature.
-- Fixed an issue with Set-OVFirmwareBundleUpdateSchedule where the value for -Time was not properly handled when converting to UTC time."
+- [#676] Fixed -Detailed parameter output with Get-OVServerProfile.
+- [#667] Fixed mishandling of baseline resource object class type.
+- Added Compliance Preview back to Update-OVServerFirmware with -PreviewOnly switch parameter.
+- Fixed incorrect handling of server profile resource (assigned and unassigned) with Update-OVServerFirmware.
+- Fixed Show-OVFirmwareReport mishandling Synergy compute module resources when calculating compliance.
+- Fixed Show-OVFirmwareReport mishandling Synergy management appliance module resources when calculating compliance.
+- Added Firmware Bundle Updates to New-OVServerProfileTemplate and New-OVServerProfile Cmdlets.
+- Added server profile support to Update-OVServerFirmware Cmdlet.  This will modify the server profile resource directly, and not invoke the process with the server hardware resource.
+- Fixed New-OVRemoteSupportContact returning the correct object type.
+- Remove-OVRemoteSupportPartner API returns an Async task."
 
         # Prerelease string of this module
         # Prerelease = ''

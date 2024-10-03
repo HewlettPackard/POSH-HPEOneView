@@ -27,7 +27,7 @@ THE SOFTWARE.
 #>
 
 # Set HPEOneView POSH Library Version
-[Version]$ModuleVersion = '8.60.3997.3057'
+[Version]$ModuleVersion = '8.60.4019.2522'
 New-Variable -Name PSLibraryVersion -Scope Global -Value ([HPEOneView.Library.Version]::new($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [Bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -357,12 +357,6 @@ $ResourceCategoryEnum = @{
     [String]$RemoteTechnicianConnectivitySessionsUri              = '{0}/sessions' -f $RemoteTechnicianUri
     [String]$RemoteTechnicianTunnelSessionsUri                    = '{0}/tunnel' -f $RemoteTechnicianUri
 #------------------------------------
-#  Image Streamer (I3S) Management
-#------------------------------------
-    [String]$DeploymentServersUri          = '/rest/deployment-servers' # Mapped to Get-OVOSDeploymentServer?
-    [String]$AvailableDeploymentServersUri = '/rest/deployment-servers/image-streamer-appliances' # Mapped to Show-OVImageStreamer?
-    [String]$DeploymentPlansUri            = '/rest/os-deployment-plans/' # Mapped to Get-OVOsDeploymentPlan
-#------------------------------------
 #  Server Resource Management
 #------------------------------------
     [String]$SynergyEnclosureTypeUri             = "/rest/enclosure-types/SY12000"
@@ -386,8 +380,9 @@ $ResourceCategoryEnum = @{
     [PSCustomObject]$MpModelTable                   = @{
         ilo2 = "RI7";
         ilo3 = "RI9";
-        ilo4 = "RI10"
-        iLO5 = "RI11"
+        ilo4 = "RI10";
+        iLO5 = "RI11";
+        iLO6 = "RI12"
     }
     [HashTable]$Script:ServerPowerControlEnum       = @{
 
@@ -1408,7 +1403,7 @@ class ObsoleteMessage
         if ([ObsoleteMessage]::DeprecatedCmdlets.$($_Appliance.ApplianceType).Contains($Caller))
         {
 
-            $Message = $null
+            [System.String]$Message = $null
 
             if ($_Appliance.ApplianceType -eq 'VMA')
             {
@@ -1472,6 +1467,7 @@ class ObsoleteMessage
     }
 
 }
+
 
 # Class used for server migration features, Get-OVMigratableServer
 class ServerMigrationConnectApplianceCredentials
@@ -6701,7 +6697,7 @@ function Send-OVRequest
 
                         "[{0}] Async Task (HTTP 202) received"-f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                        # AsynchronOut operation -- in some cases we get the Task object returned in the body.
+                        # Asynchronous operation -- in some cases we get the Task object returned in the body.
                         # In other cases, we only get the Task URI in the Location header.
                         # In either case, return a Task object with as much information as we know
                         if ($LastWebResponse.Headers.Item('X-Task-URI'))
@@ -6800,11 +6796,12 @@ function Send-OVRequest
 
                          "[{0}] Response members and automatic pagination" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                        $resp.members | ForEach-Object {
+                        ForEach ($_member in $resp.members)
+                        {
 
-                            Add-Member -InputObject $_ -NotePropertyName ApplianceConnection -NotePropertyValue ([HPEOneView.Library.ApplianceConnection]::new($ApplianceHost.Name, $ApplianceHost.ConnectionId)) -Force
+                            Add-Member -InputObject $_member -NotePropertyName ApplianceConnection -NotePropertyValue ([HPEOneView.Library.ApplianceConnection]::new($ApplianceHost.Name, $ApplianceHost.ConnectionId)) -Force
 
-                            [void]$AllMembers.Add($_)
+                            [void]$AllMembers.Add($_member)
 
                         }
 
@@ -6848,14 +6845,15 @@ function Send-OVRequest
 
                     }
 
-                    elseif ($resp.members -and $manualPaging )
+                    elseif ($resp.members -and $manualPaging)
                     {
 
                         "[{0}] Response members and manual paging" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                        $resp.members | ForEach-Object {
+                        ForEach ($_member in $resp.members)
+                        {
 
-                            Add-Member -InputObject $_ -NotePropertyName ApplianceConnection -NotePropertyValue ([HPEOneView.Library.ApplianceConnection]::new($ApplianceHost.Name, $ApplianceHost.ConnectionId)) -Force
+                            Add-Member -InputObject $_member -NotePropertyName ApplianceConnection -NotePropertyValue ([HPEOneView.Library.ApplianceConnection]::new($ApplianceHost.Name, $ApplianceHost.ConnectionId)) -Force
 
                         }
 
@@ -6863,14 +6861,19 @@ function Send-OVRequest
 
                     }
 
-                    elseif ($resp)
+                    else
                     {
 
                         "[{0}] Response object, no paging needed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                        Add-Member -InputObject $resp -NotePropertyName ApplianceConnection -NotePropertyValue ([HPEOneView.Library.ApplianceConnection]::new($ApplianceHost.Name, $ApplianceHost.ConnectionId)) -Force
+                        ForEach ($_member in $resp)
+                        {
 
-                        [void]$AllResponses.Add($resp)
+                            Add-Member -InputObject $_member -NotePropertyName ApplianceConnection -NotePropertyValue ([HPEOneView.Library.ApplianceConnection]::new($ApplianceHost.Name, $ApplianceHost.ConnectionId)) -Force
+
+                            [void]$AllResponses.Add($_member)
+
+                        }
 
                     }
 
@@ -29332,7 +29335,8 @@ function Remove-OVRemoteSupportContact
 
     # .ExternalHelp HPEOneView.860.psm1-help.xml
 
-   [CmdletBinding (DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = 'High')]
+    [CmdletBinding (DefaultParameterSetName = "Default", SupportsShouldProcess, ConfirmImpact = 'High')]
+    [OutputType([HPEOneView.Appliance.TaskResource])]
     Param
     (
 
@@ -29439,7 +29443,6 @@ function Remove-OVRemoteSupportContact
         }
 
         $_RemoteSupportContactsCol = [System.Collections.ArrayList]::new()
-        $_TaskCollection           = [System.Collections.ArrayList]::new()
 
     }
 
@@ -29528,7 +29531,8 @@ function Remove-OVRemoteSupportContact
             if ($_contact.default)
             {
 
-                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.RemoteSupportContactException UnableToRemoveDefaultContact InvalidOperation "Contact" -TargetType 'PSObject' -Message ("The Contact resource '{0}' is currently the default.  The removal of the Default Contact is not supported.  If you wish to remove this contact, please set another contact as the Default first." -f $Name)
+                $ExceptionMessage = "The Contact resource '{0}' is currently the default.  The removal of the Default Contact is not supported.  If you wish to remove this contact, please set another contact as the Default first." -f $Name
+                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.RemoteSupportContactException UnableToRemoveDefaultContact InvalidOperation "Contact" -TargetType 'PSObject' -Message $ExceptionMessage
                 $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
             }
@@ -29542,9 +29546,7 @@ function Remove-OVRemoteSupportContact
                     Try
                     {
 
-                        $_task = Send-OVRequest -Uri $_contact.uri -Method DELETE -Hostname $_contact.ApplianceConnection -AddHeader @{'If-Match' = $_contact.eTag}
-
-                        [void]$_TaskCollection.Add($_task)
+                        Send-OVRequest -Uri $_contact.uri -Method DELETE -Hostname $_contact.ApplianceConnection -AddHeader @{'If-Match' = $_contact.eTag} | Wait-OVTaskComplete
 
                     }
 
@@ -29574,8 +29576,6 @@ function Remove-OVRemoteSupportContact
             }
 
         }
-
-        Return $_TaskCollection
 
     }
 
@@ -29719,9 +29719,10 @@ function Get-OVRemoteSupportPartner
 
             }
 
-            $_resp.members | ForEach-Object {
+            ForEach ($_rsPartner in $_resp.members)
+            {
 
-                $_.PSObject.TypeNames.Insert(0,'HPEOneview.Appliance.RemoteSupport.Partner')
+                $_rsPartner.PSObject.TypeNames.Insert(0,'HPEOneview.Appliance.RemoteSupport.Partner')
 
             }
 
@@ -29746,6 +29747,7 @@ function New-OVRemoteSupportPartner
     # .ExternalHelp HPEOneView.860.psm1-help.xml
 
    [CmdletBinding (DefaultParameterSetName = "Default")]
+    [OutputType([HPEOneView.Appliance.TaskResource])]
     Param
     (
 
@@ -29879,7 +29881,7 @@ function New-OVRemoteSupportPartner
         Try
         {
 
-            $_resp = Send-OVRequest -Uri $RemoteSupportChannelPartnersUri -Method POST -Body $_RemoteSupportPartnerObject -Hostname $ApplianceConnection
+            $_resp = Send-OVRequest -Uri $RemoteSupportChannelPartnersUri -Method POST -Body $_RemoteSupportPartnerObject -Hostname $ApplianceConnection | Wait-OVTaskComplete
 
         }
 
@@ -29890,7 +29892,6 @@ function New-OVRemoteSupportPartner
 
         }
 
-        $_resp.PSObject.TypeNames.Insert(0,'HPEOneview.Appliance.RemoteSupport.Partner')
         $_resp
 
     }
@@ -32570,6 +32571,7 @@ function Get-OVBaseline
     # .ExternalHelp HPEOneView.860.psm1-help.xml
 
     [CmdletBinding (DefaultParameterSetName = "ISOFileName" )]
+    [OutputType([HPEOneView.Appliance.Baseline])]
     Param
     (
 
@@ -32810,25 +32812,50 @@ function Get-OVBaseline
                 "ISOFileName"
                 {
 
-                    if ($File)
+                    if ($PSBoundParameters['File'])
                     {
 
-                        if ($File.EndsWith('.exe') -or $File.EndsWith('.scexe') -or $File.EndsWith('.rpm') -or $File.EndsWith('.zip') -or $File.EndsWith('.fwpkg'))
+                        $_FileToProcess = $null
+
+                        Switch ($File.GetType().Fullname)
+                        {
+
+                            'System.IO.FileInfo'
+                            {
+
+                                $_FileToProcess = $File.Name
+
+                            }
+
+                            'System.String'
+                            {
+
+                                $_FileToProcess = $File
+
+                            }
+
+                        }
+
+                        if ($_FileToProcess.EndsWith('.exe') -or
+                            $_FileToProcess.EndsWith('.scexe') -or
+                            $_FileToProcess.EndsWith('.rpm') -or
+                            $_FileToProcess.EndsWith('.zip') -or
+                            $_FileToProcess.EndsWith('.fwpkg'))
                         {
 
                             "[{0}] Looking for hotfix file" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                            if ($File.Contains('*'))
+                            if ($_FileToProcess.Contains('*'))
                             {
 
-                                [Void]$_Query.Add(("fwbaseline_fileName%3A{0}" -f $File.Replace("*", "%2A")))
+                                [Void]$_Query.Add(("fwbaseline_fileName%3A{0}" -f $_FileToProcess.Replace("*", "%2A")))
 
                             }
 
                             else
                             {
 
-                                [Void]$_Query.Add(("fwbaseline_fileName:'{0}'" -f $File))
+                                [Void]$_Query.Add(("fwbaseline_fileName:'{0}'" -f $_FileToProcess))
 
                             }
 
@@ -32839,15 +32866,15 @@ function Get-OVBaseline
 
                             "[{0}] Looking for Baseline ISO file" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                            if (-not $File.EndsWith('iso'))
+                            if (-not $_FileToProcess.EndsWith('iso'))
                             {
 
-                                $File += '.iso'
+                                $_FileToProcess += '.iso'
 
                             }
 
                             # Replace any preceeding period with an underscore.
-                            $_File = [RegEx]::Replace($File, '\.(?!iso|exe|scexe|rpm|zip)', '_')
+                            $_File = [RegEx]::Replace($_FileToProcess, '\.(?!iso|exe|scexe|rpm|zip)', '_')
 
                             if ($_File.Contains('*'))
                             {
@@ -40862,7 +40889,7 @@ function Get-OVFirmwareBundleUpdateSchedule
 
         }
 
-        if ($ApplianceUpdateScheduleConfig.state -eq "DISABLED")
+        if ($ApplianceUpdateScheduleConfig.state -eq [HPEOneView.Appliance.StateEnum]::DISABLED)
         {
 
             Return [HPEOneView.Appliance.FirmwareBundleUpdateSchedule]::new($ApplianceUpdateScheduleConfig.state,
@@ -49051,7 +49078,7 @@ function Update-OVServerFirmware
     (
 
         [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "Default")]
-        [Alias("Server", "ServerHardware")]
+        [Alias("Server", "ServerHardware", "ServerProfile")]
         [ValidateNotNullOrEmpty()]
         [Object]$InputObject,
 
@@ -49074,6 +49101,9 @@ function Update-OVServerFirmware
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Switch]$ReinstallFirmware,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Switch]$PreviewOnly,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Switch]$Async,
@@ -49169,23 +49199,78 @@ function Update-OVServerFirmware
     {
 
         $_CompliancePreview = [System.Collections.ArrayList]::new()
+        $_ServerFirmwareBundleCompliance = NewObject -ServerFirmwareBundleCompliance
 
-        if ($InputObject.category -ne $ResourceCategoryEnum.ServerHardware)
+        if ($ResourceCategoryEnum.ServerHardware, $ResourceCategoryEnum.ServerProfile -notcontains $InputObject.category)
         {
 
-            $ExceptionMessage = "The provided InputObject is not a server hardware resource."
+            $ExceptionMessage = "The provided InputObject is not a server hardware or server profile resource."
             $ErrorRecord      = New-ErrorRecord HPEOneView.Library.ParameterValidationException InvalidInputObjectParameter InvalidOperation 'InputObject' -Message $ExceptionMessage
             $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
         }
 
         # This policy setting is only supported with Gen10 and newer platforms
-        if (-not [enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $InputObject.generation.Replace(" ", $null)))
+        if ($InputObject.category -eq $ResourceCategoryEnum.ServerHardware)
         {
 
-            $ExceptionMessage = "Firmware installation without server profile is only available with Gen10 and newer platforms.  It is not supported with '{0}' server generation." -f  $InputObject.generation
-            $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidFirmwareInstallPolicy InvalidArgument 'FirmwareInstallationPolicy' -Message $ExceptionMessage
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            if (-not [enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $InputObject.generation.Replace(" ", $null)))
+            {
+
+                $ExceptionMessage = "Firmware installation without server profile is only available with Gen10 and newer platforms.  It is not supported with '{0}' server generation." -f  $InputObject.generation
+                $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidFirmwareInstallPolicy InvalidArgument 'FirmwareInstallationPolicy' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
+
+        }
+
+        elseif ($InputObject.category -eq $ResourceCategoryEnum.ServerProfile)
+        {
+
+            # Check to see if the server profile is assigned to a server resource by evaluating the serverHardwareUri property.
+            # If null, get the server hardware type of the profile and get it instead of the server hardware
+            if ([String]::IsNullOrEmpty($InputObject.serverHardwareUri))
+            {
+
+                "[{0}] Server profile is not assigned to a server hardware resource.  Getting associated server hardware type resource." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+                $_Uri = $InputObject.serverHardwareTypeUri
+
+            }
+
+            else
+            {
+
+                "[{0}] Server profile is assigned to a server hardware resource." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+                $_Uri = $InputObject.serverHardwareUri
+
+            }
+
+            # Get the associated server hardware resource from the serverHardwareUri property, then perform validation of the server hardware resource generation
+            Try
+            {
+
+                $_ServerHardware = Send-OVRequest -Uri $_Uri -Hostname $ApplianceConnection
+
+            }
+
+            Catch
+            {
+
+                $PSCmdlet.ThrowTerminatingError($_)
+
+            }
+
+            if (-not [enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $_ServerHardware.generation.Replace(" ", $null)))
+            {
+
+                $ExceptionMessage = "Firmware installation without server profile is only available with Gen10 and newer platforms.  It is not supported with '{0}' server generation." -f  $_ServerHardware.generation
+                $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidFirmwareInstallPolicy InvalidArgument 'FirmwareInstallationPolicy' -Message $ExceptionMessage
+                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+            }
 
         }
 
@@ -49208,72 +49293,336 @@ function Update-OVServerFirmware
 
         }
 
-        # Check if the server hardware resource contains an iLO Advanced license or HPE OneView Advanced, generate terminating error if not
-        if (('OneViewNoiLO', 'OneView' -Contains $InputObject.licensingIntent) -or ($InputObject.licensingIntent -eq "OneViewStandard" -and $InputObject.mpLicenseType -eq "iLO Advanced"))
+        switch ($Inputobject.category)
         {
 
-            # Check if the server is powered off
-            if ($InputObject.powerState -ne "Off" -and 'FirmwareOnly', 'FirmwareOffline' -contains $FirmwareInstallMode)
+            $ResourceCategoryEnum.ServerHardware
             {
 
-                $ExceptionMessage = "The provided server resource {0} is not powered off.  Server power state must be off before attempting to install an offline firmware bundle." -f  $InputObject.name
-                $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidPowerState InvalidOperation 'InputObjectS' -Message $ExceptionMessage
-                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                "[{0}] InputObject is a server hardware resource." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
+                $_ServerFirmwareBundleCompliance.serverUUID = $InputObject.uuid
+
+                # Check if the server hardware resource contains an iLO Advanced license or HPE OneView Advanced, generate terminating error if not
+                if (('OneViewNoiLO', 'OneView' -Contains $InputObject.licensingIntent) -or ($InputObject.licensingIntent -eq "OneViewStandard" -and $InputObject.mpLicenseType -eq "iLO Advanced"))
+                {
+
+                    # Check if the server is powered off
+                    if ($InputObject.powerState -ne "Off" -and 'FirmwareOnly', 'FirmwareOffline' -contains $FirmwareInstallMode)
+                    {
+
+                        $ExceptionMessage = "The provided server resource {0} is not powered off.  Server power state must be off before attempting to install an offline firmware bundle." -f  $InputObject.name
+                        $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidPowerState InvalidOperation 'InputObjectS' -Message $ExceptionMessage
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                    }
+
+                    if (-not [String]::IsNullOrEmpty($InputObject.serverProfileUri))
+                    {
+
+                        $ExceptionMessage = "The provided server resource {0} has a server profile assigned.  Deploying a firmware bundle must be installed using the assigned server profile." -f  $InputObject.name
+                        $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidServerProfile InvalidOperation 'InputObjectS' -Message $ExceptionMessage
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                    }
+
+                    "[{0}] Firmware Baseline: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline | Write-Verbose
+
+                    $_ServerFirmwareInstallOp = NewObject -InstallServerFirmware
+
+                    $_ServerFirmwareInstallOp.forceApplyFirmware  = $PSBoundParameters['ReinstallFirmware']
+                    $_ServerFirmwareInstallOp.firmwareInstallType = $ServerProfileFirmwareControlModeEnum[$FirmwareInstallMode]
+                    $_ServerFirmwareInstallOp.installationPolicy  = $FirmwareInstallationPolicy
+
+                    if ($PSBoundParameters['PatchLevel'])
+                    {
+
+                        $_PatchLevel = "{0:0000}.{1:00}.{2:00}.{3:00}" -f $PatchLevel.Major, $PatchLevel.Minor, $PatchLevel.Build, $PatchLevel.Revision
+                        $_ServerFirmwareInstallOp | Add-Member -NotePropertyName patchLevel -NotePropertyValue $_PatchLevel
+
+                        # Add patchLevel property for compliance preview
+                        $_ServerFirmwareBundleCompliance | Add-Member -NotePropertyName patchLevel -NotePropertyValue $_PatchLevel
+
+                    }
+
+                    # We are expecting the SPP or Update object that contains the URI.
+                    if ($ResourceCategoryEnum.Baseline, $ResourceCategoryEnum.Updates -contains $Baseline.category)
+                    {
+
+                        $_ServerFirmwareInstallOp.baselineUri = $Baseline.uri
+
+                        # If the baseline is an update object, extract GUID from URI
+                        if ($Baseline.category -eq $ResourceCategoryEnum.Updates)
+                        {
+
+                            $_ServerFirmwareBundleCompliance.firmwareBaselineId = $Baseline.uri.Split("/")[-1]
+
+                        }
+
+                        else
+                        {
+
+                            # If the baseline is a baseline object, use ResourceID property value
+                            $_ServerFirmwareBundleCompliance.firmwareBaselineId = $Baseline.ResourceId
+
+                        }
+
+                    }
+
+                    else
+                    {
+
+                        $ExceptionMessage = "An invalid parameter value for Baseline was provided.  Only objects from Get-OVBaseline are supported."
+                        $ErrorRecord      = New-ErrorRecord HPEOneView.Library.ParameterValidationException InvalidBaselineParameter InvalidOperation 'Baseline' -Message $ExceptionMessage
+                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                    }
+
+                    $_PatchOp       = NewObject -PatchOperation
+                    $_PatchOp.op    = "replace"
+                    $_PatchOp.value = $_ServerFirmwareInstallOp
+
+                    $_uri = "{0}/firmware/settings" -f $InputObject.uri
+
+                    $_Method = "PATCH"
+
+                }
+
+                # No proper license, generate terminating error
+                else
+                {
+
+                    $ExceptionMessage = 'Firmware installation without server profile requires an iLO Advanced with HPE OneView Standard, or HPE OneView Advanced license.  Server "{0}" HPE OneView license type is "{1}", and iLO license is "{2}".' -f  $InputObject.name, $InputObject.licensingIntent, $InputObject.mpLicenseType
+                    $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidFirmwareInstallPolicy InvalidArgument 'FirmwareInstallationPolicy' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
 
             }
 
-            if (-not [String]::IsNullOrEmpty($InputObject.serverProfileUri))
+            $ResourceCategoryEnum.ServerProfile
             {
 
-                $ExceptionMessage = "The provided server resource {0} has a server profile assigned.  Deploying a firmware bundle must be installed using the assigned server profile." -f  $InputObject.name
-                $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidServerProfile InvalidOperation 'InputObjectS' -Message $ExceptionMessage
-                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                "[{0}] InputObject is a server profile resource." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                "[{0}] server profile name: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Inputobject.name | Write-Verbose
+                "[{0}] server profile uri: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Inputobject.uri | Write-Verbose
+
+                $_PatchOp = $InputObject.PSObject.Copy()
+                $_ServerFirmwareBundleCompliance.serverUUID = $_ServerHardware.uuid
+
+
+                # Check to see if firmware is managed in the server profile resource by looking at the .firmware.manageFirmware boolean property.
+                # If it is not, change manageFirmware to True
+                # Check to see if a property named forceApplyFirmware exists, if not create it and set the value to $PSBoundParameters['ReinstallFirmware']
+                if (-not $_PatchOp.firmware.manageFirmware)
+                {
+
+                    $_PatchOp.firmware.manageFirmware = $True
+
+                }
+
+                # Create the forceApplyFirmware property if it does not exist
+                if (-not $_PatchOp.firmware.PSObject.Properties.Where({$_.Name -eq 'forceApplyFirmware'}))
+                {
+
+                    $_PatchOp.firmware | Add-Member -NotePropertyName forceApplyFirmware -NotePropertyValue $null
+
+                }
+
+                $_PatchOp.firmware.forceApplyFirmware  = $PSBoundParameters['ReinstallFirmware']
+                $_PatchOp.firmware.firmwareInstallType = $ServerProfileFirmwareControlModeEnum[$FirmwareInstallMode]
+                $_PatchOp.firmware.installationPolicy  = $FirmwareInstallationPolicy
+
+                if ($PSBoundParameters['PatchLevel'])
+                {
+
+                    $_PatchLevel = "{0:0000}.{1:00}.{2:00}.{3:00}" -f $PatchLevel.Major, $PatchLevel.Minor, $PatchLevel.Build, $PatchLevel.Revision
+
+                    if (-not $_PatchOp.firmware.PSObject.Properties.Where({$_.Name -eq 'patchLevel'}))
+                    {
+
+                        $_PatchOp.firmware | Add-Member -NotePropertyName patchLevel -NotePropertyValue $null
+
+                    }
+
+                    $_PatchOp.firmware.patchLevel = $_PatchLevel
+
+                }
+
+                # We are expecting the SPP or Update object that contains the URI.
+                if ($ResourceCategoryEnum.Baseline, $ResourceCategoryEnum.Updates -contains $Baseline.category)
+                {
+
+                    if (-not $_PatchOp.firmware.PSObject.Properties.Where({$_.Name -eq 'baselineUri'}))
+                    {
+
+                        $_PatchOp.firmware | Add-Member -NotePropertyName baselineUri -NotePropertyValue $null
+
+                    }
+
+                    $_PatchOp.firmware.baselineUri = $baseline.uri
+
+                    # If the baseline is an update object, extract GUID from URI
+                    if ($Baseline.category -eq $ResourceCategoryEnum.Updates)
+                    {
+
+                        $_BaselineToAssign = $Baseline.uri.Split("/")[-1]
+
+                    }
+
+                    else
+                    {
+
+                        # If the baseline is a baseline object, use ResourceID property value
+                        $_BaselineToAssign = $Baseline.ResourceId
+
+                    }
+
+                    $_ServerFirmwareBundleCompliance.firmwareBaselineId = $_BaselineToAssign
+
+                }
+
+                else
+                {
+
+                    $ExceptionMessage = "An invalid parameter value for Baseline was provided.  Only objects from Get-OVBaseline are supported."
+                    $ErrorRecord      = New-ErrorRecord HPEOneView.Library.ParameterValidationException InvalidBaselineParameter InvalidOperation 'Baseline' -Message $ExceptionMessage
+                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                }
+
+                $_uri = $InputObject.serverHardwareUri
+                $_Method = "PUT"
 
             }
 
-            "[{0}] Firmware Baseline: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline | Write-Verbose
+        }
 
-            $_ServerFirmwareInstallOp = NewObject -InstallServerFirmware
+        # Generate comliance preview
+        "[{0}] Generating firmware bundle compliance report." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-            $_ServerFirmwareInstallOp.forceApplyFirmware  = $PSBoundParameters['ReinstallFirmware']
-            $_ServerFirmwareInstallOp.firmwareInstallType = $ServerProfileFirmwareControlModeEnum[$FirmwareInstallMode]
-            $_ServerFirmwareInstallOp.installationPolicy  = $FirmwareInstallationPolicy
+        $_ServerFirmwareBundleCompliance.installationPolicy  = $FirmwareInstallationPolicy
 
-            if ($PSBoundParameters['PatchLevel'])
+        # Get the server firmware bundle compliance report
+        Try
+        {
+
+            $_ServerFirmwareBundleComplianceResults = Send-OVRequest -Uri $ServerHardwareFirmwareComplianceUri -Method POST -Body $_ServerFirmwareBundleCompliance -ApplianceConnection $InputObject.ApplianceConnection
+
+        }
+
+        Catch
+        {
+
+            $PSCmdlet.ThrowTerminatingError($_)
+
+        }
+
+        # Process report results, returning back to the callers pipeline
+        ForEach ($_Component in (($_ServerFirmwareBundleComplianceResults.componentMappingList | Where-Object { $_.componentType -eq [HPEOneView.Servers.FirmwareBundleType]::Firmware -and $_.hpsumManaged }) | Sort componentName))
+        {
+
+            "[{0}] Processing component: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Component.componentName | Write-Verbose
+            "[{0}] Installed: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Component.installedVersion | Write-Verbose
+
+            # Look up the baseline version data from the FwComponents property of the baseline.
+            "[{0}] Available: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Component.baselineVersion | Write-Verbose
+
+            # Default operation
+            $_Operation = [HPEOneView.Servers.FirmwareBundleUpdateOperation]::NoUpdate.ToString()
+
+            if ($_Component.baselineVersion -ne "Unknown")
             {
 
-                $_PatchLevel = "{0:0000}.{1:00}.{2:00}.{3:00}" -f $PatchLevel.Major, $PatchLevel.Minor, $PatchLevel.Build, $PatchLevel.Revision
-                $_ServerFirmwareInstallOp | Add-Member -NotePropertyName patchLevel -NotePropertyValue $_PatchLevel
+                if ($_Component.componentName -eq 'System ROM')
+                {
+
+                    "[{0}] Component is System ROM, using workaround method for baseline version: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Component.baselineVersion | Write-Verbose
+
+                    $_ServerBaseID = $InputObject.romVersion.Split(" ")[0]
+
+                    $_ComponentBaselineVersionWorkaround = $Baseline.FwComponents | Where { $_.Name -match $_ServerBaseID -and $_.Version.PatchVersion -eq $_Component.baselineVersion.Replace("/", "")} | Select -First 1
+
+                    "[{0}] Update baseline version: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_ComponentBaselineVersionWorkaround.Version | Write-Verbose
+
+                    $_Component.baselineVersion = $_ComponentBaselineVersionWorkaround.Version
+
+                }
+
+                # Installed version is less than what's available
+                if ([SemanticVersion]$_Component.installedVersion -lt [SemanticVersion]$_Component.baselineVersion)
+                {
+
+                    "[{0}] Installed is older than available." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                    $_Operation = [HPEOneView.Servers.FirmwareBundleUpdateOperation]::Update.ToString()
+
+                }
+
+                # What's installed is newer
+                elseif ([SemanticVersion]$_Component.installedVersion -gt [SemanticVersion]$_Component.baselineVersion)
+                {
+
+                    # Downgrade firmware by invoking update operation
+                    if ($PSBoundParameters['FirmwareInstallationPolicy'] -eq 'NotEqualToBaseline')
+                    {
+
+                        "[{0}] Installed is newer than available.  Downgrading." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                        $_Operation = [HPEOneView.Servers.FirmwareBundleUpdateOperation]::Downgrade.ToString()
+
+                    }
+
+                    # Installed is newer, installation policy is set to default and Reinstall hasn't been called
+                    elseif ($PSBoundParameters['FirmwareInstallationPolicy'] -eq 'LowerThanBaseline' -and -not $PSBoundParameters['ReinstallFirmware'])
+                    {
+
+                        "[{0}] Installed is newer than available.  Policy is LowerThanBaseline. No Update." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                        $_Operation = [HPEOneView.Servers.FirmwareBundleUpdateOperation]::NoUpdate.ToString()
+
+                    }
+
+                    elseif ($PSBoundParameters['FirmwareInstallationPolicy'] -eq 'NotEqualToBaseline' -and $PSBoundParameters['ReinstallFirmware'])
+                    {
+
+                        "[{0}] Installed is newer than available.  ReinstallFirmware chosen. Downgrading." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                        $_Operation = [HPEOneView.Servers.FirmwareBundleUpdateOperation]::Downgrade.ToString()
+
+                    }
+
+                }
+
+                elseif ([SemanticVersion]$_Component.installedVersion -eq [SemanticVersion]$_Component.baselineVersion -and $PSBoundParameters['ReinstallFirmware'])
+                {
+
+                    "[{0}] Installed is same as available.  ReinstallFirmware chosen. Reinstalling." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                    $_Operation = [HPEOneView.Servers.FirmwareBundleUpdateOperation]::Reinstall.ToString()
+
+                }
 
             }
 
-            # We are expecting the SPP or Update object that contains the URI.
-            if ($ResourceCategoryEnum.Baseline, $ResourceCategoryEnum.Updates -contains $Baseline.category)
-            {
+            "[{0}] Operation: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $_Operation | Write-Verbose
 
-                $_ServerFirmwareInstallOp.baselineUri = $baseline.uri
+            [void]$_CompliancePreview.Add([HPEOneView.Servers.ServerHardware+FirmwareCompliancePreview]::new($_Component.componentName,
+                                                                                                            $_Component.componentLocation,
+                                                                                                            $_Component.componentType,
+                                                                                                            $_Component.installedVersion,
+                                                                                                            $_Component.baselineVersion,
+                                                                                                            $_Operation,
+                                                                                                            $_Component.componentFirmwareUpdateRequired))
 
-            }
+        }
 
-            else
-            {
+        # Continue with installation if -PreviewOnly was not passed as a parameter
+        if (-not $PSBoundParameters['PreviewOnly'])
+        {
 
-                $ExceptionMessage = "An invalid parameter value for Baseline was provided.  Only objects from Get-OVBaseline are supported."
-                $ErrorRecord      = New-ErrorRecord HPEOneView.Library.ParameterValidationException InvalidBaselineParameter InvalidOperation 'Baseline' -Message $ExceptionMessage
-                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-            }
-
-            $_PatchOp       = NewObject -PatchOperation
-            $_PatchOp.op    = "replace"
-            $_PatchOp.value = $_ServerFirmwareInstallOp
-
-            $_uri = "{0}/firmware/settings" -f $InputObject.uri
+            # Display compliance preview without putting into pipeline
+            $_CompliancePreview | Sort ComponentName | Out-Host
 
             Try
             {
 
-                $Task = Send-OVRequest -Uri $_uri -Method PATCH -Body $_PatchOp -ApplianceConnection $InputObject.ApplianceConnection
+                $Task = Send-OVRequest -Uri $_uri -Method $_Method -Body $_PatchOp -ApplianceConnection $InputObject.ApplianceConnection
 
             }
 
@@ -49300,13 +49649,10 @@ function Update-OVServerFirmware
 
         }
 
-        # No proper license, generate terminating error
         else
         {
 
-            $ExceptionMessage = 'Firmware installation without server profile requires an iLO Advanced with HPE OneView Standard, or HPE OneView Advanced license.  Server "{0}" HPE OneView license type is "{1}", and iLO license is "{2}".' -f  $InputObject.name, $InputObject.licensingIntent, $InputObject.mpLicenseType
-            $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidFirmwareInstallPolicy InvalidArgument 'FirmwareInstallationPolicy' -Message $ExceptionMessage
-            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+            $_CompliancePreview | Sort ComponentName
 
         }
 
@@ -61904,7 +62250,7 @@ function Get-EnclosureFirmware
 
         }
 
-        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq $ResourceCategoryEnum.Baseline))
+        elseif (($Baseline) -and ($Baseline -is [PsCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline]) -and ($Baseline.category -eq $ResourceCategoryEnum.Baseline))
         {
 
             "[{0}] Baseline resource passed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -61916,7 +62262,7 @@ function Get-EnclosureFirmware
         }
 
         # Check to see if the wrong Object has been passed
-        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers"))
+        elseif (($Baseline) -and ($Baseline -is [PsCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline]) -and ($Baseline.category -ne "firmware-drivers"))
         {
 
             "[{0}] Invalid Baseline resource passed. Generating error." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -62197,54 +62543,28 @@ function Get-EnclosureFirmware
                     $_appliancePartNumber    = $_appliance.partNumber
 
                     # Get installed firmware
-                    switch ($_appliance.Model)
+
+                    if ([RegEx]::Match($_appliance.Model, 'Composer', $RegExInsensitiveFlag).Success)
                     {
 
-                        # need to figure out how to support both DCS and real hardware.
-                        {[RegEx]::Match($_, 'Composer', $RegExInsensitiveFlag).Success}
-                        {
+                        $_applianeFirmareVersion = $PSLibraryVersion.($Enclosure.ApplianceConnection.Name).ApplianceVersion
 
-                            $_applianeFirmareVersion = $PSLibraryVersion.($Enclosure.ApplianceConnection.Name).ApplianceVersion
+                        $_EnclosureDeviceReport = [HPEOneView.Servers.Enclosure+Firmware]::new(("{0} (Bay {1})" -f $_appliance.Model, $_appliance.bayNumber),
+                                                                                    'ApplianceDevice',
+                                                                                    'Firmware',
+                                                                                    $_applianeFirmareVersion,
+                                                                                    $_applianceSerialNumber,
+                                                                                    $_appliancePartNumber,
+                                                                                    'N/A',
+                                                                                    'N/A',
+                                                                                    $null,
+                                                                                    $Enclosure.name,
+                                                                                    $Enclosure.uri,
+                                                                                    $Enclosure.ApplianceConnection)
 
-                        }
-
-                        {[RegEx]::Match($_, 'Image Streamer', $RegExInsensitiveFlag).Success}
-                        {
-
-                            Try
-                            {
-
-                                $uri = "{0}?filter=applianceSerialNumber eq '{1}'" -f $AvailableDeploymentServersUri, $_appliance.serialNumber
-                                $_applianceDetails = Send-OVRequest -Uri $uri -Hostname $Enclosure.ApplianceConnection
-                                $_applianeFirmareVersion = $_applianceDetails.members.imageStreamerVersion
-
-                            }
-
-                            Catch
-                            {
-
-                                $PSCmdlet.ThrowTerminatingError($_)
-
-                            }
-
-                        }
+                        [void]$_EnclosureReport.Add($_EnclosureDeviceReport)
 
                     }
-
-                    $_EnclosureDeviceReport = [HPEOneView.Servers.Enclosure+Firmware]::new(("{0} (Bay {1})" -f $_appliance.Model, $_appliance.bayNumber),
-                                                                                      'ApplianceDevice',
-                                                                                      'Firmware',
-                                                                                      $_applianeFirmareVersion,
-                                                                                      $_applianceSerialNumber,
-                                                                                      $_appliancePartNumber,
-                                                                                      'N/A',
-                                                                                      'N/A',
-                                                                                      $null,
-                                                                                      $Enclosure.name,
-                                                                                      $Enclosure.uri,
-                                                                                      $Enclosure.ApplianceConnection)
-
-                    [void]$_EnclosureReport.Add($_EnclosureDeviceReport)
 
                 }
 
@@ -62542,6 +62862,13 @@ function Get-ServerFirmware
     Process
     {
 
+        if (-not $PSBoundParameters['InstallationPolicy'])
+        {
+
+            $InstallationPolicy = 'LowerThanBaseline'
+
+        }
+
         $_NoBaselinePolicy = [PsCustomObject]@{
 
             name              = "NoPolicySet";
@@ -62703,7 +63030,7 @@ function Get-ServerFirmware
 
                     }
 
-                    elseif ($Baseline -is [PSCustomObject])
+                    elseif ($Baseline -is [PSCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline])
                     {
 
                         if ($Baseline.baselineShortName -eq 'NoPolicySet')
@@ -63381,7 +63708,7 @@ function Get-InterconnectFirmware
 
         }
 
-        elseif ($Baseline -is [PSCustomObject])
+        elseif ($Baseline -is [PSCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline])
         {
 
             if ($Baseline.baselineShortName -eq 'NoPolicySet')
@@ -72292,8 +72619,8 @@ function New-OVStorageVolume
         $_AllowedNimbleParams    = "PerformancePolicy", "LockPerformancePolicy", "EnableEncryption", "CachePinning", "VolumeSet", "EnableIOPSLimit", "IOPSLimit", "EnableDataTransferLimit", "DataTransferLimit", "Folder"
         $_AllowedSSParams        = "EnableCompression", "EnableDeduplication", "SnapshotStoragePool"
         # $_AllowedSVParams        = "DataProtectionLevel", "EnableAdaptiveOptimization"
-        $_NotAllowedNimbleParams = $_AllowedSSParams #+ $_AllowedSVParams
-        $_NotAllowedSSParams     = $_AllowedNimbleParams #+ $_AllowedSVParams
+        $_NotAllowedNimbleParams = $_AllowedSSParams
+        $_NotAllowedSSParams     = $_AllowedNimbleParams
         $_NotAllowedVSParams     = $_AllowedSSParams + $_AllowedNimbleParams
         $_SafeParams             = "Name", "Description", "StoragePool", "StorageSystem", "VolumeTemplate", "Capacity", "ProvisioningType", "Full", "Shared", "Scope", "Async", "ApplianceConnection"
 
@@ -107268,7 +107595,26 @@ function Get-OVServerProfile
                   @{Expression={$_.state};Label="State"},
                   @{Expression={$_.status};Label="Status"}
 
-            $a2 = @{Expression={$_.bios.manageBios};Label="Manage BIOS";align="Left"},
+            $a2 = @{Expression={$_.name};Label="Name"},
+                  @{Expression={$profileCache[$serverHardwareTypeUri].name};Label="Server Hardware Type"},
+                  @{Expression={ 'N/A' };Label="Enclosure Group"},
+                  @{Expression={    if ($_.serverHardwareUri){ (Send-OVRequest -Uri $_.serverHardwareUri ).name }
+                             else { "Unassigned" }
+                                 };Label="Assigned"},
+                  @{Expression={
+
+                         switch ($_.affinity) {
+
+                             "Bay" { "Device bay" }
+                             "BayAndServer" { "Device bay + Server Hardware" }
+
+                         }
+
+                  };Label="Server Affinity"},
+                  @{Expression={$_.state};Label="State"},
+                  @{Expression={$_.status};Label="Status"}
+
+            $a3 = @{Expression={$_.bios.manageBios};Label="Manage BIOS";align="Left"},
                   @{Expression={$_.boot.manageBoot};Label="Manage Boot Order";align="Left"},
                   @{Expression={$_.firmware.manageFirmware};Label="Manage Firmware";align="Left"},
                   @{Expression={if ($_.serialNumberType -eq "Virtual") { $_.serialNumber + " (v)" } else { $_.serialNumber + " (p)" }};Label="Serial Number"},
@@ -107309,7 +107655,7 @@ function Get-OVServerProfile
                    $addressCol
 
                  };Label="Address";width=32},
-                 @{Expression={$profileCache[$_.networkUri]};Label="Network"},
+                 @{Expression={$profileCache[$_.networkUri].name};Label="Network"},
                  @{Expression={$_.portId};Label="Port Id";width=10},
                  @{Expression={[String]$_.requestedMbps};Label="Requested BW";width=12},
                  @{Expression={[String]$_.maximumMbps};Label="Maximum BW";width=10},
@@ -107340,25 +107686,39 @@ function Get-OVServerProfile
                  @{Expression={$_.settingName};Label="Setting Name"},
                  @{Expression={$_.valueName};Label="Configured Value"}
 
-            $ls = @{Expression={$_.manageLocalStorage};Label="Manage Local Storage";align="Left"},
-                  @{Expression={$_.initialize};Label="Initialize Disk";align="Left"},
-                  @{Expression={
+            $cont = @{Label = "Slot"; Expression = { $_.deviceSlot }},
+                    @{Label = "Family"; Expression = { $_.family }},
+                    @{Label = "Mode"; Expression = { $_.mode }},
+                    @{Label = "Initialize"; Expression = { $_.initialize }},
+                    @{Label = "ImportConfiguration"; Expression = { $_.importConfiguration }},
+                    @{Label = "WriteCache"; Expression = { $_.driveWriteCache }}
 
-                        $logicalDriveCol = @()
-                        $d=0
 
-                        while ($d -lt $sp.logicalDrives.count)
-                        {
+            $ld = @{Label = "Name"; Expression = { $_.name} },
+                  @{Label = "RAIDLevel"; Expression = { $_.raidLevel }},
+                  @{Label = "Bootable"; Expression = { $_.bootable }},
+                  @{Label = "NumberOfDrives"; Expression = { $_.numPhysicalDrives }},
+                  @{Label = "DriveTechnology"; Expression = { $_.driveTechnology }},
+                  @{Label = "SpareDrives"; Expression = { $_.spareDrives }}
+            # $ld = @{Expression={$_.manageLocalStorage};Label="Manage Local Storage";align="Left"},
+            #       @{Expression={$_.initialize};Label="Initialize Disk";align="Left"},
+            #       @{Expression={
 
-                            if ($_.logicalDrives[$d].bootable) { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel) (Bootable)" }
-                            else { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel)" }
-                            $d++
-                        }
+            #             $logicalDriveCol = @()
+            #             $d=0
 
-                        $logicalDriveString = $logicalDriveCol | Out-String | ForEach-Object { $_ -replace '^\s+|\s+$' }
-                        $logicalDriveString
+            #             while ($d -lt $sp.logicalDrives.count)
+            #             {
 
-                   };Label="Logical Disk"}
+            #                 if ($_.logicalDrives[$d].bootable) { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel) (Bootable)" }
+            #                 else { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel)" }
+            #                 $d++
+            #             }
+
+            #             $logicalDriveString = $logicalDriveCol | Out-String | ForEach-Object { $_ -replace '^\s+|\s+$' }
+            #             $logicalDriveString
+
+            #        };Label="Logical Disk"}
 
             $ss = @{Expression={$_.manageSanStorage};Label="Manage SAN Storage";align="Left"},
                   @{Expression={$_.hostOSType};Label="Host OS Type";align="Left"}
@@ -107397,35 +107757,40 @@ function Get-OVServerProfile
 
                     }
 
-                    $profileCache.Add($serverHardwareTypeUri, $_Sht.name)
+                    $profileCache.Add($serverHardwareTypeUri, $_Sht)
 
                 }
 
-                if (-not ($profileCache[$enclosureGroupUri]) -and $profile.enclosureGroupUri)
+                if ($profile.enclosureGroupUri)
                 {
 
-                    Try
+                    if (-not ($profileCache[$enclosureGroupUri]))
                     {
 
-                        $_EG = Send-OVRequest -Uri $enclosureGroupUri -appliance $profile.ApplianceConnection.name
+                        Try
+                        {
+
+                            $_EG = Send-OVRequest -Uri $enclosureGroupUri -appliance $profile.ApplianceConnection.name
+
+                        }
+
+                        Catch
+                        {
+
+                            $PSCmdlet.ThrowTerminatingError($_)
+
+                        }
+
+                        $profileCache.Add($enclosureGroupUri, $_EG.name)
 
                     }
-
-                    Catch
-                    {
-
-                        $PSCmdlet.ThrowTerminatingError($_)
-
-                    }
-
-                    $profileCache.Add($enclosureGroupUri, $_EG.name)
 
                 }
 
                 foreach ($connection in $profile.connectionSettings.connections)
                 {
 
-                    $connection | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.Profile.Connection") }
+                    $connection | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.ServerProfile.Connection") }
 
                     if (-not ($profileCache[$connection.networkUri]))
                     {
@@ -107444,7 +107809,7 @@ function Get-OVServerProfile
 
                         }
 
-                        $profileCache.Add($connection.networkUri, $_Net.name)
+                        $profileCache.Add($connection.networkUri, $_Net)
 
                     }
 
@@ -107454,7 +107819,7 @@ function Get-OVServerProfile
                  {
 
                     # Insert HPEOneView.Profile.SanVolume TypeName
-                    $volume | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.Profile.SanVolume") }
+                    $volume | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.ServerProfile.SanVolume") }
 
                     # Cache Storage System, Storage Pool and Storage Volume Resources
                     if (-not ($profileCache[$volume.volumeStorageSystemUri])) { $profileCache.Add($volume.volumeStorageSystemUri,(Send-OVRequest $volume.volumeStorageSystemUri $profile.ApplianceConnection.name)) }
@@ -107466,8 +107831,21 @@ function Get-OVServerProfile
                 #$profileCache
 
                 # Initial Server Profile information
-                $profile | format-table $a1 -AutoSize -wrap
-                $profile | format-table $a2 -AutoSize -wrap
+                if (-not [String]::IsNullOrEmpty($profile.enclosureGroupUri))
+                {
+
+                    $profile | format-table $a1 -AutoSize -wrap
+
+                }
+
+                else
+                {
+
+                    $profile | format-table $a2 -AutoSize -wrap
+
+                }
+
+                $profile | format-table $a3 -AutoSize -wrap
 
                 # Firmware Baseline
                 $profile.firmware | format-table $f
@@ -107476,7 +107854,23 @@ function Get-OVServerProfile
                 $profile.connectionSettings.connections | format-table -wrap
 
                 # Local Storage
-                $profile.localStorage | format-table $ls -wrap -auto
+                ForEach ($controller in $profile.localStorage.controllers)
+                {
+
+                    $controller.PSObject.TypeNames.Insert(0, "HPEOneView.ServerProfile.LocalStorage.Controller")
+
+                    $controller | format-table $cont -wrap -auto
+
+                    ForEach ($logicalDrive in $controller.logicalDrives)
+                    {
+
+                        $logicalDrive.PSObject.TypeNames.Insert(0, "HPEOneView.ServerProfile.LocalStorage.LogicalDrive")
+
+                        $logicalDrive | format-table $ld -wrap -auto
+
+                    }
+
+                }
 
                 # SAN Storage
                 $profile.sanStorage | Format-Table $ss -auto
@@ -107727,6 +108121,12 @@ function New-OVServerProfile
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Parameter (Mandatory = $false, ParameterSetName = "SPT")]
+        [ValidateNotNullOrEmpty()]
+        [Version]$BaselinePatchLevel,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SPT")]
         [ValidateSet ('LowerThanBaseline', 'NotEqualToBaseline')]
         [String]$FirmwareInstallationPolicy = 'LowerThanBaseline',
 
@@ -107893,11 +108293,13 @@ function New-OVServerProfile
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Parameter (Mandatory = $false, ParameterSetName = "SPT")]
+        [System.Obsolete("The OSDeploymentPlan parameter is obsolete and no longer supported.")]
         [Object]$OSDeploymentPlan,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Parameter (Mandatory = $false, ParameterSetName = "SPT")]
+        [System.Obsolete("The OSDeploymentAttributes parameter is obsolete and no longer supported.")]
         [Array]$OSDeploymentAttributes,
 
         [Parameter (Mandatory = $false, ValueFromPipelineByPropertyName, ParameterSetName = "Default")]
@@ -108618,39 +109020,39 @@ function New-OVServerProfile
 
                 }
 
-                # Process OSDeploymentAttributes for SP from SPT
-                # Do we need to first look at the osDeploymentSettings at all for Constraints?
-                if ($PSBoundParameters['OSDeploymentAttributes'])
-                {
+                # # Process OSDeploymentAttributes for SP from SPT
+                # # Do we need to first look at the osDeploymentSettings at all for Constraints?
+                # if ($PSBoundParameters['OSDeploymentAttributes'])
+                # {
 
-                    If ($ApplianceConnection.ApplianceType -ne 'Composer')
-                    {
+                #     If ($ApplianceConnection.ApplianceType -ne 'Composer')
+                #     {
 
-                        $ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentAttributes parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
-                        $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                #         $ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentAttributes parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
+                #         $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+                #         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-                    }
+                #     }
 
-                    ForEach ($_PlanAttribute in $ServerProfile.osDeploymentSettings.osCustomAttributes)
-                    {
+                #     ForEach ($_PlanAttribute in $ServerProfile.osDeploymentSettings.osCustomAttributes)
+                #     {
 
-                                    if (($ServerProfile.osDeploymentSettings.osCustomAttributes | Where-Object { $_.Name -match ('{0}.constraint' -f $_PlanAttribute.name)}) -and 'Auto', 'DHCP' -notcontains $_PlanAttribute.value -and -not ($OSDeploymentAttributes | Where-Object name -eq $_PlanAttribute.name))
-                        {
+                #                     if (($ServerProfile.osDeploymentSettings.osCustomAttributes | Where-Object { $_.Name -match ('{0}.constraint' -f $_PlanAttribute.name)}) -and 'Auto', 'DHCP' -notcontains $_PlanAttribute.value -and -not ($OSDeploymentAttributes | Where-Object name -eq $_PlanAttribute.name))
+                #         {
 
-                            $ExceptionMessage = 'The attribute {0} requires a value and is not provided in the OSDeploymentAttributes.' -f $_PlanAttribute.name
-                            $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfile.OSDeploymentAttributeResourceException InvalidOperation InvalidArgument 'OSDeploymentAttributes' -Message $ExceptionMessage
-                            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                #             $ExceptionMessage = 'The attribute {0} requires a value and is not provided in the OSDeploymentAttributes.' -f $_PlanAttribute.name
+                #             $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfile.OSDeploymentAttributeResourceException InvalidOperation InvalidArgument 'OSDeploymentAttributes' -Message $ExceptionMessage
+                #             $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-                        }
+                #         }
 
-                        '[{0}] Setting {1} attribute to {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, ($OSDeploymentAttributes | Where-Object name -eq $_PlanAttribute.name).value | Write-Verbose
+                #         '[{0}] Setting {1} attribute to {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, ($OSDeploymentAttributes | Where-Object name -eq $_PlanAttribute.name).value | Write-Verbose
 
-                        ($ServerProfile.osDeploymentSettings.osCustomAttributes | Where-Object name -eq $_PlanAttribute.name).value = ($OSDeploymentAttributes | Where-Object name -eq $_PlanAttribute.name).value
+                #         ($ServerProfile.osDeploymentSettings.osCustomAttributes | Where-Object name -eq $_PlanAttribute.name).value = ($OSDeploymentAttributes | Where-Object name -eq $_PlanAttribute.name).value
 
-                    }
+                #     }
 
-                }
+                # }
 
             }
 
@@ -108669,58 +109071,58 @@ function New-OVServerProfile
                 $ServerProfile.boot.order         = $BootOrder
 
 
-                # Process OSDeploymentPlan
-                if ($PSBoundParameters['OSDeploymentPlan'])
-                {
+                # # Process OSDeploymentPlan
+                # if ($PSBoundParameters['OSDeploymentPlan'])
+                # |{
 
-                    If ($ApplianceConnection.ApplianceType -ne 'Composer')
-                    {
+                #     If ($ApplianceConnection.ApplianceType -ne 'Composer')
+                #     {
 
-                        $ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentPlan parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
-                        $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                #         $ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  The OSDeploymentPlan parameter is only supported with HPE Synergy and HPE ImageStreamer.' -f $ApplianceConnection.Name
+                #         $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+                #         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-                    }
+                #     }
 
-                    if ($OSDeploymentPlan.type -ne 'Osdp')
-                    {
+                #     if ($OSDeploymentPlan.type -ne 'Osdp')
+                #     {
 
-                        $ExceptionMessage = 'The provided OSDeploymentPlan parameter value is not a valid OS Deployment Plan resource.' -f $ApplianceConnection.Name
-                        $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfile.OSDeploymentPlanResourceException InvalidOperation InvalidArgument 'OSDeploymentPlan' -Message $ExceptionMessage
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                #         $ExceptionMessage = 'The provided OSDeploymentPlan parameter value is not a valid OS Deployment Plan resource.' -f $ApplianceConnection.Name
+                #         $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfile.OSDeploymentPlanResourceException InvalidOperation InvalidArgument 'OSDeploymentPlan' -Message $ExceptionMessage
+                #         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-                    }
+                #     }
 
-                    $_OSDeploymentSettings = NewObject -OSDeploymentSettings
-                    $_OSDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
+                #     $_OSDeploymentSettings = NewObject -OSDeploymentSettings
+                #     $_OSDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
 
-                    ForEach ($_PlanAttribute in $OSDeploymentAttributes)
-                    {
+                #     ForEach ($_PlanAttribute in $OSDeploymentAttributes)
+                #     {
 
-                        if ($_PlanAttribute -isnot [HPEOneView.ServerProfile.OSDeployment.OSDeploymentParameter])
-                        {
+                #         if ($_PlanAttribute -isnot [HPEOneView.ServerProfile.OSDeployment.OSDeploymentParameter])
+                #         {
 
-                            $ExceptionMessage = 'The provided OSDeploymentAttribute parameter value is not a valid resource.' -f $ApplianceConnection.Name
-                            $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfile.OSDeploymentAttributeResourceException InvalidOperation InvalidArgument 'OSDeploymentAttributes' -Message $ExceptionMessage
-                            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+                #             $ExceptionMessage = 'The provided OSDeploymentAttribute parameter value is not a valid resource.' -f $ApplianceConnection.Name
+                #             $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfile.OSDeploymentAttributeResourceException InvalidOperation InvalidArgument 'OSDeploymentAttributes' -Message $ExceptionMessage
+                #             $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-                        }
+                #         }
 
-                        $_PlanAttributeSetting = NewObject -OSDeploymentPlanSetting
-                        $_PlanAttributeSetting.name  = $_PlanAttribute.name
-                        $_PlanAttributeSetting.value = $_PlanAttribute.value
+                #         $_PlanAttributeSetting = NewObject -OSDeploymentPlanSetting
+                #         $_PlanAttributeSetting.name  = $_PlanAttribute.name
+                #         $_PlanAttributeSetting.value = $_PlanAttribute.value
 
-                        '[{0}] Setting {1} attribute to {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.value | Write-Verbose
+                #         '[{0}] Setting {1} attribute to {2}' -f $MyInvocation.InvocationName.ToString().ToUpper(), $_PlanAttribute.name, $_PlanAttribute.value | Write-Verbose
 
-                        [void]$_OSDeploymentSettings.osCustomAttributes.Add($_PlanAttributeSetting)
+                #         [void]$_OSDeploymentSettings.osCustomAttributes.Add($_PlanAttributeSetting)
 
-                    }
+                #     }
 
-                    $ServerProfile | Add-Member -NotePropertyName osDeploymentSettings -NotePropertyValue $null -Force
+                #     $ServerProfile | Add-Member -NotePropertyName osDeploymentSettings -NotePropertyValue $null -Force
 
-                    $ServerProfile.osDeploymentSettings = $_OSDeploymentSettings
+                #     $ServerProfile.osDeploymentSettings = $_OSDeploymentSettings
 
-                }
+                # }
 
             }
 
@@ -109341,8 +109743,102 @@ function New-OVServerProfile
                 if ([RegEx]::Match($ServerHardwareType.capabilities, "firmwareUpdate", $RegExInsensitiveFlag).Success)
                 {
 
+                    "[{0}] SHT is capable of firmware management" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+
                     $ServerProfile.firmware.manageFirmware         = [Bool]$firmware
                     $ServerProfile.firmware.forceInstallFirmware   = $ReinstallFirmware.IsPresent
+
+                    # Refactor to check if the $Baseline value is a baseline or update object
+                    switch ($Baseline.GetType().FullName)
+                    {
+
+                        # Baseline resource from Get-OVBaseline
+                        'HPEOneView.Appliance.Baseline'
+                        {
+
+                            "[{0}] Setting firmware baseline: {1} - {2} - {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline.name, $Baseline.version, $Baseline.releaseDate | Write-Verbose
+
+                            $ServerProfile.firmware.firmwareBaselineUri = $Baseline.uri
+
+                            # If the caller provided the -PatchLevel parameter, generate a non-terminating error it is not supported with the baseline resource provided
+                            if ($PSBoundParameters['PatchLevel'])
+                            {
+
+                                $ExceptionMessage = "The provided Baseline '{0}' does not support the PatchLevel parameter." -f $Baseline.name
+                                $ErrorRecord = New-ErrorRecord HPEOneView.Appliance.BaselineResourceException InvalidPatchLevel InvalidArgument 'PatchLevel' -Message $ExceptionMessage
+                                $PSCmdlet.WriteError($ErrorRecord)
+
+                            }
+
+                        }
+
+                        # Bundle Update from Get-OVFirmwareBundleUpdate
+                        'HPEOneView.Appliance.FirmwareBundleUpdate'
+                        {
+
+                            "[{0}] Setting firmware bundle update: {1} - {2} - {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline.name, $Baseline.version, $Baseline.releaseDate | Write-Verbose
+
+                            # Validate Patch level
+                            if ($PSBoundParameters['PatchLevel'])
+                            {
+
+                                "[{0}] Setting firmware patch level: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PatchLevel | Write-Verbose
+
+                                # Check to make sure the requested patch level exists within the firmware update bundle
+                                $FoundPatchLevel = $Baseline.servicePackData.supplements | ? { [version]$_.version -eq $patchlevel }
+
+                                if (-not $FoundPatchLevel)
+                                {
+
+                                    "[{0}] Patch Level '{1}' not found in firmware bundle update '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $PatchLevel, $Baseline.name | Write-Verbose
+
+                                    $ExceptionMessage = "The provided Patch Level '{0}' is not found in the firmware bundle update '{1}'." -f  $PatchLevel, $Baseline
+                                    $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidPatchLevel InvalidArgument 'PatchLevel' -Message $ExceptionMessage
+                                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                                }
+
+                                $_PatchLevel = "{0:0000}.{1:00}.{2:00}.{3:00}" -f $PatchLevel.Major, $PatchLevel.Minor, $PatchLevel.Build, $PatchLevel.Revision
+                                $ServerProfile.firmware | Add-Member -NotePropertyName patchLevel -NotePropertyValue $_PatchLevel
+
+                                $ServerProfile.firmware.firmwareBaselineUri = $Baseline.uri
+
+                            }
+
+                        }
+
+                        'System.String'
+                        {
+
+                            if ($Baseline.StartsWith('/rest') -or $Baseline.EndsWith('.iso'))
+                            {
+
+                                $ServerProfile.firmware.firmwareBaselineUri = $Baseline
+
+                            }
+
+                            else
+                            {
+
+                                $ExceptionMessage = "The provided Baseline '{0}' is not a valid Baseline resource." -f $Baseline
+                                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException InvalidBaselineResource InvalidArgument 'Baseline' -Message $ExceptionMessage
+                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                            }
+
+                        }
+
+                        # Unknown value and throw error
+                        default
+                        {
+
+                            $ExceptionMessage = "The provided Baseline '{0}' is not a valid Baseline resource." -f $Baseline
+                            $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException InvalidBaselineResource InvalidArgument 'Baseline' -Message $ExceptionMessage
+                            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                        }
+
+                    }
 
                     # This policy setting is only supported with Gen10 and newer platforms
                     if ([enum]::IsDefined([FirmwarePolicyGenerationSupportEnum], $ServerHardwareType.generation.Replace(" ", $null)))
@@ -109391,133 +109887,14 @@ function New-OVServerProfile
 
                     }
 
-                    # Validating that the baseline value is a string type and that it is an SPP name.
-                    if (($baseline -is [String]) -and (-not ($baseline.StartsWith('/rest'))) -and ([RegEx]::Match($baseline, "\.iso", $RegExInsensitiveFlag).Success))
-                    {
-
-                        try
-                        {
-
-                            $FirmwareBaselineName = $Baseline.PSObject.Copy()
-
-                            $Baseline = Get-OVBaseline -isoFileName $Baseline -ApplianceConnection $ApplianceConnection -ErrorAction SilentlyContinue
-
-                            If (-not $_BaseLinePolicy)
-                            {
-
-                                $ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaselineName
-                                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
-                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-                            }
-
-                            $serverProfile.firmware.firmwareBaselineUri = $baseline.uri
-
-                        }
-
-                        catch
-                        {
-
-                            "[{0}] Error caught when looking for Firmware Baseline." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-                            $PSCmdlet.ThrowTerminatingError($_)
-
-                        }
-
-                    }
-
-                    # Validating that the baseline value is a string type and that it is an SPP name.
-                    elseif (($baseline -is [String]) -and (-not ($baseline.StartsWith('/rest'))))
-                    {
-
-                        try
-                        {
-
-                            $FirmwareBaselineName = $Baseline.PSObject.Copy()
-
-                            $Baseline = Get-OVBaseline -SppName $Baseline -ApplianceConnection $ApplianceConnection -ErrorAction SilentlyContinue
-
-                            If (-not $_BaseLinePolicy)
-                            {
-
-                                $ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaselineName
-                                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
-                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-                            }
-
-                            $serverProfile.firmware.firmwareBaselineUri = $Baseline.uri
-
-                        }
-
-                        catch
-                        {
-
-                            "[{0}] Error caught when looking for Firmware Baseline." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-                            $PSCmdlet.ThrowTerminatingError($_)
-
-                        }
-
-                    }
-
-                    # Validating that the baseline value is a string type and that it is the Baseline URI
-                    elseif (($baseline -is [String]) -and ($baseline.StartsWith('/rest')))
-                    {
-
-                        Try
-                        {
-
-                            $baselineObj = Send-OVRequest -Uri $baseline -appliance $ApplianceConnection
-
-                        }
-
-                        Catch
-                        {
-
-                            $PSCmdlet.ThrowTerminatingError($_)
-
-                        }
-
-                        if ($baselineObj.category -eq $ResourceCategoryEnum.Baseline)
-                        {
-
-                            "[{0}] Valid Firmware Baseline provided: $($baselineObj.baselineShortName)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-                            $serverProfile.firmware.firmwareBaselineUri = $baselineObj.uri
-
-                        }
-
-                        else
-                        {
-
-                            $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfileResourceException InvalidBaselineResource ObjectNotFound 'Baseline' -Message "The provided SPP Baseline URI '$($baseline)' is not valid or the correct resource category (expected 'firmware-drivers', received '$($baselineObj.category)'.  Please check the -baseline Parameter value and try again."
-                            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-                        }
-
-                    }
-
-                    # Else we are expecting the SPP object that contains the URI.
-                    elseif (($baseline) -and ($baseline -is [object]))
-                    {
-
-                        $serverProfile.firmware.firmwareBaselineUri = $baseline.uri
-
-                    }
-
-                    elseif (!$baseline)
-                    {
-                        $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'Firmware' -TargetType 'SwitchParameter' -Message "Baseline is required when manage firmware is set to true."
-                        $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-                    }
 
                 }
 
                 else
                 {
 
-                    $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'Firmware' -TargetType 'SwitchParameter' -Message "`"$($serverHardwareType.name)`" Server Hardware Type does not support Firmware Management."
+                    $ExceptionMessage = '"{0}" Server Hardware Type does not support Firmware Management.' -f $serverHardwareType.name
+                    $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported InvalidOperation 'Firmware' -TargetType 'SwitchParameter' -Message $ExceptionMessage
                     $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
                 }
@@ -112369,8 +112746,8 @@ function Remove-OVServerProfile
 
         [Parameter (Mandatory, ValueFromPipeline, ParameterSetName = "default")]
         [ValidateNotNullOrEmpty()]
-        [Alias ('uri','name','profile')]
-        [Object]$ServerProfile,
+        [Alias ('uri','name','profile', 'ServerProfile')]
+        [Object]$InputObject,
 
         [Parameter (Mandatory = $false, ValueFromPipeline, ParameterSetName = "default")]
         [Switch]$RetainStorageConfig,
@@ -112394,7 +112771,7 @@ function Remove-OVServerProfile
 
         "[{0}] Called from: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Caller | Write-Verbose
 
-        if (-not($PSBoundParameters['ServerProfile']))
+        if (-not($PSBoundParameters['InputObject']))
         {
 
             $PipelineINput = $true
@@ -112479,15 +112856,15 @@ function Remove-OVServerProfile
         {
 
             # Check for appliance specific URI Parameters and error if more than one appliance connection supplied
-            if (($ServerProfile -is [String]) -and ($ServerProfile.StartsWith($ServerProfilesUri)))
+            if (($InputObject -is [String]) -and ($InputObject.StartsWith($ServerProfilesUri)))
             {
 
-                "[{0}] SourceName is a Server Profile URI: $($ServerProfile)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+                "[{0}] SourceName is a Server Profile URI: $($InputObject)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
                 $ErrorRecord = New-ErrorRecord ArgumentNullException ParametersNotSpecified InvalidArgument 'Remove-OVServerProfile' -Message "The input Parameter 'profile' is a resource URI. For multiple appliance connections this is not supported."
                 $PSCmdlet.ThrowTerminatingError($ErrorRecord)
             }
 
-            if (($ServerProfile -is [array]) -and ($ServerProfile.getvalue(0).gettype() -is [String]) -and [RegEx]::Match($ServerProfile, '/rest/', $RegExInsensitiveFlag).Success)
+            if (($InputObject -is [array]) -and ($InputObject.getvalue(0).gettype() -is [String]) -and [RegEx]::Match($InputObject, '/rest/', $RegExInsensitiveFlag).Success)
             {
 
                 "[{0}] Assign is a Server Profile URI: $($SourceName)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -112503,9 +112880,9 @@ function Remove-OVServerProfile
     Process
     {
 
-        "[{0}] Profile input type:  {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $ServerProfile.gettype() | Write-Verbose
+        "[{0}] Profile input type:  {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $InputObject.gettype() | Write-Verbose
 
-        foreach ($_profile in $ServerProfile)
+        foreach ($_profile in $InputObject)
         {
 
             if ($_profile -is [String] -and (-not($_profile.StartsWith.($ServerProfilesUri))))
@@ -113106,6 +113483,16 @@ function New-OVServerProfileTemplate
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [ValidateNotNullOrEmpty()]
+        [object]$Baseline,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
+        [ValidateNotNullOrEmpty()]
+        [Version]$BaselinePatchLevel,
+
+        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
+        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [ValidateSet ('Exact', 'None')]
         [String]$FirmwareConsistencyChecking = 'Exact',  # Will need to use $ConsistencyCheckingEnum for API value,
 
@@ -113127,26 +113514,21 @@ function New-OVServerProfileTemplate
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
-        [object]$Baseline,
-
-        [Parameter (Mandatory = $false, ParameterSetName = "Default")]
-        [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
         [Switch]$ForceInstallFirmware,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
+        [System.Obsolete("The OSDeploymentPlan parameter is obsolete and no longer supported.")]
         [Object]$OSDeploymentPlan,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-        [ValidateSet ('Exact', 'None')]
-        [String]$OSDeploymentConsistencyChecking = 'Exact',  # Will need to use $ConsistencyCheckingEnum for API value,
+        [System.Obsolete("The OSDeploymentConsistencyChecking parameter is obsolete and no longer supported.")]
+        [String]$OSDeploymentConsistencyChecking = 'Exact',
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
         [Parameter (Mandatory = $false, ParameterSetName = "SANStorageAttach")]
-        [ValidateNotNullOrEmpty()]
+        [System.Obsolete("The OSDeploymentPlanAttributes parameter is obsolete and no longer supported.")]
         [HPEOneView.ServerProfile.OSDeployment.OSDeploymentParameter[]]$OSDeploymentPlanAttributes,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Default")]
@@ -113802,37 +114184,37 @@ function New-OVServerProfileTemplate
 
         }
 
-        if ($PSBoundParameters['OSDeploymentPlan'])
-        {
+        # if ($PSBoundParameters['OSDeploymentPlan'])
+        # {
 
-            If ($ApplianceConnection.ApplianceType -ne 'Composer')
-            {
+        #     If ($ApplianceConnection.ApplianceType -ne 'Composer')
+        #     {
 
-                $ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  OS Deployment Plans are only supported with HPE Synergy.' -f $ApplianceConnection.Name
-                $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
-                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+        #         $ExceptionMessage = 'The ApplianceConnection {0} is not a Synergy Composer.  OS Deployment Plans are only supported with HPE Synergy.' -f $ApplianceConnection.Name
+        #         $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.ComposerNodeException InvalidOperation InvalidOperation 'ApplianceConnection' -Message $ExceptionMessage
+        #         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
-            }
+        #     }
 
-            "[{0}] Setting OS Deployment Plan." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
+        #     "[{0}] Setting OS Deployment Plan." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-            $_spt | Add-Member -NotePropertyName osDeploymentSettings -NotePropertyValue (NewObject -SPTOSDeploymentSettings)
+        #     $_spt | Add-Member -NotePropertyName osDeploymentSettings -NotePropertyValue (NewObject -SPTOSDeploymentSettings)
 
-            if ($PSBoundParameters['OSDeploymentConsistencyChecking'])
-            {
+        #     if ($PSBoundParameters['OSDeploymentConsistencyChecking'])
+        #     {
 
-                $_spt.osDeploymentSettings.complianceControl = $ConsistencyCheckingEnum.$OSDeploymentConsistencyChecking
+        #         $_spt.osDeploymentSettings.complianceControl = $ConsistencyCheckingEnum.$OSDeploymentConsistencyChecking
 
-            }
+        #     }
 
-            "[{0}] Setting OS Deployment Plan URI: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $OSDeploymentPlan.uri | Write-Verbose
-            $_spt.osDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
+        #     "[{0}] Setting OS Deployment Plan URI: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $OSDeploymentPlan.uri | Write-Verbose
+        #     $_spt.osDeploymentSettings.osDeploymentPlanUri = $OSDeploymentPlan.uri
 
-            "[{0}] Number of OS Deployment Plan Custom Attributes to set: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $OSDeploymentPlanAttributes.Count | Write-Verbose
-            "[{0}] Setting OS Deployment Plan Custom Attributes: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($OSDeploymentPlanAttributes | Out-String) | Write-Verbose
-            $_spt.osDeploymentSettings.osCustomAttributes  = $OSDeploymentPlanAttributes
+        #     "[{0}] Number of OS Deployment Plan Custom Attributes to set: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $OSDeploymentPlanAttributes.Count | Write-Verbose
+        #     "[{0}] Setting OS Deployment Plan Custom Attributes: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), ($OSDeploymentPlanAttributes | Out-String) | Write-Verbose
+        #     $_spt.osDeploymentSettings.osCustomAttributes  = $OSDeploymentPlanAttributes
 
-        }
+        # }
 
         # Exmamine the profile connections Parameter and pull only those connections for this appliance connection
         If ($PSBoundParameters['Connections'] -and $ManageConnections)
@@ -114057,7 +114439,7 @@ function New-OVServerProfileTemplate
 
             "[{0}] Firmware Baseline: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline | Write-Verbose
 
-            if ($serverHardwareType.capabilities -contains "FirmwareUpdate" )
+            if ([RegEx]::Match($ServerHardwareType.capabilities, "firmwareUpdate", $RegExInsensitiveFlag).Success)
             {
 
                 "[{0}] SHT is capable of firmware management" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -114094,125 +114476,95 @@ function New-OVServerProfileTemplate
 
                 }
 
-                # Validating that the baseline value is a string type and that it is an SPP name.
-                if (($baseline -is [String]) -and (-not ($baseline.StartsWith('/rest'))) -and ([RegEx]::Match($baseline, "\.iso", $RegExInsensitiveFlag).Success))
+                # Refactor to check if the $Baseline value is a baseline or update object
+                switch ($Baseline.GetType().FullName)
                 {
 
-                    try
+                    # Baseline resource from Get-OVBaseline
+                    'HPEOneView.Appliance.Baseline'
                     {
 
-                        $FirmwareBaselineName = $Baseline.PSObject.Copy()
-
-                        $Baseline = Get-OVBaseline -FileName $Baseline -ApplianceConnection $ApplianceConnection -ErrorAction SilentlyContinue
-
-                        If (-not $_BaseLinePolicy)
-                        {
-
-                            $ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaselineName
-                            $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
-                            $PSCmdlet.ThrowTerminatingError($ErrorRecord)
-
-                        }
+                        "[{0}] Setting firmware baseline: {1} - {2} - {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline.name, $Baseline.version, $Baseline.releaseDate | Write-Verbose
 
                         $_spt.firmware.firmwareBaselineUri = $Baseline.uri
 
-                    }
-
-                    catch
-                    {
-
-                        "[{0}] Error caught when looking for Firmware Baseline." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-                        $PSCmdlet.ThrowTerminatingError($_)
-
-                    }
-
-                }
-
-                # Validating that the baseline value is a string type and that it is an SPP name.
-                elseif (($baseline -is [String]) -and (-not ($baseline.StartsWith('/rest'))))
-                {
-
-                    try
-                    {
-
-                        $FirmwareBaselineName = $Baseline.PSObject.Copy()
-
-                        $Baseline = Get-OVBaseline -SppName $Baseline -ApplianceConnection $ApplianceConnection -ErrorAction SilentlyContinue
-
-                        If (-not $_BaseLinePolicy)
+                        # If the caller provided the -PatchLevel parameter, generate a non-terminating error it is not supported with the baseline resource provided
+                        if ($PSBoundParameters['PatchLevel'])
                         {
 
-                            $ExceptionMessage = "The provided Baseline '{0}' was not found." -f $FirmwareBaselineName
-                            $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException BaselineResourceNotFound ObjectNotFound 'Baseline' -Message $ExceptionMessage
+                            $ExceptionMessage = "The provided Baseline '{0}' does not support the PatchLevel parameter." -f $Baseline.name
+                            $ErrorRecord = New-ErrorRecord HPEOneView.Appliance.BaselineResourceException InvalidPatchLevel InvalidArgument 'PatchLevel' -Message $ExceptionMessage
+                            $PSCmdlet.WriteError($ErrorRecord)
+
+                        }
+
+                    }
+
+                    # Bundle Update from Get-OVFirmwareBundleUpdate
+                    'HPEOneView.Appliance.FirmwareBundleUpdate'
+                    {
+
+                        "[{0}] Setting firmware bundle update: {1} - {2} - {3}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $Baseline.name, $Baseline.version, $Baseline.releaseDate | Write-Verbose
+
+                        # Validate Patch level
+                        if ($PSBoundParameters['PatchLevel'])
+                        {
+
+                            "[{0}] Setting firmware patch level: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PatchLevel | Write-Verbose
+
+                            # Check to make sure the requested patch level exists within the firmware update bundle
+                            $FoundPatchLevel = $Baseline.servicePackData.supplements | ? { [version]$_.version -eq $patchlevel }
+
+                            if (-not $FoundPatchLevel)
+                            {
+
+                                "[{0}] Patch Level '{1}' not found in firmware bundle update '{2}'." -f $MyInvocation.InvocationName.ToString().ToUpper(), $PatchLevel, $Baseline.name | Write-Verbose
+
+                                $ExceptionMessage = "The provided Patch Level '{0}' is not found in the firmware bundle update '{1}'." -f  $PatchLevel, $Baseline
+                                $ErrorRecord      = New-ErrorRecord HPEOneView.ServerHardwareResourceException InvalidPatchLevel InvalidArgument 'PatchLevel' -Message $ExceptionMessage
+                                $PSCmdlet.ThrowTerminatingError($ErrorRecord)
+
+                            }
+
+                            $_PatchLevel = "{0:0000}.{1:00}.{2:00}.{3:00}" -f $PatchLevel.Major, $PatchLevel.Minor, $PatchLevel.Build, $PatchLevel.Revision
+                            $_spt.firmware | Add-Member -NotePropertyName patchLevel -NotePropertyValue $_PatchLevel
+
+                            $_spt.firmware.firmwareBaselineUri = $Baseline.uri
+
+                        }
+
+                    }
+
+                    'System.String'
+                    {
+
+                        if ($Baseline.StartsWith('/rest') -or $Baseline.EndsWith('.iso'))
+                        {
+
+                            $_spt.firmware.firmwareBaselineUri = $Baseline
+
+                        }
+
+                        else
+                        {
+
+                            $ExceptionMessage = "The provided Baseline '{0}' is not a valid Baseline resource." -f $Baseline
+                            $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException InvalidBaselineResource InvalidArgument 'Baseline' -Message $ExceptionMessage
                             $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
                         }
 
-                        $_spt.firmware.firmwareBaselineUri = $baseline.uri
-
                     }
 
-                    catch
+                    # Unknown value and throw error
+                    default
                     {
 
-                        "[{0}] Error caught when looking for Firmware Baseline." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-
-                        $PSCmdlet.ThrowTerminatingError($_)
-
-                    }
-
-                }
-
-                # Validating that the baseline value is a string type and that it is the Baseline URI
-                elseif (($Baseline -is [String]) -and ($Baseline.StartsWith('/rest')))
-                {
-
-                    Try
-                    {
-
-                        $baselineObj = Send-OVRequest -Uri $Baseline -Hostname $ApplianceConnection
-
-                    }
-
-                    Catch
-                    {
-
-                        $PSCmdlet.ThrowTerminatingError($_)
-
-                    }
-
-                    if ($baselineObj.category -eq $ResourceCategoryEnum.Baseline)
-                    {
-
-                        "[{0}] Valid Firmware Baseline provided: $($baselineObj.baselineShortName)" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
-                        $_spt.firmware.firmwareBaselineUri = $baselineObj.uri
-
-                    }
-
-                    else
-                    {
-
-                        $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfileResourceException InvalidBaselineResource ObjectNotFound 'Baseline' -Message "The provided SPP Baseline URI '$($baseline)' is not valid or the correct resource category (expected 'firmware-drivers', received '$($baselineObj.category)'.  Please check the -baseline Parameter value and try again."
+                        $ExceptionMessage = "The provided Baseline '{0}' is not a valid Baseline resource." -f $Baseline
+                        $ErrorRecord = New-ErrorRecord HPEOneview.Appliance.BaselineResourceException InvalidBaselineResource InvalidArgument 'Baseline' -Message $ExceptionMessage
                         $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
                     }
-
-                }
-
-                # Else we are expecting the SPP object that contains the URI.
-                elseif (($Baseline) -and ($Baseline -is [object]))
-                {
-
-                    $_spt.firmware.firmwareBaselineUri = $Baseline.uri
-
-                }
-
-                elseif (!$baseline)
-                {
-
-                    $ErrorRecord = New-ErrorRecord HPEOneView.ServerProfileResourceException ServerHardwareMgmtFeatureNotSupported NotImplemented 'New-OVServerProfileTemplate' -Message "Baseline is required if manage firmware is set to true."
-                    $PSCmdlet.ThrowTerminatingError($ErrorRecord)
 
                 }
 
@@ -118818,9 +119170,9 @@ function New-OVServerProfileAttachVolume
         $_AllowedNimbleParams = "PerformancePolicy", "LockPerformancePolicy", "EnableEncryption", "CachePinning", "VolumeSet", "EnableIOPSLimit", "IOPSLimit", "EnableDataTransferLimit", "DataTransferLimit", "Folder"
         $_AllowedSSParams     = "EnableCompression", "EnableDeduplication", "SnapshotStoragePool"
         # $_AllowedSVParams     = "DataProtectionLevel", "EnableAdaptiveOptimization"
-        $_NotAllowedNimbleParams = $_AllowedSSParams #+ $_AllowedSVParams
-        $_NotAllowedSSParams     = $_AllowedNimbleParams #+ $_AllowedSVParams
-        $_NotAllowedVSParams     = $_AllowedSSParams #+ $_AllowedNimbleParams
+        $_NotAllowedNimbleParams = $_AllowedSSParams
+        $_NotAllowedSSParams     = $_AllowedNimbleParams
+        $_NotAllowedVSParams     = $_AllowedSSParams
         $_SafeParams          = "Name", "Description", "StoragePool", "StorageSystem", "VolumeTemplate", "Capacity", "ProvisioningType", "Full", "Shared", "Scope", "Async", "ApplianceConnection"
 
         if ($PSBoundParameters['ServerProfile'])

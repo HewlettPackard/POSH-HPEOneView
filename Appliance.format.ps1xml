@@ -5004,7 +5004,8 @@
         </TableRowEntries>
       </TableControl>
     </View>
-    <!--HPEOneView.Appliance.ApplianceStatu FT-->
+
+    <!--HPEOneView.Appliance.ApplianceStatus FT-->
     <View>
       <Name>ApplianceStatus</Name>
       <ViewSelectedBy>
@@ -5057,5 +5058,204 @@
         </TableRowEntries>
       </TableControl>
     </View>
+
+    <!--HPEOneView.Appliance.RotateMPPasswordPolicy FT-->
+    <View>
+      <Name>RotateMPPasswordPolicy</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.RotateMPPasswordPolicy</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ApplianceConnection</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RotationInterval</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RotationTime</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>LastRotatedOn</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ApplianceConnection</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>RotationInterval</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  "{0:00}:{1:00}" -f $_.RotationTime.Hours, $_.RotationTime.Minutes
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>LastRotatedOn</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+    <!--HPEOneView.Appliance.RotateMPPasswordPolicyReport FT-->
+    <View>
+      <Name>RotateMPPasswordPolicyReport</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.RotateMPPasswordPolicyReport</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ApplianceConnection</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>DateRan</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>CompletedOn</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Servers</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>ApplianceConnection</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>DateRan</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>CompletedOn</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Servers</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+    <!--HPEOneView.Appliance.RotateMPPasswordPolicyReport+Server FT-->
+    <View>
+      <Name>RotateMPPasswordPolicyReport+Server</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.RotateMPPasswordPolicyReport+Server</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>Name</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Result</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Message</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>Name</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Result</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Message</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+    <!--HPEOneView.Appliance.RemoteSupport.PortalConnectionToken FT-->
+    <View>
+      <Name>PortalConnectionToken</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.Appliance.RemoteSupport.PortalConnectionToken</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <AutoSize/>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>State</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Token</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ExpirationTimeLeft</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>ValidToken</Label>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>State</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>Token</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0}:{1}" -f $_.ExpirationTimeLeft.Hours, $_.ExpirationTimeLeft.Minutes</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>ValidToken</PropertyName>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+
+
   </ViewDefinitions>
 </Configuration>
