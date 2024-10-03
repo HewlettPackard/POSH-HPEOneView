@@ -12,7 +12,7 @@
 RootModule = 'HPEOneView.900.psm1'
 
 # Version number of this module.
-ModuleVersion = '9.0.4012.2103'
+ModuleVersion = '9.0.4020.1622'
 
 # Supported PSEditions
 # CompatiblePSEditions = @()
@@ -156,10 +156,12 @@ PrivateData = @{
         # IconUri = ''
 
         # ReleaseNotes of this module
-        ReleaseNotes = 'Release 9.00.4012.2103
+        ReleaseNotes = 'Release 9.00.4020.1622
 
-- Added Compliance Preview back to Update-OVServerFirmware with -PreviewOnly switch parameter.
-- Fixed incorrect handling of server profile resource (assigned and unassigned) with Update-OVServerFirmware.'
+- [#676] Fixed -Detailed parameter output with Get-OVServerProfile.
+- [#667] Fixed mishandling of baseline resource object class type.
+- Fixed Show-OVFirmwareReport mishandling Synergy compute module resources when calculating compliance.
+- Fixed Show-OVFirmwareReport mishandling Synergy management appliance module resources when calculating compliance.'
 
         # Prerelease string of this module
         # Prerelease = ''

@@ -32,6 +32,15 @@ SHORT DESCRIPTION
 
 WHAT'S NEW
 
+   Release 9.00.4020.1622
+
+      -- [#676] Fixed -Detailed parameter output with Get-OVServerProfile.
+      -- [#667] Fixed mishandling of baseline resource object class type.
+      -- Fixed Show-OVFirmwareReport mishandling Synergy compute module resources when
+         calculating compliance.
+      -- Fixed Show-OVFirmwareReport mishandling Synergy management appliance module
+         resources when calculating compliance.
+
    Release 9.00.4012.2103
 
       -- Added Compliance Preview back to Update-OVServerFirmware with -PreviewOnly
