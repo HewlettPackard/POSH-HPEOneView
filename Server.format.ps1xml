@@ -745,7 +745,7 @@
     </View>
     <!--Server_Profile_Connections FT-->
     <View>
-      <Name>connections</Name>
+      <Name>Connections</Name>
       <ViewSelectedBy>
         <TypeName>HPEOneView.ServerProfile.Connection</TypeName>
       </ViewSelectedBy>
@@ -802,7 +802,121 @@
                 <PropertyName>functionType</PropertyName>
               </TableColumnItem>
               <TableColumnItem>
-                <ScriptBlock>$profileCache[$_.networkUri]</ScriptBlock>
+                <ScriptBlock>$profileCache[$_.networkUri].name</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} Gbps" -f ($_.requestedMbps / 1000)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>"{0} Gbps" -f ($_.maximumMbps / 1000)</ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $bootSetting = New-Object System.Collections.ArrayList
+
+                  [void]$bootSetting.Add($_.boot.priority)
+
+                  if ($_.boot.targets)
+                  {
+
+                    for ($i=0; $i -eq $boot.targets.count; $i++) { [void]$bootSetting.Add("WWN $($_.boot.targets[$i].arrayWwpn)`nLUN $($_.boot.targets[$i].lun)") }
+
+                  }
+
+                  elseif ($_.functionType -eq "FibreChannel" -and -not ($_.boot.priority -eq "NotBootable") -and -not ($_.boot.targets))
+                  {
+
+                    [void]$bootSetting.Add("(Use Adapter BIOS)")
+
+                  }
+
+                  $bootSetting | Out-String | % { $_ -replace '^\s+|\s+$' }
+                </ScriptBlock>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>portId</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>
+                  $address = New-Object System.Collections.ArrayList
+
+                  if ($_.macType -eq "Virtual" -and $_.mac)      { [void]$address.Add("MAC $($_.mac) (V)") }
+                  elseif ($_.macType -eq "Physical" -and $_.mac) { [void]$address.Add("MAC $($_.mac) (p)") }
+
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwnn)      { [void]$address.Add("WWNN $($_.wwnn) (v)") }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwnn) { [void]$address.Add("WWNN $($_.wwnn) (p)") }
+
+                  if ($_.wwpnType -eq "Virtual" -and $_.wwpn)      { [void]$address.Add("WWPN $($_.wwpn) (v)") }
+                  elseif ($_.wwpnType -eq "Physical" -and $_.wwpn) { [void]$address.Add("WWPN $($_.wwpn) (p)") }
+
+                  $address | Out-String | % { $_ -replace '^\s+|\s+$' }
+                </ScriptBlock>
+              </TableColumnItem>
+            </TableColumnItems>
+          </TableRowEntry>
+        </TableRowEntries>
+      </TableControl>
+    </View>
+    <!--Server_Profile_LocalStorage.Controller FT-->
+    <View>
+      <Name>Controller</Name>
+      <ViewSelectedBy>
+        <TypeName>HPEOneView.ServerProfile.LocalStorage.Controller</TypeName>
+      </ViewSelectedBy>
+      <TableControl>
+        <TableHeaders>
+          <TableColumnHeader>
+            <Label>ID</Label>
+            <Width>2</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Type</Label>
+            <Width>12</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Network</Label>
+            <Width>30</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>RequestedBW</Label>
+            <Width>12</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>MaximumBW</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Boot</Label>
+            <Width>20</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>PortID</Label>
+            <Width>10</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+          <TableColumnHeader>
+            <Label>Address</Label>
+            <Width>32</Width>
+            <Alignment>Left</Alignment>
+          </TableColumnHeader>
+        </TableHeaders>
+        <TableRowEntries>
+          <TableRowEntry>
+            <TableColumnItems>
+              <TableColumnItem>
+                <PropertyName>id</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <PropertyName>functionType</PropertyName>
+              </TableColumnItem>
+              <TableColumnItem>
+                <ScriptBlock>$profileCache[$_.networkUri].name</ScriptBlock>
               </TableColumnItem>
               <TableColumnItem>
                 <ScriptBlock>"{0} Gbps" -f ($_.requestedMbps / 1000)</ScriptBlock>

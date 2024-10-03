@@ -27,7 +27,7 @@ THE SOFTWARE.
 #>
 
 # Set HPEOneView POSH Library Version
-[Version]$ModuleVersion = '9.10.4012.2256'
+[Version]$ModuleVersion = '9.10.4020.2437'
 New-Variable -Name PSLibraryVersion -Scope Global -Value ([HPEOneView.Library.Version]::new($ModuleVersion)) -Option Constant -ErrorAction SilentlyContinue
 $Global:CallStack = Get-PSCallStack
 $script:ModuleVerbose = [Bool]($Global:CallStack | Where-Object { $_.Command -eq "<ScriptBlock>" }).position.text -match "-verbose"
@@ -391,8 +391,9 @@ $ResourceCategoryEnum = @{
     [PSCustomObject]$MpModelTable                   = @{
         ilo2 = "RI7";
         ilo3 = "RI9";
-        ilo4 = "RI10"
-        iLO5 = "RI11"
+        ilo4 = "RI10";
+        iLO5 = "RI11";
+        iLO6 = "RI12"
     }
     [HashTable]$Script:ServerPowerControlEnum       = @{
 
@@ -34025,6 +34026,7 @@ function Get-OVBaseline
     # .ExternalHelp HPEOneView.910.psm1-help.xml
 
     [CmdletBinding (DefaultParameterSetName = "ISOFileName" )]
+    [OutputType([HPEOneView.Appliance.Baseline])]
     Param
     (
 
@@ -34265,25 +34267,50 @@ function Get-OVBaseline
                 "ISOFileName"
                 {
 
-                    if ($File)
+                    if ($PSBoundParameters['File'])
                     {
 
-                        if ($File.EndsWith('.exe') -or $File.EndsWith('.scexe') -or $File.EndsWith('.rpm') -or $File.EndsWith('.zip') -or $File.EndsWith('.fwpkg'))
+                        $_FileToProcess = $null
+
+                        Switch ($File.GetType().Fullname)
+                        {
+
+                            'System.IO.FileInfo'
+                            {
+
+                                $_FileToProcess = $File.Name
+
+                            }
+
+                            'System.String'
+                            {
+
+                                $_FileToProcess = $File
+
+                            }
+
+                        }
+
+                        if ($_FileToProcess.EndsWith('.exe') -or
+                            $_FileToProcess.EndsWith('.scexe') -or
+                            $_FileToProcess.EndsWith('.rpm') -or
+                            $_FileToProcess.EndsWith('.zip') -or
+                            $_FileToProcess.EndsWith('.fwpkg'))
                         {
 
                             "[{0}] Looking for hotfix file" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                            if ($File.Contains('*'))
+                            if ($_FileToProcess.Contains('*'))
                             {
 
-                                [Void]$_Query.Add(("fwbaseline_fileName%3A{0}" -f $File.Replace("*", "%2A")))
+                                [Void]$_Query.Add(("fwbaseline_fileName%3A{0}" -f $_FileToProcess.Replace("*", "%2A")))
 
                             }
 
                             else
                             {
 
-                                [Void]$_Query.Add(("fwbaseline_fileName:'{0}'" -f $File))
+                                [Void]$_Query.Add(("fwbaseline_fileName:'{0}'" -f $_FileToProcess))
 
                             }
 
@@ -34294,15 +34321,15 @@ function Get-OVBaseline
 
                             "[{0}] Looking for Baseline ISO file" -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
 
-                            if (-not $File.EndsWith('iso'))
+                            if (-not $_FileToProcess.EndsWith('iso'))
                             {
 
-                                $File += '.iso'
+                                $_FileToProcess += '.iso'
 
                             }
 
                             # Replace any preceeding period with an underscore.
-                            $_File = [RegEx]::Replace($File, '\.(?!iso|exe|scexe|rpm|zip)', '_')
+                            $_File = [RegEx]::Replace($_FileToProcess, '\.(?!iso|exe|scexe|rpm|zip)', '_')
 
                             if ($_File.Contains('*'))
                             {
@@ -63678,7 +63705,7 @@ function Get-EnclosureFirmware
 
         }
 
-        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -eq $ResourceCategoryEnum.Baseline))
+        elseif (($Baseline) -and ($Baseline -is [PsCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline]) -and ($Baseline.category -eq $ResourceCategoryEnum.Baseline))
         {
 
             "[{0}] Baseline resource passed." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -63690,7 +63717,7 @@ function Get-EnclosureFirmware
         }
 
         # Check to see if the wrong Object has been passed
-        elseif (($Baseline) -and ($Baseline -is [PsCustomObject]) -and ($Baseline.category -ne "firmware-drivers"))
+        elseif (($Baseline) -and ($Baseline -is [PsCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline]) -and ($Baseline.category -ne "firmware-drivers"))
         {
 
             "[{0}] Invalid Baseline resource passed. Generating error." -f $MyInvocation.InvocationName.ToString().ToUpper() | Write-Verbose
@@ -64290,6 +64317,13 @@ function Get-ServerFirmware
     Process
     {
 
+        if (-not $PSBoundParameters['InstallationPolicy'])
+        {
+
+            $InstallationPolicy = 'LowerThanBaseline'
+
+        }
+
         $_NoBaselinePolicy = [PsCustomObject]@{
 
             name              = "NoPolicySet";
@@ -64451,7 +64485,7 @@ function Get-ServerFirmware
 
                     }
 
-                    elseif ($Baseline -is [PSCustomObject])
+                    elseif ($Baseline -is [PSCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline])
                     {
 
                         if ($Baseline.baselineShortName -eq 'NoPolicySet')
@@ -65129,7 +65163,7 @@ function Get-InterconnectFirmware
 
         }
 
-        elseif ($Baseline -is [PSCustomObject])
+        elseif ($Baseline -is [PSCustomObject] -or $Baseline -is [HPEOneView.Appliance.Baseline])
         {
 
             if ($Baseline.baselineShortName -eq 'NoPolicySet')
@@ -74040,8 +74074,8 @@ function New-OVStorageVolume
         $_AllowedNimbleParams    = "PerformancePolicy", "LockPerformancePolicy", "EnableEncryption", "CachePinning", "VolumeSet", "EnableIOPSLimit", "IOPSLimit", "EnableDataTransferLimit", "DataTransferLimit", "Folder"
         $_AllowedSSParams        = "EnableCompression", "EnableDeduplication", "SnapshotStoragePool"
         # $_AllowedSVParams        = "DataProtectionLevel", "EnableAdaptiveOptimization"
-        $_NotAllowedNimbleParams = $_AllowedSSParams #+ $_AllowedSVParams
-        $_NotAllowedSSParams     = $_AllowedNimbleParams #+ $_AllowedSVParams
+        $_NotAllowedNimbleParams = $_AllowedSSParams
+        $_NotAllowedSSParams     = $_AllowedNimbleParams
         $_NotAllowedVSParams     = $_AllowedSSParams + $_AllowedNimbleParams
         $_SafeParams             = "Name", "Description", "StoragePool", "StorageSystem", "VolumeTemplate", "Capacity", "ProvisioningType", "Full", "Shared", "Scope", "Async", "ApplianceConnection"
 
@@ -109016,7 +109050,26 @@ function Get-OVServerProfile
                   @{Expression={$_.state};Label="State"},
                   @{Expression={$_.status};Label="Status"}
 
-            $a2 = @{Expression={$_.bios.manageBios};Label="Manage BIOS";align="Left"},
+            $a2 = @{Expression={$_.name};Label="Name"},
+                  @{Expression={$profileCache[$serverHardwareTypeUri].name};Label="Server Hardware Type"},
+                  @{Expression={ 'N/A' };Label="Enclosure Group"},
+                  @{Expression={    if ($_.serverHardwareUri){ (Send-OVRequest -Uri $_.serverHardwareUri ).name }
+                             else { "Unassigned" }
+                                 };Label="Assigned"},
+                  @{Expression={
+
+                         switch ($_.affinity) {
+
+                             "Bay" { "Device bay" }
+                             "BayAndServer" { "Device bay + Server Hardware" }
+
+                         }
+
+                  };Label="Server Affinity"},
+                  @{Expression={$_.state};Label="State"},
+                  @{Expression={$_.status};Label="Status"}
+
+            $a3 = @{Expression={$_.bios.manageBios};Label="Manage BIOS";align="Left"},
                   @{Expression={$_.boot.manageBoot};Label="Manage Boot Order";align="Left"},
                   @{Expression={$_.firmware.manageFirmware};Label="Manage Firmware";align="Left"},
                   @{Expression={if ($_.serialNumberType -eq "Virtual") { $_.serialNumber + " (v)" } else { $_.serialNumber + " (p)" }};Label="Serial Number"},
@@ -109057,7 +109110,7 @@ function Get-OVServerProfile
                    $addressCol
 
                  };Label="Address";width=32},
-                 @{Expression={$profileCache[$_.networkUri]};Label="Network"},
+                 @{Expression={$profileCache[$_.networkUri].name};Label="Network"},
                  @{Expression={$_.portId};Label="Port Id";width=10},
                  @{Expression={[String]$_.requestedMbps};Label="Requested BW";width=12},
                  @{Expression={[String]$_.maximumMbps};Label="Maximum BW";width=10},
@@ -109088,25 +109141,39 @@ function Get-OVServerProfile
                  @{Expression={$_.settingName};Label="Setting Name"},
                  @{Expression={$_.valueName};Label="Configured Value"}
 
-            $ls = @{Expression={$_.manageLocalStorage};Label="Manage Local Storage";align="Left"},
-                  @{Expression={$_.initialize};Label="Initialize Disk";align="Left"},
-                  @{Expression={
+            $cont = @{Label = "Slot"; Expression = { $_.deviceSlot }},
+                    @{Label = "Family"; Expression = { $_.family }},
+                    @{Label = "Mode"; Expression = { $_.mode }},
+                    @{Label = "Initialize"; Expression = { $_.initialize }},
+                    @{Label = "ImportConfiguration"; Expression = { $_.importConfiguration }},
+                    @{Label = "WriteCache"; Expression = { $_.driveWriteCache }}
 
-                        $logicalDriveCol = @()
-                        $d=0
 
-                        while ($d -lt $sp.logicalDrives.count)
-                        {
+            $ld = @{Label = "Name"; Expression = { $_.name} },
+                  @{Label = "RAIDLevel"; Expression = { $_.raidLevel }},
+                  @{Label = "Bootable"; Expression = { $_.bootable }},
+                  @{Label = "NumberOfDrives"; Expression = { $_.numPhysicalDrives }},
+                  @{Label = "DriveTechnology"; Expression = { $_.driveTechnology }},
+                  @{Label = "SpareDrives"; Expression = { $_.spareDrives }}
+            # $ld = @{Expression={$_.manageLocalStorage};Label="Manage Local Storage";align="Left"},
+            #       @{Expression={$_.initialize};Label="Initialize Disk";align="Left"},
+            #       @{Expression={
 
-                            if ($_.logicalDrives[$d].bootable) { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel) (Bootable)" }
-                            else { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel)" }
-                            $d++
-                        }
+            #             $logicalDriveCol = @()
+            #             $d=0
 
-                        $logicalDriveString = $logicalDriveCol | Out-String | ForEach-Object { $_ -replace '^\s+|\s+$' }
-                        $logicalDriveString
+            #             while ($d -lt $sp.logicalDrives.count)
+            #             {
 
-                   };Label="Logical Disk"}
+            #                 if ($_.logicalDrives[$d].bootable) { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel) (Bootable)" }
+            #                 else { $logicalDriveCol += "Drive {$d} $($sp.logicalDrives[$d].raidLevel)" }
+            #                 $d++
+            #             }
+
+            #             $logicalDriveString = $logicalDriveCol | Out-String | ForEach-Object { $_ -replace '^\s+|\s+$' }
+            #             $logicalDriveString
+
+            #        };Label="Logical Disk"}
 
             $ss = @{Expression={$_.manageSanStorage};Label="Manage SAN Storage";align="Left"},
                   @{Expression={$_.hostOSType};Label="Host OS Type";align="Left"}
@@ -109145,35 +109212,40 @@ function Get-OVServerProfile
 
                     }
 
-                    $profileCache.Add($serverHardwareTypeUri, $_Sht.name)
+                    $profileCache.Add($serverHardwareTypeUri, $_Sht)
 
                 }
 
-                if (-not ($profileCache[$enclosureGroupUri]) -and $profile.enclosureGroupUri)
+                if ($profile.enclosureGroupUri)
                 {
 
-                    Try
+                    if (-not ($profileCache[$enclosureGroupUri]))
                     {
 
-                        $_EG = Send-OVRequest -Uri $enclosureGroupUri -appliance $profile.ApplianceConnection.name
+                        Try
+                        {
+
+                            $_EG = Send-OVRequest -Uri $enclosureGroupUri -appliance $profile.ApplianceConnection.name
+
+                        }
+
+                        Catch
+                        {
+
+                            $PSCmdlet.ThrowTerminatingError($_)
+
+                        }
+
+                        $profileCache.Add($enclosureGroupUri, $_EG.name)
 
                     }
-
-                    Catch
-                    {
-
-                        $PSCmdlet.ThrowTerminatingError($_)
-
-                    }
-
-                    $profileCache.Add($enclosureGroupUri, $_EG.name)
 
                 }
 
                 foreach ($connection in $profile.connectionSettings.connections)
                 {
 
-                    $connection | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.Profile.Connection") }
+                    $connection | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.ServerProfile.Connection") }
 
                     if (-not ($profileCache[$connection.networkUri]))
                     {
@@ -109192,7 +109264,7 @@ function Get-OVServerProfile
 
                         }
 
-                        $profileCache.Add($connection.networkUri, $_Net.name)
+                        $profileCache.Add($connection.networkUri, $_Net)
 
                     }
 
@@ -109202,7 +109274,7 @@ function Get-OVServerProfile
                  {
 
                     # Insert HPEOneView.Profile.SanVolume TypeName
-                    $volume | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.Profile.SanVolume") }
+                    $volume | ForEach-Object { $_.psobject.typenames.Insert(0,"HPEOneView.ServerProfile.SanVolume") }
 
                     # Cache Storage System, Storage Pool and Storage Volume Resources
                     if (-not ($profileCache[$volume.volumeStorageSystemUri])) { $profileCache.Add($volume.volumeStorageSystemUri,(Send-OVRequest $volume.volumeStorageSystemUri $profile.ApplianceConnection.name)) }
@@ -109214,8 +109286,21 @@ function Get-OVServerProfile
                 #$profileCache
 
                 # Initial Server Profile information
-                $profile | format-table $a1 -AutoSize -wrap
-                $profile | format-table $a2 -AutoSize -wrap
+                if (-not [String]::IsNullOrEmpty($profile.enclosureGroupUri))
+                {
+
+                    $profile | format-table $a1 -AutoSize -wrap
+
+                }
+
+                else
+                {
+
+                    $profile | format-table $a2 -AutoSize -wrap
+
+                }
+
+                $profile | format-table $a3 -AutoSize -wrap
 
                 # Firmware Baseline
                 $profile.firmware | format-table $f
@@ -109224,7 +109309,23 @@ function Get-OVServerProfile
                 $profile.connectionSettings.connections | format-table -wrap
 
                 # Local Storage
-                $profile.localStorage | format-table $ls -wrap -auto
+                ForEach ($controller in $profile.localStorage.controllers)
+                {
+
+                    $controller.PSObject.TypeNames.Insert(0, "HPEOneView.ServerProfile.LocalStorage.Controller")
+
+                    $controller | format-table $cont -wrap -auto
+
+                    ForEach ($logicalDrive in $controller.logicalDrives)
+                    {
+
+                        $logicalDrive.PSObject.TypeNames.Insert(0, "HPEOneView.ServerProfile.LocalStorage.LogicalDrive")
+
+                        $logicalDrive | format-table $ld -wrap -auto
+
+                    }
+
+                }
 
                 # SAN Storage
                 $profile.sanStorage | Format-Table $ss -auto
@@ -120524,9 +120625,9 @@ function New-OVServerProfileAttachVolume
         $_AllowedNimbleParams = "PerformancePolicy", "LockPerformancePolicy", "EnableEncryption", "CachePinning", "VolumeSet", "EnableIOPSLimit", "IOPSLimit", "EnableDataTransferLimit", "DataTransferLimit", "Folder"
         $_AllowedSSParams     = "EnableCompression", "EnableDeduplication", "SnapshotStoragePool"
         # $_AllowedSVParams     = "DataProtectionLevel", "EnableAdaptiveOptimization"
-        $_NotAllowedNimbleParams = $_AllowedSSParams #+ $_AllowedSVParams
-        $_NotAllowedSSParams     = $_AllowedNimbleParams #+ $_AllowedSVParams
-        $_NotAllowedVSParams     = $_AllowedSSParams #+ $_AllowedNimbleParams
+        $_NotAllowedNimbleParams = $_AllowedSSParams
+        $_NotAllowedSSParams     = $_AllowedNimbleParams
+        $_NotAllowedVSParams     = $_AllowedSSParams
         $_SafeParams          = "Name", "Description", "StoragePool", "StorageSystem", "VolumeTemplate", "Capacity", "ProvisioningType", "Full", "Shared", "Scope", "Async", "ApplianceConnection"
 
         if ($PSBoundParameters['ServerProfile'])
@@ -129186,7 +129287,7 @@ function ParseForJson
 
             "Found embedded JSON within string." | Write-Debug
             $ConvertedEmbeddedJson = $Matches.Value | ConvertFrom-Json
-            $StringToAdd = '{0}' -f $ConvertedEmbeddedJson.name
+            $StringToAdd = '"{0}"' -f $ConvertedEmbeddedJson.name
             return [regex]::Replace($string, $regexpattern, $StringToAdd)
 
         }
