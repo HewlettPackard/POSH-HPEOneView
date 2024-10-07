@@ -22,12 +22,16 @@ init:
     Write-Host "STARTING"
 
     $env:PSModulePath += ";C:\Projects"
+
 environment:
   ACCESS_TOKEN:
     secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
 build: off
 test_script:
-- Write-Host "Testing. No tests will be performed."
+- pwsh: >-
+    Write-Host "Testing. No tests will be performed."
+    Write-Host "Slug:" ${env:APPVEYOR_PROJECT_SLUG}
+    Write-Host "Version: " ${APPVEYOR_BUILD_VERSION}
 
 on_finish:
   - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
