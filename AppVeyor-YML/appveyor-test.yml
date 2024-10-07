@@ -30,9 +30,9 @@ build: off
 test_script:
 - pwsh: >-
     Write-Host "Testing. No tests will be performed."
-    Write-Host "Slug:" ${env:APPVEYOR_PROJECT_SLUG}
-    Write-Host "Version: " ${APPVEYOR_BUILD_VERSION}
+    Write-Host ("Slug: {0}" -f ${env:APPVEYOR_PROJECT_SLUG})
+    Write-Host ("Version: {0}" -f ${env:APPVEYOR_BUILD_VERSION})
 
 on_finish:
-  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+  - ps: $pause = $true; iex ((new-object net.webclient).DownloadString('https://gist.githubusercontent.com/ChrisLynchHPE/d572a8fd60d01f2f3c5c3d0aa882f833/raw/3c51c4155cba1e64cffac60b2893fae0c00f38f3/pause.ps1'))
 notifications: off
