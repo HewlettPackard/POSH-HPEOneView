@@ -1,0 +1,34 @@
+version: 9.10.{build}
+branches:
+  only:
+  - 9.10
+skip_tags: true
+skip_commits:
+  files:
+    - LICENSE
+    - '*.psd1'
+    - '**/*.xml'
+    - '**/*.txt'
+    - '*.md'
+    - '**/*.md'
+    - '*.yml'
+    - '**/*.yml'
+
+build_cloud: doc-hyp-cluster1
+image: win10-ent-worker
+clone_folder: C:\Projects\HPEOneView.910
+init:
+- pwsh: >-
+    Write-Host "STARTING"
+
+    $env:PSModulePath += ";C:\Projects"
+environment:
+  ACCESS_TOKEN:
+    secure: 2cM8izTtmmL7B0li5CCq5Qa63Yu9+VyIN2SHlNSOpEOSwKj0wpqb4aopMf4Fyu7X
+build: off
+test_script:
+- Write-Host "Testing. No tests will be performed."
+
+on_finish:
+  - ps: $blockRdp = $true; iex ((new-object net.webclient).DownloadString('https://raw.githubusercontent.com/appveyor/ci/master/scripts/enable-rdp.ps1'))
+notifications: off
