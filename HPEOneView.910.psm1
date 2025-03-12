@@ -608,7 +608,8 @@ $ResourceCategoryEnum = @{
         Primera      = 'Primera';
         Alletra5000  = 'Alletra5000';
         Alletra6000  = 'Alletra6000';
-        Alletra9000  = 'Alletra9000'
+        Alletra9000  = 'Alletra9000';
+        Alletra9000  = 'AlletraMP'
     }
     Enum NimbleBasedStorageSystemsEnum {
         Alletra5000;
@@ -620,6 +621,7 @@ $ResourceCategoryEnum = @{
         StoreServ;
         Primera;
         Alletra9000;
+        AlletraMP;
     }
     [Hashtable]$Global:StorageSystemPortModeEnum            = @{
 
@@ -66611,7 +66613,7 @@ function Get-OVStorageSystem
 
         [Parameter (Mandatory = $false, ParameterSetName = "Name")]
         [Parameter (Mandatory = $false, ParameterSetName = "Serial")]
-        [ValidateSet ('Alletra6000', 'Alletra9000', 'StoreVirtual', 'StoreServ', 'Nimble', 'Primera')]
+        [ValidateSet ('Alletra6000', 'Alletra9000','AlletraMP', 'StoreVirtual', 'StoreServ', 'Nimble', 'Primera')]
         [String]$Family,
 
         [Parameter (Mandatory = $false, ParameterSetName = "Name")]
@@ -67121,7 +67123,7 @@ function Add-OVStorageSystem
 
         [Parameter (Mandatory = $false, ParameterSetName = 'StoreServe')]
         [Parameter (Mandatory = $false, ParameterSetName = 'StoreVirtualOrNimble')]
-        [ValidateSet ('Alletra5000','Alletra6000','Alletra9000','StoreServ', 'Nimble', 'Primera')]
+        [ValidateSet ('Alletra5000','Alletra6000','Alletra9000','AlletraMP','StoreServ', 'Nimble', 'Primera')]
         [String]$Family = 'StoreServ',
 
         [Parameter (Mandatory = $false, ParameterSetName = 'StoreServe')]
@@ -70792,7 +70794,7 @@ function New-OVStorageVolumeTemplate
 
             }
 
-            {'3Par', 'StoreServ', 'Primera', 'Alletra9000' -contains $_}
+            {'3Par', 'StoreServ', 'Primera', 'Alletra9000', 'AlletraMP' -contains $_}
             {
 
                 if ($PSBoundParameters['DataProtectionLevel'] -or $PSBoundParameters['LockProtectionLevel'])
@@ -70855,7 +70857,7 @@ function New-OVStorageVolumeTemplate
                     switch ($_RootTemplate.family)
                     {
 
-                        {'Alletra9000', 'Primera' -contains $_}
+                        {'Alletra9000', 'AlletraMP' , 'Primera' -contains $_}
                         {
 
                             $_PropertyName = 'isDataReductionEnabled'
@@ -70887,7 +70889,7 @@ function New-OVStorageVolumeTemplate
                 if ($PSBoundParameters.Keys -Contains 'EnableCompression')
                 {
 
-                    if ($StorageSystemFamilyTypeEnum.Primera, $StorageSystemFamilyTypeEnum.Alletra9000 -notcontains $_RootTemplate.family)
+                    if ($StorageSystemFamilyTypeEnum.Primera, $StorageSystemFamilyTypeEnum.Alletra9000, $StorageSystemFamilyTypeEnum.AlletraMP -notcontains $_RootTemplate.family)
                     {
 
                         "[{0}] Enable Compression: {1}" -f $MyInvocation.InvocationName.ToString().ToUpper(), $PSBoundParameters['EnableCompression'] | Write-Verbose
